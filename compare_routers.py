@@ -468,11 +468,12 @@ def build_seeded_locality_layout(
     """Randomized interaction-graph-greedy initial layout: process logical
     qubits in a seeded random order, placing each one in the core holding its
     heaviest already-placed CX neighbour (if that core has headroom above
-    ``min_free_per_core``), else in the least-loaded core.  Unlike try15's
-    fully deterministic core assignment, this gives every seed a genuinely
-    different core partition -- needed for try15-hostile circuits such as
-    long qubit chains (GHZ), where try15 only ever co-locates the first CX
-    pair and scatters the rest at random.
+    ``min_free_per_core``), else in the least-loaded core.  Unlike the
+    balanced-first-layer heuristic's fully deterministic core assignment,
+    this gives every seed a genuinely different core partition -- needed for
+    circuits hostile to that heuristic, such as long qubit chains (GHZ),
+    where it only ever co-locates the first CX pair and scatters the rest at
+    random.
     """
     import random as _random
 
@@ -532,13 +533,13 @@ def build_seeded_locality_layout(
 
 def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int) -> Optional[dict]:
     """PORTER with its own initial-layout candidates, best of ``2 * NUM_SEEDS``:
-    the try15 balanced-first-layer heuristic (seeds 0..NUM_SEEDS-1) and a
+    the balanced-first-layer heuristic (seeds 0..NUM_SEEDS-1) and a
     seeded locality-greedy partition (seeds 0..NUM_SEEDS-1), mirroring the
     "own layout heuristic, best-of-N-seed" protocol used for TeleSABRE and
     dSABRE below."""
     best = None
     builders = [
-        ("try15", cdr.build_initial_layout),
+        ("balanced", cdr.build_initial_layout),
         ("locality", build_seeded_locality_layout),
     ]
     for layout_name, builder in builders:
