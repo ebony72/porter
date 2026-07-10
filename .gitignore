@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+.claude/
+compile_outputs/
+
+# Rebuild with patched_telesabre/build.sh
+patched_telesabre/telesabre

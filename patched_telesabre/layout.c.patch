@@ -1,0 +1,28 @@
+--- a/src/layout.c
++++ b/src/layout.c
+@@ -346,7 +346,25 @@
+                     core_capacities[c] -= 1;
+                     break;
+                 }
++            }
++        }
++        if (virt_to_core[q] == -1) {
++            // No core satisfies the min-free-qubit threshold (this can happen
++            // on architectures whose per-core capacity is small relative to
++            // the threshold, e.g. 3x3 cores).  Fall back to the core with the
++            // most remaining room instead of leaving q unassigned, which would
++            // otherwise be used as a negative array index below (out-of-bounds
++            // write / segfault in the unpatched implementation).
++            core_t best = 0;
++            for (core_t c = 1; c < device->num_cores; c++) {
++                if (core_capacities[c] > core_capacities[best]) best = c;
+             }
++            if (core_capacities[best] == 0) {
++                fprintf(stderr, "initial_layout_hungarian: no core has free capacity for qubit %d\n", q);
++                exit(1);
++            }
++            virt_to_core[q] = best;
++            core_capacities[best] -= 1;
+         }
+     }
+     // Now assign vqubit to specific pqubit. Create list of qubits in each core.
