@@ -265,6 +265,8 @@ class PorterRouter:
         state = RouterState(layout=initial_layout.clone(), remaining=assign_gate_ids(circuit))
         self._validate_tie_break_config()
         self._validate_circuit(state.remaining, initial_layout.num_logical)
+        if self.cfg.repair_full_cores:
+            self._repair_full_cores(state)
         self._initialize_dag(state)
         self._refresh_free_slot_queues(state)
 
@@ -327,6 +329,41 @@ class PorterRouter:
                         f"Gate {g} references q{q}, outside the layout's "
                         f"{num_logical} logical qubits"
                     )
+
+    def _repair_full_cores(self, state: RouterState) -> None:
+        """Legalize ``state.layout`` in place: no core may have zero free
+        physical qubits (see RouterConfig.repair_full_cores). For each full
+        core, evicts one logical qubit -- the lowest-indexed one, an
+        arbitrary but deterministic choice; this is a legality fix, not a
+        layout-quality heuristic -- into the core with the most free
+        capacity elsewhere, repeating until no core is full. Raises
+        ValueError if some full core has no core with spare capacity to
+        receive an eviction (the circuit doesn't fit this hardware with any
+        headroom at all)."""
+        layout = state.layout
+        core_ids = list(self.hw.cores)
+        for _ in range(len(core_ids) + 1):
+            full_cores = [cid for cid in core_ids if layout.free_count(self.hw, cid) == 0]
+            if not full_cores:
+                return
+            for cid in full_cores:
+                if layout.free_count(self.hw, cid) > 0:
+                    continue
+                dst_cid = max(
+                    (c for c in core_ids if c != cid),
+                    key=lambda c: (layout.free_count(self.hw, c), -c),
+                )
+                if layout.free_count(self.hw, dst_cid) == 0:
+                    raise ValueError(
+                        f"Initial layout leaves core {cid} at full capacity "
+                        "and no other core has free capacity to relieve it "
+                        "(circuit does not fit this hardware with any headroom)."
+                    )
+                q = layout.logicals_in_core(cid)[0]
+                dst_phys = layout.free_physical_qubits(self.hw, dst_cid)[0]
+                layout.move_logical_to_physical(q, dst_phys, dst_cid)
+                state.stats.initial_layout_repairs += 1
+        raise RuntimeError("_repair_full_cores did not converge; this indicates a bug")
 
     def _finalize_depth_stats(self, state: RouterState) -> None:
         """按 TeleSABRE 的物理比特时间线规则计算最终深度。"""
@@ -1742,6 +1779,13 @@ class PorterRouter:
             baseline = self._remote_prep_side_score(
                 state.layout, core, neighbor, endpoint
             )
+            if math.isinf(baseline):
+                # No sequence of local SWAPs can ever repair this side: a SWAP
+                # cannot change the core's free-slot count nor reconnect an
+                # unreachable port, so the plan as a whole is unpreparable
+                # (e.g. teleporting out of a core with zero free slots, whose
+                # occupied port can never be cleared).
+                return False
             if self._float_tied(baseline, 0.0):
                 continue
             if self._remote_prep_candidate_edges_for_side(
@@ -1767,6 +1811,11 @@ class PorterRouter:
             baseline = self._remote_prep_side_score(
                 state.layout, core, neighbor, endpoint
             )
+            if math.isinf(baseline):
+                # This side is unpreparable by local SWAPs (see
+                # _has_preparation_swap_for_plan), so the plan can never become
+                # ready; emitting SWAPs for any side would be pure churn.
+                return []
             # This core is already ready for the selected plan; preparation on
             # the other core cannot invalidate it, so do not disturb it.
             if self._float_tied(baseline, 0.0):
@@ -2445,12 +2494,22 @@ class PorterRouter:
 
     def _deadlock_message(self, state: RouterState, info: FrontInfo) -> str:
         free = {cid: state.layout.free_count(self.hw, cid) for cid in self.hw.cores}
-        return '\n'.join([
+        lines = [
             'No legal action available.',
             f'Current DAG front: {[str(g) for g in info.front]}',
             f'Free slots by core: {free}',
             'Possible causes: no remote plan can be prepared, or capacity recovery cannot reach a reservoir core.',
-        ])
+        ]
+        full_cores = sorted(cid for cid, n in free.items() if n == 0)
+        if full_cores:
+            lines.append(
+                f'Cores {full_cores} have zero free slots: a full core can never '
+                'clear its occupied communication ports with local SWAPs, so no '
+                'teleport or telegate can touch it and its qubits are stranded. '
+                'This is infeasible under the port-based action model; it usually '
+                'means the (external) initial layout filled a core to capacity.'
+            )
+        return '\n'.join(lines)
 
 
 # -------------------------------------------------------------------------

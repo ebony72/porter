@@ -79,6 +79,12 @@ class RouterStats:
     seeded_local_swap_tie_break_count: int = 0
     seeded_remote_plan_tie_break_count: int = 0
 
+    # Number of logical qubits evicted from a full core at the start of
+    # compile() to make an externally supplied initial layout legal; see
+    # RouterConfig.repair_full_cores. 0 for any layout that already respects
+    # the no-full-core invariant (PORTER's own initial layouts always do).
+    initial_layout_repairs: int = 0
+
 
 @dataclass
 class RouterState:
@@ -125,6 +131,23 @@ class RouterConfig:
     teleport_lookahead_weight_floor: float = 0.5
 
     # Capacity constraints and recovery.
+    #
+    # A core with zero free physical qubits is a hard deadlock under this
+    # router's port-based action model: no local SWAP can change a core's
+    # occupancy, so a fully-packed core can never clear its own communication
+    # ports, and any gate touching its qubits is stranded forever (see the
+    # qnn-25 pytket-dqc case documented in CLAUDE.md's failure-model
+    # section). PORTER's own initial-layout builders always reserve
+    # min_free_before_teleport free slots per core, so this only arises from
+    # an externally supplied layout (e.g. a shared TeleSABRE/pytket-dqc
+    # mapping) that doesn't know about the constraint. With
+    # repair_full_cores enabled, compile() legalizes such a layout before
+    # routing starts by evicting one logical qubit from each full core into
+    # the core with the most free capacity, repeating until no core is full
+    # (or raising ValueError if the circuit doesn't fit this hardware with
+    # any headroom at all). Disable only to test how a given input layout
+    # behaves as-is.
+    repair_full_cores: bool = True
     min_free_before_teleport: int = 2
     capacity_relief_assist_enabled: bool = True
     capacity_relief_assist_margin: float = 5.0

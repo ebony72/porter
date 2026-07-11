@@ -53,7 +53,7 @@ architecture A, `qasm_64/` fits H; only basis `id, rz, sx, x, cx` is supported).
   the emitted op stream is byte-identical across runs. Any refactor must
   preserve this — compare SHA256 of the serialized `compiled_ops` JSON and the
   `seeded_tie_break_count` stat (identical RNG consumption) before/after.
-  (Last verified 2026-07-10 after the porter package split: 6 circuits × A/H
+  (Last verified 2026-07-10 after the unpreparable-plan fix: 6 circuits × A/H
   byte-identical, tie counts unchanged, 60/60 fuzz trials pass.)
 - The verifier replays ops against its own layout copy and checks gate
   coverage (each gate exactly once), per-qubit dependency order, coupling-edge
@@ -101,4 +101,13 @@ lookahead-scored SWAP heuristic. The load-bearing differences:
   its Hungarian initial layout plus deadlock counting/recovery.
 - **Failure model**: dSABRE recovers from deadlock via checkpoint rollback
   and stochastic "backup plans"; PORTER is deterministic-greedy with a
-  decision-state cycle check and raises on genuine deadlock.
+  decision-state cycle check and raises on genuine deadlock.  Known
+  infeasible input class: an *external* initial layout that fills a core to
+  100% capacity (pytket-dqc does this on qnn-25).  A full core can never
+  clear its occupied communication ports with local SWAPs, so no
+  teleport/telegate can touch it and its qubits are stranded.  Remote-plan
+  sides with infinite preparation score (`_remote_prep_side_score`) are
+  treated as unpreparable — never selected, never prepared — and the router
+  raises its deadlock error naming the full cores.  PORTER's own layouts
+  reserve `f_min` free slots per core, so this only arises with external
+  layouts.
