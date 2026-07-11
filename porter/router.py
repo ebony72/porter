@@ -2169,6 +2169,24 @@ class PorterRouter:
             )
             state.stats.epr += 1
             state.stats.teleport_count += 1
+            plan_mode = action.metadata.get("plan_mode", "")
+            if plan_mode == "capacity_relief_bfs":
+                # Tail relief: no normal plan existed at all, so a fresh BFS
+                # search found the nearest reservoir core from scratch.
+                state.stats.teleport_capacity_relief_count += 1
+            elif plan_mode in (
+                "blocked_capacity_adjacent",
+                "blocked_capacity_distance_reducing",
+                "opportunistic_capacity_relief_bfs",
+            ):
+                # Opportunistic relief: a normal plan existed, but a blocked
+                # plan's gain was high enough to pre-empt it -- whether the
+                # committed plan is that raw blocked candidate or a
+                # BFS-refined variant of it generated for the comparison
+                # (_select_opportunistic_capacity_relief_plan).
+                state.stats.teleport_blocked_count += 1
+            else:
+                state.stats.teleport_normal_count += 1
             self._after_layout_change(state, (action.src_core, action.dst_core))
             return False
 

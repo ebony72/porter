@@ -63,6 +63,23 @@ class RouterStats:
     teleport_count: int = 0
     telegate_count: int = 0
     telegate_packet_count: int = 0
+
+    # Breakdown of teleport_count by the committed plan's provenance (see
+    # PorterRouter._execute_plan_first_remote_stage): every committed
+    # teleport falls into exactly one of these three, and they sum to
+    # teleport_count.
+    #   normal           : an unblocked candidate from the normal plan set.
+    #   blocked           : a capacity-blocked ("blockedteledata") candidate,
+    #                       committed via the opportunistic pre-emptive
+    #                       relief comparator because it promised much
+    #                       higher gain than the best normal plan.
+    #   capacity_relief   : a multi-hop BFS tail-relief teleport toward the
+    #                       nearest reservoir core, generated only when no
+    #                       normal plan exists at all.
+    teleport_normal_count: int = 0
+    teleport_blocked_count: int = 0
+    teleport_capacity_relief_count: int = 0
+
     local_swap_count: int = 0
     local_cx_count: int = 0
     single_count: int = 0
