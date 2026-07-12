@@ -247,7 +247,8 @@ direct/lookahead decomposition to its inter-core plan scorer
 \section{The \PORTER{} Router}
 \label{sec:sfc}
 
-Given a circuit and an initial layout, \PORTER{} repeats the following
+Given a circuit and an initial layout $\ell_0$ (which \PORTER{} builds
+itself, Section~\ref{sec:sfc-layout}), \PORTER{} repeats the following
 loop (Algorithm~\ref{alg:sfc}) until every gate has been emitted or a
 configurable iteration budget is exhausted.
 
@@ -285,6 +286,58 @@ configurable iteration budget is exhausted.
 \RETURN emitted operations, final layout, stats
 \end{algorithmic}
 \end{algorithm}
+
+\subsection{Initial Layout}
+\label{sec:sfc-layout}
+
+\PORTER{} constructs its own starting layout $\ell_0$ and does not
+require an external partitioner. Both heuristics below respect the
+capacity invariant the routing loop depends on: every core keeps at
+least $f_\mathrm{min}$ free physical positions ($f_\mathrm{min}{=}2$),
+so that from the first iteration any core can serve as a \TeleData{}
+destination and as a reservoir for capacity relief
+(Section~\ref{sec:sfc-relief}). A logical qubit is therefore never
+placed into a core that already holds $|c|-f_\mathrm{min}$ logicals,
+where $|c|$ is the core's physical capacity.
+
+\textbf{Balanced first-layer.} The default heuristic greedily extracts
+the first layer of mutually disjoint CX gates -- the earliest set of
+two-qubit gates on distinct qubits -- and co-locates the two endpoints
+of each such gate in one core, so the entire opening layer of
+interactions is intra-core and incurs no inter-core cost. Each pair is
+assigned to the core with the most remaining reserved capacity (ties
+broken by core index), which spreads load evenly and keeps every core
+below saturation; logical qubits absent from the first layer are packed
+the same most-free-first way. The resulting core partition is
+deterministic given the circuit -- the random seed permutes only the
+physical position each logical qubit takes \emph{within} its core.
+
+\textbf{Seeded locality-greedy.} Because that partition is
+seed-invariant, \PORTER{} also offers a randomized alternative that
+produces a genuinely different partition per seed. It weights each
+qubit pair by its CX multiplicity over the whole circuit, visits the
+logical qubits in a seeded random order, and places each qubit in the
+core of its heaviest already-placed neighbour when that core still has
+headroom above $f_\mathrm{min}$, falling back to the least-loaded core
+otherwise. This tracks chain-structured circuits that the first-layer
+scan cannot: a GHZ-style chain exposes only one disjoint pair in its
+first CX layer, so balanced-first-layer co-locates that single pair and
+scatters the rest, whereas the locality-greedy walk keeps successive
+chain neighbours together (Section~\ref{sec:protocols} quantifies the
+gap). In both heuristics each core's assigned logical qubits are
+finally mapped to physical slots under a seeded shuffle, with unused
+slots left idle.
+
+\textbf{External layouts.} When $\ell_0$ instead comes from an outside
+mapper that may fill a core to capacity
+(Section~\ref{sec:pytket_results}), \PORTER{} first repairs it
+(\texttt{repair\_full\_cores}): it evicts one logical qubit from every
+saturated core into the core with the most spare capacity, restoring
+the $f_\mathrm{min}$ reservation before routing. A core packed to its
+physical capacity can never clear an occupied communication port with
+local SWAPs, so without this step its qubits would be unreachable by
+any teleport or telegate. \PORTER{}'s own two heuristics reserve
+$f_\mathrm{min}$ by construction and never invoke the repair.
 
 \subsection{Front Classification}
 \label{sec:sfc-classify}
@@ -710,24 +763,14 @@ best-of-three, matching the convention already used to compare
   corners-removed architecture graph (seeds 0--2) followed by
   \SABRE{}-style forward\,$\to$\,backward\,$\to$\,forward routing
   passes, best EPR count.
-\item \textbf{\PORTER{}}: two capacity-respecting initial-layout
-  heuristics, each run at three seeds (six candidates total), best EPR
-  count. The first is a \emph{balanced-first-layer} placement
-  that co-locates the qubits of each first-CX-layer gate and fills the
-  rest by remaining core capacity; because its core assignment is
-  deterministic given the circuit (only intra-core physical placement
-  is seed-dependent), we add a second, genuinely seed-diverse
-  candidate: a randomized interaction-graph-greedy placement that
-  processes logical qubits in a seeded random order, placing each next
-  to its heaviest already-placed CX neighbour when that neighbour's
-  core still has capacity headroom above $f_\mathrm{min}$.
-  This second heuristic matters specifically on long qubit-chain
-  circuits (GHZ): the balanced-first-layer heuristic only ever
-  co-locates the very first CX
-  pair and scatters the rest uniformly at random, since GHZ's circuit
-  structure never exposes a second non-overlapping first-layer CX pair
-  to its greedy scan; on the 25-qubit GHZ this alone is the difference
-  between 18 and 6 EPR pairs for \PORTER{} (Table~\ref{tab:main25}).
+\item \textbf{\PORTER{}}: its two capacity-respecting initial-layout
+  heuristics (Section~\ref{sec:sfc-layout}) --- balanced-first-layer
+  and seeded locality-greedy --- each run at three seeds for six
+  candidates total, best EPR count. Running both matters on long
+  qubit-chain circuits: the 25-qubit GHZ exposes only a single
+  disjoint pair in its first CX layer, so the seed-diverse
+  locality-greedy partition, not the balanced one, is what drives
+  \PORTER{} from 18 down to 6 EPR pairs there (Table~\ref{tab:main25}).
 \end{itemize}
 We do not reuse \dSABRE{}'s SabreLayout-corners-removed candidates
 for \PORTER{} in this comparison. \dSABRE{}'s corner-removal selects
@@ -743,14 +786,13 @@ not a valid starting state for \PORTER{}'s teleport mechanism, which
 requires $f_\mathrm{min}$ free slots in a core
 before it can ever be used as a teleport destination. This is a
 structural precondition mismatch between the two systems' initial-layout
-assumptions, not a routing-quality question. \PORTER{} includes a
-general safeguard against exactly this precondition -- evicting one
-logical qubit from any core an externally supplied layout leaves fully
-packed, into the core with the most spare capacity, before routing
-begins (used below in the pytket-mapping comparison) -- but we still
-exclude these candidates here to keep each router's own-protocol result
-tied to its own established best-practice initial-layout heuristic,
-not one designed for a different system.
+assumptions, not a routing-quality question. \PORTER{}'s full-core
+repair (Section~\ref{sec:sfc-layout}) is a general safeguard against
+exactly this precondition, and we use it below in the pytket-mapping
+comparison; but we still exclude these SabreLayout candidates here to
+keep each router's own-protocol result tied to its own established
+best-practice initial-layout heuristic, not one designed for a
+different system.
 
 \textbf{Shared-layout comparison.} To isolate routing quality from
 initial-layout quality, we additionally route both \dSABRE{} and
