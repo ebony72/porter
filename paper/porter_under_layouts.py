@@ -66,7 +66,7 @@ def run_suite_layouts(suite_key):
         row = dict(suite=suite_key, circuit=cname, num_logical=num_logical, cx=n_cx)
 
         # PORTER own layouts, split
-        row["porter_balanced"] = porter_best_over_builder(circuit, hw, num_logical, cdr.build_initial_layout)
+        row["porter_balanced"] = porter_best_over_builder(circuit, hw, num_logical, cdr.build_balanced_first_layer_layout)
         row["porter_locality"] = porter_best_over_builder(circuit, hw, num_logical, cr.build_seeded_locality_layout)
         print(f"    balanced={row['porter_balanced']}  locality={row['porter_locality']}", flush=True)
 

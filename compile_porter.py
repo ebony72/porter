@@ -207,10 +207,123 @@ def build_initial_layout(
     gates: List[porter.Gate],
     hw: porter.Hardware,
     num_logical: int,
+    *,
+    min_free_per_core: int,
+    gamma: float = 0.99,
+) -> porter.Layout:
+    """PORTER's initial layout: deterministic temporal locality-greedy.
+
+    Single-shot and seed-free -- this is the one initial mapping PORTER
+    uses (it replaced the balanced-first-layer / seeded-locality best-of-6
+    search on 2026-07-12; see ``build_balanced_first_layer_layout`` below
+    for the legacy heuristic kept for the paper's layout study).
+
+    1. Every CX contributes ``gamma**layer`` to its qubit pair's weight,
+       where ``layer`` is the gate's ASAP level in the CX-only DAG: early
+       interactions weigh more (subsumes first-CX-layer co-location),
+       accumulated multiplicity tracks chains (subsumes locality-greedy).
+    2. Logical qubits are visited in order of first CX appearance and each
+       is placed in the core of its heaviest already-placed neighbour when
+       that core has headroom above ``min_free_per_core``, else in the core
+       with the most remaining reserved capacity.  Every core keeps
+       ``min_free_per_core`` free slots, so the router's teleport
+       precondition holds by construction.
+    3. Within each core, logicals are placed by descending total
+       interaction weight onto physical slots by ascending intra-core
+       centrality (sum of local distances).
+    """
+    from collections import defaultdict
+
+    num_physical = len(hw.phys_to_core)
+    if num_logical > num_physical:
+        raise ValueError(
+            f"Circuit has {num_logical} logical qubits but hardware has {num_physical} physical qubits"
+        )
+
+    level: Dict[int, int] = defaultdict(int)
+    pair_weight: Dict[Tuple[int, int], float] = defaultdict(float)
+    first_seen: Dict[int, int] = {}
+    order_counter = 0
+    for gate in gates:
+        if not gate.is_cx():
+            continue
+        q0, q1 = gate.qubits
+        lay = max(level[q0], level[q1])
+        level[q0] = level[q1] = lay + 1
+        pair_weight[(min(q0, q1), max(q0, q1))] += gamma ** lay
+        for q in (q0, q1):
+            if q not in first_seen:
+                first_seen[q] = order_counter
+                order_counter += 1
+
+    nbr_weight: Dict[int, Dict[int, float]] = {q: {} for q in range(num_logical)}
+    for (a, b), w in pair_weight.items():
+        nbr_weight[a][b] = w
+        nbr_weight[b][a] = w
+
+    core_order = sorted(hw.cores)
+    remaining = {
+        cid: max(0, len(hw.cores[cid].physical_qubits) - min_free_per_core)
+        for cid in core_order
+    }
+    if sum(remaining.values()) < num_logical:
+        raise ValueError(
+            "Initial layout cannot reserve "
+            f"{min_free_per_core} free qubits per core for {num_logical} logical qubits"
+        )
+
+    visit = sorted(range(num_logical), key=lambda q: first_seen.get(q, 10 ** 9 + q))
+    logical_to_core: Dict[int, int] = {}
+    core_to_logicals: Dict[int, List[int]] = {cid: [] for cid in core_order}
+    for q in visit:
+        best_core, best_w = None, -1.0
+        for nbr, w in nbr_weight[q].items():
+            c = logical_to_core.get(nbr)
+            if c is not None and remaining[c] > 0 and w > best_w:
+                best_core, best_w = c, w
+        if best_core is None:
+            best_core = max(
+                (c for c in core_order if remaining[c] > 0),
+                key=lambda c: (remaining[c], -c),
+            )
+        logical_to_core[q] = best_core
+        core_to_logicals[best_core].append(q)
+        remaining[best_core] -= 1
+
+    phys_to_virt = [-1] * num_physical
+    dummy = num_logical
+    for cid in core_order:
+        physical = list(hw.cores[cid].physical_qubits)
+        slots = sorted(
+            physical,
+            key=lambda p: (
+                sum(hw.local_distance(cid, p, o) for o in physical if o != p),
+                p,
+            ),
+        )
+        logicals = sorted(
+            core_to_logicals[cid],
+            key=lambda q: (-sum(nbr_weight[q].values()), q),
+        )
+        for p, q in zip(slots, logicals):
+            phys_to_virt[p] = q
+        for p in slots[len(logicals):]:
+            phys_to_virt[p] = dummy
+            dummy += 1
+    return porter.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
+
+
+def build_balanced_first_layer_layout(
+    gates: List[porter.Gate],
+    hw: porter.Hardware,
+    num_logical: int,
     seed: int,
     *,
     min_free_per_core: int,
 ) -> porter.Layout:
+    """Legacy balanced-first-layer heuristic (pre-2026-07-12 default),
+    kept only for the paper's initial-mapping study
+    (``paper/porter_under_layouts.py``)."""
     num_physical = len(hw.phys_to_core)
     if num_logical > num_physical:
         raise ValueError(f"Circuit has {num_logical} logical qubits but hardware has {num_physical} physical qubits")
@@ -403,10 +516,9 @@ def compile_qasm(
             circuit_gates,
             hw,
             num_logical,
-            seed,
             min_free_per_core=router_config.min_free_before_teleport,
         )
-        initial_layout_label = "porter.balanced_first_layer"
+        initial_layout_label = "porter.temporal_locality"
     elif initial_layout_mode == "telesabre":
         arch = telesabre_architecture_for_name(architecture_name)
         hw = convert_architecture(arch)
@@ -489,7 +601,7 @@ def main() -> None:
         "--initial-layout",
         choices=("porter", "telesabre"),
         default="porter",
-        help="porter uses the standalone balanced first-layer mapper; telesabre reuses qlimt.initial_layout.",
+        help="porter uses the deterministic temporal locality-greedy mapper; telesabre reuses qlimt.initial_layout.",
     )
     parser.add_argument("--max-iterations", type=int, default=None)
     args = parser.parse_args()

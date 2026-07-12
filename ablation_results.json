@@ -1,0 +1,372 @@
+[
+ {
+  "suite": "25",
+  "circuit": "ae",
+  "out": {
+   "full": {
+    "epr": 65,
+    "packets": 8,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 71,
+    "packets": 0,
+    "telegates": 6
+   },
+   "no_relief": {
+    "epr": 80,
+    "packets": 35,
+    "telegates": 0
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "ghz",
+  "out": {
+   "full": {
+    "epr": 4,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 4,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_relief": {
+    "epr": 4,
+    "packets": 0,
+    "telegates": 0
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "graphstate",
+  "out": {
+   "full": {
+    "epr": 7,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 7,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_relief": {
+    "epr": 7,
+    "packets": 0,
+    "telegates": 0
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "qft",
+  "out": {
+   "full": {
+    "epr": 74,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 74,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_relief": {
+    "epr": 140,
+    "packets": 77,
+    "telegates": 4
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "qnn",
+  "out": {
+   "full": {
+    "epr": 119,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 122,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_relief": {
+    "epr": 212,
+    "packets": 98,
+    "telegates": 6
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "random",
+  "out": {
+   "full": {
+    "epr": 401,
+    "packets": 43,
+    "telegates": 93
+   },
+   "no_packets": {
+    "epr": 412,
+    "packets": 0,
+    "telegates": 86
+   },
+   "no_relief": {
+    "epr": 395,
+    "packets": 45,
+    "telegates": 82
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "ae",
+  "out": {
+   "full": {
+    "epr": 177,
+    "packets": 32,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 211,
+    "packets": 0,
+    "telegates": 48
+   },
+   "no_relief": {
+    "epr": 327,
+    "packets": 205,
+    "telegates": 6
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "ghz",
+  "out": {
+   "full": {
+    "epr": 6,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 6,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_relief": {
+    "epr": 6,
+    "packets": 0,
+    "telegates": 0
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "graphstate",
+  "out": {
+   "full": {
+    "epr": 20,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 20,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_relief": {
+    "epr": 20,
+    "packets": 0,
+    "telegates": 0
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qft",
+  "out": {
+   "full": {
+    "epr": 262,
+    "packets": 45,
+    "telegates": 1
+   },
+   "no_packets": {
+    "epr": 372,
+    "packets": 0,
+    "telegates": 162
+   },
+   "no_relief": {
+    "epr": 382,
+    "packets": 198,
+    "telegates": 5
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qnn",
+  "out": {
+   "full": {
+    "epr": 864,
+    "packets": 240,
+    "telegates": 5
+   },
+   "no_packets": {
+    "epr": 931,
+    "packets": 0,
+    "telegates": 253
+   },
+   "no_relief": {
+    "epr": 600,
+    "packets": 73,
+    "telegates": 1
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "random",
+  "out": {
+   "full": {
+    "epr": 737,
+    "packets": 77,
+    "telegates": 228
+   },
+   "no_packets": {
+    "epr": 843,
+    "packets": 0,
+    "telegates": 376
+   },
+   "no_relief": {
+    "epr": 789,
+    "packets": 71,
+    "telegates": 288
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "ae",
+  "out": {
+   "full": {
+    "epr": 490,
+    "packets": 264,
+    "telegates": 15
+   },
+   "no_packets": {
+    "epr": 688,
+    "packets": 0,
+    "telegates": 414
+   },
+   "no_relief": {
+    "error": "No legal action available.\nCurrent DAG front: ['3459:cx q16,"
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "ghz",
+  "out": {
+   "full": {
+    "epr": 7,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 7,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_relief": {
+    "epr": 7,
+    "packets": 0,
+    "telegates": 0
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "graphstate",
+  "out": {
+   "full": {
+    "epr": 28,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_packets": {
+    "epr": 28,
+    "packets": 0,
+    "telegates": 0
+   },
+   "no_relief": {
+    "epr": 28,
+    "packets": 0,
+    "telegates": 0
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "qft",
+  "out": {
+   "full": {
+    "epr": 446,
+    "packets": 209,
+    "telegates": 2
+   },
+   "no_packets": {
+    "epr": 435,
+    "packets": 0,
+    "telegates": 176
+   },
+   "no_relief": {
+    "error": "No legal action available.\nCurrent DAG front: ['2767:cx q49,"
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "qnn",
+  "out": {
+   "full": {
+    "epr": 1517,
+    "packets": 448,
+    "telegates": 30
+   },
+   "no_packets": {
+    "epr": 1571,
+    "packets": 0,
+    "telegates": 550
+   },
+   "no_relief": {
+    "error": "No legal action available.\nCurrent DAG front: ['11753:cx q15"
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "random",
+  "out": {
+   "full": {
+    "epr": 11040,
+    "packets": 572,
+    "telegates": 3538
+   },
+   "no_packets": {
+    "epr": 11628,
+    "packets": 0,
+    "telegates": 4658
+   },
+   "no_relief": {
+    "error": "No legal action available.\nCurrent DAG front: ['3695:cx q56,"
+   }
+  }
+ }
+]

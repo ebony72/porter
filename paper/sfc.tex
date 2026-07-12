@@ -71,17 +71,21 @@ DAG-lookahead merits alone, commits to the best one, and only then
 generates the preparation SWAPs specific to that plan, so preparation
 effort is never spent on a plan that is not selected. A two-tier
 capacity-relief mechanism proactively routes qubits toward reservoir
-cores when candidate plans are blocked by insufficient free capacity.
-On MQT-Bench suites at 25, 64, and 80 logical qubits, \PORTER{}
-reduces geometric-mean EPR consumption against \TeleSABRE{} by
-$42.1\%$ (25q) and $16.7\%$ (64q) under each router's own
-initial-layout protocol; routed from an identical shared initial
-layout, it also surpasses \dSABRE{} on the 25- and 80-qubit suites,
-showing that a substantial share of \dSABRE{}'s own-protocol advantage
-traces to its initial layout rather than its routing decisions.
-\PORTER{} is furthermore the only router of the three to complete
-every benchmark under its own protocol: on an 80-qubit, 23{,}381-CX
-circuit it finishes in 40\,s where both baselines exceed a uniform
+cores when candidate plans are blocked by insufficient free capacity,
+and a deterministic, seed-free \emph{temporal locality-greedy} initial
+layout co-locates qubits by temporally discounted interaction weight
+in first-use order. On MQT-Bench suites at 25, 64, and 80 logical
+qubits, a \emph{single} \PORTER{} run from this single layout posts
+the lowest geometric-mean EPR count of the three routers on every
+suite -- reducing EPR against \TeleSABRE{} by $54.3\%$, $49.8\%$, and
+$65.8\%$, and beating \dSABRE{}'s best-of-three protocol ($43.1$
+vs.\ $45.7$, $86.4$ vs.\ $95.5$, and $14.0$ vs.\ $21.0$) -- while
+routing $58$--$92\times$ faster per attempt than \dSABRE{}. Routed
+from identical externally supplied layouts across thirty
+instances, \PORTER{} also matches or beats \dSABRE{}'s routing stage
+(fifteen wins to twelve, three ties). \PORTER{} is the only router
+of the three to complete every benchmark: on an 80-qubit, 23{,}381-CX
+circuit it finishes in 37\,s where both baselines exceed a uniform
 900\,s compiler timeout. The implementation, an independent
 replay verifier, and the full comparison harness are publicly
 available.
@@ -113,9 +117,14 @@ hardware~\cite{stephenson2020high,daiss2021quantum}, making EPR
 minimisation the dominant compilation objective.
 
 \PORTER{} --- a \emph{Plan-Oriented Router for Teleportation-Enabled
-aRchitectures} --- addresses stage~(iii): given a fixed initial
-layout, it orders intra-core SWAPs and inter-core operations to
-minimise EPR consumption. The name is also a job description: like a
+aRchitectures} --- addresses stage~(iii), ordering intra-core SWAPs
+and inter-core operations to minimise EPR consumption, and ships a
+deliberately lightweight answer to stage~(i): a deterministic,
+seed-free initial layout built in microseconds, so that the full
+pipeline needs neither an external partitioner nor a per-circuit
+layout search (external layouts remain supported, and are used
+throughout the evaluation as controlled probes). The name is also a
+job description: like a
 hotel porter, the router's task is to decide which guests (logical
 qubits) to carry to which rooms (cores), when, and by which means ---
 and to do so only after a plan for the whole errand has been settled.
@@ -156,6 +165,17 @@ better one will preempt.
   search for the nearest reservoir core when a plan is capacity-blocked
   (Section~\ref{sec:sfc-relief}), plus an opportunistic comparator that
   lets a severely blocked candidate pre-empt a merely-good normal one.
+  An ablation (Section~\ref{sec:ablation}) shows this mechanism is
+  what makes the deterministic-greedy design complete at scale:
+  without it, four of the six 80-qubit benchmarks deadlock.
+\item \textbf{A deterministic, seed-free initial layout} --- temporal
+  locality-greedy (Section~\ref{sec:sfc-layout}): each CX pair is
+  weighted by temporally discounted interaction multiplicity, qubits
+  are visited in first-use order and co-located with their heaviest
+  placed neighbour under a per-core free-slot reservation. A single
+  layout built in microseconds replaces per-router layout search
+  entirely, yet outperforms \dSABRE{}'s SabreLayout-based
+  best-of-three protocol end-to-end on every suite we test.
 \item \textbf{An independent replay verifier}
   (Section~\ref{sec:verification}) that re-executes the emitted
   operation stream against its own physical-layout simulation and
@@ -290,43 +310,48 @@ configurable iteration budget is exhausted.
 \subsection{Initial Layout}
 \label{sec:sfc-layout}
 
-\PORTER{} constructs its own starting layout $\ell_0$ and does not
-require an external partitioner. Both heuristics below respect the
-capacity invariant the routing loop depends on: every core keeps at
-least $f_\mathrm{min}$ free physical positions ($f_\mathrm{min}{=}2$),
-so that from the first iteration any core can serve as a \TeleData{}
-destination and as a reservoir for capacity relief
-(Section~\ref{sec:sfc-relief}). A logical qubit is therefore never
-placed into a core that already holds $|c|-f_\mathrm{min}$ logicals,
-where $|c|$ is the core's physical capacity.
+\PORTER{} constructs its own starting layout $\ell_0$ with a single
+deterministic, seed-free heuristic and does not require an external
+partitioner or a best-of-$N$ search. It respects the capacity invariant
+the routing loop depends on: every core keeps at least $f_\mathrm{min}$
+free physical positions ($f_\mathrm{min}{=}2$), so that from the first
+iteration any core can serve as a \TeleData{} destination and as a
+reservoir for capacity relief (Section~\ref{sec:sfc-relief}). A logical
+qubit is therefore never placed into a core that already holds
+$|c|-f_\mathrm{min}$ logicals, where $|c|$ is the core's physical
+capacity.
 
-\textbf{Balanced first-layer.} The default heuristic greedily extracts
-the first layer of mutually disjoint CX gates -- the earliest set of
-two-qubit gates on distinct qubits -- and co-locates the two endpoints
-of each such gate in one core, so the entire opening layer of
-interactions is intra-core and incurs no inter-core cost. Each pair is
-assigned to the core with the most remaining reserved capacity (ties
-broken by core index), which spreads load evenly and keeps every core
-below saturation; logical qubits absent from the first layer are packed
-the same most-free-first way. The resulting core partition is
-deterministic given the circuit -- the random seed permutes only the
-physical position each logical qubit takes \emph{within} its core.
+\textbf{Temporal locality-greedy.} The heuristic runs in three
+deterministic steps. \emph{(i) Weighting.} Each CX gate
+$g=(q_i,q_j)$ contributes $\gamma^{\ell(g)}$ to the interaction weight
+$w(q_i,q_j)$ of its qubit pair, where $\ell(g)$ is $g$'s
+as-soon-as-possible layer in the CX-only DAG and $\gamma{=}0.99$; early
+interactions thus weigh more than late ones, while repeated
+interactions on a pair accumulate. \emph{(ii) Core assignment.} The
+logical qubits are visited in the order they first appear as a CX
+operand and each is placed in the core holding its heaviest
+already-placed neighbour when that core still has headroom above
+$f_\mathrm{min}$, falling back to the core with the most remaining
+reserved capacity otherwise. \emph{(iii) Physical placement.} Within
+each core, the assigned logicals are laid onto physical positions by
+descending total interaction weight onto ascending intra-core
+centrality (sum of local distances), so the most-connected qubits take
+the most central slots; unused slots are left idle.
 
-\textbf{Seeded locality-greedy.} Because that partition is
-seed-invariant, \PORTER{} also offers a randomized alternative that
-produces a genuinely different partition per seed. It weights each
-qubit pair by its CX multiplicity over the whole circuit, visits the
-logical qubits in a seeded random order, and places each qubit in the
-core of its heaviest already-placed neighbour when that core still has
-headroom above $f_\mathrm{min}$, falling back to the least-loaded core
-otherwise. This tracks chain-structured circuits that the first-layer
-scan cannot: a GHZ-style chain exposes only one disjoint pair in its
-first CX layer, so balanced-first-layer co-locates that single pair and
-scatters the rest, whereas the locality-greedy walk keeps successive
-chain neighbours together (Section~\ref{sec:protocols} quantifies the
-gap). In both heuristics each core's assigned logical qubits are
-finally mapped to physical slots under a seeded shuffle, with unused
-slots left idle.
+This single construction subsumes what the earlier design split across
+two heuristics and a best-of-six search. The temporal discount
+front-loads the opening layer of interactions, recovering the
+first-CX-layer co-location a ``balanced first-layer'' scan gave; the
+accumulated multiplicity together with the first-appearance visit order
+tracks chain-structured circuits a first-layer scan cannot -- a
+GHZ-style chain exposes only one disjoint pair in its first CX layer,
+yet successive chain neighbours share weight and are visited in
+sequence, so they land in the same core. Of the three steps the visit
+order carries the most weight: replacing the first-appearance order with
+a random permutation inflates geometric-mean EPR from $55.4$ to $103.3$
+over the eighteen benchmark instances (Section~\ref{sec:experiments}),
+whereas replacing centrality placement with a random within-core
+shuffle costs only $55.4\!\to\!56.4$.
 
 \textbf{External layouts.} When $\ell_0$ instead comes from an outside
 mapper that may fill a core to capacity
@@ -336,8 +361,8 @@ saturated core into the core with the most spare capacity, restoring
 the $f_\mathrm{min}$ reservation before routing. A core packed to its
 physical capacity can never clear an occupied communication port with
 local SWAPs, so without this step its qubits would be unreachable by
-any teleport or telegate. \PORTER{}'s own two heuristics reserve
-$f_\mathrm{min}$ by construction and never invoke the repair.
+any teleport or telegate. \PORTER{}'s own heuristic reserves
+$f_\mathrm{min}$ by construction and never invokes the repair.
 
 \subsection{Front Classification}
 \label{sec:sfc-classify}
@@ -689,7 +714,7 @@ AE          &  558 & 1962 &  2780 \\
 GHZ         &   24 &   63 &    79 \\
 Graphstate  &   25 &   64 &    80 \\
 QFT         &  580 & 1966 &  2660 \\
-QNN         & 1223 & 8126 &    79 \\
+QNN         & 1223 & 8126 & 12718 \\
 Random      & 1124 & 1627 & 23381 \\
 \bottomrule
 \end{tabular}
@@ -715,11 +740,23 @@ routing---is decomposition-invariant in these rotation angles and is
 byte-identical to stock \texttt{mqt.bench} at every size the latter can
 build (verified at $10$, $20$, $25$, and $28$~qubits); only the
 routing-irrelevant single-qubit angles carry floating-point error at
-high bit indices. The generator's current QNN benchmark has no
-depth parameter and produces a near-linear circuit at this size (CX
-$\approx$ qubit count, Table~\ref{tab:circuits}), so it should be read
-as structurally closer to GHZ than to the deeper QNN instances at
-25q/64q.
+high bit indices. QNN required an analogous reconstruction. Between
+\texttt{mqt.bench}~1.1.0 (which produced the deep 8{,}126-CX 64q QNN
+this suite uses) and the installed 2.2.2, the benchmark's definition
+was changed from a ZZ feature map (full all-pairs entanglement) plus a
+\texttt{RealAmplitudes} ansatz to a plain Z feature map (no
+entanglement) plus the same ansatz. The current generator therefore
+emits a near-linear 79-CX circuit at 80 qubits whose two-qubit
+interaction graph is \emph{identical} to GHZ's --- a degenerate
+duplicate, not a distinct benchmark. We restore the original deep QNN
+by rebuilding the 1.1.0 construction (ZZ feature map, \texttt{reps}=2,
+full entanglement; \texttt{RealAmplitudes}, \texttt{reps}=1) and
+transpiling it to our basis; at 64 qubits this reproduces the checked-in
+1.1.0 file's CNOT sub-sequence byte-for-byte (identical ordered pair
+sequence, all $\binom{64}{2}$ interacting pairs, 8{,}126 CX), so the
+80-qubit instance (a fully-connected $\binom{80}{2}$-edge interaction
+graph, 12{,}718 CX) is a faithful extrapolation of the same
+construction.
 
 \textbf{Baselines.} We compare against \TeleSABRE{}~\cite{russo2025telesabre}
 and \dSABRE{}~\cite{lidsabre}. For \dSABRE{} we report only
@@ -752,9 +789,10 @@ We evaluate under three initial-layout protocols, designed to separate
 routing quality from initial-layout quality.
 
 \textbf{Own-protocol comparison.} Each router is first evaluated under
-its own established best-practice initial-layout protocol,
-best-of-three, matching the convention already used to compare
-\TeleSABRE{} and \dSABRE{} to each other~\cite{lidsabre}:
+its own established best-practice initial-layout protocol. For the two
+baselines this is best-of-three, matching the convention already used
+to compare \TeleSABRE{} and \dSABRE{} to each other~\cite{lidsabre};
+for \PORTER{} it is a single deterministic run:
 \begin{itemize}
 \item \textbf{\TeleSABRE{}}: the compiled C binary's built-in hungarian
   initial-layout heuristic, config seeds 0--2, best EPR count of the
@@ -763,14 +801,12 @@ best-of-three, matching the convention already used to compare
   corners-removed architecture graph (seeds 0--2) followed by
   \SABRE{}-style forward\,$\to$\,backward\,$\to$\,forward routing
   passes, best EPR count.
-\item \textbf{\PORTER{}}: its two capacity-respecting initial-layout
-  heuristics (Section~\ref{sec:sfc-layout}) --- balanced-first-layer
-  and seeded locality-greedy --- each run at three seeds for six
-  candidates total, best EPR count. Running both matters on long
-  qubit-chain circuits: the 25-qubit GHZ exposes only a single
-  disjoint pair in its first CX layer, so the seed-diverse
-  locality-greedy partition, not the balanced one, is what drives
-  \PORTER{} from 18 down to 6 EPR pairs there (Table~\ref{tab:main25}).
+\item \textbf{\PORTER{}}: a \emph{single} routing pass from its single
+  deterministic temporal locality-greedy layout
+  (Section~\ref{sec:sfc-layout}), router seed~0. \PORTER{} performs no
+  layout search and no seed sweep, so its column reports one attempt
+  per circuit where each baseline's reports the best of three; every
+  number is exactly reproducible from the circuit file alone.
 \end{itemize}
 We do not reuse \dSABRE{}'s SabreLayout-corners-removed candidates
 for \PORTER{} in this comparison. \dSABRE{}'s corner-removal selects
@@ -877,8 +913,10 @@ same one-EPR-pair unit. SWAP counts intra-core SWAPs only.
 \begin{table}[t]
 \centering
 \caption{25-qubit suite, own-protocol comparison (architecture A,
-  $2{\times}2$ cores of $3{\times}3$, 36 physical qubits). Best-of-3(-or-6)
-  per router as described in Section~\ref{sec:protocols}. $\Delta_\mathrm{TS}$
+  $2{\times}2$ cores of $3{\times}3$, 36 physical qubits). \TeleSABRE{} and
+  \dSABRE{} are best-of-3 seeds; \PORTER{} is a \emph{single} run from its
+  single deterministic layout (Section~\ref{sec:protocols}).
+  $\Delta_\mathrm{TS}$
   is \PORTER{}'s EPR change relative to \TeleSABRE{}; negative is better.}
 \label{tab:main25}
 \setlength{\tabcolsep}{4pt}
@@ -891,14 +929,14 @@ same one-EPR-pair unit. SWAP counts intra-core SWAPs only.
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
 Circuit & EPR & SWAP & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
 \midrule
-ae         &  118 &   370 &   94 &   399 &   87 &   356 & $-26.3$ \\
-ghz        &   11 &    30 &    4 &    18 &    6 &    32 & $-45.5$ \\
-graphstate &   17 &    43 &    4 &    19 &    9 &    42 & $-47.1$ \\
-qft        &  141 &   371 &   91 &   462 &   94 &   382 & $-33.3$ \\
-qnn        &  357 &   770 &  155 &   790 &  159 &   734 & $-55.5$ \\
-random     &  632 &  1512 &  431 &  1521 &  378 &  1311 & $-40.2$ \\
+ae         &  118 &   370 &   94 &   399 &   65 &   328 & $-44.9$ \\
+ghz        &   11 &    30 &    4 &    18 &    4 &    29 & $-63.6$ \\
+graphstate &   17 &    43 &    4 &    19 &    7 &    34 & $-58.8$ \\
+qft        &  141 &   371 &   91 &   462 &   74 &   327 & $-47.5$ \\
+qnn        &  357 &   770 &  155 &   790 &  119 &   642 & $-66.7$ \\
+random     &  632 &  1512 &  431 &  1521 &  401 &  1327 & $-36.6$ \\
 \midrule
-\textbf{gmean} (6) & 94.3 & & 45.7 & & 54.6 & & $\mathbf{-42.1}$ \\
+\textbf{gmean} (6) & 94.3 & & 45.7 & & \textbf{43.1} & & $\mathbf{-54.3}$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -922,14 +960,14 @@ random     &  632 &  1512 &  431 &  1521 &  378 &  1311 & $-40.2$ \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
 Circuit & EPR & SWAP & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
 \midrule
-ae            &  323 &  1508 &  244 &  1863 &  316 &  1970 & $-2.2$ \\
-ghz           &   11 &   111 &   14 &    73 &   29 &   189 & $+163.6$ \\
-graphstate    &   76 &   379 &   18 &   113 &   31 &   193 & $-59.2$ \\
-qft           &  410 &  1872 &  240 &  2252 &  333 &  2279 & $-18.8$ \\
-qnn           & 1365 &  6292 &  539 &  8394 &  642 &  5997 & $-53.0$ \\
-random$^{\ast}$ & --- &   --- &  738 &  3827 &  695 &  3837 & --- \\
+ae            &  323 &  1508 &  244 &  1863 &  177 &  1627 & $-45.2$ \\
+ghz           &   11 &   111 &   14 &    73 &    6 &    86 & $-45.5$ \\
+graphstate    &   76 &   379 &   18 &   113 &   20 &   131 & $-73.7$ \\
+qft           &  410 &  1872 &  240 &  2252 &  262 &  1846 & $-36.1$ \\
+qnn           & 1365 &  6292 &  539 &  8394 &  864 &  6595 & $-36.7$ \\
+random$^{\ast}$ & --- &   --- &  738 &  3827 &  737 &  4048 & --- \\
 \midrule
-\textbf{gmean} (5) & 172.1 & & 95.5 & & 143.4 & & $\mathbf{-16.7}$ \\
+\textbf{gmean} (5) & 172.1 & & 95.5 & & \textbf{86.4} & & $\mathbf{-49.8}$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -940,8 +978,10 @@ random$^{\ast}$ & --- &   --- &  738 &  3827 &  695 &  3837 & --- \\
 \caption{80-qubit suite, own-protocol comparison (architecture H,
   same physical topology as the 64-qubit suite, more logical qubits
   per circuit). Methodology and notation as Table~\ref{tab:main25}.
-  $^{\ast}$\TeleSABRE{} fails to converge; gmean is over the 3
-  circuits on which it does.}
+  $^{\ast}$\TeleSABRE{} fails to converge; gmean is over the 2
+  circuits on which it does. QNN here is the reconstructed deep
+  ZZ-feature-map QNN (12{,}718 CX, Section~\ref{sec:setup}), not the
+  degenerate stock chain.}
 \label{tab:main80}
 \setlength{\tabcolsep}{4pt}
 \small
@@ -953,14 +993,14 @@ random$^{\ast}$ & --- &   --- &  738 &  3827 &  695 &  3837 & --- \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
 Circuit & EPR & SWAP & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
 \midrule
-ae$^{\ast}$    &  --- &  --- &  506 &  3438 &   617 &  3737 & --- \\
-ghz            &   19 &  172 &   20 &   143 &    35 &   224 & $+84.2$ \\
-graphstate     &   88 &  521 &   22 &   131 &    37 &   252 & $-58.0$ \\
-qft$^{\ast}$   &  --- &  --- &  670 &  3844 &   539 &  3627 & --- \\
-qnn            &   19 &  172 &   25 &   146 &    35 &   224 & $+84.2$ \\
-random$^{\ast}$ &  --- &  --- &  --- &   --- & 10855 & 61295 & --- \\
+ae$^{\ast}$    &  --- &  --- &  506 &  3438 &   490 &  3156 & --- \\
+ghz            &   19 &  172 &   20 &   143 &     7 &   115 & $-63.2$ \\
+graphstate     &   88 &  521 &   22 &   131 &    28 &   198 & $-68.2$ \\
+qft$^{\ast}$   &  --- &  --- &  670 &  3844 &   446 &  2968 & --- \\
+qnn$^{\ast}$   &  --- &  --- &  811 & 13960 &  1517 & 10920 & --- \\
+random$^{\ast}$ &  --- &  --- &  --- &   --- & 11040 & 62119 & --- \\
 \midrule
-\textbf{gmean} (3) & 31.7 & & 22.2 & & 35.7 & & $\mathbf{+12.6}$ \\
+\textbf{gmean} (2) & 40.9 & & 21.0 & & \textbf{14.0} & & $\mathbf{-65.8}$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -1030,7 +1070,7 @@ random$^{\ast}$ & --- &   --- &  --- &   --- &     --- &  --- &   --- &     --- 
 \centering
 \caption{80-qubit suite, shared-layout comparison. Methodology and
   notation as Table~\ref{tab:shared25}. $^{\ast}$\TeleSABRE{} fails to
-  converge (no initial layout to extract); gmean is over the 3
+  converge (no initial layout to extract); gmean is over the 2
   circuits on which it does.}
 \label{tab:shared80}
 \setlength{\tabcolsep}{3pt}
@@ -1047,10 +1087,10 @@ ae$^{\ast}$    &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \
 ghz            &   19 &  172 &   15 &   173 & $-21.1$ &   11 &   156 & $-42.1$ \\
 graphstate     &   88 &  521 &   55 &   306 & $-37.5$ &   71 &   402 & $-19.3$ \\
 qft$^{\ast}$   &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
-qnn            &   19 &  172 &   15 &   173 & $-21.1$ &   11 &   156 & $-42.1$ \\
+qnn$^{\ast}$   &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
 random$^{\ast}$ &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
 \midrule
-\textbf{gmean} (3) & 31.7 & & 23.1 & & $\mathbf{-27.0}$ & 20.5 & & $\mathbf{-35.3}$ \\
+\textbf{gmean} (2) & 40.9 & & 28.7 & & $\mathbf{-29.8}$ & 27.9 & & $\mathbf{-31.7}$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -1092,129 +1132,140 @@ Suite & Circuit & \texttt{pytket} e-bits & \multicolumn{2}{c}{\dSABRE{}} & \mult
 }
 \end{table}
 
+Across the three suites the own-protocol comparison supports one
+headline claim: \emph{a single \PORTER{} run from its single
+deterministic layout posts the lowest geometric-mean EPR count of the
+three routers on every suite}, despite each baseline reporting the
+best of three attempts -- $43.1$ vs.\ \dSABRE{}'s $45.7$ and
+\TeleSABRE{}'s $94.3$ at 25 qubits, $86.4$ vs.\ $95.5$ and $172.1$ at
+64, and $14.0$ vs.\ $21.0$ and $40.9$ at 80 (the 80-qubit gmeans are
+over the two circuits \TeleSABRE{} completes; the fuller
+circuit-by-circuit picture, including two circuits on which \dSABRE{}
+wins, is below). It is also the only router to complete all eighteen
+instances (\dSABRE{} completes seventeen, \TeleSABRE{} thirteen). The
+per-suite detail follows.
+
 \textbf{25-qubit suite.} \PORTER{} reduces geometric-mean EPR
-consumption by \textbf{42.1\%} against \TeleSABRE{} across all six
-circuits, with per-circuit reductions ranging from $-26.3\%$ (AE) to
-$-55.5\%$ (QNN) and no regressions on this suite. Against
-\dSABRE{}, the picture is reversed: it beats \PORTER{} on every
-circuit here, most sharply on the two structurally sparse ones (GHZ: 4
-vs.\ 6; Graphstate: 4 vs.\ 9), where SabreLayout on the
+consumption by \textbf{54.3\%} against \TeleSABRE{}, with per-circuit
+reductions from $-36.6\%$ (Random) to $-66.7\%$ (QNN) and no
+regressions. Against \dSABRE{} it wins AE, QFT, QNN, and Random
+outright, ties GHZ (both 4), and concedes only Graphstate (7 vs.\ 4)
+-- the extreme sparse-partitionable case where SabreLayout on the
 corners-removed architecture graph, refined over three
 forward--backward--forward routing passes, finds a near-ideal core
-partition before routing begins -- exactly the regime \dSABRE{}'s own
-evaluation identifies as its strongest case~\cite{lidsabre}. On the
-three CX-dense circuits (AE, QFT, QNN) the gap to \dSABRE{} is
-narrower, consistent with \PORTER{}'s \TeleGatePacket{} primitive
-recovering some of the ground a teledata-only router gives away when
-many remote CX gates share one control qubit.
+partition before routing begins, exactly the regime \dSABRE{}'s own
+evaluation identifies as its strongest~\cite{lidsabre}. On the
+CX-dense circuits the margin runs the other way (QNN: 119 vs.\ 155;
+AE: 65 vs.\ 94), consistent with \PORTER{}'s \TeleGatePacket{}
+primitive amortising runs of shared-control remote CX gates that a
+teledata-only router must pay for individually
+(Section~\ref{sec:ablation} isolates this effect).
 
 \textbf{64-qubit suite.} \TeleSABRE{} fails to converge within
 three seeds only on Random here; on QNN (8{,}126 CX) it succeeds at
 1{,}365 EPR pairs and 6{,}292 SWAPs, exactly matching \dSABRE{}'s own
 published number for this circuit~\cite{lidsabre} -- a useful
-cross-check that our harness reproduces \TeleSABRE{} faithfully. The gmean row is computed
-over the five circuits on which \TeleSABRE{} converges. \PORTER{} beats
-\TeleSABRE{} on AE, Graphstate, QFT, and QNN ($-2.2\%$ to $-59.2\%$),
-but GHZ regresses sharply ($+163.6\%$, 29 vs.\ 11 EPR pairs). This is
-not unique to \PORTER{}: \dSABRE{} regresses on the same circuit in
-our reproduction (14 vs.\ 11, $+27.3\%$) and in \dSABRE{}'s own
-published 64q table ($+45.5\%$)~\cite{lidsabre}. GHZ's circuit
-structure -- every front gate shares one control qubit, so a
-per-gate/per-candidate local scorer chases the \emph{next} CX in the
-chain -- defeats locally-greedy schedulers generally, not any one
-design; \TeleSABRE{}'s front-averaged energy happens to find a better
-global rendezvous core on this specific pathological case. On the one
-circuit \TeleSABRE{} fails to complete (Random), \PORTER{} does (695 EPR),
-without any deadlock-recovery mechanism firing.
+cross-check that our harness reproduces \TeleSABRE{} faithfully. The
+gmean row is computed over the five circuits on which \TeleSABRE{}
+converges. \PORTER{} improves on \TeleSABRE{} on every converged
+circuit ($-36.1\%$ to $-73.7\%$); notably, the chain-structured GHZ
+that defeats locally-greedy schedulers generally -- \dSABRE{}
+regresses against \TeleSABRE{} on it both in our reproduction (14
+vs.\ 11) and in its own published table~\cite{lidsabre} -- is now a
+\PORTER{} \emph{win} (6 EPR pairs vs.\ 11 and 14): the
+first-appearance visit order of the temporal locality-greedy layout
+places successive chain neighbours in the same core, dissolving the
+pathology at the layout stage rather than fighting it at routing
+time. Against \dSABRE{}, \PORTER{} takes the gmean ($86.4$ vs.\
+$95.5$), winning AE (177 vs.\ 244), GHZ, and Random (737 vs.\ 738,
+where \TeleSABRE{} completes neither); \dSABRE{} retains Graphstate
+(18 vs.\ 20), QFT (240 vs.\ 262), and, most clearly, the deep QNN
+(539 vs.\ 864). That QNN row is \PORTER{}'s weakest result in any
+suite and an honest limit of the single-layout policy: it is the one
+benchmark where the deterministic layout is decisively worse than
+alternatives \PORTER{} itself can produce (its retired best-of-six
+search reached 642 there), suggesting layout sensitivity that a
+future refinement pass could recover.
 
-\textbf{80-qubit suite.} \TeleSABRE{} converges on only three of six
-circuits here (Table~\ref{tab:main80}); GHZ and QNN are
-numerically identical because the installed \texttt{mqt.bench}'s QNN
-generator produces a near-linear circuit at this size
-(Section~\ref{sec:setup}), so both are effectively the same
-chain-structured pathological case discussed above, and \PORTER{}
-regresses on both by the same $+84.2\%$ under its own protocol. The
-striking result is on the three circuits \TeleSABRE{} cannot complete:
-on Random (23{,}381 CX, by far the largest circuit in any suite here),
-\dSABRE{}'s own-protocol run also exceeds our uniform 900\,s per-call
-compiler timeout (Section~\ref{sec:setup}) -- recorded as a missing
-entry, the same as \TeleSABRE{}'s -- but \PORTER{} completes it
-in 40\,s at 10{,}855 EPR pairs. Running \dSABRE{} past that cap
-specifically to characterize its failure mode (rather than as part of
-the standard evaluation) shows it is not a deadlock: by the time it
-stops it has already placed 7{,}713 EPR pairs and 41{,}421 SWAPs,
-genuine forward progress. \dSABRE{}'s
-\texttt{HardwareConfig} for this suite (\texttt{max\_iterations=20000},
-carried over unchanged from the 64-qubit suite, per
-\dSABRE{}'s own scaling guidance to increase it for larger
-circuits~\cite{lidsabre}) is reached after 938.4\,s of its first
-forward pass alone, having cleared only 1{,}233 of the circuit's
-23{,}381 CX gates; the full own-protocol search evaluates up to three
-layout candidates through up to three such passes each, so the
-practical cost of simply raising the budget far enough to finish this
-circuit would likely run into hours, well beyond our uniform timeout.
-This is a resource-budget
-limitation specific to this unusually dense circuit (23{,}381 CX over
-80 qubits, roughly $3$--$18\times$ the CX/qubit ratio of any other
-circuit in our suites), not evidence that \dSABRE{}'s routing
-algorithm cannot in principle handle it. On the other two circuits
-\TeleSABRE{} cannot complete, both \dSABRE{} and \PORTER{} finish:
-on QFT (2{,}660 CX) \PORTER{} uses 19.6\% fewer EPR pairs than
-\dSABRE{} (539 vs.\ 670), whereas on AE (2{,}780 CX) \dSABRE{} is the
-more economical of the two (506 vs.\ \PORTER{}'s 617), so the pair is
-split. We read this cautiously -- a single six-family suite at one
-scale is not conclusive -- but it is consistent with the 64q finding
-that \PORTER{} tends to complete circuits at scales where
-\TeleSABRE{}, and sometimes \dSABRE{} under a fixed iteration
-budget, do not.
+\textbf{80-qubit suite.} \TeleSABRE{} converges on only two of the six
+circuits here (GHZ and Graphstate; Table~\ref{tab:main80}), so its
+gmean basis is thin. \PORTER{} wins that basis (14.0 vs.\ \dSABRE{}'s
+21.0, TeleSABRE's 40.9), driven by GHZ (7 EPR pairs vs.\ 20 and 19).
+Completion is the clearer story at this scale: \PORTER{} finishes all
+six circuits, \dSABRE{} five (missing Random), \TeleSABRE{} two. Over
+the five circuits \dSABRE{} also completes, \PORTER{} wins three (AE
+490 vs.\ 506, GHZ 7 vs.\ 20, QFT 446 vs.\ 670) and loses two
+(Graphstate 28 vs.\ 22 and, decisively, the deep QNN 1{,}517 vs.\
+811), for a geometric mean of 145.4 against \dSABRE{}'s 164.6.
+
+The deep QNN deserves emphasis because it corrects a defect in the
+original suite: at 80 qubits the stock \texttt{mqt.bench} QNN is a
+79-CX chain \emph{identical} to GHZ (Section~\ref{sec:setup}), which
+would have double-counted the easy chain case and hidden the hard one.
+The reconstructed 12{,}718-CX QNN is a fully-connected interaction
+graph, and on it \PORTER{} loses to \dSABRE{} (1{,}517 vs.\ 811) by the
+same mechanism as the 64q QNN (864 vs.\ 539): its single deterministic
+layout cannot match \dSABRE{}'s best-of-three SabreLayout partition on
+an all-to-all circuit. The two QNN rows are now a consistent, honest
+boundary of the single-layout policy -- the regime a future layout- or
+route-refinement pass (Section~\ref{sec:conclusion}) most needs to
+target.
+
+On Random (23{,}381 CX, by far the largest circuit in any suite),
+\PORTER{} is the only router to finish, in 37\,s at 11{,}040 EPR pairs,
+while \dSABRE{} exceeds the uniform 900\,s per-call timeout
+(Section~\ref{sec:setup}). Running \dSABRE{} past that cap to
+characterize the failure shows it is not a deadlock: its
+\texttt{max\_iterations=20000} budget (carried over from the 64-qubit
+suite per \dSABRE{}'s own scaling guidance~\cite{lidsabre}) is reached
+after 938\,s of its first forward pass alone, having cleared 1{,}233 of
+the 23{,}381 CX gates with genuine forward progress -- a
+resource-budget limitation on an unusually dense circuit
+($3$--$18\times$ the CX/qubit ratio of any other benchmark), not an
+in-principle inability. Still, the practical cost of a budget large
+enough to finish (three layout candidates through up to three passes
+each) would run to hours against \PORTER{}'s 37 seconds.
 
 \subsection{Shared-Layout Results}
 \label{sec:shared_results}
 
+The own-protocol comparison mixes two effects: the quality of each
+router's initial layout and the quality of its routing decisions. The
+shared-layout tables remove the first effect entirely -- both
+\dSABRE{} and \PORTER{} route, single-shot, from the identical layout
+\TeleSABRE{} built for itself -- so what remains is a pure
+routing-quality comparison on a mapping optimised for neither router.
+
 \textbf{25-qubit suite.} Under \TeleSABRE{}'s own initial layout
 (Table~\ref{tab:shared25}), both \dSABRE{} and \PORTER{} still improve
 substantially on \TeleSABRE{} ($-37.3\%$ and $-40.1\%$ gmean
-respectively), and \PORTER{} is now the better of the two on four of six
-circuits (AE, GHZ, QNN, Random) and on the gmean overall, reversing
-the own-protocol ranking. \dSABRE{} still wins on the two circuits
-where it wins most decisively under its own protocol too (Graphstate,
-QFT). This isolates the effect seen in the own-protocol table: on this
-suite, a meaningful share of \dSABRE{}'s own-protocol advantage over
-\PORTER{} traces to SabreLayout's stronger initial partition rather than
-to routing-time decisions alone -- when both routers start from the
-identical (weaker, TeleSABRE-optimised-for-itself) layout, \PORTER{} edges
-ahead on four of six circuits and on the suite gmean, though \dSABRE{}
-retains an edge specifically on the circuits its partition-first
-strategy suits best.
+respectively), with \PORTER{} the better of the two on four of six
+circuits (AE, GHZ, QNN, Random) and on the gmean. \dSABRE{} keeps
+Graphstate and QFT, the circuits its partition-then-refine strategy
+suits best under its own protocol too.
 
-\textbf{64-qubit suite.} \TeleSABRE{}'s initial layout is
-available for five of six circuits (Table~\ref{tab:shared64}).
-\dSABRE{} wins the gmean here ($-47.9\%$ vs.\ \PORTER{}'s $-37.8\%$),
-reversing the 25q shared-layout ranking: it wins AE, Graphstate, and
-QNN outright, ties \PORTER{} on GHZ (both $-27.3\%$), and is edged out
-only narrowly on QFT (228 vs.\ 227 EPR). This is the opposite pattern
-from the own-protocol table, where \PORTER{} beats \dSABRE{} on AE,
-QFT, and QNN; on architecture~H's larger, 16-slot cores, \dSABRE{}'s
-forward--backward--forward routing passes evidently extract more value
-from a fixed layout than \PORTER{}'s single forward pass does, even
-though \PORTER{}'s own layout search (which additionally varies the
-partition itself, not just the route) still comes out ahead on AE,
-QFT, and QNN overall (Table~\ref{tab:main64}). Taken together, the two
-suites suggest the layout-versus-routing split of \dSABRE{}'s
-advantage is architecture-dependent rather than a fixed property of
-either router.
+\textbf{64-qubit suite.} \TeleSABRE{}'s initial layout is available
+for five of six circuits (Table~\ref{tab:shared64}). \dSABRE{} wins
+the gmean here ($-47.9\%$ vs.\ \PORTER{}'s $-37.8\%$): it takes AE,
+Graphstate, and QNN outright, ties GHZ (both $-27.3\%$), and is edged
+out only narrowly on QFT (228 vs.\ 227 EPR). On architecture~H's
+larger, 16-slot cores, \dSABRE{}'s forward--backward--forward routing
+passes evidently extract more from a fixed externally supplied layout
+than \PORTER{}'s single forward pass does -- the one setting in our
+evaluation where they do. \PORTER{} nonetheless wins this suite
+end-to-end (Table~\ref{tab:main64}), because its own layout is enough
+better than the one being shared here to more than repay the
+difference; a backward-refinement pass over \PORTER{}'s route is the
+natural mechanism to close the residual gap
+(Section~\ref{sec:conclusion}).
 
 \textbf{80-qubit suite.} \TeleSABRE{}'s initial layout can be
-extracted for the same three circuits on which it converges
-(Table~\ref{tab:shared80}). The ranking mirrors the 25-qubit
-shared-layout result: \PORTER{} improves on \TeleSABRE{} by $-35.3\%$
-gmean against \dSABRE{}'s $-27.0\%$, winning both chain-structured
-rows (GHZ and QNN, 11 vs.\ 15 EPR pairs) while \dSABRE{} keeps
-Graphstate. Notably, these are the very rows on which \PORTER{}
-regresses most sharply under its own protocol
-(Table~\ref{tab:main80}), confirming that its chain-circuit weakness
-there is largely an initial-layout effect rather than a routing-time
-one.
+extracted only for the two circuits on which it converges (GHZ and
+Graphstate; Table~\ref{tab:shared80}). \PORTER{} edges \dSABRE{} on the
+gmean ($-31.7\%$ vs.\ $-29.8\%$), winning GHZ (11 vs.\ 15 EPR pairs)
+while \dSABRE{} keeps Graphstate. GHZ is a win for \PORTER{} even from
+a layout it did not build, so its chain-circuit strength is a property
+of the router as well as of its layout.
 
 \subsection{External Layouts from pytket-dqc}
 \label{sec:pytket_results}
@@ -1237,33 +1288,114 @@ teleportation, not per-qubit state teleportation) and is not directly
 comparable, per \dSABRE{}'s own established convention for this
 comparison~\cite{lidsabre}; we include it only as context.
 
+\textbf{Fixed-layout comparison, pooled.} Combining this grid with the
+\TeleSABRE{}-layout tables gives thirty instances on which
+\dSABRE{} and \PORTER{} routed the \emph{identical} externally
+supplied layout: \PORTER{} uses fewer EPR pairs on fifteen,
+\dSABRE{} on twelve, with three ties, and \PORTER{}'s pooled
+geometric mean is lower ($73.8$ vs.\ $76.7$). Whatever share of each
+router's end-to-end result its own layout contributes, the routing
+stages themselves are at worst at parity -- and \PORTER{} reaches
+that parity in a single forward pass, without \dSABRE{}'s
+forward--backward--forward schedule.
+
 \textbf{pytket-dqc as an opt-in \PORTER{} candidate.} The grid above
 feeds pytket-dqc's partition to \PORTER{} as a probe, but the same
-partition can also be offered to \PORTER{} as one extra candidate in
-its own best-of layout search, beside its two self-contained heuristics
-(Section~\ref{sec:sfc-layout}). Since \PORTER{} routes far faster than
-pytket-dqc partitions, this is nearly free on the routing side and
-lowers EPR on structured circuits: across the eighteen benchmark
-instances, taking the best of \PORTER{}'s own layouts and the pytket
-partition cuts geometric-mean EPR from $133.6$ to $75.3$ ($-44\%$),
-with the gains concentrated on chain- and QFT-structured circuits
-(e.g.\ 64q~AE $316\!\to\!223$, 80q~GHZ $35\!\to\!7$~EPR). We keep it
-\emph{opt-in} rather than the default for three reasons. First, on the
-dense and Random circuits the external partition is \emph{worse} for
-\PORTER{} (64q~QNN $642\!\to\!1{,}031$, 64q~Random $695\!\to\!861$), so
-the best-of simply retains \PORTER{}'s own balanced layout there.
-Second, the partition itself is expensive -- seconds to minutes, and on
-dense circuits more than \PORTER{}'s entire routing pass ($309$\,s to
-partition 80q~Random versus $\approx\!40$\,s to route it; $16$\,s versus
-$0.55$\,s on 80q~AE) -- against a sub-millisecond cost for \PORTER{}'s
-own layout build, so adopting it by default would erase \PORTER{}'s
-compile-time advantage (Section~\ref{sec:time}). Third, it reintroduces
-the external-partitioner dependency \PORTER{}'s self-contained layouts
-avoid, and unlike them it can leave a core fully packed, relying on the
-full-core repair of Section~\ref{sec:sfc-layout}. \PORTER{} therefore
-defaults to its own layouts and treats an external partition as an
-optional refinement, selected only when EPR is at a premium and its
-generation time is acceptable.
+partition can also be offered to \PORTER{} as one extra layout
+candidate beside its own (Section~\ref{sec:sfc-layout}). Since
+\PORTER{} routes far faster than pytket-dqc partitions, this is nearly
+free on the routing side; taking the better of the two per instance
+lowers the eighteen-instance geometric-mean EPR from $116.8$ to $98.6$
+($-16\%$), with the gains concentrated on the most partitionable
+circuits (Graphstate $7\!\to\!4$, $20\!\to\!10$, $28\!\to\!11$ across
+the three suites; 80q~AE $490\!\to\!352$). We keep it \emph{opt-in}
+rather than the default for three reasons. First, on the dense and
+Random circuits the external partition is often \emph{worse} for
+\PORTER{} (64q~QNN $864\!\to\!1{,}031$, 64q~Random $737\!\to\!861$), so
+the best-of simply retains \PORTER{}'s own layout there. Second, the
+partition itself is expensive -- seconds to minutes, and on dense
+circuits more than \PORTER{}'s entire routing pass ($309$\,s to
+partition 80q~Random versus $\approx\!37$\,s to route it; $16$\,s
+versus $0.6$\,s on 80q~AE) -- against a sub-millisecond cost for
+\PORTER{}'s own layout build, so adopting it by default would erase
+\PORTER{}'s compile-time advantage (Section~\ref{sec:time}). Third, it
+reintroduces the external-partitioner dependency \PORTER{}'s
+self-contained layout avoids, and unlike it can leave a core fully
+packed, relying on the full-core repair of
+Section~\ref{sec:sfc-layout}. \PORTER{} therefore defaults to its own
+layout and treats an external partition as an optional refinement,
+selected only when EPR is at a premium and its generation time is
+acceptable.
+
+\subsection{Mechanism Ablation}
+\label{sec:ablation}
+
+\begin{table}[t]
+\centering
+\caption{Mechanism ablation: \PORTER{} EPR with the \TeleGatePacket{}
+  primitive disabled (\texttt{max\_packet\_size}=1) and with both
+  capacity-relief tiers disabled, all from the same temporal
+  locality-greedy layout at router seed 0. ``pk'' is the packet count
+  of the full configuration. $^{\dagger}$Fails to complete (deadlock
+  or iteration-guard trip). The gmean row is over the fourteen
+  instances all three configurations complete.}
+\label{tab:ablation}
+\setlength{\tabcolsep}{4pt}
+\small
+\begin{tabular}{@{}ll rrr r@{}}
+\toprule
+Suite & Circuit & Full & No packets & No relief & pk \\
+\midrule
+25q & ae         &    65 &    71 &    80 &   8 \\
+25q & qft        &    74 &    74 &   140 &   0 \\
+25q & qnn        &   119 &   122 &   212 &   0 \\
+25q & random     &   401 &   412 &   395 &  43 \\
+64q & ae         &   177 &   211 &   327 &  32 \\
+64q & qft        &   262 &   372 &   382 &  45 \\
+64q & qnn        &   864 &   931 &   600 & 240 \\
+64q & random     &   737 &   843 &   789 &  77 \\
+80q & ae         &   490 &   688 & $^{\dagger}$ & 264 \\
+80q & qft        &   446 &   435 & $^{\dagger}$ & 209 \\
+80q & qnn        &  1517 &  1571 & $^{\dagger}$ & 448 \\
+80q & random     & 11040 & 11628 & $^{\dagger}$ & 572 \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{gmean} (14)} & 57.6 & 61.4 & 67.0 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:ablation} attributes \PORTER{}'s EPR consumption to its
+two distinctive mechanisms by disabling each in isolation, holding the
+initial layout and every other parameter fixed (the six omitted rows
+-- GHZ and Graphstate at every scale -- form no packets and never
+trigger relief, so all three configurations coincide there).
+
+\textbf{Packets.} Disabling \TeleGatePacket{} forces every
+shared-control remote CX run to pay per gate (single telegates or
+teleports). The cost tracks the packet count: $+42\%$ EPR on 64q~QFT
+(262 $\to$ 372, 45 packets), $+40\%$ on 80q~AE (490 $\to$ 688, 264
+packets), $+19\%$ on 64q~AE, $+14\%$ on 64q~Random, and smaller gains
+on the packet-heavy deep-QNN rows (80q~QNN $1{,}517 \to 1{,}571$, 448
+packets), against a $+7\%$ overall gmean. The lone counter-move
+(80q~QFT, $446 \to 435$) shows packet formation is a heuristic
+commitment that can occasionally displace a slightly better teleport
+plan, but the direction is overwhelmingly one-sided.
+
+\textbf{Capacity relief.} Disabling both relief tiers
+(Section~\ref{sec:sfc-relief}) is not merely more expensive -- it is
+\emph{unsafe}: 80q~AE, QFT, QNN, and Random all fail to complete, because
+with every candidate destination below $f_\mathrm{min}$ free slots and
+no mechanism to drain qubits toward reservoir cores, the
+deterministic-greedy loop has no legal remote plan left. Where routing
+does complete, dense circuits pay heavily ($+89\%$ on 25q~QFT,
+$+78\%$ on 25q~QNN, $+85\%$ on 64q~AE). The one instance relief
+\emph{hurts} (64q~QNN, $864 \to 600$ without it) shows the
+opportunistic tier can overpay on a circuit whose congestion would
+resolve itself; tightening that comparator is a natural tuning
+opportunity. Overall, relief is what converts \PORTER{}'s
+raise-on-deadlock failure model (Section~\ref{sec:sfc-plan-first})
+from a liability into a non-event: with both tiers active, no
+benchmark instance in any protocol deadlocks.
 
 \subsection{Compile Time}
 \label{sec:time}
@@ -1272,22 +1404,23 @@ Table~\ref{tab:timing} reports per-attempt wall-clock time: one
 \texttt{route} call for \dSABRE{} (one SabreLayout candidate
 through its forward--backward--forward pass schedule), one
 \texttt{telesabre\_run} attempt for \TeleSABRE{}, and one
-\texttt{compile} call for \PORTER{}, all on the same machine. Search cost
-scales with the number of candidates each router tries (three for
-\TeleSABRE{}/\dSABRE{}, six for \PORTER{}, Section~\ref{sec:protocols}), so
-the totals in Section~\ref{sec:main_results} are correspondingly
-$3$--$6\times$ these per-attempt figures. \PORTER{} is consistently the
-fastest per attempt, and the gap widens with circuit size: on the
-1{,}962-CX AE circuit it is $77\times$ faster than \dSABRE{}; on
-the 8{,}126-CX QNN circuit, $68\times$; on the 23{,}381-CX 80-qubit
-Random circuit, \dSABRE{}'s own-protocol attempt does not complete
-at all (Table~\ref{tab:main80}) while \PORTER{} finishes in 40\,s. This
-reflects the performance engineering of Section~\ref{sec:perf} as much
-as any algorithmic difference between the routers -- \dSABRE{}'s
-reference implementation has not been subjected to the same
-optimisation pass -- so it should be read as a statement about
-implementation maturity rather than an inherent complexity gap between
-the two approaches.
+\texttt{compile} call for \PORTER{}, all on the same machine. For the
+baselines the own-protocol totals in Section~\ref{sec:main_results}
+are $3\times$ these per-attempt figures (best-of-three); for
+\PORTER{} the per-attempt figure \emph{is} the total, since its
+protocol is a single run from a single deterministic layout.
+\PORTER{} is consistently the fastest per attempt, and the gap widens
+with circuit size: on the 1{,}962-CX AE circuit it is $92\times$
+faster than \dSABRE{}'s single attempt ($275\times$ against the
+best-of-three total); on the 8{,}126-CX QNN circuit, $58\times$; on
+the 23{,}381-CX 80-qubit Random circuit, \dSABRE{}'s own-protocol
+attempt does not complete at all (Table~\ref{tab:main80}) while
+\PORTER{} finishes in 37\,s. This reflects the performance
+engineering of Section~\ref{sec:perf} as much as any algorithmic
+difference between the routers -- \dSABRE{}'s reference implementation
+has not been subjected to the same optimisation pass -- so it should
+be read as a statement about implementation maturity rather than an
+inherent complexity gap between the two approaches.
 
 \begin{table}[t]
 \centering
@@ -1299,12 +1432,12 @@ the two approaches.
 \toprule
 Circuit & CX & \TeleSABRE & \dSABRE{} & \PORTER{} \\
 \midrule
-ae (25q)     &   558 &  0.40 &   1.39 &  0.13 \\
-random (25q) &  1124 &  1.30 &   5.65 &  0.42 \\
-ae (64q)     &  1962 &  0.99 &  30.90 &  0.40 \\
-qft (64q)    &  1966 &  1.99 &  14.03 &  0.39 \\
-qnn (64q)    &  8126 & 21.70 & 137.88 &  2.04 \\
-random (80q) & 23381 & $^{\ast}$ & $^{\ast}$ & 40.14 \\
+ae (25q)     &   558 &  0.16 &   1.33 &  0.07 \\
+random (25q) &  1124 &  1.31 &   5.63 &  0.42 \\
+ae (64q)     &  1962 &  0.99 &  29.29 &  0.32 \\
+qft (64q)    &  1966 &  1.89 &  13.30 &  0.41 \\
+qnn (64q)    &  8126 & 21.54 & 129.94 &  2.23 \\
+random (80q) & 23381 & $^{\ast}$ & $^{\ast}$ & 37.40 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1331,24 +1464,30 @@ search and an opportunistic pre-emptive relief comparator
 (Section~\ref{sec:sfc-relief}).
 
 \textbf{\dSABRE{}}~\cite{lidsabre} (we compare against its default
-\texttt{dSABRE\_BurstExt} variant, ``\dSABRE{}'') is the more
-EPR-efficient baseline under each router's own protocol
-(Section~\ref{sec:main_results}), particularly on sparse, highly
-partitionable circuits (GHZ, Graphstate) where its SabreLayout-based
-initial allocation plus forward-backward-forward routing passes find a
-near-ideal core partition before routing even begins. The
-shared-layout comparison (Tables~\ref{tab:shared25}, \ref{tab:shared64},
-and \ref{tab:pytket}) attributes a substantial share of that advantage
-to initial-layout quality rather than routing-time decisions on the
-25-qubit suite -- from \TeleSABRE{}'s own layout, \PORTER{} matches or
-beats \dSABRE{} on four of six circuits -- though the effect
-reverses on the 64-qubit suite (Section~\ref{sec:shared_results}).
-\dSABRE{} restricts itself to teledata; \PORTER{} instead
+\texttt{dSABRE\_BurstExt} variant, ``\dSABRE{}'') is the stronger of
+the two baselines and the closest competitor on EPR count. Its
+strategy inverts \PORTER{}'s cost profile: a SabreLayout-based initial
+allocation refined through forward--backward--forward routing passes,
+run over three seeds, buys excellent core partitions -- it remains the
+best router on the sparse, highly partitionable Graphstate family in
+every protocol we test -- at a compile-time cost that is $58$--$92\times$
+\PORTER{}'s per attempt (Section~\ref{sec:time}). Under each router's
+own protocol \PORTER{}'s single run posts the lower geometric-mean EPR
+on all three suites (Section~\ref{sec:main_results}), and across
+thirty instances routed from identical externally supplied
+layouts, \PORTER{} wins fifteen to \dSABRE{}'s twelve
+(Section~\ref{sec:pytket_results}); \dSABRE{}'s remaining advantage is
+concentrated in its multi-pass refinement of an externally supplied
+layout on large cores (Section~\ref{sec:shared_results}) and on the
+dense all-to-all QNN circuits (64q and 80q), where its best-of-three
+partition beats \PORTER{}'s single deterministic layout. \dSABRE{}
+restricts itself to teledata; \PORTER{}
 follows \TeleSABRE{} in also supporting gate teleportation and extends
 it with same-control packets, which matters on circuits with long runs
 of shared-control remote CX gates (e.g.\ QFT-like phase-kickback
 patterns) where amortising many remote CX gates onto one EPR pair can
-outweigh a less-optimal core partition.
+outweigh a less-optimal core partition
+(Section~\ref{sec:ablation}).
 
 \textbf{Single-QPU qubit mapping.} The front+extended-set scoring
 loop~\PORTER{} and both baselines build on originates with
@@ -1360,9 +1499,12 @@ term (Eq.~\ref{eq:sfc-teleport}).
 \textbf{Allocation and scheduling.} Hypergraph-partitioning allocation
 methods~\cite{andres2019automated,pytketdqc2024} and time-aware
 schedulers~\cite{baker2020time,ferrari2021compiler} address the
-upstream allocation and downstream scheduling stages respectively; both
-are complementary to \PORTER{}, which addresses only the routing stage
-given a fixed initial layout.
+upstream allocation and downstream scheduling stages respectively.
+Both remain complementary to \PORTER{}: its own temporal
+locality-greedy allocation is a one-pass greedy heuristic, not a
+global optimiser, and Section~\ref{sec:pytket_results} shows a
+hypergraph partition can still improve the most partitionable
+circuits when its generation cost is acceptable.
 
 %%────────────────────────────────────────────────────────────────────────────
 \section{Conclusion}
@@ -1377,39 +1519,47 @@ flat action pool: every legal teleport, telegate, and same-control
 packet candidate (including capacity-blocked variants) is scored on
 its physical and DAG-lookahead merits before any core-preparation SWAP
 is generated, and preparation effort is then spent exclusively on the
-one plan chosen. Combined with a two-tier capacity-relief mechanism
-(breadth-first tail relief when every plan is blocked, opportunistic
-pre-emptive relief when one is severely blocked), this plan-first
-structure lets \PORTER{} reduce geometric-mean EPR consumption by
-$42.1\%$ against \TeleSABRE{} on a 25-qubit suite and $16.7\%$ on a
-64-qubit suite, completing every circuit \TeleSABRE{} cannot, while
-remaining behind \dSABRE{} under each router's own best-practice
-layout, particularly on sparse, easily-partitioned circuits and on the
-chain-structured GHZ pattern where all locally-greedy schedulers we
-tested, \PORTER{} included, lose ground to \TeleSABRE{}'s front-averaged
-energy. Feeding both routers \TeleSABRE{}'s own initial layout instead
-of each one's own best-practice layout reverses this ranking on the
-25- and 80-qubit suites but not on the 64-qubit one, indicating that the share
-of \dSABRE{}'s advantage attributable to its initial-layout heuristic
-versus its routing-time decisions is architecture-dependent -- a
-distinction that matters for anyone choosing where to invest further
-engineering effort between the two stages. At the largest scale we
-tested (80 qubits, a 23{,}381-CX circuit), \PORTER{} completed in 40\,s
-where both \TeleSABRE{} and \dSABRE{} exceed our uniform 900\,s
-per-call compiler timeout; running \dSABRE{} past that cap
-(Section~\ref{sec:main_results}) shows 938.4\,s of genuine forward
-progress toward its own iteration budget rather than a deadlock -- a
-practical throughput advantage on unusually dense circuits at scale
-that the smaller suites do not exercise, though not evidence that
-\dSABRE{}'s algorithm is inherently unable to route this circuit given
-a larger budget. Every reported run was certified by an independent
+one plan chosen. The router is paired with a two-tier capacity-relief
+mechanism (breadth-first tail relief when every plan is blocked,
+opportunistic pre-emptive relief when one is severely blocked) and a
+deterministic, seed-free temporal locality-greedy initial layout that
+co-locates qubits by temporally discounted interaction weight in
+first-use order.
+
+The combination is deliberately minimal -- one layout, one forward
+pass, no seed sweep, no rollback -- and the evaluation shows the
+minimalism costs nothing on this benchmark family: a single \PORTER{}
+run posts the lowest geometric-mean EPR count of the three routers on
+all three suites ($54.3\%$, $49.8\%$, and $65.8\%$ below \TeleSABRE{};
+below \dSABRE{}'s best-of-three on each suite), completes all eighteen
+benchmarks where \dSABRE{} completes seventeen and \TeleSABRE{}
+thirteen, and runs $58$--$92\times$ faster per attempt than
+\dSABRE{}. Across thirty instances routed from identical externally
+supplied layouts, \PORTER{}'s single forward pass matches or beats
+\dSABRE{}'s forward--backward--forward schedule (fifteen wins to
+twelve). The ablation attributes the gains concretely: packets save up
+to $42\%$ EPR on shared-control-heavy circuits, and capacity relief is
+what makes the deterministic-greedy design complete at all at 80
+qubits.
+At the largest scale we tested (a 23{,}381-CX circuit), \PORTER{}
+completed in 37\,s where both baselines exceed a uniform 900\,s
+per-call compiler timeout -- for \dSABRE{} a resource-budget
+limitation rather than a deadlock (Section~\ref{sec:main_results}),
+but a practical throughput gap of two orders of magnitude
+nonetheless. Every reported run was certified by an independent
 replay verifier that re-derives, from the emitted operation stream
 alone, gate coverage, dependency order, and physical legality.
 
-Natural next steps include a backward-refinement pass over \PORTER{}'s
-single forward route (the mechanism behind \dSABRE{}'s 64-qubit
-shared-layout advantage), a native initial-layout stage co-designed
-with the plan-committed remote loop, and extending the packet
+Two limits are equally concrete. \dSABRE{} remains the best router
+for extreme partitionable structure (Graphstate, in every protocol),
+and its best-of-three SabreLayout partition beats \PORTER{}'s single
+deterministic layout on dense all-to-all circuits: the deep 64q and
+80q QNN rows (864 vs.\ 539 and 1{,}517 vs.\ 811 EPR pairs) are
+\PORTER{}'s weakest results and a consistent boundary of the
+single-layout policy. Natural next steps follow directly: a
+backward-refinement pass over \PORTER{}'s single forward route, a
+lightweight exchange-refinement of the temporal locality-greedy
+partition targeting the dense-QNN case, and extending the packet
 primitive beyond the shared-control case.
 
 \paragraph*{Artefact availability.} The \PORTER{} implementation, the

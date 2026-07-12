@@ -13,9 +13,23 @@ onto `RouterConfig` defaults (`f_min=min_free_before_teleport`,
 `m_assist=capacity_relief_assist_margin`, …).
 
 (Historical names: the project was briefly called "SFC"; the router class
-was `DistributedRouter`, kept as an alias of `PorterRouter`; the
-initial-layout heuristic was called "try15", now `build_initial_layout` /
-`porter.balanced_first_layer`.)
+was `DistributedRouter`, kept as an alias of `PorterRouter`; the original
+balanced-first-layer layout heuristic was called "try15".)
+
+**Initial layout** (since 2026-07-12): ONE deterministic, seed-free
+heuristic — temporal locality-greedy (`compile_porter.build_initial_layout`,
+label `porter.temporal_locality`): temporally discounted CX weights
+(γ=0.99 per ASAP layer), qubits visited in first-CX-appearance order,
+heaviest-placed-neighbour core assignment respecting the `f_min`
+reservation, within-core slots by descending weight onto
+ascending-centrality positions. It replaced the balanced-first-layer /
+seeded-locality best-of-6 search, which it beats on 14/16 paper instances
+(gmean EPR 55.4 vs 92.0) and 14/15 held-out circuits; with it PORTER's
+own-protocol gmean beats dSABRE's best-of-3 on all three suites. Legacy
+builders survive only for the paper's layout study
+(`paper/porter_under_layouts.py`): `compile_porter.build_balanced_first_layer_layout`
+and `compare_routers.build_seeded_locality_layout`. Benchmark harness:
+`merged_layout_prototype.py`.
 
 ## Files
 
@@ -46,6 +60,12 @@ python verify_porter.py --trials 60
 
 Benchmark QASM circuits live in `../other/telesabre/circuits/` (`qasm_25/` fits
 architecture A, `qasm_64/` fits H; only basis `id, rz, sx, x, cx` is supported).
+The QNN benchmark needs the **deep** ZZ-feature-map variant, not the stock
+mqt.bench 2.2.2 output (a near-linear chain identical to GHZ): `qasm_64/` uses
+`qnn_OLD_DEEP_...64.qasm.bak` (real MQT 1.1.0), `qasm_80/` uses
+`qnn_nativegates_ibm_qiskit_opt3_80_DEEP.qasm` (reconstructed, byte-identical
+CNOT sequence to the 64q file at n=64; built by `bench/MQTBench/qnn_extract_80.py`).
+Both are wired into `SUITES` in `compare_routers.py`.
 
 ## Key invariants
 
@@ -53,8 +73,10 @@ architecture A, `qasm_64/` fits H; only basis `id, rz, sx, x, cx` is supported).
   the emitted op stream is byte-identical across runs. Any refactor must
   preserve this — compare SHA256 of the serialized `compiled_ops` JSON and the
   `seeded_tie_break_count` stat (identical RNG consumption) before/after.
-  (Last verified 2026-07-10 after the unpreparable-plan fix: 6 circuits × A/H
-  byte-identical, tie counts unchanged, 60/60 fuzz trials pass.)
+  (Last verified 2026-07-12 after the temporal-locality layout switch:
+  8 circuits byte-identical with matching tie counts, 60/60 fuzz trials
+  pass. Note the initial layout itself is now seed-free, so the op stream
+  depends on the seed only through router tie-breaks.)
 - The verifier replays ops against its own layout copy and checks gate
   coverage (each gate exactly once), per-qubit dependency order, coupling-edge
   legality, port rules for teleport/telegate/packets, and stats consistency.

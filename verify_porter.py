@@ -305,7 +305,7 @@ def fuzz(trials: int, verbose: bool = True) -> None:
         num_gates = rng.randrange(20, 600)
         circuit = random_circuit(num_logical, num_gates, rng)
         layout = cdr.build_initial_layout(
-            circuit, hw, num_logical, seed=trial,
+            circuit, hw, num_logical,
             min_free_per_core=cfg.min_free_before_teleport,
         )
         router = dr.PorterRouter(hw, cfg)
@@ -333,7 +333,7 @@ def verify_qasm(qasm: Path, architecture: str, seed: int) -> None:
     _, hw = cdr.hardware_for_name(architecture)
     cfg = dr.RouterConfig(random_seed=seed)
     layout = cdr.build_initial_layout(
-        circuit, hw, num_logical, seed=seed,
+        circuit, hw, num_logical,
         min_free_per_core=cfg.min_free_before_teleport,
     )
     router = dr.PorterRouter(hw, cfg)

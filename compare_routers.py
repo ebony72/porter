@@ -181,7 +181,13 @@ SUITES = {
             "ghz_nativegates_ibm_qiskit_opt3_80.qasm",
             "graphstate_nativegates_ibm_qiskit_opt3_80.qasm",
             "qft_nativegates_ibm_qiskit_opt3_80.qasm",
-            "qnn_nativegates_ibm_qiskit_opt3_80.qasm",
+            # Deep QNN (ZZFeatureMap full + RealAmplitudes), reconstructed to
+            # match the deep 64q qnn_OLD_DEEP file. The stock
+            # qnn_nativegates_..._80.qasm from mqt.bench 2.2.2 is a shallow
+            # 79-CX chain whose interaction graph is identical to GHZ, so it is
+            # not a usable distinct benchmark. See bench/MQTBench/qnn_extract_80.py.
+            # (The _DEEP suffix follows the basis token so cname resolves to "qnn".)
+            "qnn_nativegates_ibm_qiskit_opt3_80_DEEP.qasm",
             "random_nativegates_ibm_qiskit_opt3_80.qasm",
         ],
     ),
@@ -772,11 +778,14 @@ def build_seeded_locality_layout(
 
 def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
             *, pytket_candidate: Optional[tuple] = None) -> Optional[dict]:
-    """PORTER with its own initial-layout candidates, best of ``2 * NUM_SEEDS``:
-    the balanced-first-layer heuristic (seeds 0..NUM_SEEDS-1) and a
-    seeded locality-greedy partition (seeds 0..NUM_SEEDS-1), mirroring the
-    "own layout heuristic, best-of-N-seed" protocol used for TeleSABRE and
-    dSABRE below.
+    """PORTER with its own initial layout: ONE deterministic temporal
+    locality-greedy layout (``cdr.build_initial_layout``, seed-free) routed
+    in a single pass at router seed 0.  No layout search -- this replaced
+    the former balanced-first-layer / seeded-locality best-of-6 protocol
+    (2026-07-12), which it beats on 14 of the 16 comparable paper
+    instances (gmean EPR 55.4 vs 92.0) and on 14/15 held-out circuits.
+    The legacy builders remain below / in compile_porter only for the
+    paper's initial-mapping study (``paper/porter_under_layouts.py``).
 
     ``pytket_candidate`` is an opt-in hook (off by default, keeping PORTER
     self-contained): pass ``(dag, arch, placement, corner_nodes)`` to route
@@ -785,47 +794,41 @@ def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
     (own-layout build is ~microseconds vs seconds-to-minutes for the
     partition), so the marginal cost is the partition itself, not the routing;
     it lowers EPR on structured circuits but not on the dense/Random ones that
-    PORTER's own balanced layout already wins."""
+    PORTER's own layout already wins."""
     best = None
-    builders = [
-        ("balanced", cdr.build_initial_layout),
-        ("locality", build_seeded_locality_layout),
-    ]
-    for layout_name, builder in builders:
-        for seed in range(NUM_SEEDS):
-            cfg = dr.RouterConfig(random_seed=seed)
-            try:
-                layout = builder(
-                    circuit, hw, num_logical, seed=seed,
-                    min_free_per_core=cfg.min_free_before_teleport,
-                )
-            except ValueError:
-                continue
-            router = dr.PorterRouter(hw, cfg)
-            t0 = time.perf_counter()
-            try:
-                with _compiler_time_limit():
-                    state = router.compile(circuit, layout)
-            except (RuntimeError, ValueError, CompilerTimeout):
-                # ValueError can only come from RouterConfig.repair_full_cores
-                # finding the whole chip at capacity (no core has room to
-                # receive an eviction); PORTER's own layout builders always
-                # reserve free slots per core, so this should not fire here.
-                continue
+    cfg = dr.RouterConfig(random_seed=0)
+    try:
+        layout = cdr.build_initial_layout(
+            circuit, hw, num_logical,
+            min_free_per_core=cfg.min_free_before_teleport,
+        )
+    except ValueError:
+        layout = None
+    if layout is not None:
+        router = dr.PorterRouter(hw, cfg)
+        t0 = time.perf_counter()
+        try:
+            with _compiler_time_limit():
+                state = router.compile(circuit, layout)
+        except (RuntimeError, ValueError, CompilerTimeout):
+            # ValueError can only come from RouterConfig.repair_full_cores
+            # finding the whole chip at capacity (no core has room to
+            # receive an eviction); PORTER's own layout builder always
+            # reserves free slots per core, so this should not fire here.
+            state = None
+        if state is not None:
             elapsed = time.perf_counter() - t0
-            epr = state.stats.epr
-            if best is None or epr < best["epr"]:
-                best = dict(
-                    epr=epr, swaps=state.stats.local_swap_count,
-                    depth=state.stats.depth, intercore_depth=state.stats.intercore_depth,
-                    teleports=state.stats.teleport_count,
-                    teleports_normal=state.stats.teleport_normal_count,
-                    teleports_blocked=state.stats.teleport_blocked_count,
-                    teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
-                    telegates=state.stats.telegate_count,
-                    telegate_packets=state.stats.telegate_packet_count,
-                    layout=layout_name, seed=seed, seconds=round(elapsed, 3),
-                )
+            best = dict(
+                epr=state.stats.epr, swaps=state.stats.local_swap_count,
+                depth=state.stats.depth, intercore_depth=state.stats.intercore_depth,
+                teleports=state.stats.teleport_count,
+                teleports_normal=state.stats.teleport_normal_count,
+                teleports_blocked=state.stats.teleport_blocked_count,
+                teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
+                telegates=state.stats.telegate_count,
+                telegate_packets=state.stats.telegate_packet_count,
+                layout="temporal_locality", seed=0, seconds=round(elapsed, 3),
+            )
 
     if pytket_candidate is not None:
         dag, arch, placement, corner_nodes = pytket_candidate
