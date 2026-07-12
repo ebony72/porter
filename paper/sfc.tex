@@ -1237,6 +1237,34 @@ teleportation, not per-qubit state teleportation) and is not directly
 comparable, per \dSABRE{}'s own established convention for this
 comparison~\cite{lidsabre}; we include it only as context.
 
+\textbf{pytket-dqc as an opt-in \PORTER{} candidate.} The grid above
+feeds pytket-dqc's partition to \PORTER{} as a probe, but the same
+partition can also be offered to \PORTER{} as one extra candidate in
+its own best-of layout search, beside its two self-contained heuristics
+(Section~\ref{sec:sfc-layout}). Since \PORTER{} routes far faster than
+pytket-dqc partitions, this is nearly free on the routing side and
+lowers EPR on structured circuits: across the eighteen benchmark
+instances, taking the best of \PORTER{}'s own layouts and the pytket
+partition cuts geometric-mean EPR from $133.6$ to $75.3$ ($-44\%$),
+with the gains concentrated on chain- and QFT-structured circuits
+(e.g.\ 64q~AE $316\!\to\!223$, 80q~GHZ $35\!\to\!7$~EPR). We keep it
+\emph{opt-in} rather than the default for three reasons. First, on the
+dense and Random circuits the external partition is \emph{worse} for
+\PORTER{} (64q~QNN $642\!\to\!1{,}031$, 64q~Random $695\!\to\!861$), so
+the best-of simply retains \PORTER{}'s own balanced layout there.
+Second, the partition itself is expensive -- seconds to minutes, and on
+dense circuits more than \PORTER{}'s entire routing pass ($309$\,s to
+partition 80q~Random versus $\approx\!40$\,s to route it; $16$\,s versus
+$0.55$\,s on 80q~AE) -- against a sub-millisecond cost for \PORTER{}'s
+own layout build, so adopting it by default would erase \PORTER{}'s
+compile-time advantage (Section~\ref{sec:time}). Third, it reintroduces
+the external-partitioner dependency \PORTER{}'s self-contained layouts
+avoid, and unlike them it can leave a core fully packed, relying on the
+full-core repair of Section~\ref{sec:sfc-layout}. \PORTER{} therefore
+defaults to its own layouts and treats an external partition as an
+optional refinement, selected only when EPR is at a premium and its
+generation time is acceptable.
+
 \subsection{Compile Time}
 \label{sec:time}
 

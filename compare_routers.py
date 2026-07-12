@@ -189,6 +189,11 @@ SUITES = {
 
 NUM_SEEDS = 3
 
+# Opt-in: add the external pytket-dqc partition as an extra candidate in
+# PORTER's own-protocol best-of (run_sfc / run_suite). Off by default so
+# PORTER stays self-contained; enable with `--porter-include-pytket`.
+PORTER_INCLUDE_PYTKET = False
+
 
 # ---------------------------------------------------------------------------
 # Topology converter: PORTER Hardware -> dSABRE DistributedArchitecture
@@ -636,6 +641,62 @@ def run_sfc_pytket_layout(
     )
 
 
+def run_sfc_sabre_layout(
+    circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
+    dag, sabre_layouts: List[Dict],
+) -> Optional[dict]:
+    """Route PORTER from dSABRE's own initial layouts -- SabreLayout on the
+    corners-removed architecture graph (`sabre_locked_boundary_layout`, the
+    exact candidates dSE uses under its own protocol). Best EPR over the (up
+    to three) candidate layouts, mirroring how dSE selects among them.
+
+    Each candidate is a {qiskit Qubit: physical int} dict; we convert it to a
+    PORTER Layout the same way as the pytket leg. SabreLayout keeps the four
+    locked corner qubits free but places nothing else with PORTER's
+    f_min-per-core reservation in mind, so a core may come in full;
+    router.compile() legalizes that via RouterConfig.repair_full_cores, or
+    folds a whole-chip-full ValueError into the same None as a deadlock."""
+    qubit_index = {q: i for i, q in enumerate(dag.qubits)}
+    best = None
+    for layout_dict in sabre_layouts:
+        logical_to_physical = {qubit_index[q]: p for q, p in layout_dict.items()}
+        if set(logical_to_physical) != set(range(num_logical)):
+            continue
+        physical_to_logical = {p: q for q, p in logical_to_physical.items()}
+        logical_to_core = {q: hw.phys_to_core[p] for q, p in logical_to_physical.items()}
+        dummy = num_logical
+        for p in hw.phys_to_core:
+            if p not in physical_to_logical:
+                physical_to_logical[p] = dummy
+                dummy += 1
+        layout = dr.Layout(
+            logical_to_physical=logical_to_physical, logical_to_core=logical_to_core,
+            physical_to_logical=physical_to_logical, num_logical=num_logical,
+        )
+        cfg = dr.RouterConfig(random_seed=0)
+        router = dr.PorterRouter(hw, cfg)
+        t0 = time.perf_counter()
+        try:
+            with _compiler_time_limit():
+                state = router.compile(circuit, layout)
+        except (RuntimeError, ValueError, CompilerTimeout):
+            continue
+        elapsed = time.perf_counter() - t0
+        if best is None or state.stats.epr < best["epr"]:
+            best = dict(
+                epr=state.stats.epr, swaps=state.stats.local_swap_count,
+                depth=state.stats.depth, intercore_depth=state.stats.intercore_depth,
+                teleports=state.stats.teleport_count,
+                teleports_normal=state.stats.teleport_normal_count,
+                teleports_blocked=state.stats.teleport_blocked_count,
+                teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
+                telegates=state.stats.telegate_count,
+                telegate_packets=state.stats.telegate_packet_count,
+                seconds=round(elapsed, 3),
+            )
+    return best
+
+
 # ---------------------------------------------------------------------------
 # PORTER runner
 # ---------------------------------------------------------------------------
@@ -709,12 +770,22 @@ def build_seeded_locality_layout(
     return dr.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
 
 
-def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int) -> Optional[dict]:
+def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
+            *, pytket_candidate: Optional[tuple] = None) -> Optional[dict]:
     """PORTER with its own initial-layout candidates, best of ``2 * NUM_SEEDS``:
     the balanced-first-layer heuristic (seeds 0..NUM_SEEDS-1) and a
     seeded locality-greedy partition (seeds 0..NUM_SEEDS-1), mirroring the
     "own layout heuristic, best-of-N-seed" protocol used for TeleSABRE and
-    dSABRE below."""
+    dSABRE below.
+
+    ``pytket_candidate`` is an opt-in hook (off by default, keeping PORTER
+    self-contained): pass ``(dag, arch, placement, corner_nodes)`` to route
+    the external pytket-dqc partition as one extra candidate and fold it into
+    the best-of. PORTER routes several times faster than pytket-dqc partitions
+    (own-layout build is ~microseconds vs seconds-to-minutes for the
+    partition), so the marginal cost is the partition itself, not the routing;
+    it lowers EPR on structured circuits but not on the dense/Random ones that
+    PORTER's own balanced layout already wins."""
     best = None
     builders = [
         ("balanced", cdr.build_initial_layout),
@@ -755,6 +826,16 @@ def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int) -> Option
                     telegate_packets=state.stats.telegate_packet_count,
                     layout=layout_name, seed=seed, seconds=round(elapsed, 3),
                 )
+
+    if pytket_candidate is not None:
+        dag, arch, placement, corner_nodes = pytket_candidate
+        if placement is not None:
+            try:
+                res = run_sfc_pytket_layout(circuit, hw, num_logical, dag, arch, placement, corner_nodes)
+            except ValueError:
+                res = None
+            if res is not None and (best is None or res["epr"] < best["epr"]):
+                best = dict(res, layout="pytket", seed=0)
     return best
 
 
@@ -816,8 +897,19 @@ def run_suite(suite_key: str) -> List[dict]:
         dse = run_dsabre(dSABRE_BurstExt, arch, hw_cfg, dag, rev_dag, sabre_layouts)
         print(f"  dSE  (SabreLayout) : {dse}", flush=True)
 
-        sfc = run_sfc(circuit, hw, num_logical)
-        print(f"  PORTER  (own layouts) : {sfc}", flush=True)
+        # pytket-dqc partition computed once here and reused twice: as PORTER's
+        # opt-in own-protocol candidate (when --porter-include-pytket) and for
+        # the shared-layout leg below. The partition is the expensive step
+        # (seconds to minutes), so never run it twice.
+        pytket_cost, pytket_placement = pytket_hypergraph_partition(
+            qc, arch, corner_nodes, num_seeds=pytket_seeds
+        )
+        sfc = run_sfc(
+            circuit, hw, num_logical,
+            pytket_candidate=(dag, arch, pytket_placement, corner_nodes)
+            if PORTER_INCLUDE_PYTKET else None,
+        )
+        print(f"  PORTER  (own layouts{'+pytket' if PORTER_INCLUDE_PYTKET else ''}) : {sfc}", flush=True)
 
         # -- shared-layout comparison (TeleSABRE's own initial layout) ----
         dse_shared = sfc_shared = None
@@ -834,10 +926,7 @@ def run_suite(suite_key: str) -> List[dict]:
             print("  (no TeleSABRE initial layout available; skipping shared-layout comparison)", flush=True)
 
         # -- shared-layout comparison (pytket-dqc's own initial mapping,
-        #    locked boundary -- see _locked_boundary_corner_nodes) --
-        pytket_cost, pytket_placement = pytket_hypergraph_partition(
-            qc, arch, corner_nodes, num_seeds=pytket_seeds
-        )
+        #    locked boundary -- reuses the partition computed above) --
         print(f"  pytket-dqc (e-bits): {pytket_cost}", flush=True)
         dse_pytket = sfc_pytket = None
         if pytket_placement is not None:
@@ -865,7 +954,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", action="append", choices=list(SUITES), default=None)
     parser.add_argument("--out", type=Path, default=Path("compare_results.json"))
+    parser.add_argument(
+        "--porter-include-pytket", action="store_true",
+        help="opt-in: add the external pytket-dqc partition as an extra "
+             "candidate in PORTER's own-protocol best-of (default off, "
+             "keeping PORTER self-contained).",
+    )
     args = parser.parse_args()
+    global PORTER_INCLUDE_PYTKET
+    PORTER_INCLUDE_PYTKET = args.porter_include_pytket
     suites = args.suite or list(SUITES)
 
     all_records = []
