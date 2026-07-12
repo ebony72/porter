@@ -632,7 +632,7 @@ deeper 8{,}126-CX variant. Table~\ref{tab:circuits} lists CX counts.
 \toprule
 Circuit & 25q (arch.\ A) & 64q (arch.\ H) & 80q (arch.\ H) \\
 \midrule
-AE          &  558 & 1962 &   --- \\
+AE          &  558 & 1962 &  2780 \\
 GHZ         &   24 &   63 &    79 \\
 Graphstate  &   25 &   64 &    80 \\
 QFT         &  580 & 1966 &  2660 \\
@@ -647,13 +647,22 @@ same architecture~H, we generated an 80-qubit suite with
 \texttt{mqt.bench}~2.2.2 (device-independent generation followed by
 transpilation to our basis, since the installed \texttt{mqt.bench}'s
 target-aware native-gate path raised an unrelated \texttt{qiskit}
-compatibility error on every circuit we tried). AE is excluded: its
-phase-estimation construction hits a numerical-precision failure
-(\texttt{"Input matrix is not unitary"}) at this size in the installed
-\texttt{mqt.bench}/\texttt{qiskit} combination, independent of our
-code path; a reduced circuit-family set at larger qubit counts is
-already precedented by \dSABRE{}'s own 100q/200q/360q
-suites~\cite{lidsabre}. The generator's current QNN benchmark has no
+compatibility error on every circuit we tried). AE at this size is not
+directly producible by stock \texttt{mqt.bench}: its phase-estimation
+construction evaluates $\mathrm{Operator}(Q)^{2^{j}}$ for each
+evaluation bit $j$, and the accumulated floating-point non-unitarity
+trips \texttt{qiskit}'s unitarity check
+(\texttt{"Input matrix is not unitary"}) beyond roughly $27$ evaluation
+qubits, which is why published AE files stop near $54$~qubits. Since the
+Bernoulli operator $Q$ is a single-qubit rotation, we instead supply the
+power analytically, $Q^{2^{j}}=R_Y(2^{j+1}\theta_p)$ ($R_Y$ periodic in
+$4\pi$), and otherwise run \texttt{mqt.bench}'s own native-gate
+transpilation unchanged. The CNOT sub-sequence---which alone determines
+routing---is decomposition-invariant in these rotation angles and is
+byte-identical to stock \texttt{mqt.bench} at every size the latter can
+build (verified at $10$, $20$, $25$, and $28$~qubits); only the
+routing-irrelevant single-qubit angles carry floating-point error at
+high bit indices. The generator's current QNN benchmark has no
 depth parameter and produces a near-linear circuit at this size (CX
 $\approx$ qubit count, Table~\ref{tab:circuits}), so it should be read
 as structurally closer to GHZ than to the deeper QNN instances at
@@ -889,8 +898,8 @@ random$^{\ast}$ & --- &   --- &  738 &  3827 &  695 &  3837 & --- \\
 \caption{80-qubit suite, own-protocol comparison (architecture H,
   same physical topology as the 64-qubit suite, more logical qubits
   per circuit). Methodology and notation as Table~\ref{tab:main25}.
-  AE excluded (Section~\ref{sec:setup}). $^{\ast}$\TeleSABRE{} fails
-  to converge; gmean is over the 3 circuits on which it does.}
+  $^{\ast}$\TeleSABRE{} fails to converge; gmean is over the 3
+  circuits on which it does.}
 \label{tab:main80}
 \setlength{\tabcolsep}{4pt}
 \small
@@ -902,6 +911,7 @@ random$^{\ast}$ & --- &   --- &  738 &  3827 &  695 &  3837 & --- \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
 Circuit & EPR & SWAP & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
 \midrule
+ae$^{\ast}$    &  --- &  --- &  506 &  3438 &   617 &  3737 & --- \\
 ghz            &   19 &  172 &   20 &   143 &    35 &   224 & $+84.2$ \\
 graphstate     &   88 &  521 &   22 &   131 &    37 &   252 & $-58.0$ \\
 qft$^{\ast}$   &  --- &  --- &  670 &  3844 &   539 &  3627 & --- \\
@@ -991,6 +1001,7 @@ random$^{\ast}$ & --- &   --- &  --- &   --- &     --- &  --- &   --- &     --- 
 \cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}
 Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
 \midrule
+ae$^{\ast}$    &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
 ghz            &   19 &  172 &   15 &   173 & $-21.1$ &   11 &   156 & $-42.1$ \\
 graphstate     &   88 &  521 &   55 &   306 & $-37.5$ &   71 &   402 & $-19.3$ \\
 qft$^{\ast}$   &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
@@ -1074,14 +1085,14 @@ global rendezvous core on this specific pathological case. On the one
 circuit \TeleSABRE{} fails to complete (Random), \PORTER{} does (695 EPR),
 without any deadlock-recovery mechanism firing.
 
-\textbf{80-qubit suite.} \TeleSABRE{} converges on only three of five
+\textbf{80-qubit suite.} \TeleSABRE{} converges on only three of six
 circuits here (Table~\ref{tab:main80}); GHZ and QNN are
 numerically identical because the installed \texttt{mqt.bench}'s QNN
 generator produces a near-linear circuit at this size
 (Section~\ref{sec:setup}), so both are effectively the same
 chain-structured pathological case discussed above, and \PORTER{}
 regresses on both by the same $+84.2\%$ under its own protocol. The
-striking result is on the two circuits \TeleSABRE{} cannot complete:
+striking result is on the three circuits \TeleSABRE{} cannot complete:
 on Random (23{,}381 CX, by far the largest circuit in any suite here),
 \dSABRE{}'s own-protocol run also exceeds our uniform 900\,s per-call
 compiler timeout (Section~\ref{sec:setup}) -- recorded as a missing
@@ -1104,12 +1115,14 @@ This is a resource-budget
 limitation specific to this unusually dense circuit (23{,}381 CX over
 80 qubits, roughly $3$--$18\times$ the CX/qubit ratio of any other
 circuit in our suites), not evidence that \dSABRE{}'s routing
-algorithm cannot in principle handle it. On QFT (2{,}660 CX) both
-\dSABRE{} and \PORTER{} complete where \TeleSABRE{} cannot, with
-\PORTER{} using 19.6\% fewer EPR pairs than \dSABRE{} (539 vs.\ 670).
-We read this cautiously -- one non-AE-capable suite with reduced
-circuit diversity is not conclusive -- but it is consistent with the
-64q finding that \PORTER{} tends to complete circuits at scales where
+algorithm cannot in principle handle it. On the other two circuits
+\TeleSABRE{} cannot complete, both \dSABRE{} and \PORTER{} finish:
+on QFT (2{,}660 CX) \PORTER{} uses 19.6\% fewer EPR pairs than
+\dSABRE{} (539 vs.\ 670), whereas on AE (2{,}780 CX) \dSABRE{} is the
+more economical of the two (506 vs.\ \PORTER{}'s 617), so the pair is
+split. We read this cautiously -- a single six-family suite at one
+scale is not conclusive -- but it is consistent with the 64q finding
+that \PORTER{} tends to complete circuits at scales where
 \TeleSABRE{}, and sometimes \dSABRE{} under a fixed iteration
 budget, do not.
 

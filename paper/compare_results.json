@@ -709,6 +709,54 @@
   },
   {
     "suite": "80",
+    "circuit": "ae",
+    "num_logical": 80,
+    "cx": 2780,
+    "telesabre": null,
+    "dSE": {
+      "epr": 506,
+      "swaps": 3438,
+      "seconds": 19.787
+    },
+    "sfc": {
+      "epr": 617,
+      "swaps": 3737,
+      "depth": 6744,
+      "intercore_depth": 6742,
+      "teleports": 368,
+      "teleports_normal": 303,
+      "teleports_blocked": 58,
+      "teleports_capacity_relief": 7,
+      "telegates": 34,
+      "telegate_packets": 215,
+      "layout": "locality",
+      "seed": 0,
+      "seconds": 0.701
+    },
+    "dSE_shared": null,
+    "sfc_shared": null,
+    "pytket_ebits": 563,
+    "dSE_pytket": {
+      "epr": 916,
+      "swaps": 4659,
+      "seconds": 21.163
+    },
+    "sfc_pytket": {
+      "epr": 352,
+      "swaps": 2557,
+      "depth": 5825,
+      "intercore_depth": 5775,
+      "teleports": 237,
+      "teleports_normal": 176,
+      "teleports_blocked": 59,
+      "teleports_capacity_relief": 2,
+      "telegates": 6,
+      "telegate_packets": 109,
+      "seconds": 0.55
+    }
+  },
+  {
+    "suite": "80",
     "circuit": "ghz",
     "num_logical": 80,
     "cx": 79,

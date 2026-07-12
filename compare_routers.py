@@ -160,18 +160,24 @@ SUITES = {
         ],
     ),
     # Same architecture H (96 physical qubits) as "64", just more logical
-    # qubits per circuit. AE is excluded: its phase-estimation construction
-    # hits a numerical-precision failure ("Input matrix is not unitary") at
-    # this size in the installed mqt.bench/qiskit combination, independent
-    # of our code path (reproduces via both get_benchmark_native_gates and
-    # get_benchmark_indep). A reduced circuit-family set at larger qubit
-    # counts is already precedented by dSABRE's own 100q/200q/360q suites.
+    # qubits per circuit. AE at this size cannot be produced by stock
+    # mqt.bench: its phase-estimation construction computes
+    # Operator(Q).power(2**j), whose accumulated non-unitarity trips
+    # qiskit's unitarity check ("Input matrix is not unitary") for j beyond
+    # ~27 eval qubits. We instead reconstruct the identical indep circuit
+    # supplying Q^(2^j)=RY(2**(j+1)*theta_p) analytically (RY period 4pi),
+    # then run mqt.bench's own get_benchmark_native_gates pipeline. The
+    # resulting CNOT sub-sequence is byte-identical to real mqt.bench at
+    # N=10/20/25/28 (validated in bench/MQTBench/ae_extract_80.py); only the
+    # non-essential single-qubit angles carry float error at high bit
+    # indices. See paper for the note.
     "80": dict(
         label="80-qubit suite (architecture H, 2x3 cores of 4x4, 96 physical qubits)",
         arch_name="H",
         circuit_dir=TELESABRE_DIR / "circuits" / "qasm_80",
         device_json=TELESABRE_DIR / "devices" / "H_grid_2_3_4_4.json",
         files=[
+            "ae_nativegates_ibm_qiskit_opt3_80.qasm",
             "ghz_nativegates_ibm_qiskit_opt3_80.qasm",
             "graphstate_nativegates_ibm_qiskit_opt3_80.qasm",
             "qft_nativegates_ibm_qiskit_opt3_80.qasm",
