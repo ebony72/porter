@@ -22,7 +22,28 @@
 \usepackage{tikz}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
-\usetikzlibrary{shapes.geometric,arrows,arrows.meta,positioning,fit,backgrounds,patterns}
+\usetikzlibrary{shapes.geometric,arrows,arrows.meta,positioning,fit,backgrounds,patterns,decorations.pathmorphing,calc}
+
+%% ── Figure styles ────────────────────────────────────────────────────────────
+\tikzset{
+  slot/.style={circle,draw=black!60,fill=white,inner sep=0pt,minimum size=7pt},
+  occ/.style={slot,fill=black!25},
+  portslot/.style={rectangle,draw=black!60,fill=white,inner sep=0pt,minimum size=7.5pt},
+  bigslot/.style={slot,minimum size=12pt,font=\tiny},
+  bigocc/.style={bigslot,fill=black!15},
+  bigport/.style={portslot,minimum size=12.5pt,font=\tiny},
+  dagnode/.style={circle,draw,inner sep=1pt,minimum size=14pt,font=\scriptsize},
+  dagfront/.style={dagnode,fill=blue!15,thick},
+  dagedge/.style={-{Stealth[length=1.6mm]},semithick},
+  flowbox/.style={rectangle,rounded corners=2pt,draw,align=center,
+                  font=\scriptsize,inner sep=3pt},
+  flowdec/.style={diamond,aspect=2.4,draw,align=center,font=\scriptsize,
+                  inner sep=0.5pt},
+  flowarr/.style={-{Stealth[length=2mm]},semithick},
+  eprlink/.style={decorate,decoration={snake,amplitude=.5mm,segment length=1.8mm},
+                  red!70!black,semithick},
+  catline/.style={densely dashed,blue!60!black,semithick},
+}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
@@ -182,7 +203,9 @@ better one will preempt.
   checks gate coverage, DAG-order faithfulness, and every physical
   legality constraint (coupling-edge adjacency, port occupancy,
   cat-section isolation), used to certify correctness across 60
-  randomized circuits and the full evaluation suite.
+  randomized circuits and the full evaluation suite --- and itself
+  validated by fault injection: ten classes of single-point stream
+  corruption, every mutant rejected by the intended check.
 \item \textbf{A head-to-head evaluation} against \TeleSABRE{} and
   \dSABRE{} on identical physical topologies at 25, 64, and 80
   logical qubits, under three initial-layout protocols --- each
@@ -212,19 +235,214 @@ directed acyclic graph (DAG): for every logical qubit, consecutive
 gates acting on it are connected by a dependency edge. The
 \emph{front} (or \emph{DAG front}) is the set of gates with no
 unexecuted predecessor; only front gates can execute or be routed
-towards execution at a given step.
+towards execution at a given step. Figure~\ref{fig:circuit-dag} shows
+a five-gate circuit and its DAG; note that gates sharing a qubit
+(e.g.\ two CX gates with the same control) are chained by a dependency
+edge and therefore \emph{never} appear in the front simultaneously ---
+a fact that matters for packet collection
+(Section~\ref{sec:sfc-packet}).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=0.55cm,y=0.5cm,baseline=(current bounding box.center)]
+  % wires
+  \foreach \i/\yy in {0/3,1/2,2/1,3/0}
+    \draw[black!70] (0.4,\yy) node[left,font=\scriptsize,black] {$\logi{\i}$}
+      -- (4.6,\yy);
+  % g1 = CX(q0,q1)
+  \filldraw (1,3) circle (1.6pt);
+  \draw (1,3) -- (1,2);
+  \draw (1,2) circle (3.0pt);
+  \draw (1,2) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  \node[font=\tiny,black!60] at (1,3.6) {$g_1$};
+  % g2 = CX(q2,q3)
+  \filldraw (1,1) circle (1.6pt);
+  \draw (1,1) -- (1,0);
+  \draw (1,0) circle (3.0pt);
+  \draw (1,0) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  \node[font=\tiny,black!60] at (1,-0.65) {$g_2$};
+  % g3 = CX(q1,q2)
+  \filldraw (2.4,2) circle (1.6pt);
+  \draw (2.4,2) -- (2.4,1);
+  \draw (2.4,1) circle (3.0pt);
+  \draw (2.4,1) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  \node[font=\tiny,black!60] at (2.4,-0.65) {$g_3$};
+  % g4 = CX(q0,q1)
+  \filldraw (3.8,3) circle (1.6pt);
+  \draw (3.8,3) -- (3.8,2);
+  \draw (3.8,2) circle (3.0pt);
+  \draw (3.8,2) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  \node[font=\tiny,black!60] at (3.8,3.6) {$g_4$};
+  % g5 = CX(q2,q3)
+  \filldraw (3.8,1) circle (1.6pt);
+  \draw (3.8,1) -- (3.8,0);
+  \draw (3.8,0) circle (3.0pt);
+  \draw (3.8,0) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  \node[font=\tiny,black!60] at (3.8,-0.65) {$g_5$};
+  \node[font=\scriptsize] at (2.4,-1.8) {(a)};
+\end{tikzpicture}\hfill
+\begin{tikzpicture}[x=1.05cm,y=0.72cm,baseline=(current bounding box.center)]
+  \node[dagfront] (g1) at (0,2)   {$g_1$};
+  \node[dagfront] (g2) at (0,0)   {$g_2$};
+  \node[dagnode]  (g3) at (1.2,1) {$g_3$};
+  \node[dagnode]  (g4) at (2.4,2) {$g_4$};
+  \node[dagnode]  (g5) at (2.4,0) {$g_5$};
+  \draw[dagedge] (g1) -- node[above,font=\tiny,black!60] {$\logi{1}$} (g3);
+  \draw[dagedge] (g2) -- node[below,font=\tiny,black!60] {$\logi{2}$} (g3);
+  \draw[dagedge] (g1) -- node[above,font=\tiny,black!60] {$\logi{0}$} (g4);
+  \draw[dagedge] (g3) -- node[right=1pt,font=\tiny,black!60] {$\logi{1}$} (g4);
+  \draw[dagedge] (g3) -- node[right=1pt,font=\tiny,black!60] {$\logi{2}$} (g5);
+  \draw[dagedge] (g2) -- node[below,font=\tiny,black!60] {$\logi{3}$} (g5);
+  \node[font=\scriptsize] at (1.2,-1.35) {(b)};
+\end{tikzpicture}
+\caption{(a) A five-CX circuit on four logical qubits and (b) its
+  dependency DAG (edges labelled by the shared qubit). The DAG front
+  --- the gates with no unexecuted predecessor --- is shaded: initially
+  $\{g_1,g_2\}$; once both execute it becomes $\{g_3\}$, then
+  $\{g_4,g_5\}$.}
+\label{fig:circuit-dag}
+\end{figure}
 
 Physical qubits are partitioned into \emph{cores}; each core has an
 intra-core coupling graph, and pairs of cores may be connected by an
 inter-core link whose two endpoints are designated \emph{communication
-ports}.  A \emph{layout} maps every logical qubit to a physical
+ports} (Figure~\ref{fig:arch}).  A \emph{layout} maps every logical
+qubit to a physical
 position.  A 2Q gate is \emph{local} if both operands share a core and
 \emph{remote} otherwise. Routing a local gate that is not yet adjacent
 requires intra-core SWAPs; routing a remote gate requires an inter-core
 communication primitive.
 
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=0.5cm,y=0.5cm]
+  % inter-core links first (below the port squares)
+  \draw[red!70!black,semithick] (2,-1) -- (5.2,-1)
+    node[midway,above,font=\tiny,black!60] {inter-core link};
+  \draw[red!70!black,semithick] (1,-2) -- (1,-5.2);
+  \draw[red!70!black,semithick] (6.2,-2) -- (6.2,-5.2);
+  \draw[red!70!black,semithick] (2,-6.2) -- (5.2,-6.2);
+  % cores
+  \foreach \ox/\oy/\cname in {0/0/c_0, 5.2/0/c_1, 0/-5.2/c_2, 5.2/-5.2/c_3}{
+    \draw[rounded corners=3pt,black!50]
+      (\ox-0.55,\oy+0.55) rectangle (\ox+2.55,\oy-2.55);
+    \foreach \r in {0,1,2}{
+      \draw[black!30] (\ox,\oy-\r) -- (\ox+2,\oy-\r);
+      \draw[black!30] (\ox+\r,\oy) -- (\ox+\r,\oy-2);
+    }
+    \foreach \xx in {0,1,2}
+      \foreach \yy in {0,1,2}
+        \node[slot] at (\ox+\xx,\oy-\yy) {};
+    \node[font=\scriptsize] at (\ox-1.05,\oy+0.45) {$\cname$};
+  }
+  % port squares (overdraw the corresponding slots)
+  \node[portslot] at (2,-1) {};    % c0 -> c1
+  \node[portslot] at (1,-2) {};    % c0 -> c2
+  \node[portslot] at (5.2,-1) {};  % c1 -> c0
+  \node[portslot] at (6.2,-2) {};  % c1 -> c3
+  \node[portslot] at (1,-5.2) {};  % c2 -> c0
+  \node[portslot] at (2,-6.2) {};  % c2 -> c3
+  \node[portslot] at (5.2,-6.2) {};% c3 -> c2
+  \node[portslot] at (6.2,-5.2) {};% c3 -> c1
+  \node[font=\tiny,black!60,align=left,anchor=west] at (7.4,-1)
+    {$\square$ = communication\\ \hphantom{$\square$ = }port};
+\end{tikzpicture}
+\caption{Architecture~A: a $2{\times}2$ array of cores, each a
+  $3{\times}3$ grid of physical qubits (circles) with nearest-neighbour
+  intra-core coupling (grey edges). Squares are communication ports;
+  every inter-core link joins one port in each of two adjacent cores
+  and is the only place EPR pairs are consumed. Architecture~H
+  ($2{\times}3$ array of $4{\times}4$ cores,
+  Section~\ref{sec:experiments}) follows the same pattern.}
+\label{fig:arch}
+\end{figure}
+
 \subsection{Communication Primitives}
 \label{sec:primitives}
+
+Three inter-core primitives are in play, sketched in
+Figure~\ref{fig:primitives}; each consumes exactly one EPR pair.
+
+\begin{figure}[t]
+\centering
+% ---- (a) TeleData ----
+\begin{tikzpicture}[x=0.42cm,y=0.42cm]
+  % left core (2x3), port = right-middle; right core, port = left-middle
+  \foreach \ox in {0,3.4}{
+    \draw[rounded corners=2pt,black!50] (\ox-0.5,0.5) rectangle (\ox+1.5,-2.5);
+    \foreach \xx in {0,1} \foreach \yy in {0,1,2}
+      \node[slot] at (\ox+\xx,-\yy) {};
+  }
+  \node[portslot] at (1,-1) {};
+  \node[portslot] at (3.4,-1) {};
+  \draw[eprlink] (1,-1) -- (3.4,-1);
+  \node[font=\tiny,red!70!black] at (2.2,-0.35) {EPR};
+  \node[occ] at (0,-1) {};
+  \node[font=\tiny,anchor=east] at (-0.35,-1) {$q$};
+  \draw[-{Stealth[length=1.8mm]},semithick,black!70]
+    (0,-0.75) .. controls (1.2,0.9) and (2.4,0.9) .. (3.4,-0.72);
+  \node[font=\scriptsize] at (2.2,-3.3) {(a) \TeleData};
+\end{tikzpicture}\hfill
+% ---- (b) TeleGate ----
+\begin{tikzpicture}[x=0.42cm,y=0.42cm]
+  \foreach \ox in {0,3.4}{
+    \draw[rounded corners=2pt,black!50] (\ox-0.5,0.5) rectangle (\ox+1.5,-2.5);
+    \foreach \xx in {0,1} \foreach \yy in {0,1,2}
+      \node[slot] at (\ox+\xx,-\yy) {};
+  }
+  \node[portslot] at (1,-1) {};
+  \node[portslot] at (3.4,-1) {};
+  \draw[eprlink] (1,-1) -- (3.4,-1);
+  \node[font=\tiny,red!70!black] at (2.2,-0.35) {EPR};
+  \node[occ] at (0,-1) {};
+  \node[occ] at (4.4,-1) {};
+  \node[font=\tiny,anchor=east] at (-0.35,-1) {$q_c$};
+  \node[font=\tiny,anchor=west] at (4.75,-1) {$q_t$};
+  \draw[catline] (0,-1) -- (1,-1);
+  \draw[catline] (3.4,-1) -- (4.4,-1);
+  \filldraw[blue!60!black] (0,-1) circle (1.4pt);
+  \draw[blue!60!black] (4.4,-1) circle (2.6pt)
+    +(0,-2.6pt) -- +(0,2.6pt) +(-2.6pt,0) -- +(2.6pt,0);
+  \node[font=\scriptsize] at (2.2,-3.3) {(b) \TeleGate};
+\end{tikzpicture}\hfill
+% ---- (c) TeleGatePacket ----
+\begin{tikzpicture}[x=0.42cm,y=0.42cm]
+  \foreach \ox in {0,3.4}{
+    \draw[rounded corners=2pt,black!50] (\ox-0.5,0.5) rectangle (\ox+1.5,-2.5);
+    \foreach \xx in {0,1} \foreach \yy in {0,1,2}
+      \node[slot] at (\ox+\xx,-\yy) {};
+  }
+  \node[portslot] at (1,-1) {};
+  \node[portslot] at (3.4,-1) {};
+  \draw[eprlink] (1,-1) -- (3.4,-1);
+  \node[font=\tiny,red!70!black] at (2.2,-0.35) {EPR};
+  \node[occ] at (0,-1) {};
+  \node[font=\tiny,anchor=east] at (-0.35,-1) {$q_c$};
+  \node[occ] at (4.4,0) {};
+  \node[occ] at (4.4,-1) {};
+  \node[occ] at (4.4,-2) {};
+  \node[font=\tiny,anchor=west] at (4.75,0) {$t_1$};
+  \node[font=\tiny,anchor=west] at (4.75,-1) {$t_2$};
+  \node[font=\tiny,anchor=west] at (4.75,-2) {$t_3$};
+  \draw[catline] (0,-1) -- (1,-1);
+  \filldraw[blue!60!black] (0,-1) circle (1.4pt);
+  \draw[catline] (3.4,-1) .. controls (3.9,-0.2) .. (4.4,0);
+  \draw[catline] (3.4,-1) -- (4.4,-1);
+  \draw[catline] (3.4,-1) .. controls (3.9,-1.8) .. (4.4,-2);
+  \node[font=\scriptsize] at (2.2,-3.3) {(c) \TeleGatePacket};
+\end{tikzpicture}
+\caption{The three communication primitives; each consumes one EPR
+  pair between the two communication ports (squares). (a)~\TeleData{}
+  moves qubit $q$ (which must sit adjacent to its free port) onto the
+  free destination port. (b)~\TeleGate{} executes one remote CX
+  through a cat-entangler: the target-side port acts as a proxy for
+  the control $q_c$; neither qubit moves. (c)~\TeleGatePacket{}
+  brackets an ordered run of remote CX gates sharing the control $q_c$
+  between one cat-entangler/disentangler pair, amortising a single
+  EPR pair over the whole run; each target is routed next to the port
+  in turn while the ports stay reserved.}
+\label{fig:primitives}
+\end{figure}
 
 \textbf{State teleportation (\TeleData{}).} Consumes one EPR pair to
 move a logical qubit's state from a physical position adjacent to a
@@ -270,7 +488,68 @@ direct/lookahead decomposition to its inter-core plan scorer
 Given a circuit and an initial layout $\ell_0$ (which \PORTER{} builds
 itself, Section~\ref{sec:sfc-layout}), \PORTER{} repeats the following
 loop (Algorithm~\ref{alg:sfc}) until every gate has been emitted or a
-configurable iteration budget is exhausted.
+configurable iteration budget is exhausted. Figure~\ref{fig:flow}
+charts one iteration; its shaded region is the plan-first remote stage
+that distinguishes \PORTER{} from flat-pool routers, and
+Section~\ref{sec:sfc-example} walks through it on a concrete example.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+  % plan-first stage background
+  \begin{scope}[on background layer]
+    \fill[blue!6,rounded corners=4pt] (-3.1,-3.35) rectangle (4.35,-8.7);
+    \node[font=\scriptsize\itshape,blue!50!black,anchor=north west]
+      at (-3.05,-8.32) {plan-first remote stage};
+  \end{scope}
+  \node[flowbox] (front) at (0,0)
+    {take DAG front $F$ (size-capped); classify under layout $\ell$};
+  \node[flowdec] (dexec) at (0,-1.1) {directly executable\\gates in $F$?};
+  \node[flowbox] (exec) at (3.35,-1.1) {execute all;\\pop from DAG};
+  \node[flowdec] (dloc) at (0,-2.6) {local CX\\needing SWAP?};
+  \node[flowbox] (locswap) at (3.35,-2.6) {apply best intra-core\\SWAP (Eq.~\ref{eq:sfc-local})};
+  \node[flowbox,text width=5.2cm] (gen) at (0,-3.95)
+    {generate whole remote plans from $\ell$:\\
+     normal $\mathcal{P}$ / capacity-blocked $\mathcal{B}$};
+  \node[flowbox,text width=5.2cm] (score) at (0,-5.1)
+    {score every plan as a unit\\
+     (direct + latent + lookahead gain);\\
+     \emph{no preparation SWAP generated yet}};
+  \node[flowbox,text width=5.2cm] (select) at (0,-6.55)
+    {$p^\ast \leftarrow$ best ready-or-preparable plan in $\mathcal{P}$;\\
+     pre-empted by opportunistic relief if some $b\in\mathcal{B}$
+     out-gains it by $m_\mathrm{assist}$;\\
+     tail-relief BFS toward a reservoir if $\mathcal{P}=\emptyset$};
+  \node[flowbox,draw=red!60!black,text=red!60!black] (dead) at (3.5,-5.1)
+    {no candidate:\\deadlock, abort};
+  \node[flowbox,text width=5.2cm] (commit) at (0,-7.75)
+    {\textbf{commit} $p^\ast$: generate + apply preparation SWAPs
+     \emph{for $p^\ast$ alone} until it is ready};
+  \node[flowbox] (run) at (0,-9.15)
+    {execute $p^\ast$ (consume one EPR pair); pop its gates};
+  % spine
+  \draw[flowarr] (front) -- (dexec);
+  \draw[flowarr] (dexec) -- node[right,font=\tiny] {no} (dloc);
+  \draw[flowarr] (dloc) -- node[right,font=\tiny] {no} (gen);
+  \draw[flowarr] (gen) -- (score);
+  \draw[flowarr] (score) -- (select);
+  \draw[flowarr] (select) -- (commit);
+  \draw[flowarr] (commit) -- (run);
+  % side branches
+  \draw[flowarr] (dexec) -- node[above,font=\tiny] {yes} (exec);
+  \draw[flowarr] (dloc) -- node[above,font=\tiny] {yes} (locswap);
+  \draw[flowarr] (exec.north) |- ($(front.east)+(0,0)$);
+  \draw[flowarr] (locswap.east) -- ++(0.55,0) |- (front.east);
+  \draw[flowarr] (select.east) -| node[near start,below,font=\tiny] {none} (dead);
+  % main loop back
+  \draw[flowarr] (run.west) -- ++(-0.9,0) |- (front.west);
+\end{tikzpicture}
+\caption{One iteration of \PORTER{}'s compile loop
+  (Algorithm~\ref{alg:sfc}). Local work always drains first; the
+  shaded plan-first remote stage scores whole remote plans before any
+  preparation SWAP exists, commits to one, and only then stages it.}
+\label{fig:flow}
+\end{figure}
 
 \begin{algorithm}[t]
 \caption{\PORTER{} \texttt{compile}$(C, \ell_0)$}
@@ -403,6 +682,27 @@ auditing.
 \subsection{Plan-First Remote Stage}
 \label{sec:sfc-plan-first}
 
+\PORTER{} manipulates remote work as \emph{plans}, and the word is
+chosen deliberately. A plan is a complete, committable specification
+of one inter-core action: which primitive fires (\TeleData{},
+\TeleGate{}, or \TeleGatePacket{}), which gate or same-control gate
+run it resolves, its direction (which endpoint moves, or which side
+hosts the control), and consequently its \emph{readiness conditions}
+--- which logical endpoint must sit adjacent to which communication
+port, and which ports must be free (Section~\ref{sec:sfc-prep}). What
+a plan deliberately leaves unspecified is the SWAP sequence that will
+establish those conditions. This is the classical deliberation-versus-%
+execution split: alternatives are compared at the level of \emph{what}
+remote work to do next, each scored as if its preconditions were met,
+and only the one committed plan is handed to the preparation machinery
+that works out \emph{how}. A flat action pool, by contrast, makes the
+same choice implicitly and one micro-move at a time: every staging
+SWAP it selects is also a vote for whichever remote action that SWAP
+happens to serve, votes for competing actions interleave, and staging
+effort is routinely spent on actions that are never taken
+(Section~\ref{sec:sfc-example} gives a concrete front where this
+changes the outcome).
+
 When the front contains only remote CX gates, \PORTER{} generates two
 disjoint candidate sets from the current layout:
 
@@ -521,6 +821,177 @@ are not literally in the (bounded) current DAG front, a packet may
 contain gates unreachable by a naively front-limited scan; the
 resulting execution order is preserved and replayed exactly at commit
 time (Section~\ref{sec:sfc-apply}).
+
+\subsection{Running Example: Why Commit to a Plan?}
+\label{sec:sfc-example}
+
+Figure~\ref{fig:example} shows a front where plan commitment, the
+packet vocabulary, and the $f_\mathrm{min}$ capacity gate all
+interact, and where \PORTER{}'s decision differs from a flat action
+pool's. Two adjacent cores of architecture~A are shown. Core $c_0$
+holds $\logi{0}$, $\logi{4}$ (adjacent to the port), and $\logi{6}$,
+with six free positions; core $c_1$ holds eight qubits --- the targets
+$\logi{1},\logi{2},\logi{3}$, the port-adjacent $\logi{5}$, and four
+spectators --- so its \emph{only} free position is its port. The
+remaining circuit fragment is
+$g_1{=}\mathrm{CX}(\logi{0},\logi{1})$,
+$g_2{=}\mathrm{CX}(\logi{0},\logi{2})$,
+$g_3{=}\mathrm{CX}(\logi{0},\logi{3})$,
+$g_5{=}\mathrm{CX}(\logi{0},\logi{6})$, chained on $\logi{0}$, plus an
+independent $g_4{=}\mathrm{CX}(\logi{4},\logi{5})$. The front is
+therefore $\{g_1, g_4\}$ --- $g_2$ and $g_3$ share $\logi{0}$ with
+$g_1$ and only surface after it executes. All front gates are
+adjacent-remote, so the plan-first stage fires.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=1.0cm,y=0.75cm]
+  \node[dagfront] (g1) at (0,0)    {$g_1$};
+  \node[dagnode]  (g2) at (1.15,0) {$g_2$};
+  \node[dagnode]  (g3) at (2.3,0)  {$g_3$};
+  \node[dagnode]  (g5) at (3.45,0) {$g_5$};
+  \node[dagfront] (g4) at (0,-1.15){$g_4$};
+  \draw[dagedge] (g1) -- (g2);
+  \draw[dagedge] (g2) -- (g3);
+  \draw[dagedge] (g3) -- (g5);
+  \node[font=\tiny,black!60] at (0,0.62)    {$(\logi{0},\logi{1})$};
+  \node[font=\tiny,black!60] at (1.15,0.62) {$(\logi{0},\logi{2})$};
+  \node[font=\tiny,black!60] at (2.3,0.62)  {$(\logi{0},\logi{3})$};
+  \node[font=\tiny,black!60] at (3.45,0.62) {$(\logi{0},\logi{6})$};
+  \node[font=\tiny,black!60] at (1.2,-1.15) {$(\logi{4},\logi{5})$};
+  \node[font=\scriptsize,anchor=west] at (4.3,-0.6) {(a)};
+\end{tikzpicture}\\[6pt]
+\begin{tikzpicture}[x=0.55cm,y=0.55cm]
+  % coupling grids
+  \foreach \ox in {0,4.8}{
+    \foreach \r in {0,1,2}{
+      \draw[black!25] (\ox,-\r) -- (\ox+2,-\r);
+      \draw[black!25] (\ox+\r,0) -- (\ox+\r,-2);
+    }
+    \draw[rounded corners=3pt,black!50] (\ox-0.55,0.55) rectangle (\ox+2.55,-2.55);
+  }
+  \node[font=\scriptsize] at (-1.1,0.45) {$c_0$};
+  \node[font=\scriptsize] at (7.9,0.45) {$c_1$};
+  % EPR link between ports
+  \draw[eprlink] (2,-1) -- (4.8,-1);
+  \node[font=\tiny,red!70!black] at (3.4,-0.55) {1 EPR};
+  % c0 slots
+  \node[bigslot] at (0,0) {};
+  \node[bigslot] at (1,0) {};
+  \node[bigslot] at (2,0) {};
+  \node[bigslot] at (2,-2) {};
+  \node[bigslot] at (1,-2) {};
+  \node[bigocc]  at (0,-2) {$\logi{6}$};
+  \node[bigocc,draw=blue!60!black,thick]   at (0,-1) {$\logi{0}$};
+  \node[bigocc,draw=orange!80!black,thick] at (1,-1) {$\logi{4}$};
+  \node[bigport] at (2,-1) {};
+  % c1 slots
+  \node[bigocc] at (4.8,0) {};
+  \node[bigocc] at (6.8,0) {};
+  \node[bigocc] at (5.8,-2) {};
+  \node[bigocc] at (6.8,-2) {};
+  \node[bigocc,draw=blue!60!black,thick]   at (5.8,0)  {$\logi{1}$};
+  \node[bigocc,draw=orange!80!black,thick] at (5.8,-1) {$\logi{5}$};
+  \node[bigocc,draw=blue!60!black,thick]   at (6.8,-1) {$\logi{2}$};
+  \node[bigocc,draw=blue!60!black,thick]   at (4.8,-2) {$\logi{3}$};
+  \node[bigport] at (4.8,-1) {};
+  % committed packet: prep swap + cat arcs
+  \draw[{Stealth[length=1.5mm]}-{Stealth[length=1.5mm]},dashed,black!70]
+    (0.02,-0.56) .. controls (0.32,-0.3) and (0.68,-0.3) .. (0.98,-0.56);
+  \draw[catline] (4.8,-1) .. controls (5.2,-0.2) .. (5.55,-0.12);
+  \draw[catline] (4.8,-1.25) .. controls (5.4,-1.62) and (6.2,-1.62)
+    .. (6.72,-1.34);
+  \draw[catline] (4.8,-1.42) -- (4.8,-1.6);
+  \node[font=\scriptsize,anchor=west] at (7.6,-2.4) {(b)};
+\end{tikzpicture}
+\caption{Running example. (a)~Remaining circuit fragment as a DAG;
+  the front (shaded) is $\{g_1,g_4\}$. (b)~Layout on two adjacent
+  cores of architecture~A. Blue circles are the committed
+  \TeleGatePacket{}'s participants ($\logi{0}$ and the targets
+  $\logi{1},\logi{2},\logi{3}$, reached by cat-CXs, dashed); orange
+  circles are the endpoints of the competing, already-ready single
+  \TeleGate{} for $g_4$; grey circles are spectators. Core $c_1$'s
+  only free position is its port, so $\mathrm{free}(c_1)=1 <
+  f_\mathrm{min}$ and every \TeleData{} into $c_1$ is
+  capacity-blocked. The dashed double arrow is the packet's one
+  preparation SWAP, which moves $\logi{0}$ next to the port.}
+\label{fig:example}
+\end{figure}
+
+\begin{table}[t]
+\caption{Remote plans generated for the front of
+  Figure~\ref{fig:example}, with total gains
+  (Section~\ref{sec:sfc-scoring}).}
+\label{tab:example-plans}
+\centering
+\scriptsize
+\begin{tabular}{@{}llcll@{}}
+\toprule
+Plan & Set & Gain & Readiness & Outcome \\
+\midrule
+\TeleGatePacket{}($\logi{0}$; $g_1 g_2 g_3$) & $\mathcal{P}$ & $3.0$ & 1 prep SWAP & \textbf{committed} \\
+\TeleGate{}($g_4$) & $\mathcal{P}$ & $1.0$ & ready now & dominated \\
+\TeleGate{}($g_1$) & $\mathcal{P}$ & $1.0$ & 1 prep SWAP & dominated \\
+\TeleData{}($\logi{1}\!\to\!c_0$) & $\mathcal{P}$ & $1.0$ & prep needed & dominated \\
+\TeleData{}($\logi{5}\!\to\!c_0$) & $\mathcal{P}$ & $1.0$ & prep needed & committed later \\
+\TeleData{}($\logi{0}\!\to\!c_1$) & $\mathcal{B}$ & $\approx\!2.1$ & blocked & margin $<m_\mathrm{assist}$ \\
+\TeleData{}($\logi{4}\!\to\!c_1$) & $\mathcal{B}$ & $1.0$ & blocked & dominated \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{What \PORTER{} does.} Table~\ref{tab:example-plans} lists the
+generated plans. Seeding packet collection at $g_1$, the frontier
+simulation absorbs $g_2$ and $g_3$ (same control $\logi{0}$, targets
+in $c_1$): a three-gate packet with direct gain $3$. Both single
+telegates and all \TeleData{} plans into $c_0$ gain ${\approx}1$.
+\TeleData{}($\logi{0}\!\to\!c_1$) would gain more --- direct $1$ for
+$g_1$, latent-direct $2$ for $g_2,g_3$, minus $0.9$ of lookahead for
+$g_5$, whose partner $\logi{6}$ stays in $c_0$ --- but $c_1$ fails the
+$f_\mathrm{min}$ test, so it lands in $\mathcal{B}$; its gain
+${\approx}2.1$ does not exceed the packet's $3.0$ by
+$m_\mathrm{assist}{=}5$, so no capacity relief pre-empts. Plans are
+ranked by gain first --- readiness is only a tie-break --- so the
+\emph{unready} packet (gain $3$) beats the \emph{ready} telegate for
+$g_4$ (gain $1$). \PORTER{} commits the packet, generates its one
+preparation SWAP ($\logi{0}$ next to the port), then emits one
+cat-entangler, three cat-CXs (each target routed beside the port in
+turn), and the disentangler: \emph{one} EPR pair for $g_1,g_2,g_3$.
+The packet's completion exposes $g_4$ and $g_5$ together; the
+locality-first stage drains the now-local $g_5$ first (one SWAP plus
+a local CX), and the remote stage then re-generates plans for $g_4$:
+the single telegate and \TeleData{}($\logi{5}\!\to\!c_0$) now tie at
+gain $1$, and the plan-kind tie-break (\TeleData{} $\succ$
+\TeleGate{}, Section~\ref{sec:sfc-scoring}) commits the teleport ---
+$\logi{5}$ lands on $c_0$'s port and $g_4$ finishes as a local CX.
+Two EPR pairs for the whole fragment. This is not a stylised
+trace: it is exactly the operation stream the implementation emits
+on this instance, replayed and certified by the verifier of
+Section~\ref{sec:verification} (full trace in
+Appendix~\ref{app:verification}, Figure~\ref{fig:trace}).
+
+\textbf{What a flat pool does.} A router that scores individual
+actions --- SWAPs and inter-core operations in one pool --- fires the
+zero-cost ready telegate for $g_4$ first. The deeper problem is the
+staging SWAP the packet needs: exchanging $\logi{0}$ and $\logi{4}$
+moves $g_1$'s control one step closer to the port while moving
+$g_4$'s one step away, so under a front-averaged distance metric of
+the kind used by \SABRE{} descendants its score is ${\approx}0$; the
+information that makes this SWAP worth applying --- three remote CXs
+behind $g_1$ amortised onto one EPR pair --- is a property of a
+\emph{whole plan}, invisible at single-action granularity. Vocabulary
+compounds the gap: $g_2$ and $g_3$ enter the front one at a time, so
+\TeleSABRE{} pays one telegate each, four EPR pairs for the fragment;
+\dSABRE{}, restricted to \TeleData{}, cannot move $\logi{0}$ into the
+saturated $c_1$ without first evicting a resident (its
+\texttt{\_force\_make\_room}, one more teleport), and ferrying
+$\logi{1},\logi{2},\logi{3}$ out to $c_0$ instead costs three EPR
+pairs before $g_4$ is even addressed. Commitment finally protects the
+choice once made: only the packet's preparation SWAPs are generated
+--- no staging effort is spent on the six losing plans --- and the
+committed plan cannot be pre-empted mid-preparation by a candidate
+that its own staging transiently improved, a churn a flat pool
+permits by construction.
 
 \subsection{Preparation SWAPs}
 \label{sec:sfc-prep}
@@ -673,6 +1144,20 @@ We ran the verifier against 60 randomized circuits (4--40 logical
 qubits, 20--600 gates, both architectures, seeds 0--59) and against
 every circuit in the evaluation suite (Section~\ref{sec:experiments});
 all pass.
+
+Two further artefacts, deferred to Appendix~\ref{app:verification},
+make these checks concrete. A \emph{certified trace}
+(Figure~\ref{fig:trace}) replays the fourteen-operation stream
+\PORTER{} emits for the running example of
+Section~\ref{sec:sfc-example} --- which exercises every op type ---
+and lists, per operation, exactly what the verifier asserts before
+accepting it. A \emph{fault-injection study}
+(\texttt{verify\_fault\_injection.py}) certifies that each check
+actually fires: ten single-point corruption classes, spanning misuse
+of all three communication primitives, dependency-order and
+gate-coverage violations, illegal SWAPs, and statistics drift, are
+applied to passing op streams; all 276 applicable mutants are
+rejected, each by the intended check.
 
 %%────────────────────────────────────────────────────────────────────────────
 \section{Experimental Evaluation}
@@ -1008,89 +1493,43 @@ random$^{\ast}$ &  --- &  --- &  --- &   --- & 11040 & 62119 & --- \\
 
 \begin{table}[t]
 \centering
-\caption{25-qubit suite, shared-layout comparison: \dSABRE{} and
+\caption{Shared-layout comparison, all suites: \dSABRE{} and
   \PORTER{} are both routed, single-shot, from \TeleSABRE{}'s own initial
   layout (Section~\ref{sec:protocols}). $\Delta_\mathrm{TS}$ columns give
   each router's EPR change relative to \TeleSABRE{}'s own-protocol
-  result; negative is better.}
-\label{tab:shared25}
+  result; negative is better. Rows exist only where \TeleSABRE{}
+  converges and thus provides a layout to share: all six circuits at
+  25q, five of six at 64q (Random missing), two of six at 80q (GHZ and
+  Graphstate); per-suite gmeans are over the available rows.}
+\label{tab:shared}
 \setlength{\tabcolsep}{3pt}
 \small
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}l rr rrr rrr@{}}
+\begin{tabular}{@{}ll rr rrr rrr@{}}
 \toprule
- & \multicolumn{2}{c}{\TeleSABRE} & \multicolumn{3}{c}{\dSABRE{}}
+ & & \multicolumn{2}{c}{\TeleSABRE} & \multicolumn{3}{c}{\dSABRE{}}
  & \multicolumn{3}{c}{\PORTER{}} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}
-Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+Suite & Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
 \midrule
-ae         &  118 &   370 &   77 &   393 & $-34.7$ &   62 &   267 & $-47.5$ \\
-ghz        &   11 &    30 &    8 &    33 & $-27.3$ &    6 &    26 & $-45.5$ \\
-graphstate &   17 &    43 &   10 &    37 & $-41.2$ &   14 &    57 & $-17.6$ \\
-qft        &  141 &   371 &   89 &   410 & $-36.9$ &   96 &   343 & $-31.9$ \\
-qnn        &  357 &   770 &  177 &   818 & $-50.4$ &  158 &   707 & $-55.7$ \\
-random     &  632 &  1512 &  439 &  1529 & $-30.5$ &  412 &  1392 & $-34.8$ \\
+25q & ae         &  118 &   370 &   77 &   393 & $-34.7$ &   62 &   267 & $-47.5$ \\
+25q & ghz        &   11 &    30 &    8 &    33 & $-27.3$ &    6 &    26 & $-45.5$ \\
+25q & graphstate &   17 &    43 &   10 &    37 & $-41.2$ &   14 &    57 & $-17.6$ \\
+25q & qft        &  141 &   371 &   89 &   410 & $-36.9$ &   96 &   343 & $-31.9$ \\
+25q & qnn        &  357 &   770 &  177 &   818 & $-50.4$ &  158 &   707 & $-55.7$ \\
+25q & random     &  632 &  1512 &  439 &  1529 & $-30.5$ &  412 &  1392 & $-34.8$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 94.3 & & 59.1 & & $\mathbf{-37.3}$ & 56.5 & & $\mathbf{-40.1}$ \\
 \midrule
-\textbf{gmean} (6) & 94.3 & & 59.1 & & $\mathbf{-37.3}$ & 56.5 & & $\mathbf{-40.1}$ \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{64-qubit suite, shared-layout comparison. Methodology and
-  notation as Table~\ref{tab:shared25}. $^{\ast}$\TeleSABRE{} fails to
-  converge; gmean is over the 5 circuits on which it does.}
-\label{tab:shared64}
-\setlength{\tabcolsep}{3pt}
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}l rr rrr rrr@{}}
-\toprule
- & \multicolumn{2}{c}{\TeleSABRE} & \multicolumn{3}{c}{\dSABRE{}}
- & \multicolumn{3}{c}{\PORTER{}} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}
-Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
+64q & ae         &  323 &  1508 &  183 &  1963 & $-43.3$ &  233 &  1753 & $-27.9$ \\
+64q & ghz        &   11 &   111 &    8 &   124 & $-27.3$ &    8 &   104 & $-27.3$ \\
+64q & graphstate &   76 &   379 &   32 &   167 & $-57.9$ &   49 &   289 & $-35.5$ \\
+64q & qft        &  410 &  1872 &  228 &  2104 & $-44.4$ &  227 &  1668 & $-44.6$ \\
+64q & qnn        & 1365 &  6292 &  544 &  8250 & $-60.1$ &  679 &  5963 & $-50.3$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (5)} & 172.1 & & 89.7 & & $\mathbf{-47.9}$ & 107.1 & & $\mathbf{-37.8}$ \\
 \midrule
-ae            &  323 &  1508 &  183 &  1963 & $-43.3$ &  233 &  1753 & $-27.9$ \\
-ghz           &   11 &   111 &    8 &   124 & $-27.3$ &    8 &   104 & $-27.3$ \\
-graphstate    &   76 &   379 &   32 &   167 & $-57.9$ &   49 &   289 & $-35.5$ \\
-qft           &  410 &  1872 &  228 &  2104 & $-44.4$ &  227 &  1668 & $-44.6$ \\
-qnn           & 1365 &  6292 &  544 &  8250 & $-60.1$ &  679 &  5963 & $-50.3$ \\
-random$^{\ast}$ & --- &   --- &  --- &   --- &     --- &  --- &   --- &     --- \\
-\midrule
-\textbf{gmean} (5) & 172.1 & & 89.7 & & $\mathbf{-47.9}$ & 107.1 & & $\mathbf{-37.8}$ \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{80-qubit suite, shared-layout comparison. Methodology and
-  notation as Table~\ref{tab:shared25}. $^{\ast}$\TeleSABRE{} fails to
-  converge (no initial layout to extract); gmean is over the 2
-  circuits on which it does.}
-\label{tab:shared80}
-\setlength{\tabcolsep}{3pt}
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}l rr rrr rrr@{}}
-\toprule
- & \multicolumn{2}{c}{\TeleSABRE} & \multicolumn{3}{c}{\dSABRE{}}
- & \multicolumn{3}{c}{\PORTER{}} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}
-Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & SWAP & $\Delta_\mathrm{TS}$ \\
-\midrule
-ae$^{\ast}$    &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
-ghz            &   19 &  172 &   15 &   173 & $-21.1$ &   11 &   156 & $-42.1$ \\
-graphstate     &   88 &  521 &   55 &   306 & $-37.5$ &   71 &   402 & $-19.3$ \\
-qft$^{\ast}$   &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
-qnn$^{\ast}$   &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
-random$^{\ast}$ &  --- &  --- &  --- &   --- &     --- &  --- &   --- &     --- \\
-\midrule
-\textbf{gmean} (2) & 40.9 & & 28.7 & & $\mathbf{-29.8}$ & 27.9 & & $\mathbf{-31.7}$ \\
+80q & ghz        &   19 &   172 &   15 &   173 & $-21.1$ &   11 &   156 & $-42.1$ \\
+80q & graphstate &   88 &   521 &   55 &   306 & $-37.5$ &   71 &   402 & $-19.3$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (2)} & 40.9 & & 28.7 & & $\mathbf{-29.8}$ & 27.9 & & $\mathbf{-31.7}$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -1230,14 +1669,14 @@ each) would run to hours against \PORTER{}'s 37 seconds.
 \label{sec:shared_results}
 
 The own-protocol comparison mixes two effects: the quality of each
-router's initial layout and the quality of its routing decisions. The
-shared-layout tables remove the first effect entirely -- both
+router's initial layout and the quality of its routing decisions.
+Table~\ref{tab:shared} removes the first effect entirely -- both
 \dSABRE{} and \PORTER{} route, single-shot, from the identical layout
 \TeleSABRE{} built for itself -- so what remains is a pure
 routing-quality comparison on a mapping optimised for neither router.
 
-\textbf{25-qubit suite.} Under \TeleSABRE{}'s own initial layout
-(Table~\ref{tab:shared25}), both \dSABRE{} and \PORTER{} still improve
+\textbf{25-qubit suite.} Under \TeleSABRE{}'s own initial layout,
+both \dSABRE{} and \PORTER{} still improve
 substantially on \TeleSABRE{} ($-37.3\%$ and $-40.1\%$ gmean
 respectively), with \PORTER{} the better of the two on four of six
 circuits (AE, GHZ, QNN, Random) and on the gmean. \dSABRE{} keeps
@@ -1245,7 +1684,7 @@ Graphstate and QFT, the circuits its partition-then-refine strategy
 suits best under its own protocol too.
 
 \textbf{64-qubit suite.} \TeleSABRE{}'s initial layout is available
-for five of six circuits (Table~\ref{tab:shared64}). \dSABRE{} wins
+for five of six circuits. \dSABRE{} wins
 the gmean here ($-47.9\%$ vs.\ \PORTER{}'s $-37.8\%$): it takes AE,
 Graphstate, and QNN outright, ties GHZ (both $-27.3\%$), and is edged
 out only narrowly on QFT (228 vs.\ 227 EPR). On architecture~H's
@@ -1261,7 +1700,8 @@ natural mechanism to close the residual gap
 
 \textbf{80-qubit suite.} \TeleSABRE{}'s initial layout can be
 extracted only for the two circuits on which it converges (GHZ and
-Graphstate; Table~\ref{tab:shared80}). \PORTER{} edges \dSABRE{} on the
+Graphstate), so this block is indicative rather than conclusive.
+\PORTER{} edges \dSABRE{} on the two-circuit
 gmean ($-31.7\%$ vs.\ $-29.8\%$), winning GHZ (11 vs.\ 15 EPR pairs)
 while \dSABRE{} keeps Graphstate. GHZ is a win for \PORTER{} even from
 a layout it did not build, so its chain-circuit strength is a property
@@ -1289,7 +1729,8 @@ comparable, per \dSABRE{}'s own established convention for this
 comparison~\cite{lidsabre}; we include it only as context.
 
 \textbf{Fixed-layout comparison, pooled.} Combining this grid with the
-\TeleSABRE{}-layout tables gives thirty instances on which
+\TeleSABRE{}-layout comparison (Table~\ref{tab:shared}) gives thirty
+instances on which
 \dSABRE{} and \PORTER{} routed the \emph{identical} externally
 supplied layout: \PORTER{} uses fewer EPR pairs on fifteen,
 \dSABRE{} on twelve, with three ties, and \PORTER{}'s pooled
@@ -1299,33 +1740,14 @@ stages themselves are at worst at parity -- and \PORTER{} reaches
 that parity in a single forward pass, without \dSABRE{}'s
 forward--backward--forward schedule.
 
-\textbf{pytket-dqc as an opt-in \PORTER{} candidate.} The grid above
-feeds pytket-dqc's partition to \PORTER{} as a probe, but the same
-partition can also be offered to \PORTER{} as one extra layout
-candidate beside its own (Section~\ref{sec:sfc-layout}). Since
-\PORTER{} routes far faster than pytket-dqc partitions, this is nearly
-free on the routing side; taking the better of the two per instance
-lowers the eighteen-instance geometric-mean EPR from $116.8$ to $98.6$
-($-16\%$), with the gains concentrated on the most partitionable
-circuits (Graphstate $7\!\to\!4$, $20\!\to\!10$, $28\!\to\!11$ across
-the three suites; 80q~AE $490\!\to\!352$). We keep it \emph{opt-in}
-rather than the default for three reasons. First, on the dense and
-Random circuits the external partition is often \emph{worse} for
-\PORTER{} (64q~QNN $864\!\to\!1{,}031$, 64q~Random $737\!\to\!861$), so
-the best-of simply retains \PORTER{}'s own layout there. Second, the
-partition itself is expensive -- seconds to minutes, and on dense
-circuits more than \PORTER{}'s entire routing pass ($309$\,s to
-partition 80q~Random versus $\approx\!37$\,s to route it; $16$\,s
-versus $0.6$\,s on 80q~AE) -- against a sub-millisecond cost for
-\PORTER{}'s own layout build, so adopting it by default would erase
-\PORTER{}'s compile-time advantage (Section~\ref{sec:time}). Third, it
-reintroduces the external-partitioner dependency \PORTER{}'s
-self-contained layout avoids, and unlike it can leave a core fully
-packed, relying on the full-core repair of
-Section~\ref{sec:sfc-layout}. \PORTER{} therefore defaults to its own
-layout and treats an external partition as an optional refinement,
-selected only when EPR is at a premium and its generation time is
-acceptable.
+The grid above feeds pytket-dqc's partition to \PORTER{} as a
+controlled probe. The complementary pipeline question -- offering the
+same partition to \PORTER{} as an optional extra layout candidate
+beside its own, which lowers geometric-mean EPR by a further $16\%$ on
+the most partitionable circuits but is kept opt-in on cost and
+robustness grounds -- is a configuration study of \PORTER{} itself
+rather than part of this comparison, and is deferred to
+Appendix~\ref{app:optin}.
 
 \subsection{Mechanism Ablation}
 \label{sec:ablation}
@@ -1567,6 +1989,151 @@ independent replay verifier, the cross-router comparison harness
 (including the patched \TeleSABRE{} binary and its documentation), and
 raw per-circuit JSON results are publicly available at
 \url{https://github.com/ebony72/porter}.
+
+%%────────────────────────────────────────────────────────────────────────────
+\appendices
+
+\section{pytket-dqc as an Opt-In \PORTER{} Layout Candidate}
+\label{app:optin}
+
+Section~\ref{sec:pytket_results} feeds pytket-dqc's partition to
+\PORTER{} as a controlled probe; the same partition can also be
+offered to \PORTER{} as one extra layout candidate beside its own
+(Section~\ref{sec:sfc-layout}). Since
+\PORTER{} routes far faster than pytket-dqc partitions, this is nearly
+free on the routing side; taking the better of the two per instance
+lowers the eighteen-instance geometric-mean EPR from $116.8$ to $98.6$
+($-16\%$), with the gains concentrated on the most partitionable
+circuits (Graphstate $7\!\to\!4$, $20\!\to\!10$, $28\!\to\!11$ across
+the three suites; 80q~AE $490\!\to\!352$). We keep it \emph{opt-in}
+rather than the default for three reasons. First, on the dense and
+Random circuits the external partition is often \emph{worse} for
+\PORTER{} (64q~QNN $864\!\to\!1{,}031$, 64q~Random $737\!\to\!861$), so
+the best-of simply retains \PORTER{}'s own layout there. Second, the
+partition itself is expensive -- seconds to minutes, and on dense
+circuits more than \PORTER{}'s entire routing pass ($309$\,s to
+partition 80q~Random versus $\approx\!37$\,s to route it; $16$\,s
+versus $0.6$\,s on 80q~AE) -- against a sub-millisecond cost for
+\PORTER{}'s own layout build, so adopting it by default would erase
+\PORTER{}'s compile-time advantage (Section~\ref{sec:time}). Third, it
+reintroduces the external-partitioner dependency \PORTER{}'s
+self-contained layout avoids, and unlike it can leave a core fully
+packed, relying on the full-core repair of
+Section~\ref{sec:sfc-layout}. \PORTER{} therefore defaults to its own
+layout and treats an external partition as an optional refinement,
+selected only when EPR is at a premium and its generation time is
+acceptable.
+
+\section{Verification Detail: A Certified Trace and Fault Injection}
+\label{app:verification}
+
+\begin{figure}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}r l p{4.0cm}@{}}
+\toprule
+\# & emitted operation & verifier asserts \\
+\midrule
+0 & \texttt{swap} $\phys{3}{\leftrightarrow}\phys{4}$ &
+    coupling edge; operands sit where the replayed layout says \\
+\midrule
+1 & \texttt{cat\_entangler} $\logi{0}$; $(\phys{5},\phys{12})$; 1 EPR &
+    no section already open; \emph{exact} port pair of $(c_0,c_1)$;
+    both ports free; $\logi{0}$ adjacent to $\phys{5}$; opens section,
+    reserving $\phys{5},\phys{12}$ \\
+2 & \texttt{swap} $\phys{10}{\leftrightarrow}\phys{9}$ \hfill route $\logi{1}$ &
+    tagged as packet routing; touches neither reserved port \\
+3 & \texttt{cat\_cx} $g_1$ $(\phys{12},\phys{9})$ &
+    $g_1$ at the head of \emph{both} $\logi{0}$'s and $\logi{1}$'s
+    queues; control $=$ section control; proxy is the target-side
+    port $\phys{12}$; target in $c_1$, adjacent to $\phys{12}$ \\
+4 & \texttt{swap} $\phys{13}{\leftrightarrow}\phys{14}$ \hfill route $\logi{2}$ &
+    as op 2 \\
+5 & \texttt{cat\_cx} $g_2$ $(\phys{12},\phys{13})$ & as op 3 \\
+6 & \texttt{cat\_cx} $g_3$ $(\phys{12},\phys{15})$ &
+    as op 3 ($\logi{3}$ already port-adjacent) \\
+7 & \texttt{cat\_disentangler} &
+    a section is open; closes it, releasing the ports \\
+\midrule
+8 & \texttt{swap} $\phys{6}{\leftrightarrow}\phys{7}$ & coupling edge \\
+9 & \texttt{local\_cx} $g_5$ $(\phys{4},\phys{7})$ &
+    queue heads; same core; coupling edge \\
+10 & \texttt{swap} $\phys{13}{\leftrightarrow}\phys{14}$ & coupling edge \\
+11 & \texttt{teleport} $\logi{5}$: $\phys{13}{\to}\phys{5}$; 1 EPR &
+    cores adjacent; exact port pair $(\phys{12},\phys{5})$; both
+    ports free; $\logi{5}$ adjacent to $\phys{12}$; lands exactly on
+    $\phys{5}$ \\
+12 & \texttt{swap} $\phys{4}{\leftrightarrow}\phys{5}$ & coupling edge \\
+13 & \texttt{local\_cx} $g_4$ $(\phys{3},\phys{4})$ &
+    queue heads; coupling edge \\
+\bottomrule
+\end{tabular}
+\caption{The full operation stream \PORTER{} emits for the running
+  example of Figure~\ref{fig:example}, as replayed by the verifier.
+  Ops 1--7 execute inside the live cat section, where only
+  packet-tagged SWAPs and 1Q gates that avoid the two reserved ports
+  are legal. At end of stream the verifier further asserts: no cat
+  section left open, all five gates executed exactly once, and the
+  emitted statistics equal to the derived counts (2 EPR, 1 teleport,
+  1 packet, 0 single telegates, 6 SWAPs, 2 local CXs).}
+\label{fig:trace}
+\end{figure}
+
+\begin{table}[t]
+\caption{Fault-injection validation of the verifier
+  (\texttt{verify\_fault\_injection.py}): single-point corruptions
+  applied to operation streams that pass verification, each of which
+  must be rejected.}
+\label{tab:faults}
+\centering
+\scriptsize
+\begin{tabular}{@{}ll@{}}
+\toprule
+Injected corruption & Rejecting check \\
+\midrule
+delete a \texttt{cat\_disentangler} & section state machine \\
+swap a teleport's two ports & exact inter-core port pair \\
+zero a teleport's EPR cost & per-op EPR accounting \\
+duplicate a gate-carrying op & every gate exactly once \\
+delete a gate-carrying op & queue order / end-of-stream coverage \\
+swap two ops sharing a qubit & per-qubit dependency order \\
+retarget a SWAP to a non-coupled pair & coupling-edge legality \\
+untag an in-section routing SWAP & cat-section isolation \\
+retarget an in-section SWAP onto a port & reserved-port protection \\
+increment \texttt{stats.epr} by one & stats--stream cross-check \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{A certified trace.} Figure~\ref{fig:trace} replays the
+stream \PORTER{} emits for the running example of
+Section~\ref{sec:sfc-example} --- fourteen operations exercising
+every op type --- and lists, per operation, exactly what the verifier
+of Section~\ref{sec:verification} asserts before accepting it. The
+trace makes the three primitives'
+legality conditions operational: the \TeleGatePacket{} is one
+\emph{bracketed section} in which the two reserved ports are
+untouchable and every interleaved SWAP must carry packet provenance;
+the \TeleData{} at op 11 must name the unique port pair of its core
+pair, find both ports free, start port-adjacent, and land exactly on
+the destination port; and every gate execution, local or remote, is
+popped from the head of each operand's pending-gate queue, so DAG
+order is enforced gate by gate rather than assumed from the router's
+own bookkeeping.
+
+\textbf{Fault injection.} On streams that always pass, a verifier
+that checks nothing is indistinguishable from one that checks
+everything, so we also certify that each check \emph{fires}:
+\texttt{verify\_fault\_injection.py} takes passing op streams and
+applies the ten single-point corruptions of Table~\ref{tab:faults},
+one mutant per corruption, spanning misuse of all three communication
+primitives (wrong ports, free-port violations, broken cat-section
+bracketing), gate-coverage and dependency-order violations, illegal
+SWAPs, and statistics drift. Across the running example (which
+admits all ten corruption classes) and thirty fuzzed circuits on both
+architectures, all 276 applicable mutants are rejected, each by the
+intended check; the same harness runs on any benchmark QASM file.
 
 %%────────────────────────────────────────────────────────────────────────────
 \section*{Acknowledgments}

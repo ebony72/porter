@@ -42,6 +42,7 @@ and `compare_routers.build_seeded_locality_layout`. Benchmark harness:
 | `porter/router.py` | `PorterRouter`, `DagFrontierSimulator`, `CapacityReliefPlanner` |
 | `compile_porter.py` | CLI: QASM parsing, A/H grid hardware, initial layout (`hardware_for_name`, `build_initial_layout`), JSON/CSV outputs |
 | `verify_porter.py` | Independent replay verifier + fuzz suite (see below) |
+| `verify_fault_injection.py` | Verifier-of-the-verifier: mutates passing op streams (10 corruption classes) and asserts every mutant is rejected; also rebuilds the paper's Sec III-G running example (`toy_stream()`) |
 | `compare_routers.py` | Head-to-head benchmark vs TeleSABRE / dSABRE / pytket-dqc |
 | `patched_telesabre/` | Patched TeleSABRE binary used by `compare_routers.py` — the stock `../other/telesabre/telesabre` segfaults on architecture A. Rebuild with `build.sh`; see its README |
 
