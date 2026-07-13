@@ -1,0 +1,386 @@
+%% sfc_appendix.tex — Supplementary material (Appendices A–D) for sfc.tex.
+%% Standalone document: compiles independently of the main paper.
+%%   pdflatex sfc_appendix
+%%   bibtex   sfc_appendix
+%%   pdflatex sfc_appendix
+%%   pdflatex sfc_appendix
+
+\documentclass[journal]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+%% ── Notation macros (kept in sync with sfc.tex) ─────────────────────────────
+\newcommand{\PORTER}{\textsc{PORTER}}
+\newcommand{\TeleSABRE}{\textsc{TeleSABRE}}
+\newcommand{\dSABRE}{\textsc{dSABRE}}
+\newcommand{\SABRE}{\textsc{SABRE}}
+\newcommand{\TeleData}{\textsc{TeleData}}
+\newcommand{\TeleGate}{\textsc{TeleGate}}
+\newcommand{\TeleGatePacket}{\textsc{TeleGatePacket}}
+\newcommand{\logi}[1]{\mathrm{q}_{#1}}
+\newcommand{\phys}[1]{\mathrm{p}_{#1}}
+
+%% ── References into the main paper ──────────────────────────────────────────
+%% The supplement compiles independently, so these are hardcoded; update here
+%% (single place) if the main paper is renumbered.
+\newcommand{\mainInitialLayout}{Section~III-A}   % sec:sfc-layout
+\newcommand{\mainRunningExample}{Section~III-G}  % sec:sfc-example
+\newcommand{\mainExampleFig}{Figure~5}           % fig:example
+\newcommand{\mainEvaluation}{Section~IV}         % sec:experiments
+\newcommand{\mainSetup}{Section~IV-B}            % sec:setup
+\newcommand{\mainProtocols}{Section~IV-C}        % sec:protocols
+\newcommand{\mainSharedResults}{Section~IV-E}    % sec:shared_results
+\newcommand{\mainCompileTime}{Section~IV-G}      % sec:time
+\newcommand{\mainSharedTable}{Table~VII}         % tab:shared
+
+\begin{document}
+
+\title{Supplementary Material for\\
+  ``PORTER: A Plan-Committed Router for Multi-Core Distributed Quantum
+  Computers''}
+
+%\author{Fuchao~Sheng, xxx, xxx, Sanjiang~Li}
+
+\maketitle
+
+\noindent
+This supplement contains Appendices A--D of the main paper. Section,
+figure, and table numbers of the form ``Section~III-A'' or
+``Table~VII'' refer to the main paper; numbers local to this document
+refer to the supplement itself.
+
+\appendices
+
+\section{The 80-Qubit Suite: Reconstruction Detail}
+\label{app:suite80}
+
+The 80-qubit suite (\mainSetup{} of the main paper) was generated with
+\texttt{mqt.bench}~2.2.2~\cite{quetschlich2023mqtbench}
+(device-independent generation followed by
+transpilation to our basis, since the installed \texttt{mqt.bench}'s
+target-aware native-gate path raised an unrelated \texttt{qiskit}
+compatibility error on every circuit we tried). AE at this size is not
+directly producible by stock \texttt{mqt.bench}: its phase-estimation
+construction evaluates $\mathrm{Operator}(Q)^{2^{j}}$ for each
+evaluation bit $j$, and the accumulated floating-point non-unitarity
+trips \texttt{qiskit}'s unitarity check
+(\texttt{"Input matrix is not unitary"}) beyond roughly $27$ evaluation
+qubits, which is why published AE files stop near $54$~qubits. Since the
+Bernoulli operator $Q$ is a single-qubit rotation, we instead supply the
+power analytically, $Q^{2^{j}}=R_Y(2^{j+1}\theta_p)$ ($R_Y$ periodic in
+$4\pi$), and otherwise run \texttt{mqt.bench}'s own native-gate
+transpilation unchanged. The CNOT sub-sequence---which alone determines
+routing---is decomposition-invariant in these rotation angles and is
+byte-identical to stock \texttt{mqt.bench} at every size the latter can
+build (verified at $10$, $20$, $25$, and $28$~qubits); only the
+routing-irrelevant single-qubit angles carry floating-point error at
+high bit indices.
+
+QNN required an analogous reconstruction. Between
+\texttt{mqt.bench}~1.1.0 (which produced the deep 8{,}126-CX 64q QNN
+this suite uses) and the installed 2.2.2, the benchmark's definition
+was changed from a ZZ feature map (full all-pairs entanglement) plus a
+\texttt{RealAmplitudes} ansatz to a plain Z feature map (no
+entanglement) plus the same ansatz. The current generator therefore
+emits a near-linear 79-CX circuit at 80 qubits whose two-qubit
+interaction graph is \emph{identical} to GHZ's --- a degenerate
+duplicate, not a distinct benchmark. We restore the original deep QNN
+by rebuilding the 1.1.0 construction (ZZ feature map, \texttt{reps}=2,
+full entanglement; \texttt{RealAmplitudes}, \texttt{reps}=1) and
+transpiling it to our basis; at 64 qubits this reproduces the checked-in
+1.1.0 file's CNOT sub-sequence byte-for-byte (identical ordered pair
+sequence, all $\binom{64}{2}$ interacting pairs, 8{,}126 CX), so the
+80-qubit instance (a fully-connected $\binom{80}{2}$-edge interaction
+graph, 12{,}718 CX) is a faithful extrapolation of the same
+construction.
+
+\section{External Layouts from pytket-dqc}
+\label{app:pytket}
+
+As a third, independent layout source complementing the shared-layout
+protocol of \mainProtocols{} of the main paper, we route \dSABRE{} and
+\PORTER{} from a placement generated by \texttt{pytket-dqc}'s
+\texttt{HypergraphPartitioning} allocator~\cite{pytketdqc2024}
+(best-of-3 KaHyPar seeds on a \texttt{NISQNetwork} matching our core
+graph), converted to a physical layout by the same topology-aware
+intra-core assignment \dSABRE{}'s own pytket benchmark
+uses~\cite{lidsabre}: each core's assigned logical qubits are placed
+by descending interaction-graph degree onto physical positions ordered
+by ascending intra-core centrality, then locally refined by a bounded
+pairwise-swap pass. \TeleSABRE{} is excluded for the same structural
+reason as in \mainProtocols{} (no externally supplied
+layout support in its CLI). \texttt{HypergraphPartitioning} only
+decides which \emph{core} each logical qubit goes to; the capacity it
+sees for a core is the length of that core's declared qubit list in
+the \texttt{NISQNetwork}. Following \dSABRE{}'s stock corner-removal
+convention (the four lowest-degree corner qubits of the whole-chip
+graph; \mainProtocols{}), we withhold those four corner
+qubits from the cores' declared capacity and from the later
+physical-placement step within each core. This guarantees only a
+four-qubit margin \emph{chip-wide}, not per-core, so a core can still
+end up fully packed; rather than skip the run in that case,
+\PORTER{}'s general safeguard against fully packed cores
+(\mainInitialLayout{}) legalizes the layout automatically
+before routing begins. \dSABRE{}'s teledata-only mechanism does not
+need a free port on the side it teleports \emph{from} and was never
+affected by this precondition. Because \texttt{pytket-dqc} uses gate
+teleportation, not state teleportation, its own reported cost is in a
+different unit (e-bits per Steiner-tree-amortised hyperedge, not EPR
+pairs per qubit move) and is included only as context, following
+\dSABRE{}'s own established convention for this
+comparison~\cite{lidsabre}.
+
+\begin{table}[t]
+\centering
+\caption{Pytket-mapping shared-layout comparison (25q and 64q suites),
+  corners-removed \texttt{NISQNetwork}
+  capacity. \texttt{pytket e-bits} is
+  \texttt{HypergraphPartitioning}'s own cost in a different unit
+  (context only, not EPR-comparable). \PORTER{}'s general full-core
+  safeguard leaves no missing entries on
+  this suite.}
+\label{tab:pytket}
+\setlength{\tabcolsep}{3pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}l l r rr rr@{}}
+\toprule
+Suite & Circuit & \texttt{pytket} e-bits & \multicolumn{2}{c}{\dSABRE{}} & \multicolumn{2}{c}{\PORTER{}} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+& & & EPR & SWAP & EPR & SWAP \\
+\midrule
+25q & ae         &  78 &   67 &  339 &   73 &  348 \\
+25q & ghz        &   3 &    3 &   14 &    3 &   17 \\
+25q & graphstate &   4 &    5 &   24 &    4 &   19 \\
+25q & qft        &  70 &   92 &  437 &  118 &  438 \\
+25q & qnn        & 148 &  168 &  848 &  127 &  703 \\
+25q & random     & 564 &  440 & 1482 &  395 & 1340 \\
+64q & ae         & 264 &  361 & 2243 &  223 & 1638 \\
+64q & ghz        &   5 &    5 &   74 &    5 &   62 \\
+64q & graphstate &  10 &    8 &   68 &   10 &   60 \\
+64q & qft        & 307 &  320 & 2112 &  278 & 2021 \\
+64q & qnn        & 621 &  509 & 8215 & 1031 & 6538 \\
+64q & random     & 1020 & 750 & 3969 &  861 & 4384 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Table~\ref{tab:pytket} reports
+a complete grid: \PORTER{}'s full-core safeguard
+legalizes the three layouts that would
+otherwise violate its teleport precondition (25q QNN, 64q AE,
+64q QNN), at the cost of the layout-quality hit an emergency eviction
+inevitably takes -- most visibly on 64q QNN, where the evicted layout
+lands \PORTER{} at 1{,}031 EPR pairs against \dSABRE{}'s 509, its worst
+relative result on this suite. Excluding that outlier, results split
+close to evenly: \PORTER{} uses fewer EPR pairs on 25q
+Graphstate/QNN/Random and 64q AE/QFT, \dSABRE{} on 25q AE/QFT and 64q
+Graphstate/Random, and the two tie on both GHZ rows; geometric-mean
+EPR across all twelve rows is within $1.4\%$ of parity
+(\dSABRE{} $69.2$ vs.\ \PORTER{} $70.2$). Pooled with the
+\TeleSABRE{}-layout grid of \mainSharedTable{} of the main paper,
+\PORTER{} uses
+fewer EPR pairs on fifteen of the thirty fixed-layout instances,
+\dSABRE{} on twelve, with three ties
+(\mainSharedResults{}).
+
+The grid above feeds pytket-dqc's partition to \PORTER{} as a
+controlled probe. The complementary pipeline question -- offering the
+same partition to \PORTER{} as an optional extra layout candidate
+beside its own, which lowers geometric-mean EPR by a further $16\%$ on
+the most partitionable circuits but is kept opt-in on cost and
+robustness grounds -- is a configuration study of \PORTER{} itself
+rather than part of this comparison, and is deferred to
+Appendix~\ref{app:optin}.
+
+\section{pytket-dqc as an Opt-In \PORTER{} Layout Candidate}
+\label{app:optin}
+
+Appendix~\ref{app:pytket} feeds pytket-dqc's partition to
+\PORTER{} as a controlled probe; the same partition can also be
+offered to \PORTER{} as one extra layout candidate beside its own
+(\mainInitialLayout{} of the main paper). Since
+\PORTER{} routes far faster than pytket-dqc partitions, this is nearly
+free on the routing side; taking the better of the two per instance
+lowers the eighteen-instance geometric-mean EPR from $116.8$ to $98.6$
+($-16\%$), with the gains concentrated on the most partitionable
+circuits (Graphstate $7\!\to\!4$, $20\!\to\!10$, $28\!\to\!11$ across
+the three suites; 80q~AE $490\!\to\!352$). We keep it \emph{opt-in}
+rather than the default for three reasons. First, on the dense and
+Random circuits the external partition is often \emph{worse} for
+\PORTER{} (64q~QNN $864\!\to\!1{,}031$, 64q~Random $737\!\to\!861$), so
+the best-of simply retains \PORTER{}'s own layout there. Second, the
+partition itself is expensive -- seconds to minutes, and on dense
+circuits more than \PORTER{}'s entire routing pass ($309$\,s to
+partition 80q~Random versus $\approx\!37$\,s to route it; $16$\,s
+versus $0.6$\,s on 80q~AE) -- against a sub-millisecond cost for
+\PORTER{}'s own layout build, so adopting it by default would erase
+\PORTER{}'s compile-time advantage (\mainCompileTime{} of the main
+paper). Third, it
+reintroduces the external-partitioner dependency \PORTER{}'s
+self-contained layout avoids, and unlike it can leave a core fully
+packed, relying on the full-core repair of
+\mainInitialLayout{}. \PORTER{} therefore defaults to its own
+layout and treats an external partition as an optional refinement,
+selected only when EPR is at a premium and its generation time is
+acceptable.
+
+\section{Independent Replay Verification}
+\label{app:verification}
+
+Beyond code review, we built an independent replay verifier that
+treats the router as a black box: it takes only the emitted
+\texttt{CompiledOp} stream, the original circuit, and the initial
+layout, and re-derives, from scratch, whether the stream is a faithful
+and physically legal execution. The verifier maintains its own
+physical-position map and a per-logical-qubit FIFO queue of pending
+gate IDs (derived directly from the circuit, independent of any
+router-internal DAG state), and checks, per emitted operation:
+\begin{itemize}
+\item every gate is popped from the head of \emph{every} one of its
+  operand qubits' queues before being marked executed, so gates cannot
+  execute out of DAG order or twice;
+\item every \texttt{local\_swap}/\texttt{local\_cx} acts on a genuine
+  intra-core coupling edge, at the physical positions the verifier's
+  own simulated layout says the operand logical qubits occupy;
+\item every \texttt{teleport} uses the correct inter-core port pair for
+  its two cores, both ports were free beforehand, and the source
+  qubit was coupling-adjacent to the source port;
+\item every \texttt{cat\_entangler}, \texttt{cat\_cx}, and
+  \texttt{cat\_disentangler} triple observes port-adjacency and
+  free-port preconditions, and no other operation touches either
+  communication port while a cat section is open;
+\item the emitted \texttt{RouterStats} counters (EPR, teleport,
+  telegate, packet, SWAP, local-CX, single counts) match the counts
+  the verifier itself derives from the op stream, catching any
+  bookkeeping drift between what is emitted and what is counted.
+\end{itemize}
+We ran the verifier against 60 randomized circuits (4--40 logical
+qubits, 20--600 gates, both architectures, seeds 0--59) and against
+every circuit in the evaluation suite (\mainEvaluation{} of the main
+paper);
+all pass. Two further artefacts make these checks concrete: a
+\emph{certified trace} (Figure~\ref{fig:trace}) and a
+\emph{fault-injection study} (Table~\ref{tab:faults}).
+
+\begin{figure}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}r l p{4.0cm}@{}}
+\toprule
+\# & emitted operation & verifier asserts \\
+\midrule
+0 & \texttt{swap} $\phys{3}{\leftrightarrow}\phys{4}$ &
+    coupling edge; operands sit where the replayed layout says \\
+\midrule
+1 & \texttt{cat\_entangler} $\logi{0}$; $(\phys{5},\phys{12})$; 1 EPR &
+    no section already open; \emph{exact} port pair of $(c_0,c_1)$;
+    both ports free; $\logi{0}$ adjacent to $\phys{5}$; opens section,
+    reserving $\phys{5},\phys{12}$ \\
+2 & \texttt{swap} $\phys{10}{\leftrightarrow}\phys{9}$ \hfill route $\logi{1}$ &
+    tagged as packet routing; touches neither reserved port \\
+3 & \texttt{cat\_cx} $g_1$ $(\phys{12},\phys{9})$ &
+    $g_1$ at the head of \emph{both} $\logi{0}$'s and $\logi{1}$'s
+    queues; control $=$ section control; proxy is the target-side
+    port $\phys{12}$; target in $c_1$, adjacent to $\phys{12}$ \\
+4 & \texttt{swap} $\phys{13}{\leftrightarrow}\phys{14}$ \hfill route $\logi{2}$ &
+    as op 2 \\
+5 & \texttt{cat\_cx} $g_2$ $(\phys{12},\phys{13})$ & as op 3 \\
+6 & \texttt{cat\_cx} $g_3$ $(\phys{12},\phys{15})$ &
+    as op 3 ($\logi{3}$ already port-adjacent) \\
+7 & \texttt{cat\_disentangler} &
+    a section is open; closes it, releasing the ports \\
+\midrule
+8 & \texttt{swap} $\phys{6}{\leftrightarrow}\phys{7}$ & coupling edge \\
+9 & \texttt{local\_cx} $g_5$ $(\phys{4},\phys{7})$ &
+    queue heads; same core; coupling edge \\
+10 & \texttt{swap} $\phys{13}{\leftrightarrow}\phys{14}$ & coupling edge \\
+11 & \texttt{teleport} $\logi{5}$: $\phys{13}{\to}\phys{5}$; 1 EPR &
+    cores adjacent; exact port pair $(\phys{12},\phys{5})$; both
+    ports free; $\logi{5}$ adjacent to $\phys{12}$; lands exactly on
+    $\phys{5}$ \\
+12 & \texttt{swap} $\phys{4}{\leftrightarrow}\phys{5}$ & coupling edge \\
+13 & \texttt{local\_cx} $g_4$ $(\phys{3},\phys{4})$ &
+    queue heads; coupling edge \\
+\bottomrule
+\end{tabular}
+\caption{The full operation stream \PORTER{} emits for the running
+  example of the main paper (\mainRunningExample{},
+  \mainExampleFig{}), as replayed by the verifier.
+  Ops 1--7 execute inside the live cat section, where only
+  packet-tagged SWAPs and 1Q gates that avoid the two reserved ports
+  are legal. At end of stream the verifier further asserts: no cat
+  section left open, all five gates executed exactly once, and the
+  emitted statistics equal to the derived counts (2 EPR, 1 teleport,
+  1 packet, 0 single telegates, 6 SWAPs, 2 local CXs).}
+\label{fig:trace}
+\end{figure}
+
+\begin{table}[t]
+\caption{Fault-injection validation of the verifier
+  (\texttt{verify\_fault\_injection.py}): single-point corruptions
+  applied to operation streams that pass verification, each of which
+  must be rejected.}
+\label{tab:faults}
+\centering
+\scriptsize
+\begin{tabular}{@{}ll@{}}
+\toprule
+Injected corruption & Rejecting check \\
+\midrule
+delete a \texttt{cat\_disentangler} & section state machine \\
+swap a teleport's two ports & exact inter-core port pair \\
+zero a teleport's EPR cost & per-op EPR accounting \\
+duplicate a gate-carrying op & every gate exactly once \\
+delete a gate-carrying op & queue order / end-of-stream coverage \\
+swap two ops sharing a qubit & per-qubit dependency order \\
+retarget a SWAP to a non-coupled pair & coupling-edge legality \\
+untag an in-section routing SWAP & cat-section isolation \\
+retarget an in-section SWAP onto a port & reserved-port protection \\
+increment \texttt{stats.epr} by one & stats--stream cross-check \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{A certified trace.} Figure~\ref{fig:trace} replays the
+stream \PORTER{} emits for the running example of the main paper
+(\mainRunningExample{}) --- fourteen operations exercising
+every op type --- and lists, per operation, exactly what the verifier
+asserts before accepting it. The
+trace makes the three primitives'
+legality conditions operational: the \TeleGatePacket{} is one
+\emph{bracketed section} in which the two reserved ports are
+untouchable and every interleaved SWAP must carry packet provenance;
+the \TeleData{} at op 11 must name the unique port pair of its core
+pair, find both ports free, start port-adjacent, and land exactly on
+the destination port; and every gate execution, local or remote, is
+popped from the head of each operand's pending-gate queue, so DAG
+order is enforced gate by gate rather than assumed from the router's
+own bookkeeping.
+
+\textbf{Fault injection.} On streams that always pass, a verifier
+that checks nothing is indistinguishable from one that checks
+everything, so we also certify that each check \emph{fires}:
+\texttt{verify\_fault\_injection.py} takes passing op streams and
+applies the ten single-point corruptions of Table~\ref{tab:faults},
+one mutant per corruption, spanning misuse of all three communication
+primitives (wrong ports, free-port violations, broken cat-section
+bracketing), gate-coverage and dependency-order violations, illegal
+SWAPs, and statistics drift. Across the running example (which
+admits all ten corruption classes) and thirty fuzzed circuits on both
+architectures, all 276 applicable mutants are rejected, each by the
+intended check; the same harness runs on any benchmark QASM file.
+
+\bibliographystyle{IEEEtran}
+\bibliography{sfc}
+
+\end{document}

@@ -43,8 +43,9 @@ and `compare_routers.build_seeded_locality_layout`. Benchmark harness:
 | `compile_porter.py` | CLI: QASM parsing, A/H grid hardware, initial layout (`hardware_for_name`, `build_initial_layout`), JSON/CSV outputs |
 | `verify_porter.py` | Independent replay verifier + fuzz suite (see below) |
 | `verify_fault_injection.py` | Verifier-of-the-verifier: mutates passing op streams (10 corruption classes) and asserts every mutant is rejected; also rebuilds the paper's Sec III-G running example (`toy_stream()`) |
-| `compare_routers.py` | Head-to-head benchmark vs TeleSABRE / dSABRE / pytket-dqc |
+| `compare_routers.py` | Head-to-head benchmark vs TeleSABRE / dSABRE / pytket-dqc. Since 2026-07-13 the dSE own-protocol leg uses `sabre_two_corner_layout` (2 min-degree corners removed per core, chosen farthest by total BFS distance from all other qubits) instead of dSABRE's stock `sabre_locked_boundary_layout` (4 chip-wide = core 0's corners); the pytket legs keep the stock 4-corner convention. PORTER still wins every suite's own-protocol gmean (43.1/86.4/14.0 vs dSE 47.0/89.0/15.8) but dSE now wins the 80q five-circuit basis |
 | `patched_telesabre/` | Patched TeleSABRE binary used by `compare_routers.py` — the stock `../other/telesabre/telesabre` segfaults on architecture A. Rebuild with `build.sh`; see its README |
+| `paper/action_mix.py` | Regenerates the paper's action-mix table (TeleData by provenance, telegates, packets + sizes) by rerunning PORTER own-protocol; cross-checks every counter against `paper/compare_results.json` |
 
 ## CLI shapes
 

@@ -8,9 +8,10 @@ Two comparison protocols are run per circuit:
   1. Own-protocol (each router's established best practice, best-of-3 seeds):
        * TeleSABRE : built-in hungarian initial layout, config seeds 0-2,
                      via the compiled `telesabre` binary.
-       * dSE       : SabreLayout on the corners-removed architecture graph
-                     (seeds 0-2) + SABRE-style fwd->bwd->fwd routing passes.
-       * PORTER    : balanced-first-layer / seeded-locality initial layouts, seeds 0-2 each.
+       * dSE       : SabreLayout on the architecture graph with 2 corners
+                     removed per core (`sabre_two_corner_layout`, seeds 0-2)
+                     + SABRE-style fwd->bwd->fwd routing passes.
+       * PORTER    : single deterministic temporal locality-greedy layout.
 
   2. Shared-layout (isolates routing quality from layout quality): dSE and
      PORTER are both routed from TeleSABRE's *own* initial layout -- extracted
@@ -18,12 +19,12 @@ Two comparison protocols are run per circuit:
      TeleSABRE itself settled on (after its internal forward/backward/
      forward layout refinement) before its accepted forward routing pass.
      A second shared-layout leg uses pytket-dqc's own HypergraphPartitioning
-     mapping, with the same four chip-wide corner (min-degree) physical
-     qubits withheld from every core's capacity that dSE's own-protocol
-     SabreLayout already reserves (see `_locked_boundary_corner_nodes`) --
-     the pytket-dqc analogue of `sabre_locked_boundary_layout`, so neither
-     shared-layout leg is handicapped by a partitioner that's still allowed
-     to fill communication-reserved corner slots.
+     mapping, with the four chip-wide corner (min-degree) physical qubits of
+     dSABRE's stock `sabre_locked_boundary_layout` withheld from every
+     core's capacity (see `_locked_boundary_corner_nodes`) -- the pytket-dqc
+     analogue of that corner removal, so the partitioner is never allowed to
+     fill communication-reserved corner slots. (dSE's *own-protocol* leg now
+     reserves 2 corners per core instead -- see `sabre_two_corner_layout`.)
 
 All routers see an *identical* physical topology (same physical qubit ids,
 same inter-core ports) for a given architecture, verified at import time.
@@ -66,7 +67,7 @@ from qiskit.transpiler import PassManager
 from architecture import DistributedArchitecture
 from config import HardwareConfig
 from dsabre_ext import dSABRE_BurstExt
-from layout import sabre_locked_boundary_layout, run_sabre_passes
+from layout import run_sabre_passes
 
 from pytket.qasm import circuit_from_qasm_str
 from pytket.passes import DecomposeBoxes
@@ -340,6 +341,92 @@ def run_telesabre(qasm_path: Path, device_json: Path) -> Optional[dict]:
 
 
 # ---------------------------------------------------------------------------
+# dSE own-protocol initial mapping: SabreLayout with 2 corners per core removed
+# ---------------------------------------------------------------------------
+#
+# dSABRE's stock `sabre_locked_boundary_layout` removes the four lowest-id
+# minimum-degree vertices of the whole-chip graph, which under core-major
+# qubit numbering are always the four corners of core 0: the other cores get
+# no reserved communication slots at all and regularly come out fully packed.
+# We instead reserve TWO corners in EVERY core -- the two least useful ones,
+# i.e. the corner positions farthest (total shortest-path distance in the
+# chip graph) from all other physical qubits, so the reservation costs the
+# mapper the least. On architecture A this leaves 4x(9-2)=28 usable slots
+# (>= 25 logical qubits); the stock per-chip removal generalised to per-core
+# would leave only 4x(9-4)=20.
+
+def _per_core_reserved_corner_nodes(arch: DistributedArchitecture, per_core: int = 2) -> Set[int]:
+    """The ``per_core`` least-useful corner physical qubits of each core:
+    among the core's minimum-degree (corner) vertices in ``arch.Gr``, the
+    ones with the largest total shortest-path distance to all other physical
+    qubits. Deterministic (distance ties broken by ascending node id)."""
+    dist = dict(nx.all_pairs_shortest_path_length(arch.Gr))
+    reserved: Set[int] = set()
+    for c in range(arch.num_cores):
+        nodes = arch.core_qubits(c)
+        degs = {n: arch.Gr.degree(n) for n in nodes}
+        min_deg = min(degs.values())
+        cands = [n for n in nodes if degs[n] == min_deg]
+        if len(cands) < per_core:
+            cands = sorted(nodes, key=lambda n: (degs[n], n))[:per_core]
+        remoteness = {n: sum(dist[n].values()) for n in cands}
+        chosen = sorted(cands, key=lambda n: (-remoteness[n], n))[:per_core]
+        reserved.update(chosen)
+    return reserved
+
+
+def sabre_two_corner_layout(qc, dag, arch: DistributedArchitecture, seed: int = 0):
+    """dSABRE's `sabre_locked_boundary_layout` (layout.py) with the corner
+    selection replaced by `_per_core_reserved_corner_nodes`: SabreLayout on
+    the architecture graph with 2 corners removed from every core, seeds
+    [seed, seed+1, seed+2]. Body otherwise mirrors the original."""
+    from qiskit.transpiler import PassManager as _PM, CouplingMap
+    from qiskit.transpiler.passes import SabreLayout
+    import random as _random
+
+    corner_nodes = _per_core_reserved_corner_nodes(arch)
+
+    reduced_nodes = [n for n in arch.Gr.nodes() if n not in corner_nodes]
+    node_to_idx = {n: i for i, n in enumerate(reduced_nodes)}
+    reduced_edges = [
+        (node_to_idx[u], node_to_idx[v])
+        for u, v in arch.Gr.edges()
+        if u not in corner_nodes and v not in corner_nodes
+    ]
+    directed = reduced_edges + [(v, u) for u, v in reduced_edges]
+    cm = CouplingMap(couplinglist=directed, description="dsabre_2corners_per_core_removed")
+
+    layouts = []
+    for sd in [seed, seed + 1, seed + 2]:
+        try:
+            pm = _PM([SabreLayout(cm, max_iterations=3, seed=sd, swap_trials=5)])
+            transpiled = pm.run(qc)
+            if transpiled.layout is None:
+                continue
+            tl = transpiled.layout
+            virt_layout = (tl.initial_virtual_layout(filter_ancillas=True)
+                           if hasattr(tl, "initial_virtual_layout") else tl.initial_layout)
+            result = {}
+            for virt_qubit, reduced_idx in virt_layout.get_virtual_bits().items():
+                try:
+                    bit_index = qc.find_bit(virt_qubit).index
+                except Exception:
+                    continue
+                result[dag.qubits[bit_index]] = reduced_nodes[reduced_idx]
+            assigned = set(result.values())
+            free = [p for p in arch.data_qubits if p not in assigned]
+            _random.Random(sd).shuffle(free)
+            fp = iter(free)
+            for lq in dag.qubits:
+                if lq not in result:
+                    result[lq] = next(fp)
+            layouts.append(result)
+        except Exception:
+            continue
+    return layouts
+
+
+# ---------------------------------------------------------------------------
 # dSABRE runner
 # ---------------------------------------------------------------------------
 
@@ -451,10 +538,11 @@ def run_sfc_shared_layout(
 # qubits directly onto them.
 
 def _locked_boundary_corner_nodes(arch: DistributedArchitecture) -> Set[int]:
-    """Chip-wide corner (min-degree) physical qubits in ``arch.Gr``, using
-    the exact same selection dSABRE's `sabre_locked_boundary_layout` makes,
-    so both own-protocol (dSE/SabreLayout) and shared-layout (pytket-dqc)
-    legs reserve the identical four physical qubits."""
+    """Chip-wide corner (min-degree) physical qubits in ``arch.Gr``, the
+    exact same selection dSABRE's stock `sabre_locked_boundary_layout`
+    makes. Kept for the pytket-dqc legs (historical convention from
+    dSABRE's own pytket benchmark); dSE's own-protocol leg uses the
+    per-core reservation in `sabre_two_corner_layout` instead."""
     degrees = dict(arch.Gr.degree())
     min_degree = min(degrees.values())
     return set(sorted(n for n, d in degrees.items() if d == min_degree)[:4])
@@ -895,7 +983,7 @@ def run_suite(suite_key: str) -> List[dict]:
         print(f"  TeleSABRE          : {ts}", flush=True)
 
         # -- own-protocol comparison --------------------------------------
-        sabre_layouts = sabre_locked_boundary_layout(qc, dag, arch, seed=0)
+        sabre_layouts = sabre_two_corner_layout(qc, dag, arch, seed=0)
 
         dse = run_dsabre(dSABRE_BurstExt, arch, hw_cfg, dag, rev_dag, sabre_layouts)
         print(f"  dSE  (SabreLayout) : {dse}", flush=True)

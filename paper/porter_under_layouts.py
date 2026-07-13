@@ -3,7 +3,8 @@
 For each circuit we route PORTER from five layout sources and record EPR/SWAP:
   porter_balanced  : PORTER balanced-first-layer  (own, best of NUM_SEEDS)
   porter_locality  : PORTER seeded locality-greedy (own, best of NUM_SEEDS)
-  sabre_dse        : dSABRE SabreLayout, corners-removed (best of its 3 cands)
+  sabre_dse        : dSABRE SabreLayout, 2 corners removed per core
+                     (dSE's own-protocol candidates; best of its 3 cands)
   pytket           : pytket-dqc HypergraphPartitioning, corner-locked
   telesabre        : TeleSABRE built-in Hungarian initial layout
 
@@ -70,8 +71,8 @@ def run_suite_layouts(suite_key):
         row["porter_locality"] = porter_best_over_builder(circuit, hw, num_logical, cr.build_seeded_locality_layout)
         print(f"    balanced={row['porter_balanced']}  locality={row['porter_locality']}", flush=True)
 
-        # dSABRE SabreLayout (corners-removed) -> PORTER
-        sabre_layouts = cr.sabre_locked_boundary_layout(qc, dag, arch, seed=0)
+        # dSABRE SabreLayout (2 corners removed per core) -> PORTER
+        sabre_layouts = cr.sabre_two_corner_layout(qc, dag, arch, seed=0)
         row["sabre_dse"] = cr.run_sfc_sabre_layout(circuit, hw, num_logical, dag, sabre_layouts)
         print(f"    sabre_dse={row['sabre_dse']}", flush=True)
 
