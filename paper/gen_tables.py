@@ -121,6 +121,7 @@ def shared_layout_table(rows, label, ts_key, sfc_key, name):
             f"%% gmean(n={n}) TS={g_ts:.2f} dSE={g_dse:.2f} SFC={g_sfc:.2f} "
             f"delta_dSE_vs_TS={g_delta_dse:.1f}% delta_SFC_vs_TS={g_delta_sfc:.1f}%"
         )
+    return ts_matched, dse_matched, sfc_matched
 
 
 def pytket_table(all_rows):
@@ -155,13 +156,32 @@ def main():
     results_path = Path(sys.argv[1]) if len(sys.argv) > 1 else _HERE / "compare_results.json"
     records = json.loads(results_path.read_text())
 
+    all_ts, all_dse, all_sfc = [], [], []
     for suite in ("25", "64", "80"):
         rows = [r for r in records if r["suite"] == suite]
         if not rows:
             continue
         print(f"\n%% ================ suite {suite}q ================")
         own_protocol_table(rows, f"{suite}q")
-        shared_layout_table(rows, f"{suite}q", "dSE_shared", "sfc_shared", "TeleSABRE mapping")
+        ts_m, dse_m, sfc_m = shared_layout_table(
+            rows, f"{suite}q", "dSE_shared", "sfc_shared", "TeleSABRE mapping"
+        )
+        all_ts += ts_m
+        all_dse += dse_m
+        all_sfc += sfc_m
+
+    print(f"\n%% -- shared-layout table (TeleSABRE mapping): gmean over all {len(all_ts)} circuits --")
+    g_ts, g_dse, g_sfc = gmean(all_ts), gmean(all_dse), gmean(all_sfc)
+    g_delta_dse = pct_delta(g_dse, g_ts)
+    g_delta_sfc = pct_delta(g_sfc, g_ts)
+    print(
+        f"\\textbf{{gmean, all}} ({len(all_ts)}) & {g_ts:.1f} & & {g_dse:.1f} & & "
+        f"$\\mathbf{{{fmt_pct(g_delta_dse)}}}$ & {g_sfc:.1f} & & $\\mathbf{{{fmt_pct(g_delta_sfc)}}}$ \\\\"
+    )
+    print(
+        f"%% gmean(n={len(all_ts)}) TS={g_ts:.2f} dSE={g_dse:.2f} SFC={g_sfc:.2f} "
+        f"delta_dSE_vs_TS={g_delta_dse:.1f}% delta_SFC_vs_TS={g_delta_sfc:.1f}%"
+    )
 
     pytket_table(records)
 

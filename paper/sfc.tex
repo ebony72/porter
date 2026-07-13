@@ -76,11 +76,11 @@
 
 \title{PORTER: A Plan-Committed Router for Multi-Core Distributed Quantum Computers}
 
-%\author{Fuchao~Sheng, xxx, xxx, Sanjiang~Li~\IEEEauthorrefmark{1}%
-%\thanks{S. Li is with the Centre for Quantum Software and Information,
-%  University of Technology Sydney, Australia
-%  (e-mail: sanjiang.li@uts.edu.au).}%
-%\thanks{\IEEEauthorrefmark{1}ORCID: 0000-0002-3332-2546.}}
+\author{Fuchao~Sheng, Yongjian Xing, Yongming Li, Sanjiang~Li~\IEEEauthorrefmark{1}%
+\thanks{F. Sheng, Y. Xing, and Y. Li are with the School of Mathematics and Statistics, Shaanxi Normal University, Xi'an, China; S. Li is with the Centre for Quantum Software and Information,
+  University of Technology Sydney, Australia
+  (e-mail: sanjiang.li@uts.edu.au).}%
+\thanks{\IEEEauthorrefmark{1}ORCID: 0000-0002-3332-2546.}}
 
 \maketitle
 
@@ -1365,8 +1365,8 @@ graphstate     &   88 &  521 &   25 &   144 &    28 &   198 & $-68.2$ \\
 qft$^{\ast}$   &  --- &  --- &  349 &  2630 &   446 &  2968 & --- \\
 qnn$^{\ast}$   &  --- &  --- &  869 & 13500 &  1517 & 10920 & --- \\
 random$^{\ast}$ &  --- &  --- &  --- &   --- & 11040 & 62119 & --- \\
-\midrule
-\textbf{gmean} (2) & 40.9 & & 15.8 & & \textbf{14.0} & & $\mathbf{-65.8}$ \\
+%\midrule
+%\textbf{gmean} (2) & 40.9 & & 15.8 & & \textbf{14.0} & & $\mathbf{-65.8}$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -1381,7 +1381,8 @@ random$^{\ast}$ &  --- &  --- &  --- &   --- & 11040 & 62119 & --- \\
   result; negative is better. Rows exist only where \TeleSABRE{}
   converges and thus provides a layout to share: all six circuits at
   25q, five of six at 64q (Random missing), two of six at 80q (GHZ and
-  Graphstate); per-suite gmeans are over the available rows.}
+  Graphstate); per-suite gmeans are over the available rows, and the
+  final \textbf{all} row is the gmean over all thirteen.}
 \label{tab:shared}
 \setlength{\tabcolsep}{3pt}
 \small
@@ -1411,6 +1412,8 @@ Suite & Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & SWAP & 
 80q & ghz        &   19 &   172 &   15 &   173 & $-21.1$ &   11 &   156 & $-42.1$ \\
 80q & graphstate &   88 &   521 &   55 &   306 & $-37.5$ &   71 &   402 & $-19.3$ \\
 \multicolumn{2}{@{}l}{\quad\textbf{gmean} (2)} & 40.9 & & 28.7 & & $\mathbf{-29.8}$ & 27.9 & & $\mathbf{-31.7}$ \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{gmean, all} (13)} & 104.5 & & 62.1 & & $\mathbf{-40.6}$ & 64.8 & & $\mathbf{-38.0}$ \\
 \bottomrule
 \end{tabular}%
 }
