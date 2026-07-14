@@ -11,12 +11,12 @@
       "swaps": 370,
       "depth": 0,
       "seed": 0,
-      "seconds": 0.159
+      "seconds": 0.146
     },
     "dSE": {
       "epr": 68,
       "swaps": 395,
-      "seconds": 0.78
+      "seconds": 0.786
     },
     "sfc": {
       "epr": 65,
@@ -31,7 +31,7 @@
       "telegate_packets": 8,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.071
+      "seconds": 0.072
     },
     "dSE_shared": {
       "epr": 77,
@@ -371,12 +371,12 @@
       "swaps": 1512,
       "depth": 0,
       "seed": 0,
-      "seconds": 1.308
+      "seconds": 1.24
     },
     "dSE": {
       "epr": 417,
       "swaps": 1438,
-      "seconds": 5.41
+      "seconds": 5.388
     },
     "sfc": {
       "epr": 401,
@@ -391,7 +391,7 @@
       "telegate_packets": 43,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.419
+      "seconds": 0.403
     },
     "dSE_shared": {
       "epr": 439,
@@ -443,12 +443,12 @@
       "swaps": 1508,
       "depth": 0,
       "seed": 0,
-      "seconds": 0.986
+      "seconds": 0.97
     },
     "dSE": {
       "epr": 262,
       "swaps": 2016,
-      "seconds": 10.612
+      "seconds": 10.536
     },
     "sfc": {
       "epr": 177,
@@ -463,7 +463,7 @@
       "telegate_packets": 32,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.319
+      "seconds": 0.272
     },
     "dSE_shared": {
       "epr": 183,
@@ -659,12 +659,12 @@
       "swaps": 1872,
       "depth": 0,
       "seed": 0,
-      "seconds": 1.885
+      "seconds": 1.779
     },
     "dSE": {
       "epr": 258,
       "swaps": 2295,
-      "seconds": 8.444
+      "seconds": 8.408
     },
     "sfc": {
       "epr": 262,
@@ -679,7 +679,7 @@
       "telegate_packets": 45,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.408
+      "seconds": 0.412
     },
     "dSE_shared": {
       "epr": 228,
@@ -731,12 +731,12 @@
       "swaps": 6292,
       "depth": 0,
       "seed": 0,
-      "seconds": 21.538
+      "seconds": 17.519
     },
     "dSE": {
       "epr": 509,
       "swaps": 8610,
-      "seconds": 135.65
+      "seconds": 133.328
     },
     "sfc": {
       "epr": 864,
@@ -751,7 +751,7 @@
       "telegate_packets": 240,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 2.229
+      "seconds": 2.243
     },
     "dSE_shared": {
       "epr": 544,
@@ -1147,7 +1147,7 @@
       "telegate_packets": 572,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 64.555
+      "seconds": 38.171
     },
     "dSE_shared": null,
     "sfc_shared": null,
