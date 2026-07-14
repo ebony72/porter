@@ -93,12 +93,7 @@ consumption. \PORTER{} unifies the three inter-core communication
 primitives used in prior work --- state teleportation (\TeleData{}),
 gate teleportation (\TeleGate{}), and multi-gate cat-entangler packets
 (\TeleGatePacket{}) --- under a single \emph{plan-committed} decision
-loop: where \TeleSABRE{} and \dSABRE{} score every inter-core
-candidate together with its staging SWAPs in one flat action pool,
-\PORTER{} first scores whole remote plans on their physical and
-DAG-lookahead merits alone, commits to the best one, and only then
-generates the preparation SWAPs specific to that plan, so preparation
-effort is never spent on a plan that is not selected. A two-tier
+loop. A two-tier
 capacity-relief mechanism proactively routes qubits toward reservoir
 cores when candidate plans are blocked by insufficient free capacity,
 and a deterministic, seed-free \emph{temporal locality-greedy} initial
@@ -205,17 +200,6 @@ better one will preempt.
   layout built in microseconds replaces per-router layout search
   entirely, yet outperforms \dSABRE{}'s SabreLayout-based
   best-of-three protocol end-to-end on every suite we test.
-\item \textbf{An independent replay verifier}
-  (\appVerification\footnote{Appendices A--D are provided in the
-  separate supplementary-material document
-  (\texttt{sfc\_appendix.pdf}).}) that re-executes the emitted
-  operation stream against its own physical-layout simulation and
-  checks gate coverage, DAG-order faithfulness, and every physical
-  legality constraint (coupling-edge adjacency, port occupancy,
-  cat-section isolation), used to certify correctness across 60
-  randomized circuits and the full evaluation suite --- and itself
-  validated by fault injection: ten classes of single-point stream
-  corruption, every mutant rejected by the intended check.
 \item \textbf{A head-to-head evaluation} against \TeleSABRE{} and
   \dSABRE{} on identical physical topologies at 25, 64, and 80
   logical qubits (Section~\ref{sec:experiments}), under each router's
@@ -238,7 +222,8 @@ publicly available at
 
 A quantum circuit acts on $n$ logical qubits through a sequence of
 gates; we work in the restricted basis $\{\texttt{id}, \texttt{rz},
-\texttt{sx}, \texttt{x}, \texttt{cx}\}$ used by MQT-Bench's
+\texttt{sx}, \texttt{x}, \texttt{cx}\}$ used by
+MQT-Bench's~\cite{quetschlich2023mqtbench}
 Qiskit-opt3-transpiled circuits, i.e.\ arbitrary one-qubit (1Q) gates
 plus the two-qubit (2Q) CX gate. A circuit is represented as a
 directed acyclic graph (DAG): for every logical qubit, consecutive
@@ -357,7 +342,9 @@ communication primitive.
   \node[font=\tiny,black!60,align=left,anchor=west] at (7.4,-1)
     {$\square$ = communication\\ \hphantom{$\square$ = }port};
 \end{tikzpicture}
-\caption{Architecture~A: a $2{\times}2$ array of cores, each a
+\caption{Architecture~A, introduced by
+  \TeleSABRE{}~\cite{russo2025telesabre}: a $2{\times}2$ array of cores,
+  each a
   $3{\times}3$ grid of physical qubits (circles) with nearest-neighbour
   intra-core coupling (grey edges). Squares are communication ports;
   every inter-core link joins one port in each of two adjacent cores
@@ -445,7 +432,8 @@ Figure~\ref{fig:primitives}; each consumes exactly one EPR pair.
   pair between the two communication ports (squares). (a)~\TeleData{}
   moves qubit $q$ (which must sit adjacent to its free port) onto the
   free destination port. (b)~\TeleGate{} executes one remote CX
-  through a cat-entangler: the target-side port acts as a proxy for
+  through a cat-entangler~\cite{yimsiriwattana2004generalized}
+  (Figure~\ref{fig:catent}): the target-side port acts as a proxy for
   the control $q_c$; neither qubit moves. (c)~\TeleGatePacket{}
   brackets an ordered run of remote CX gates sharing the control $q_c$
   between one cat-entangler/disentangler pair, amortising a single
@@ -468,6 +456,104 @@ EPR pair entangles the two communication ports, the remote CX is
 applied using the target-side port as a proxy for the control qubit,
 and the entanglement is consumed on disentangling. Neither logical
 qubit physically moves.
+
+\textbf{Cat-entangler and cat-disentangler.} Both \TeleGate{} and
+\TeleGatePacket{} are built from the same two-step
+protocol~\cite{yimsiriwattana2004generalized}, detailed in
+Figure~\ref{fig:catent}. With the control $q_c$ adjacent to its
+core's port $e_A$ and one EPR pair shared between the ports, the
+\emph{cat-entangler} --- $\mathrm{CX}(q_c,e_A)$, measurement of
+$e_A$, classically controlled $X$ on $e_B$ --- leaves $q_c$ and the
+remote port $e_B$ sharing the control's computational-basis
+amplitudes (the cat state $\alpha|00\rangle+\beta|11\rangle$ for
+$q_c$ in state $\alpha|0\rangle+\beta|1\rangle$), so $e_B$ acts as a
+proxy for the control: every CX controlled by $e_B$ transforms its
+target exactly as if controlled by $q_c$. The
+\emph{cat-disentangler} --- Hadamard on $e_B$, measurement,
+classically controlled $Z$ on $q_c$ --- then restores $q_c$'s state
+and releases both ports. \TeleGate{} closes the session after a
+single remote CX; \TeleGatePacket{} keeps the cat state alive across
+an ordered run of CXs sharing the control $q_c$, which is why a
+single EPR pair pays for the whole run.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=0.62cm,y=0.55cm,
+  gbox/.style={draw,fill=white,font=\scriptsize,inner sep=1.5pt,
+               minimum size=11pt},
+  cwire/.style={double,black!70,semithick}]
+  % wire labels
+  \node[font=\scriptsize,anchor=east] at (-0.15,3) {$q_c$};
+  \node[font=\scriptsize,anchor=east] at (-0.15,2) {$e_A$};
+  \node[font=\scriptsize,anchor=east] at (-0.15,0.6) {$e_B$};
+  \node[font=\scriptsize,anchor=east] at (-0.15,-0.4) {$t_i$};
+  % core boundary
+  \draw[black!30,densely dotted] (-1.1,1.3) -- (9.7,1.3);
+  \node[font=\tiny,black!60,anchor=west] at (9.75,1.6) {core $A$};
+  \node[font=\tiny,black!60,anchor=west] at (9.75,1.0) {core $B$};
+  % quantum wires
+  \draw (0,3) -- (9.6,3);
+  \draw (0,2) -- (2.6,2);
+  \draw (0,0.6) -- (8.2,0.6);
+  \draw (0,-0.4) -- (9.6,-0.4);
+  % EPR pair between the ports
+  \draw[eprlink] (0.5,2) -- (0.5,0.6);
+  \node[font=\tiny,red!70!black,anchor=west] at (0.78,1.62) {EPR};
+  % classical wires (drawn under the gates)
+  \draw[cwire] ($(2.6,2)+(0,-5pt)$) -- ($(2.6,0.6)+(0,5.5pt)$);
+  \draw[cwire] ($(8.2,0.6)+(0,5pt)$) -- ($(8.2,3)+(0,-5.5pt)$);
+  % cat-entangler: CX(q_c, e_A)
+  \filldraw (1.5,3) circle (1.6pt);
+  \draw (1.5,3) -- (1.5,2);
+  \draw (1.5,2) circle (3.0pt);
+  \draw (1.5,2) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  % measurement of e_A
+  \draw[fill=white] (2.6,2) +(-6.5pt,-5pt) rectangle +(6.5pt,5pt);
+  \draw (2.6,2) ++(-4pt,-2.5pt) arc[start angle=155,end angle=25,radius=4.4pt];
+  \draw (2.6,2) ++(0,-2.5pt) -- ++(3.2pt,5.2pt);
+  % classically controlled X on e_B
+  \node[gbox] at (2.6,0.6) {$X$};
+  % cat-CX run
+  \filldraw (4.0,0.6) circle (1.6pt);
+  \draw (4.0,0.6) -- (4.0,-0.4);
+  \draw (4.0,-0.4) circle (3.0pt);
+  \draw (4.0,-0.4) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  \node[font=\scriptsize] at (4.9,0.1) {$\cdots$};
+  \filldraw (5.8,0.6) circle (1.6pt);
+  \draw (5.8,0.6) -- (5.8,-0.4);
+  \draw (5.8,-0.4) circle (3.0pt);
+  \draw (5.8,-0.4) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  % cat-disentangler: H, measurement, classically controlled Z
+  \node[gbox] at (7.0,0.6) {$H$};
+  \draw[fill=white] (8.2,0.6) +(-6.5pt,-5pt) rectangle +(6.5pt,5pt);
+  \draw (8.2,0.6) ++(-4pt,-2.5pt) arc[start angle=155,end angle=25,radius=4.4pt];
+  \draw (8.2,0.6) ++(0,-2.5pt) -- ++(3.2pt,5.2pt);
+  \node[gbox] at (8.2,3) {$Z$};
+  % stage boxes and labels
+  \draw[densely dashed,black!50,rounded corners=2pt]
+    (1.0,0.12) rectangle (3.2,3.45);
+  \draw[densely dashed,black!50,rounded corners=2pt]
+    (6.45,0.12) rectangle (8.85,3.45);
+  \node[font=\tiny,black!70] at (2.1,-1.1) {cat-entangler};
+  \node[font=\tiny,black!70] at (4.9,-1.1) {cat-CX run};
+  \node[font=\tiny,black!70] at (7.65,-1.1) {cat-disentangler};
+\end{tikzpicture}
+\caption{The cat-entangler and cat-disentangler
+  protocol~\cite{yimsiriwattana2004generalized} underlying
+  \TeleGate{} and \TeleGatePacket{}. The cat-entangler (left dashed
+  box) consumes the EPR pair between ports $e_A$ and $e_B$:
+  $\mathrm{CX}(q_c,e_A)$, measurement of $e_A$, and a classically
+  controlled $X$ (double lines are classical bits) leave $(q_c,e_B)$
+  in the cat state $\alpha|00\rangle+\beta|11\rangle$, making the
+  remote port $e_B$ a proxy for the control $q_c$. Every CX
+  controlled by $e_B$ (middle) then acts as if controlled by $q_c$
+  --- exactly one for \TeleGate{}, an ordered same-control run
+  (interleaved with target-side 1Q gates) for \TeleGatePacket{}. The
+  cat-disentangler (right dashed box) --- Hadamard, measurement,
+  classically controlled $Z$ --- restores $q_c$ and frees both
+  ports.}
+\label{fig:catent}
+\end{figure}
 
 \textbf{Same-control packets (\TeleGatePacket{}).} When several
 consecutive remote CX gates in the DAG front share the same control
@@ -627,12 +713,11 @@ descending total interaction weight onto ascending intra-core
 centrality (sum of local distances), so the most-connected qubits take
 the most central slots; unused slots are left idle.
 
-This single construction subsumes what the earlier design split across
-two heuristics and a best-of-six search. The temporal discount
-front-loads the opening layer of interactions, recovering the
-first-CX-layer co-location a ``balanced first-layer'' scan gave; the
-accumulated multiplicity together with the first-appearance visit order
-tracks chain-structured circuits a first-layer scan cannot -- a
+The three steps play complementary roles. The temporal discount
+front-loads the opening layers of interaction, so the qubit pairs
+that must interact soonest are co-located first; the accumulated
+multiplicity together with the first-appearance visit order tracks
+chain-structured circuits -- a
 GHZ-style chain exposes only one disjoint pair in its first CX layer,
 yet successive chain neighbours share weight and are visited in
 sequence, so they land in the same core. Of the three steps the visit
@@ -656,8 +741,14 @@ $f_\mathrm{min}$ by construction and never invokes the repair.
 \subsection{Front Classification}
 \label{sec:sfc-classify}
 
-Every gate $g$ in the (size-capped) DAG front is classified under the
-current layout $\ell$: 1Q gates are always directly executable; a CX
+Every gate $g$ in the DAG front is classified under the
+current layout $\ell$. The front is size-capped at
+\texttt{dag\_front\_limit} (96) gates, taken in circuit order, purely
+to bound per-iteration classification and plan-generation cost on
+wider hardware; because front gates are pairwise qubit-disjoint
+(Section~\ref{sec:qcircuits}) the front never exceeds $n$ gates, so
+with $n\le 80$ the cap is never reached in any experiment in this
+paper. Classification is as follows: 1Q gates are always directly executable; a CX
 gate $g=(q_i,q_j)$ with $\kappa_\ell(q_i)=\kappa_\ell(q_j)=c$ (same
 core) is \emph{direct-local} if $\dL(c,\ell(q_i),\ell(q_j))=1$ and
 \emph{local-needing-SWAP} otherwise; a CX gate with
@@ -673,20 +764,24 @@ contains solely gates that need routing.
 For a local-needing-SWAP gate set $F_\mathrm{loc}$, \PORTER{} builds
 candidate SWAP edges from the coupling-graph neighbours of every
 physical position touched by $F_\mathrm{loc}$, simulates each SWAP,
-and scores it as
+and scores it with \SABRE{}'s front-plus-lookahead
+form~\cite{li2019tackling}:
 \begin{equation}
   J(a) = \bar d_{\mathcal{F}}(a) + \lambda_\mathrm{loc}\,\bar d_{\mathcal{E}}(a),
   \qquad \lambda_\mathrm{loc}=0.8,
   \label{eq:sfc-local}
 \end{equation}
-the mean post-SWAP local distance over $F_\mathrm{loc}$ plus a
-weighted mean over an extended set $\mathcal{E}_\mathrm{loc}$: up to
+where $\bar d_{\mathcal{F}}(a)$ is the mean, over the gates
+$(q_i,q_j)\in F_\mathrm{loc}$, of the intra-core distance
+$\dL\bigl(c,\ell_a(q_i),\ell_a(q_j)\bigr)$ under the post-SWAP layout
+$\ell_a$, and $\bar d_{\mathcal{E}}(a)$ is the same mean taken over an
+extended set $\mathcal{E}_\mathrm{loc}$ of up to
 $N_\mathrm{loc}{=}20$ local CX gates collected from the next
 $L_\mathrm{loc}{=}12$ DAG layers via a virtual frontier simulation
 (Section~\ref{sec:sfc-simstate}). Ties are broken first by the raw
 front-layer distance, then, if still tied, by a decision uniformly
-sampled from a seeded random-number generator, with every seeded
-tie-break recorded in \texttt{RouterStats} for reproducibility
+sampled from a constant-seeded random-number generator, with every
+such tie-break recorded in \texttt{RouterStats} for reproducibility
 auditing.
 
 \subsection{Plan-First Remote Stage}
@@ -808,25 +903,29 @@ post-teleport core assignment (Section~\ref{sec:sfc-simstate}):
   $L_\mathrm{tp}{=}16$ further simulated DAG layers (capped at
   $N_\mathrm{tp}{=}50$ gates) beyond the point where the latent-direct
   simulation naturally stops (no further gate is virtually
-  executable). Layer $k$'s contribution is weighted by
-  $\max(w_\mathrm{min}, w_0\gamma^{k-1})$ with $w_0{=}0.9$,
+  executable). A gate found in layer $k$ contributes with weight
+  $w_k = \max(w_\mathrm{min}, w_0\gamma^{k-1})$, where $w_0{=}0.9$,
   $\gamma{=}0.9$, $w_\mathrm{min}{=}0.5$.
 \end{itemize}
 \begin{align}
-  \mathrm{direct} &= \sum_{g\in\mathrm{direct}}\!\Delta(g)
-    + w_\mathrm{ld}\!\!\sum_{g\in\mathrm{latent}}\!\!\Delta(g), \\
-  \mathrm{lookahead} &= \sum_{(g,k)\in\mathrm{la}}\!\!w_k\,\Delta(g),
+  \mathrm{direct} &= \sum_{g\in\mathrm{direct}\cup\mathrm{latent}}\!\!\Delta(g), \\
+  \mathrm{lookahead} &= \sum_{(g,k)\in\mathrm{la}}\!\!w_k\,\Delta(g);
   \label{eq:sfc-teleport}
 \end{align}
-with $w_\mathrm{ld}{=}1.0$ (\texttt{teleport\_latent\_direct\_weight}).
-A capacity-risk term $1/\max(1,f_\mathrm{dst}{-}1)$ (post-move free
+latent-direct gates enter at the same (full) weight as direct gates,
+consistent with their status as current pressure rather than
+prediction. A capacity-risk term $1/\max(1,f_\mathrm{dst}{-}1)$
+(post-move free
 count in the destination core) is tracked alongside the score for use
-as a tie-break dimension but does not enter $\mathrm{total}$ directly;
-plans are primarily ranked by total gain (descending), then readiness,
+as a tie-break dimension but does not enter $\mathrm{total}$ directly.
+Plans are primarily ranked by total gain (descending), then readiness,
 then preparation cost, then plan kind (\TeleData{} $\succ$
-\TeleGatePacket{} $\succ$ \TeleGate{}), then capacity risk, then
-lookahead gain, with a fully deterministic stable key as the final
-tie-break before any seeded random choice.
+\TeleGatePacket{} $\succ$ \TeleGate{}), then capacity risk; plans
+still tied on all of these are ordered by the lookahead component of
+their (equal) totals --- two tied totals can decompose differently,
+and the plan whose gain lies further ahead is preferred --- with a
+fully deterministic stable key as the final
+tie-break before any constant-seeded random choice.
 
 \subsection{Same-Control Packet Collection}
 \label{sec:sfc-packet}
@@ -839,7 +938,17 @@ sharing control $q_c$ whose target is also in $c_t$, up to
 \texttt{max\_packet\_size} (8) such gates; and (ii) any front 1Q gate
 whose qubit is already in $c_t$, since these execute freely while the
 packet's cat resource is live. Collection stops at the first layer
-that contributes nothing, or once the size cap is reached. Because
+that contributes nothing, or once the size cap is reached. The window
+is deliberately much larger than the size cap because it counts
+simulated \emph{layers}, not collected CXs: successive same-control
+CXs are DAG-chained (Section~\ref{sec:qcircuits}) and therefore
+surface one layer at a time, possibly separated by many layers that
+contribute only target-core 1Q gates. In practice the window is a
+cost guard, not an active knob --- collection always terminates at an
+unproductive layer or at the size cap first; raising the window from
+$120$ to $10^4$ (or lowering it to $24$) leaves the emitted op stream
+of every benchmark in Section~\ref{sec:experiments} byte-identical.
+Because
 this DAG-frontier simulation admits gates from later generations that
 are not literally in the (bounded) current DAG front, a packet may
 contain gates unreachable by a naively front-limited scan; the
@@ -1072,9 +1181,12 @@ routers~\cite{lidsabre,russo2025telesabre}.
 \PORTER{} is implemented in Python and is publicly available, together
 with the verifier and comparison harness used below
 (Section~\ref{sec:intro}). The implementation is fully
-deterministic: for a fixed (circuit, hardware, random seed) triple the
-emitted operation stream is byte-identical across runs, and every
-seeded tie-break is counted in the emitted statistics, so behaviour
+deterministic and takes no seed input: heuristic ties are resolved by
+a fixed chain of deterministic keys, and any residual tie by an
+internal random-number generator initialised from a built-in
+constant, so for a fixed circuit and hardware the emitted operation
+stream is byte-identical across runs; every residual tie-break is
+counted in the emitted statistics, and behaviour
 preservation across refactorings can be certified by hashing the
 serialized operation stream. Compile time is kept low by incremental
 data structures --- chiefly the
@@ -1153,18 +1265,18 @@ Random      & 1124 & 1627 & 23381 \\
 \end{table}
 
 \textbf{Baselines.} We compare against \TeleSABRE{}~\cite{russo2025telesabre}
-and \dSABRE{}~\cite{lidsabre}. For \dSABRE{} we report only
-\texttt{dSABRE\_BurstExt}, its BFS-layer extended-set variant and the
-project's own default/production router (its topological-extended-set
-ablation, \dSABRE{}-Topo, is omitted). \TeleSABRE{}'s stock reference
-C binary crashes deterministically on architecture~A, whose 9-slot
-cores are materially smaller than the $4{\times}4$ cores it was
-originally evaluated on: its Hungarian initial-layout pass can leave a
-logical qubit unassigned when no core's remaining capacity exceeds its
-free-slot threshold, and the unassigned sentinel is then used as a
-negative array index. All \TeleSABRE{} numbers in this paper use a
+and \dSABRE{}~\cite{lidsabre}, the latter in its default mode
+(\texttt{dSABRE\_BurstExt}). \TeleSABRE{}'s stock reference
+C binary crashes deterministically on architecture~A. The crash is in
+its Hungarian initial-layout pass, not in routing: the pass only
+places a qubit into a core whose remaining capacity exceeds a
+hard-coded threshold (four free slots to seat a CX pair, three for a
+single qubit), which caps a 9-slot core at six placements --- at most
+$4\times 6=24$ of the 25 logical qubits --- and each unplaced qubit's
+$-1$ sentinel is then used as a negative array index. All
+\TeleSABRE{} numbers in this paper use a
 minimally patched binary that falls back to the least-loaded core in
-that case; the patch and a detailed account of the issue are provided
+that case; the patch and a detailed account are provided
 in our public repository.
 
 \textbf{Compiler timeout.} Every individual compiler invocation --
@@ -1198,8 +1310,8 @@ for \PORTER{} it is a single deterministic run:
   passes, best EPR count.
 \item \textbf{\PORTER{}}: a \emph{single} routing pass from its single
   deterministic temporal locality-greedy layout
-  (Section~\ref{sec:sfc-layout}), router seed~0. \PORTER{} performs no
-  layout search and no seed sweep, so its column reports one attempt
+  (Section~\ref{sec:sfc-layout}). \PORTER{} takes no seed and performs
+  no layout search, so its column reports one attempt
   per circuit where each baseline's reports the best of three; every
   number is exactly reproducible from the circuit file alone.
 \end{itemize}
@@ -1219,9 +1331,8 @@ natural budget: removing all four corners of every core would leave
 architecture~A only $4\times(9-4)=20$ usable slots, too few for its
 25-qubit circuits, whereas two leave $4\times(9-2)=28$ there and
 $6\times(16-2)=84$ on architecture~H, enough for the 80-qubit suite.
-We still do not reuse these SabreLayout candidates for \PORTER{} in
-this comparison, to keep each router's own-protocol result tied to
-its own established initial-layout heuristic.
+These SabreLayout candidates are not reused for \PORTER{}, whose
+own-protocol result stays tied to its own layout heuristic.
 
 \textbf{Shared-layout comparison.} To isolate routing quality from
 initial-layout quality, we additionally route both \dSABRE{} and
@@ -1262,7 +1373,7 @@ Max packet size (remote CX)        & --                      & 8 \\
 TeleData lookahead max layers      & $L_\mathrm{tp}$         & 16 \\
 TeleData lookahead max CX          & $N_\mathrm{tp}$         & 50 \\
 Lookahead weight / decay / floor   & $w_0,\gamma,w_\mathrm{min}$ & 0.9, 0.9, 0.5 \\
-Latent-direct weight               & $w_\mathrm{ld}$         & 1.0 \\
+DAG front cap (gates)              & --                      & 96 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1429,8 +1540,7 @@ best of three attempts -- $43.1$ vs.\ \dSABRE{}'s $47.0$ and
 over the two circuits \TeleSABRE{} completes; the fuller
 circuit-by-circuit picture, including six instances on which \dSABRE{}
 wins, is below). It is also the only router to complete all eighteen
-instances (\dSABRE{} completes seventeen, \TeleSABRE{} thirteen). The
-per-suite detail follows.
+instances (\dSABRE{} completes seventeen, \TeleSABRE{} thirteen).
 
 \textbf{25-qubit suite.} \PORTER{} reduces geometric-mean EPR
 consumption by \textbf{54.3\%} against \TeleSABRE{}, with per-circuit
@@ -1444,31 +1554,26 @@ primitive amortising runs of shared-control remote CX gates that a
 teledata-only router must pay for individually
 (Section~\ref{sec:ablation} isolates this effect).
 
-\textbf{64-qubit suite.} \TeleSABRE{} fails to converge within
-three seeds only on Random here; on QNN (8{,}126 CX) it succeeds at
-1{,}365 EPR pairs and 6{,}292 SWAPs, exactly matching \dSABRE{}'s own
-published number for this circuit~\cite{lidsabre} -- a useful
-cross-check that our harness reproduces \TeleSABRE{} faithfully. The
-gmean row is computed over the five circuits on which \TeleSABRE{}
-converges. \PORTER{} improves on \TeleSABRE{} on every converged
-circuit ($-36.1\%$ to $-73.7\%$); notably, the chain-structured GHZ
-that defeats locally-greedy schedulers generally -- \dSABRE{}
-regresses against \TeleSABRE{} on it both in our reproduction (14
-vs.\ 11) and in its own published table~\cite{lidsabre} -- is now a
-\PORTER{} \emph{win} (6 EPR pairs vs.\ 11 and 14): the
-first-appearance visit order of the temporal locality-greedy layout
+\textbf{64-qubit suite.} \TeleSABRE{} fails to converge only on
+Random here (the gmean row covers the other five); on QNN it exactly
+matches the \TeleSABRE{} numbers \dSABRE{}'s own table
+publishes~\cite{lidsabre} (1{,}365 EPR, 6{,}292 SWAPs), confirming
+our harness reproduces it faithfully. \PORTER{} improves on
+\TeleSABRE{} on every converged
+circuit ($-36.1\%$ to $-73.7\%$). Notably, the chain-structured GHZ
+that defeats locally-greedy schedulers -- \dSABRE{}
+regresses against \TeleSABRE{} on it here and in its own published
+table~\cite{lidsabre} -- is a
+\PORTER{} \emph{win} (6 EPR pairs vs.\ 11 and 14): the layout's
+first-appearance visit order
 places successive chain neighbours in the same core, dissolving the
-pathology at the layout stage rather than fighting it at routing
-time. Against \dSABRE{}, \PORTER{} takes the gmean ($86.4$ vs.\
+pathology before routing begins. Against \dSABRE{}, \PORTER{} takes
+the gmean ($86.4$ vs.\
 $89.0$), winning AE (177 vs.\ 262), GHZ, and Random (737 vs.\ 770,
 where \TeleSABRE{} completes neither); \dSABRE{} retains Graphstate
 (18 vs.\ 20), QFT (258 vs.\ 262, narrowly), and, most clearly, the
-deep QNN (509 vs.\ 864). That QNN row is \PORTER{}'s weakest result in any
-suite and an honest limit of the single-layout policy: it is the one
-benchmark where the deterministic layout is decisively worse than
-alternatives \PORTER{} itself can produce (its retired best-of-six
-search reached 642 there), suggesting layout sensitivity that a
-future refinement pass could recover.
+deep QNN (509 vs.\ 864) -- \PORTER{}'s weakest result in any
+suite, discussed with the 80-qubit QNN below.
 
 \textbf{80-qubit suite.} \TeleSABRE{} converges on only two of the six
 circuits here (GHZ and Graphstate; Table~\ref{tab:main80}), so its
@@ -1484,33 +1589,24 @@ a geometric mean of 145.4 against \dSABRE{}'s 131.2 -- the one
 own-protocol basis in our evaluation on which a baseline's
 best-of-three beats \PORTER{}'s single run.
 
-The deep QNN deserves emphasis because it corrects a defect in the
-original suite: at 80 qubits the stock \texttt{mqt.bench} QNN is a
-79-CX chain \emph{identical} to GHZ (\appSuite), which
-would have double-counted the easy chain case and hidden the hard one.
-The reconstructed 12{,}718-CX QNN is a fully-connected interaction
-graph, and on it \PORTER{} loses to \dSABRE{} (1{,}517 vs.\ 869) by the
-same mechanism as the 64q QNN (864 vs.\ 509): its single deterministic
-layout cannot match \dSABRE{}'s best-of-three SabreLayout partition on
-an all-to-all circuit. The two QNN rows are now a consistent, honest
+The deep QNN (12{,}718 CX, a fully connected interaction graph;
+\appSuite) is where \PORTER{} loses most clearly (1{,}517 vs.\ 869),
+by the same mechanism as the 64q QNN (864 vs.\ 509): a single
+deterministic layout cannot match \dSABRE{}'s best-of-three
+SabreLayout partition on an all-to-all circuit. The two QNN rows mark
+the consistent, honest
 boundary of the single-layout policy -- the regime a future layout- or
 route-refinement pass (Section~\ref{sec:conclusion}) most needs to
 target.
 
 On Random (23{,}381 CX, by far the largest circuit in any suite),
-\PORTER{} is the only router to finish, in 37\,s at 11{,}040 EPR pairs,
-while \dSABRE{} exceeds the uniform 900\,s per-call timeout
-(Section~\ref{sec:setup}). Running \dSABRE{} past that cap to
-characterize the failure shows it is not a deadlock: its
-\texttt{max\_iterations=20000} budget (carried over from the 64-qubit
-suite per \dSABRE{}'s own scaling guidance~\cite{lidsabre}) is reached
-after 938\,s of its first forward pass alone, having cleared 1{,}233 of
-the 23{,}381 CX gates with genuine forward progress -- a
-resource-budget limitation on an unusually dense circuit
-($3$--$18\times$ the CX/qubit ratio of any other benchmark), not an
-in-principle inability. Still, the practical cost of a budget large
-enough to finish (three layout candidates through up to three passes
-each) would run to hours against \PORTER{}'s 37 seconds.
+\PORTER{} is the only router to finish: 37\,s, 11{,}040 EPR pairs.
+\dSABRE{}'s failure is a budget, not a deadlock: run past the 900\,s
+cap, its iteration budget (set per its own scaling
+guidance~\cite{lidsabre}) expires after 938\,s of the first forward
+pass with 1{,}233 CX gates cleared and genuine progress throughout,
+and a budget large enough to finish its best-of-three protocol would
+run to hours.
 
 \subsection{Inter-Core Action Mix}
 \label{sec:actionmix}
@@ -1658,7 +1754,7 @@ without \dSABRE{}'s forward--backward--forward schedule.
 \caption{Mechanism ablation: \PORTER{} EPR with the \TeleGatePacket{}
   primitive disabled (\texttt{max\_packet\_size}=1) and with both
   capacity-relief tiers disabled, all from the same temporal
-  locality-greedy layout at router seed 0. ``pk'' is the packet count
+  locality-greedy layout. ``pk'' is the packet count
   of the full configuration. $^{\dagger}$Fails to complete (deadlock
   or iteration-guard trip). The gmean row is over the fourteen
   instances all three configurations complete.}
@@ -1741,15 +1837,14 @@ the 23{,}381-CX 80-qubit Random circuit, \dSABRE{}'s own-protocol
 attempt does not complete at all (Table~\ref{tab:main80}) while
 \PORTER{} finishes in 37\,s. This reflects the performance
 engineering of Section~\ref{sec:perf} as much as any algorithmic
-difference between the routers -- \dSABRE{}'s reference implementation
-has not been subjected to the same optimisation pass -- so it should
-be read as a statement about implementation maturity rather than an
-inherent complexity gap between the two approaches.
+difference -- \dSABRE{}'s reference implementation has had no
+comparable optimisation pass -- and should be read as implementation
+maturity, not an inherent complexity gap.
 
 \begin{table}[t]
 \centering
 \caption{Per-attempt wall-clock time (seconds) on representative
-  circuits; one candidate layout/seed per router. $^{\ast}$Did not
+  circuits; one candidate layout per router. $^{\ast}$Did not
   complete.}
 \label{tab:timing}
 \begin{tabular}{@{}l r rrr@{}}
