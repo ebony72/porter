@@ -40,6 +40,9 @@ SUITES = {
         "qft_nativegates_ibm_qiskit_opt3_64.qasm",
         "qnn_OLD_DEEP_nativegates_ibm_qiskit_opt3_64.qasm.bak",
         "random_nativegates_ibm_qiskit_opt3_64.qasm",
+        "qpeexact_nativegates_ibm_qiskit_opt3_64.qasm",
+        "qaoa_nativegates_ibm_qiskit_opt3_64.qasm",
+        "multiplier_nativegates_ibm_qiskit_opt3_64.qasm",
     ]),
     "80": ("H", "qasm_80", [
         "ae_nativegates_ibm_qiskit_opt3_80.qasm",

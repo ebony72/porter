@@ -1,0 +1,569 @@
+[
+ {
+  "suite": "25",
+  "circuit": "ae",
+  "ref_epr": 65,
+  "out": {
+   "committed": {
+    "epr": 65,
+    "swaps": 328,
+    "teleports": 57,
+    "telegates": 0,
+    "packets": 8,
+    "depth": 1095,
+    "steps": 371,
+    "seconds": 0.076
+   },
+   "hopwise": {
+    "epr": 65,
+    "swaps": 328,
+    "teleports": 57,
+    "telegates": 0,
+    "packets": 8,
+    "depth": 1095,
+    "steps": 371,
+    "seconds": 0.117
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "ghz",
+  "ref_epr": 4,
+  "out": {
+   "committed": {
+    "epr": 4,
+    "swaps": 29,
+    "teleports": 4,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 62,
+    "steps": 33,
+    "seconds": 0.002
+   },
+   "hopwise": {
+    "epr": 4,
+    "swaps": 29,
+    "teleports": 4,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 62,
+    "steps": 33,
+    "seconds": 0.002
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "graphstate",
+  "ref_epr": 7,
+  "out": {
+   "committed": {
+    "epr": 7,
+    "swaps": 34,
+    "teleports": 7,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 58,
+    "steps": 41,
+    "seconds": 0.005
+   },
+   "hopwise": {
+    "epr": 7,
+    "swaps": 36,
+    "teleports": 7,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 55,
+    "steps": 43,
+    "seconds": 0.007
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "qft",
+  "ref_epr": 74,
+  "out": {
+   "committed": {
+    "epr": 74,
+    "swaps": 327,
+    "teleports": 74,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 1000,
+    "steps": 401,
+    "seconds": 0.065
+   },
+   "hopwise": {
+    "epr": 74,
+    "swaps": 340,
+    "teleports": 74,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 1011,
+    "steps": 414,
+    "seconds": 0.096
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "qnn",
+  "ref_epr": 119,
+  "out": {
+   "committed": {
+    "epr": 119,
+    "swaps": 642,
+    "teleports": 119,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 1700,
+    "steps": 761,
+    "seconds": 0.151
+   },
+   "hopwise": {
+    "epr": 128,
+    "swaps": 656,
+    "teleports": 128,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 1813,
+    "steps": 784,
+    "seconds": 0.29
+   }
+  }
+ },
+ {
+  "suite": "25",
+  "circuit": "random",
+  "ref_epr": 401,
+  "out": {
+   "committed": {
+    "epr": 401,
+    "swaps": 1327,
+    "teleports": 265,
+    "telegates": 93,
+    "packets": 43,
+    "depth": 3410,
+    "steps": 1693,
+    "seconds": 0.404
+   },
+   "hopwise": {
+    "epr": 399,
+    "swaps": 1318,
+    "teleports": 263,
+    "telegates": 93,
+    "packets": 43,
+    "depth": 3388,
+    "steps": 1682,
+    "seconds": 0.68
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "ae",
+  "ref_epr": 177,
+  "out": {
+   "committed": {
+    "epr": 177,
+    "swaps": 1627,
+    "teleports": 145,
+    "telegates": 0,
+    "packets": 32,
+    "depth": 4202,
+    "steps": 1723,
+    "seconds": 0.264
+   },
+   "hopwise": {
+    "epr": 172,
+    "swaps": 1543,
+    "teleports": 151,
+    "telegates": 0,
+    "packets": 21,
+    "depth": 4086,
+    "steps": 1672,
+    "seconds": 0.606
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "ghz",
+  "ref_epr": 6,
+  "out": {
+   "committed": {
+    "epr": 6,
+    "swaps": 86,
+    "teleports": 6,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 133,
+    "steps": 92,
+    "seconds": 0.007
+   },
+   "hopwise": {
+    "epr": 6,
+    "swaps": 86,
+    "teleports": 6,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 133,
+    "steps": 92,
+    "seconds": 0.007
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "graphstate",
+  "ref_epr": 20,
+  "out": {
+   "committed": {
+    "epr": 20,
+    "swaps": 131,
+    "teleports": 20,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 105,
+    "steps": 151,
+    "seconds": 0.048
+   },
+   "hopwise": {
+    "epr": 20,
+    "swaps": 131,
+    "teleports": 20,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 105,
+    "steps": 151,
+    "seconds": 0.062
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qft",
+  "ref_epr": 262,
+  "out": {
+   "committed": {
+    "epr": 262,
+    "swaps": 1846,
+    "teleports": 216,
+    "telegates": 1,
+    "packets": 45,
+    "depth": 3722,
+    "steps": 2044,
+    "seconds": 0.393
+   },
+   "hopwise": {
+    "epr": 336,
+    "swaps": 2067,
+    "teleports": 176,
+    "telegates": 1,
+    "packets": 159,
+    "depth": 4368,
+    "steps": 2214,
+    "seconds": 0.754
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qnn",
+  "ref_epr": 864,
+  "out": {
+   "committed": {
+    "epr": 864,
+    "swaps": 6595,
+    "teleports": 619,
+    "telegates": 5,
+    "packets": 240,
+    "depth": 11889,
+    "steps": 7075,
+    "seconds": 2.285
+   },
+   "hopwise": {
+    "epr": 785,
+    "swaps": 6476,
+    "teleports": 656,
+    "telegates": 7,
+    "packets": 122,
+    "depth": 10712,
+    "steps": 7097,
+    "seconds": 5.842
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "random",
+  "ref_epr": 737,
+  "out": {
+   "committed": {
+    "epr": 737,
+    "swaps": 4048,
+    "teleports": 432,
+    "telegates": 228,
+    "packets": 77,
+    "depth": 5623,
+    "steps": 4641,
+    "seconds": 1.897
+   },
+   "hopwise": {
+    "epr": 805,
+    "swaps": 4100,
+    "teleports": 412,
+    "telegates": 317,
+    "packets": 76,
+    "depth": 6012,
+    "steps": 4789,
+    "seconds": 5.544
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qpeexact",
+  "ref_epr": null,
+  "out": {
+   "committed": {
+    "epr": 222,
+    "swaps": 1729,
+    "teleports": 177,
+    "telegates": 3,
+    "packets": 42,
+    "depth": 4070,
+    "steps": 1894,
+    "seconds": 0.358
+   },
+   "hopwise": {
+    "epr": 212,
+    "swaps": 1673,
+    "teleports": 176,
+    "telegates": 0,
+    "packets": 36,
+    "depth": 3907,
+    "steps": 1801,
+    "seconds": 0.782
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qaoa",
+  "ref_epr": null,
+  "out": {
+   "committed": {
+    "epr": 854,
+    "swaps": 5394,
+    "teleports": 507,
+    "telegates": 16,
+    "packets": 331,
+    "depth": 8060,
+    "steps": 5717,
+    "seconds": 2.441
+   },
+   "hopwise": {
+    "epr": 761,
+    "swaps": 4964,
+    "teleports": 495,
+    "telegates": 10,
+    "packets": 256,
+    "depth": 7563,
+    "steps": 5329,
+    "seconds": 6.122
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "multiplier",
+  "ref_epr": null,
+  "out": {
+   "committed": {
+    "epr": 1358,
+    "swaps": 9878,
+    "teleports": 940,
+    "telegates": 384,
+    "packets": 34,
+    "depth": 34703,
+    "steps": 11172,
+    "seconds": 1.191
+   },
+   "hopwise": {
+    "epr": 1486,
+    "swaps": 9973,
+    "teleports": 997,
+    "telegates": 440,
+    "packets": 49,
+    "depth": 35438,
+    "steps": 11398,
+    "seconds": 1.866
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "ae",
+  "ref_epr": 490,
+  "out": {
+   "committed": {
+    "epr": 490,
+    "swaps": 3156,
+    "teleports": 211,
+    "telegates": 15,
+    "packets": 264,
+    "depth": 6757,
+    "steps": 3067,
+    "seconds": 0.595
+   },
+   "hopwise": {
+    "epr": 383,
+    "swaps": 2553,
+    "teleports": 232,
+    "telegates": 9,
+    "packets": 142,
+    "depth": 5984,
+    "steps": 2647,
+    "seconds": 1.29
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "ghz",
+  "ref_epr": 7,
+  "out": {
+   "committed": {
+    "epr": 7,
+    "swaps": 115,
+    "teleports": 7,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 168,
+    "steps": 122,
+    "seconds": 0.01
+   },
+   "hopwise": {
+    "epr": 7,
+    "swaps": 115,
+    "teleports": 7,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 168,
+    "steps": 122,
+    "seconds": 0.009
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "graphstate",
+  "ref_epr": 28,
+  "out": {
+   "committed": {
+    "epr": 28,
+    "swaps": 198,
+    "teleports": 28,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 134,
+    "steps": 226,
+    "seconds": 0.113
+   },
+   "hopwise": {
+    "epr": 28,
+    "swaps": 199,
+    "teleports": 28,
+    "telegates": 0,
+    "packets": 0,
+    "depth": 136,
+    "steps": 227,
+    "seconds": 0.207
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "qft",
+  "ref_epr": 446,
+  "out": {
+   "committed": {
+    "epr": 446,
+    "swaps": 2968,
+    "teleports": 235,
+    "telegates": 2,
+    "packets": 209,
+    "depth": 6321,
+    "steps": 3067,
+    "seconds": 0.5
+   },
+   "hopwise": {
+    "epr": 415,
+    "swaps": 2823,
+    "teleports": 219,
+    "telegates": 9,
+    "packets": 187,
+    "depth": 6066,
+    "steps": 2879,
+    "seconds": 1.12
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "qnn",
+  "ref_epr": 1517,
+  "out": {
+   "committed": {
+    "epr": 1517,
+    "swaps": 10920,
+    "teleports": 1039,
+    "telegates": 30,
+    "packets": 448,
+    "depth": 20006,
+    "steps": 11698,
+    "seconds": 4.722
+   },
+   "hopwise": {
+    "epr": 1474,
+    "swaps": 10702,
+    "teleports": 988,
+    "telegates": 41,
+    "packets": 445,
+    "depth": 19315,
+    "steps": 11460,
+    "seconds": 10.506
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "random",
+  "ref_epr": 11040,
+  "out": {
+   "committed": {
+    "epr": 11040,
+    "swaps": 62119,
+    "teleports": 6930,
+    "telegates": 3538,
+    "packets": 572,
+    "depth": 77093,
+    "steps": 72233,
+    "seconds": 37.442
+   },
+   "hopwise": {
+    "epr": 11280,
+    "swaps": 63092,
+    "teleports": 6782,
+    "telegates": 3891,
+    "packets": 607,
+    "depth": 78992,
+    "steps": 73360,
+    "seconds": 115.02
+   }
+  }
+ }
+]

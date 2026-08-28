@@ -1,0 +1,532 @@
+[
+ {
+  "circuit": "ae",
+  "ref_epr": 177,
+  "out": {
+   "full": {
+    "epr": 177,
+    "teleports": 145,
+    "tele_normal": 100,
+    "tele_blocked": 43,
+    "tele_relief": 2,
+    "telegates": 0,
+    "packets": 32,
+    "local_swaps": 1627,
+    "depth": 4202,
+    "seconds": 0.261
+   },
+   "no_packets": {
+    "epr": 211,
+    "teleports": 163,
+    "tele_normal": 114,
+    "tele_blocked": 48,
+    "tele_relief": 1,
+    "telegates": 48,
+    "packets": 0,
+    "local_swaps": 1577,
+    "depth": 4218,
+    "seconds": 0.301
+   },
+   "full_relief": {
+    "epr": 177,
+    "teleports": 145,
+    "tele_normal": 100,
+    "tele_blocked": 43,
+    "tele_relief": 2,
+    "telegates": 0,
+    "packets": 32,
+    "local_swaps": 1627,
+    "depth": 4202,
+    "seconds": 0.266
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2505:cx q29,q43']\nFree slots by core: {0: 3, 1: 1, 2: 14, 3: 11, 4: 1, 5: 2}\nPossible causes: no remote plan can",
+    "seconds": 0.117
+   },
+   "teledata_only_relief": {
+    "epr": 198,
+    "teleports": 198,
+    "tele_normal": 139,
+    "tele_blocked": 54,
+    "tele_relief": 5,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 1609,
+    "depth": 4262,
+    "seconds": 0.315
+   }
+  }
+ },
+ {
+  "circuit": "ghz",
+  "ref_epr": 6,
+  "out": {
+   "full": {
+    "epr": 6,
+    "teleports": 6,
+    "tele_normal": 6,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 86,
+    "depth": 133,
+    "seconds": 0.007
+   },
+   "no_packets": {
+    "epr": 6,
+    "teleports": 6,
+    "tele_normal": 6,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 86,
+    "depth": 133,
+    "seconds": 0.006
+   },
+   "full_relief": {
+    "epr": 6,
+    "teleports": 6,
+    "tele_normal": 6,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 86,
+    "depth": 133,
+    "seconds": 0.006
+   },
+   "teledata_only": {
+    "epr": 6,
+    "teleports": 6,
+    "tele_normal": 6,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 86,
+    "depth": 133,
+    "seconds": 0.006
+   },
+   "teledata_only_relief": {
+    "epr": 6,
+    "teleports": 6,
+    "tele_normal": 6,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 86,
+    "depth": 133,
+    "seconds": 0.006
+   }
+  }
+ },
+ {
+  "circuit": "graphstate",
+  "ref_epr": 20,
+  "out": {
+   "full": {
+    "epr": 20,
+    "teleports": 20,
+    "tele_normal": 20,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 131,
+    "depth": 105,
+    "seconds": 0.048
+   },
+   "no_packets": {
+    "epr": 20,
+    "teleports": 20,
+    "tele_normal": 20,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 131,
+    "depth": 105,
+    "seconds": 0.047
+   },
+   "full_relief": {
+    "epr": 20,
+    "teleports": 20,
+    "tele_normal": 20,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 131,
+    "depth": 105,
+    "seconds": 0.049
+   },
+   "teledata_only": {
+    "epr": 20,
+    "teleports": 20,
+    "tele_normal": 20,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 131,
+    "depth": 105,
+    "seconds": 0.046
+   },
+   "teledata_only_relief": {
+    "epr": 20,
+    "teleports": 20,
+    "tele_normal": 20,
+    "tele_blocked": 0,
+    "tele_relief": 0,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 131,
+    "depth": 105,
+    "seconds": 0.046
+   }
+  }
+ },
+ {
+  "circuit": "qft",
+  "ref_epr": 262,
+  "out": {
+   "full": {
+    "epr": 262,
+    "teleports": 216,
+    "tele_normal": 179,
+    "tele_blocked": 37,
+    "tele_relief": 0,
+    "telegates": 1,
+    "packets": 45,
+    "local_swaps": 1846,
+    "depth": 3722,
+    "seconds": 0.396
+   },
+   "no_packets": {
+    "epr": 372,
+    "teleports": 210,
+    "tele_normal": 162,
+    "tele_blocked": 46,
+    "tele_relief": 2,
+    "telegates": 162,
+    "packets": 0,
+    "local_swaps": 1810,
+    "depth": 4249,
+    "seconds": 0.39
+   },
+   "full_relief": {
+    "epr": 262,
+    "teleports": 216,
+    "tele_normal": 179,
+    "tele_blocked": 37,
+    "tele_relief": 0,
+    "telegates": 1,
+    "packets": 45,
+    "local_swaps": 1846,
+    "depth": 3722,
+    "seconds": 0.41
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1361:cx q49,q35', '1423:cx q50,q34']\nFree slots by core: {0: 1, 1: 1, 2: 4, 3: 2, 4: 8, 5: 16}\nPossible causes: ",
+    "seconds": 0.064
+   },
+   "teledata_only_relief": {
+    "epr": 216,
+    "teleports": 216,
+    "tele_normal": 157,
+    "tele_blocked": 48,
+    "tele_relief": 11,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 1698,
+    "depth": 3938,
+    "seconds": 0.316
+   }
+  }
+ },
+ {
+  "circuit": "qnn_OLD_DEEP",
+  "ref_epr": 864,
+  "out": {
+   "full": {
+    "epr": 864,
+    "teleports": 619,
+    "tele_normal": 464,
+    "tele_blocked": 150,
+    "tele_relief": 5,
+    "telegates": 5,
+    "packets": 240,
+    "local_swaps": 6595,
+    "depth": 11889,
+    "seconds": 2.111
+   },
+   "no_packets": {
+    "epr": 931,
+    "teleports": 678,
+    "tele_normal": 522,
+    "tele_blocked": 156,
+    "tele_relief": 0,
+    "telegates": 253,
+    "packets": 0,
+    "local_swaps": 6164,
+    "depth": 11645,
+    "seconds": 2.139
+   },
+   "full_relief": {
+    "epr": 864,
+    "teleports": 619,
+    "tele_normal": 464,
+    "tele_blocked": 150,
+    "tele_relief": 5,
+    "telegates": 5,
+    "packets": 240,
+    "local_swaps": 6595,
+    "depth": 11889,
+    "seconds": 2.157
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['11711:cx q56,q59', '12062:cx q50,q61']\nFree slots by core: {0: 1, 1: 1, 2: 15, 3: 1, 4: 2, 5: 12}\nPossible cause",
+    "seconds": 1.844
+   },
+   "teledata_only_relief": {
+    "epr": 694,
+    "teleports": 694,
+    "tele_normal": 534,
+    "tele_blocked": 156,
+    "tele_relief": 4,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 5962,
+    "depth": 9523,
+    "seconds": 1.878
+   }
+  }
+ },
+ {
+  "circuit": "random",
+  "ref_epr": 737,
+  "out": {
+   "full": {
+    "epr": 737,
+    "teleports": 432,
+    "tele_normal": 405,
+    "tele_blocked": 16,
+    "tele_relief": 11,
+    "telegates": 228,
+    "packets": 77,
+    "local_swaps": 4048,
+    "depth": 5623,
+    "seconds": 1.824
+   },
+   "no_packets": {
+    "epr": 843,
+    "teleports": 467,
+    "tele_normal": 445,
+    "tele_blocked": 14,
+    "tele_relief": 8,
+    "telegates": 376,
+    "packets": 0,
+    "local_swaps": 4190,
+    "depth": 6290,
+    "seconds": 2.1
+   },
+   "full_relief": {
+    "epr": 737,
+    "teleports": 432,
+    "tele_normal": 405,
+    "tele_blocked": 16,
+    "tele_relief": 11,
+    "telegates": 228,
+    "packets": 77,
+    "local_swaps": 4048,
+    "depth": 5623,
+    "seconds": 1.806
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['843:cx q19,q3']\nFree slots by core: {0: 6, 1: 1, 2: 1, 3: 9, 4: 2, 5: 13}\nPossible causes: no remote plan can be",
+    "seconds": 0.502
+   },
+   "teledata_only_relief": {
+    "error": "RuntimeError: Router exceeded max_iterations; possible oscillation or deadlock",
+    "seconds": 293.086
+   }
+  }
+ },
+ {
+  "circuit": "qpeexact",
+  "ref_epr": 222,
+  "out": {
+   "full": {
+    "epr": 222,
+    "teleports": 177,
+    "tele_normal": 126,
+    "tele_blocked": 49,
+    "tele_relief": 2,
+    "telegates": 3,
+    "packets": 42,
+    "local_swaps": 1729,
+    "depth": 4070,
+    "seconds": 0.364
+   },
+   "no_packets": {
+    "epr": 232,
+    "teleports": 198,
+    "tele_normal": 146,
+    "tele_blocked": 49,
+    "tele_relief": 3,
+    "telegates": 34,
+    "packets": 0,
+    "local_swaps": 1621,
+    "depth": 3897,
+    "seconds": 0.299
+   },
+   "full_relief": {
+    "epr": 222,
+    "teleports": 177,
+    "tele_normal": 126,
+    "tele_blocked": 49,
+    "tele_relief": 2,
+    "telegates": 3,
+    "packets": 42,
+    "local_swaps": 1729,
+    "depth": 4070,
+    "seconds": 0.363
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1734:cx q36,q44', '1867:cx q34,q49', '2009:cx q32,q51']\nFree slots by core: {0: 3, 1: 1, 2: 11, 3: 1, 4: 1, 5: 1",
+    "seconds": 0.11
+   },
+   "teledata_only_relief": {
+    "epr": 275,
+    "teleports": 275,
+    "tele_normal": 191,
+    "tele_blocked": 67,
+    "tele_relief": 17,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 1911,
+    "depth": 4380,
+    "seconds": 0.436
+   }
+  }
+ },
+ {
+  "circuit": "qaoa",
+  "ref_epr": 854,
+  "out": {
+   "full": {
+    "epr": 854,
+    "teleports": 507,
+    "tele_normal": 411,
+    "tele_blocked": 92,
+    "tele_relief": 4,
+    "telegates": 16,
+    "packets": 331,
+    "local_swaps": 5394,
+    "depth": 8060,
+    "seconds": 2.155
+   },
+   "no_packets": {
+    "epr": 898,
+    "teleports": 542,
+    "tele_normal": 461,
+    "tele_blocked": 80,
+    "tele_relief": 1,
+    "telegates": 356,
+    "packets": 0,
+    "local_swaps": 4812,
+    "depth": 7656,
+    "seconds": 1.838
+   },
+   "full_relief": {
+    "epr": 854,
+    "teleports": 507,
+    "tele_normal": 411,
+    "tele_blocked": 92,
+    "tele_relief": 4,
+    "telegates": 16,
+    "packets": 331,
+    "local_swaps": 5394,
+    "depth": 8060,
+    "seconds": 2.145
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['5662:cx q40,q55', '5757:cx q42,q56', '6099:cx q29,q60', '6208:cx q35,q61']\nFree slots by core: {0: 10, 1: 1, 2: ",
+    "seconds": 1.398
+   },
+   "teledata_only_relief": {
+    "epr": 669,
+    "teleports": 669,
+    "tele_normal": 567,
+    "tele_blocked": 99,
+    "tele_relief": 3,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 4560,
+    "depth": 6484,
+    "seconds": 1.465
+   }
+  }
+ },
+ {
+  "circuit": "multiplier",
+  "ref_epr": 1358,
+  "out": {
+   "full": {
+    "epr": 1358,
+    "teleports": 940,
+    "tele_normal": 814,
+    "tele_blocked": 120,
+    "tele_relief": 6,
+    "telegates": 384,
+    "packets": 34,
+    "local_swaps": 9878,
+    "depth": 34703,
+    "seconds": 1.177
+   },
+   "no_packets": {
+    "epr": 1171,
+    "teleports": 821,
+    "tele_normal": 711,
+    "tele_blocked": 110,
+    "tele_relief": 0,
+    "telegates": 350,
+    "packets": 0,
+    "local_swaps": 9272,
+    "depth": 33906,
+    "seconds": 1.144
+   },
+   "full_relief": {
+    "epr": 1358,
+    "teleports": 940,
+    "tele_normal": 814,
+    "tele_blocked": 120,
+    "tele_relief": 6,
+    "telegates": 384,
+    "packets": 34,
+    "local_swaps": 9878,
+    "depth": 34703,
+    "seconds": 1.196
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['450:cx q2,q22']\nFree slots by core: {0: 1, 1: 1, 2: 4, 3: 2, 4: 8, 5: 16}\nPossible causes: no remote plan can be",
+    "seconds": 0.106
+   },
+   "teledata_only_relief": {
+    "epr": 1667,
+    "teleports": 1667,
+    "tele_normal": 1482,
+    "tele_blocked": 151,
+    "tele_relief": 34,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 11132,
+    "depth": 36802,
+    "seconds": 1.428
+   }
+  }
+ }
+]

@@ -841,6 +841,18 @@ class PorterRouter:
             max_path_hops=max_path_hops,
             mode='capacity_relief_bfs',
         )
+        if not recovery_plans and self.cfg.capacity_relief_from_adjacent_blocked:
+            blocked_adjacent = [
+                plan for plan in blocked_plans
+                if plan.mode == 'blocked_capacity_adjacent'
+            ]
+            recovery_plans = self._generate_bfs_capacity_relief_plans(
+                state,
+                blocked_adjacent,
+                min_free,
+                max_path_hops=1,
+                mode='capacity_relief_bfs',
+            )
         recovery_plan = self._select_bfs_capacity_relief_plan(
             recovery_plans, state, info, min_free
         )
@@ -894,6 +906,15 @@ class PorterRouter:
                 action = self._make_action_from_ready_plan(plan, state, min_free)
                 if action is not None:
                     return self._apply_action(action, state)
+                return False
+
+            if not self.cfg.remote_plan_commitment:
+                # Ablation: do not hold the choice open.  Returning here sends
+                # control back to compile()'s loop, which re-classifies the
+                # front and re-scores every plan from scratch before the next
+                # move -- so preparation is spent one round at a time on
+                # whatever currently scores best, rather than on one plan
+                # until it is ready.
                 return False
 
         raise RuntimeError(
@@ -1099,33 +1120,34 @@ class PorterRouter:
             q0, q1 = g.qubits
             c0, c1 = layout.core_of(q0), layout.core_of(q1)
 
-            packet = self._find_telegate_packet(state, layout, g)
-            packet_remote_cx_count = self._packet_remote_cx_count(packet, layout)
-            if packet_remote_cx_count > 1:
+            if self.cfg.telegate_enabled:
+                packet = self._find_telegate_packet(state, layout, g)
+                packet_remote_cx_count = self._packet_remote_cx_count(packet, layout)
+                if packet_remote_cx_count > 1:
+                    plans.append(
+                        RemotePlan(
+                            kind="telegate_packet",
+                            gate=g,
+                            gates=tuple(packet),
+                            metadata={
+                                "seed": g.gid,
+                                "packet_type": "same_control_ordered",
+                                "packet_size": len(packet),
+                                "remote_cx_count": packet_remote_cx_count,
+                                "allows_target_side_single_gates": True,
+                                "target_side_requires_ordered_local_swaps": True,
+                            },
+                        )
+                    )
+
                 plans.append(
                     RemotePlan(
-                        kind="telegate_packet",
+                        kind="telegate",
                         gate=g,
-                        gates=tuple(packet),
-                        metadata={
-                            "seed": g.gid,
-                            "packet_type": "same_control_ordered",
-                            "packet_size": len(packet),
-                            "remote_cx_count": packet_remote_cx_count,
-                            "allows_target_side_single_gates": True,
-                            "target_side_requires_ordered_local_swaps": True,
-                        },
+                        gates=(g,),
+                        metadata={"seed": g.gid, "packet_size": 1},
                     )
                 )
-
-            plans.append(
-                RemotePlan(
-                    kind="telegate",
-                    gate=g,
-                    gates=(g,),
-                    metadata={"seed": g.gid, "packet_size": 1},
-                )
-            )
 
             if layout.free_count(self.hw, c1) >= min_free:
                 plans.append(

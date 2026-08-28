@@ -51,8 +51,12 @@ from typing import Dict, List, Optional, Set
 PORTER_DIR = Path(__file__).resolve().parent
 TELESABRE_DIR = PORTER_DIR.parent / "other" / "telesabre"
 DSABRE_CODE_DIR = PORTER_DIR.parent / "dsabre" / "code"
+# `bench_pytket_large` (whose placement_to_layout/_topo_assign we reuse verbatim)
+# was moved into code/investigations/ by dSABRE's 2026-08 reorganisation.
+DSABRE_INVEST_DIR = DSABRE_CODE_DIR / "investigations"
 
 sys.path.insert(0, str(PORTER_DIR))
+sys.path.insert(0, str(DSABRE_INVEST_DIR))
 sys.path.insert(0, str(DSABRE_CODE_DIR))
 
 import porter as dr
@@ -64,10 +68,10 @@ from qiskit.converters import circuit_to_dag
 from qiskit.transpiler.passes import RemoveBarriers
 from qiskit.transpiler import PassManager
 
-from architecture import DistributedArchitecture
+from architecture import DistributedArchitecture, build_h_grid_architecture
 from config import HardwareConfig
 from dsabre_ext import dSABRE_BurstExt
-from layout import run_sabre_passes
+from layout import run_sabre_passes, sabre_locked_boundary_layout
 
 from pytket.qasm import circuit_from_qasm_str
 from pytket.passes import DecomposeBoxes
@@ -158,6 +162,11 @@ SUITES = {
             "qft_nativegates_ibm_qiskit_opt3_64.qasm",
             "qnn_OLD_DEEP_nativegates_ibm_qiskit_opt3_64.qasm.bak",
             "random_nativegates_ibm_qiskit_opt3_64.qasm",
+            # The remaining three of dSABRE's own nine-circuit 64q suite,
+            # added 2026-08-23 so the two papers' 64q bases match exactly.
+            "qpeexact_nativegates_ibm_qiskit_opt3_64.qasm",
+            "qaoa_nativegates_ibm_qiskit_opt3_64.qasm",
+            "multiplier_nativegates_ibm_qiskit_opt3_64.qasm",
         ],
     ),
     # Same architecture H (96 physical qubits) as "64", just more logical
@@ -190,6 +199,13 @@ SUITES = {
             # (The _DEEP suffix follows the basis token so cname resolves to "qnn".)
             "qnn_nativegates_ibm_qiskit_opt3_80_DEEP.qasm",
             "random_nativegates_ibm_qiskit_opt3_80.qasm",
+            # The same three families that complete dSABRE's nine-circuit 64q
+            # basis, at 80q. Like the rest of the 80q suite these are v2.2.2
+            # generations in the v1 nativegates_ibm_qiskit_opt3 format, not
+            # v1.1.0 downloads -- the 80q suite has no v1.1.0 source.
+            "qpeexact_nativegates_ibm_qiskit_opt3_80.qasm",
+            "qaoa_nativegates_ibm_qiskit_opt3_80.qasm",
+            "multiplier_nativegates_ibm_qiskit_opt3_80.qasm",
         ],
     ),
 }
@@ -222,7 +238,19 @@ def sfc_hardware_to_dsabre_architecture(hw: dr.Hardware) -> DistributedArchitect
         pa, pb = hw.inter_core_ports(a, b)
         inter_links.append((pa, pb))
 
-    return DistributedArchitecture(intra_graphs, inter_links)
+    converted = DistributedArchitecture(intra_graphs, inter_links)
+    # Prefer dSABRE's OWN builder when it reproduces this topology exactly.
+    # Both SabreLayout and dSABRE's routing tie-breaks depend on the insertion
+    # order of the coupling graph, not only on the topology, and the converted
+    # object's order costs dSABRE real EPR: on the 64q suite it lands at a
+    # geometric mean of 195.0 against the 173.3 it publishes, a 12.6% handicap
+    # that is an artefact of graph construction rather than a protocol choice.
+    # Routing on its native object reproduces its published numbers to +0.6%.
+    # Returns the converted object when no native builder matches (architecture
+    # A, whose 3x3 cores the H-grid builder cannot express and on which dSABRE
+    # publishes nothing).
+    native = _dsabre_native_architecture(converted)
+    return native if native is not None else converted
 
 
 def verify_topology_match(hw: dr.Hardware, arch: DistributedArchitecture) -> None:
@@ -256,7 +284,13 @@ def _telesabre_config(seed: int, report_path: str, save_report: bool) -> str:
         "max_solving_deadlock_iterations": 1000,
         "gate_usage_penalty": 0.0, "swap_usage_penalty": 0.002,
         "teledata_usage_penaly": 0.005, "telegate_usage_penalty": 0.005,
-        "init_layout_hun_min_free_gate": 5, "init_layout_hun_free_qubit": 4,
+        "init_layout_hun_min_free_gate": 5, "init_layout_hun_min_free_qubit": 4,
+        # NB: the key is `init_layout_hun_min_free_qubit`. TeleSABRE's
+        # config_set_parameter (src/config.c) returns silently on an
+        # unknown key, so a misspelling here is not an error -- it
+        # silently falls back to the binary's default of 3 and changes
+        # every TeleSABRE number. This spelling matches dSABRE's
+        # code/benchmark.py, and reproduces its published table exactly.
         "enable_passing_core_emptying_teleport_possibility": False,
         "max_iterations": 200000,
         "save_report": save_report, "report_filename": report_path,
@@ -286,6 +320,7 @@ def run_telesabre(qasm_path: Path, device_json: Path) -> Optional[dict]:
         clean_qasm_path = tmp_qasm
 
     best = None
+    t_protocol = time.perf_counter()
     try:
         for seed in range(NUM_SEEDS):
             rpt = tempfile.mktemp(suffix=".json")
@@ -332,11 +367,18 @@ def run_telesabre(qasm_path: Path, device_json: Path) -> Optional[dict]:
                 eprs = td + tg
                 if best is None or eprs < best["epr"]:
                     best = dict(epr=eprs, teledata=td, telegate=tg, swaps=ls_ts,
-                                depth=depth, seed=seed, seconds=round(elapsed, 3),
+                                depth=depth, seed=seed,
+                                seconds_best_attempt=round(elapsed, 3),
                                 initial_phys_to_virt=initial_p2v)
     finally:
         if tmp_qasm is not None:
             tmp_qasm.unlink(missing_ok=True)
+    if best is not None:
+        # `seconds` is the COMPLETE protocol: every seed attempted, not just
+        # the winning one -- the cost a user actually pays to obtain this
+        # result. `seconds_best_attempt` keeps the single winning run.
+        best["seconds"] = round(time.perf_counter() - t_protocol, 3)
+        best["n_attempts"] = NUM_SEEDS
     return best
 
 
@@ -426,12 +468,142 @@ def sabre_two_corner_layout(qc, dag, arch: DistributedArchitecture, seed: int = 
     return layouts
 
 
+def _dsabre_native_architecture(arch: DistributedArchitecture):
+    """dSABRE's OWN `build_h_grid_architecture` for this topology, or None.
+
+    Why this matters: SabreLayout's output depends on the *insertion order* of
+    the coupling graph's nodes and edges, not only on the topology.  Building
+    the architecture by converting a PORTER Hardware yields a different
+    insertion order from dSABRE's own builder, and therefore different (worse,
+    on our suites) SabreLayout candidates -- 64q AE lands at 191 EPR instead of
+    the 165 dSABRE publishes, a 12.6% suite-wide handicap that is an artefact
+    of graph construction rather than a protocol choice.  Generating dSABRE's
+    layouts on its own architecture object removes it.
+
+    Routing is essentially insensitive to the same ordering (191 vs 190 on
+    identical layouts), so only layout generation needs the native object.
+    Returns None when no native builder reproduces the topology -- architecture
+    A, whose 3x3 cores dSABRE's H-grid builder cannot express and on which it
+    publishes no results; there the converted architecture is used for both.
+    """
+    n_cores = arch.num_cores
+    m2 = len(arch.core_qubits(0))
+    m = int(round(m2 ** 0.5))
+    if m * m != m2:
+        return None
+    for r in range(1, n_cores + 1):
+        if n_cores % r:
+            continue
+        sdim = n_cores // r
+        try:
+            cand = build_h_grid_architecture(r=r, s=sdim, m=m)
+        except Exception:
+            continue
+        if cand.num_cores != n_cores or set(cand.data_qubits) != set(arch.data_qubits):
+            continue
+        if {frozenset(l) for l in cand.inter_core_links} != {frozenset(l) for l in arch.inter_core_links}:
+            continue
+        ea = {frozenset(e) for c in range(n_cores) for e in arch.intra[c].edges()}
+        eb = {frozenset(e) for c in range(n_cores) for e in cand.intra[c].edges()}
+        if ea != eb:
+            continue
+        if any(set(cand.core_qubits(c)) != set(arch.core_qubits(c)) for c in range(n_cores)):
+            continue
+        return cand
+    return None
+
+
+def dsabre_layout_candidates(qc, dag, arch: DistributedArchitecture, seed: int = 0) -> List[Dict]:
+    """dSABRE's own-protocol initial-layout candidates.
+
+    Two families, both generated on dSABRE's own architecture object where one
+    exists (see `_dsabre_native_architecture`):
+
+    * `sabre_locked_boundary_layout` -- its current rule, reserving per core the
+      `adaptive_corner_count` least-useful minimum-degree vertices (k=4 at
+      100/200q, k=2 at 64q, k=1 at 25/80q on our architectures);
+    * the fixed-two-per-core variant, which is the same rule with k pinned to 2.
+
+    Neither dominates: the adaptive rule wins 80q Graphstate (20 vs 22 EPR) and
+    100q QPEexact (200 vs 262), the fixed-two rule wins 80q AE (306 vs 340),
+    80q QFT (322 vs 340), 100q QFT (234 vs 252) and 25q Random (404 vs 411).
+    Rather than pick, dSABRE is handed both and takes its best -- six candidate
+    layouts, hence eighteen routing passes per circuit against PORTER's one (or
+    five with refinement).  This can only strengthen the baseline relative to
+    its own published protocol, and it reproduces dSABRE's published 64q
+    numbers.
+    """
+    gen_arch = _dsabre_native_architecture(arch) or arch
+    cands = []
+    for fn in (sabre_locked_boundary_layout, sabre_two_corner_layout):
+        try:
+            cands += list(fn(qc, dag, gen_arch, seed=seed))
+        except Exception:
+            continue  # a rule can fail to place on a tight chip; keep the rest
+    seen, out = set(), []
+    for lay in cands:
+        key = tuple(sorted((qc.find_bit(q).index, ph) for q, ph in lay.items()))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(lay)
+    return out
+
+
 # ---------------------------------------------------------------------------
 # dSABRE runner
 # ---------------------------------------------------------------------------
 
+class dSE(dSABRE_BurstExt):
+    """dSABRE's production router, with pre-routing layout repair accounted
+    separately.
+
+    In safe mode (dSABRE's shipped default) `route()` calls
+    `_make_layout_safe` in its precondition block -- before the routing clock
+    starts and before any gate is considered -- to bring an externally
+    supplied layout up to `core_reserve` free slots per core.  Those relay
+    teleports land in `metrics["eprs"]` even though they are a property of
+    the starting layout, not of routing: they happen before routing begins,
+    exactly as PORTER's `_repair_full_cores` does.  PORTER performs that
+    repair as a free permutation of the initial layout, so charging dSABRE
+    EPR pairs for the same adjustment would not be a like-for-like routing
+    comparison.
+
+    We therefore record the first `_make_layout_safe` call of each `route()`
+    -- the entry one; any later call comes from `_safe_route_gate` mid-route
+    and is genuine routing cost -- and expose it as
+    `metrics["entry_repair_eprs"]` so `run_dsabre` can net it out.
+    dSABRE's own files are not modified.
+    """
+
+    def route(self, dag, initial_layout):
+        self._entry_repair_seen = False
+        self._entry_repair_eprs = 0
+        metrics, final = super().route(dag, initial_layout)
+        metrics["entry_repair_eprs"] = self._entry_repair_eprs
+        return metrics, final
+
+    def _make_layout_safe(self, l2p, p2l, metrics, protect=()):
+        before = metrics["eprs"]
+        ok = super()._make_layout_safe(l2p, p2l, metrics, protect=protect)
+        if not getattr(self, "_entry_repair_seen", True):
+            self._entry_repair_eprs = metrics["eprs"] - before
+            self._entry_repair_seen = True
+        return ok
+
+
 def run_dsabre(router_ctor, arch: DistributedArchitecture, hw_cfg: HardwareConfig,
-                dag, rev_dag, layouts: List[Dict]) -> Optional[dict]:
+                dag, rev_dag, layouts: List[Dict],
+                layout_seconds: float = 0.0) -> Optional[dict]:
+    """Best EPR over every candidate layout, with COMPLETE protocol timing.
+
+    `seconds` follows dSABRE's own reporting convention -- "layout generation
+    and all nine routes" -- generalised to however many candidates it is given:
+    initial-layout generation plus three routing passes over *every* candidate,
+    not just the winning one. `seconds_best_attempt` keeps the single winning
+    candidate's three passes for reference.
+    """
+    t_protocol = time.perf_counter()
     router = router_ctor(arch, hw_cfg)
     best = None
     for layout in layouts:
@@ -443,8 +615,16 @@ def run_dsabre(router_ctor, arch: DistributedArchitecture, hw_cfg: HardwareConfi
             continue
         elapsed = time.perf_counter() - t0
         if m and not m.get("aborted"):
-            if best is None or m["eprs"] < best["epr"]:
-                best = dict(epr=m["eprs"], swaps=m["ls"], seconds=round(elapsed, 3))
+            repair = m.get("entry_repair_eprs", 0)
+            epr = m["eprs"] - repair
+            if best is None or epr < best["epr"]:
+                best = dict(epr=epr, swaps=m["ls"],
+                            seconds_best_attempt=round(elapsed, 3),
+                            entry_repair_eprs=repair)
+    if best is not None:
+        best["seconds"] = round(layout_seconds + (time.perf_counter() - t_protocol), 3)
+        best["layout_seconds"] = round(layout_seconds, 3)
+        best["n_candidates"] = len(layouts)
     return best
 
 
@@ -471,7 +651,7 @@ def run_dsabre_shared_layout(
     dag, rev_dag, phys_to_virt: List[int], num_logical: int,
 ) -> Optional[dict]:
     layout = telesabre_phys_to_virt_to_dsabre_layout(phys_to_virt, dag, num_logical)
-    router = dSABRE_BurstExt(arch, hw_cfg)
+    router = dSE(arch, hw_cfg)
     t0 = time.perf_counter()
     try:
         with _compiler_time_limit():
@@ -481,7 +661,9 @@ def run_dsabre_shared_layout(
     elapsed = time.perf_counter() - t0
     if not m or m.get("aborted"):
         return None
-    return dict(epr=m["eprs"], swaps=m["ls"], seconds=round(elapsed, 3))
+    repair = m.get("entry_repair_eprs", 0)
+    return dict(epr=m["eprs"] - repair, swaps=m["ls"], seconds=round(elapsed, 3),
+                entry_repair_eprs=repair)
 
 
 def run_sfc_shared_layout(
@@ -663,7 +845,7 @@ def run_dsabre_pytket_layout(
     dag, rev_dag, placement: Dict[int, int], corner_nodes: Set[int],
 ) -> Optional[dict]:
     layout = placement_to_layout_locked(placement, dag, arch, corner_nodes)
-    router = dSABRE_BurstExt(arch, hw_cfg)
+    router = dSE(arch, hw_cfg)
     t0 = time.perf_counter()
     try:
         with _compiler_time_limit():
@@ -673,7 +855,37 @@ def run_dsabre_pytket_layout(
     elapsed = time.perf_counter() - t0
     if not m or m.get("aborted"):
         return None
-    return dict(epr=m["eprs"], swaps=m["ls"], seconds=round(elapsed, 3))
+    repair = m.get("entry_repair_eprs", 0)
+    return dict(epr=m["eprs"] - repair, swaps=m["ls"], seconds=round(elapsed, 3),
+                entry_repair_eprs=repair)
+
+
+def porter_layout_from_pytket_placement(
+    hw: dr.Hardware, num_logical: int, dag, arch: DistributedArchitecture,
+    placement: Dict[int, int], corner_nodes: Set[int],
+) -> dr.Layout:
+    """PORTER Layout for the same physical placement dSE is given.
+
+    Shared by the single-pass and refined pytket legs so both start from a
+    byte-identical layout. Raises ValueError if the placement does not cover
+    exactly the circuit's logical qubits.
+    """
+    layout_dict = placement_to_layout_locked(placement, dag, arch, corner_nodes)
+    qubit_index = {q: i for i, q in enumerate(dag.qubits)}
+    logical_to_physical = {qubit_index[q]: p for q, p in layout_dict.items()}
+    if set(logical_to_physical) != set(range(num_logical)):
+        raise ValueError("pytket layout does not cover exactly the circuit's logical qubits")
+    physical_to_logical = {p: q for q, p in logical_to_physical.items()}
+    logical_to_core = {q: hw.phys_to_core[p] for q, p in logical_to_physical.items()}
+    dummy = num_logical
+    for p in hw.phys_to_core:
+        if p not in physical_to_logical:
+            physical_to_logical[p] = dummy
+            dummy += 1
+    return dr.Layout(
+        logical_to_physical=logical_to_physical, logical_to_core=logical_to_core,
+        physical_to_logical=physical_to_logical, num_logical=num_logical,
+    )
 
 
 def run_sfc_pytket_layout(
@@ -697,22 +909,8 @@ def run_sfc_pytket_layout(
     the *whole chip* is at capacity (no core has room to receive an
     eviction) -- caught below and folded into the same None result as an
     ordinary routing deadlock."""
-    layout_dict = placement_to_layout_locked(placement, dag, arch, corner_nodes)
-    qubit_index = {q: i for i, q in enumerate(dag.qubits)}
-    logical_to_physical = {qubit_index[q]: p for q, p in layout_dict.items()}
-    if set(logical_to_physical) != set(range(num_logical)):
-        raise ValueError("pytket layout does not cover exactly the circuit's logical qubits")
-    physical_to_logical = {p: q for q, p in logical_to_physical.items()}
-    logical_to_core = {q: hw.phys_to_core[p] for q, p in logical_to_physical.items()}
-    dummy = num_logical
-    for p in hw.phys_to_core:
-        if p not in physical_to_logical:
-            physical_to_logical[p] = dummy
-            dummy += 1
-    layout = dr.Layout(
-        logical_to_physical=logical_to_physical, logical_to_core=logical_to_core,
-        physical_to_logical=physical_to_logical, num_logical=num_logical,
-    )
+    layout = porter_layout_from_pytket_placement(
+        hw, num_logical, dag, arch, placement, corner_nodes)
     cfg = dr.RouterConfig(random_seed=0)
     router = dr.PorterRouter(hw, cfg)
     t0 = time.perf_counter()
@@ -751,6 +949,7 @@ def run_sfc_sabre_layout(
     router.compile() legalizes that via RouterConfig.repair_full_cores, or
     folds a whole-chip-full ValueError into the same None as a deadlock."""
     qubit_index = {q: i for i, q in enumerate(dag.qubits)}
+    t_protocol = time.perf_counter()
     best = None
     for layout_dict in sabre_layouts:
         logical_to_physical = {qubit_index[q]: p for q, p in layout_dict.items()}
@@ -786,8 +985,13 @@ def run_sfc_sabre_layout(
                 teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
                 telegates=state.stats.telegate_count,
                 telegate_packets=state.stats.telegate_packet_count,
-                seconds=round(elapsed, 3),
+                seconds_best_attempt=round(elapsed, 3),
             )
+    if best is not None:
+        # COMPLETE: PORTER routes every candidate dSABRE is given and keeps the
+        # best, so its cost here is the sum over candidates, not one route.
+        best["seconds"] = round(time.perf_counter() - t_protocol, 3)
+        best["n_candidates"] = len(sabre_layouts)
     return best
 
 
@@ -885,6 +1089,7 @@ def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
     PORTER's own layout already wins."""
     best = None
     cfg = dr.RouterConfig(random_seed=0)
+    t_protocol = time.perf_counter()
     try:
         layout = cdr.build_initial_layout(
             circuit, hw, num_logical,
@@ -892,6 +1097,7 @@ def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
         )
     except ValueError:
         layout = None
+    layout_seconds = time.perf_counter() - t_protocol
     if layout is not None:
         router = dr.PorterRouter(hw, cfg)
         t0 = time.perf_counter()
@@ -915,7 +1121,13 @@ def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
                 teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
                 telegates=state.stats.telegate_count,
                 telegate_packets=state.stats.telegate_packet_count,
-                layout="temporal_locality", seed=0, seconds=round(elapsed, 3),
+                layout="temporal_locality", seed=0,
+                # COMPLETE protocol: layout construction plus the single
+                # routing pass. PORTER builds one layout and routes once, so
+                # this is its entire compile cost.
+                seconds=round(layout_seconds + elapsed, 3),
+                seconds_best_attempt=round(elapsed, 3),
+                layout_seconds=round(layout_seconds, 3), n_candidates=1,
             )
 
     if pytket_candidate is not None:
@@ -928,6 +1140,214 @@ def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
             if res is not None and (best is None or res["epr"] < best["epr"]):
                 best = dict(res, layout="pytket", seed=0)
     return best
+
+
+# ---------------------------------------------------------------------------
+# Cross-layout legs: each router on the other's initial layout
+# ---------------------------------------------------------------------------
+#
+# The shared-layout protocol feeds both routers a THIRD party's layout
+# (TeleSABRE's, pytket-dqc's). These two legs close the 2x2 instead: PORTER on
+# dSABRE's SabreLayout candidates (run_sfc_sabre_layout, below) and dSABRE on
+# PORTER's temporal locality-greedy layout. Together with the two own-protocol
+# columns they separate "whose layout" from "whose router" on the routers'
+# own layouts rather than on a neutral one.
+
+
+def porter_layout_to_dsabre(layout: dr.Layout, dag, num_logical: int) -> Dict:
+    """PORTER Layout -> dSABRE-style {qiskit Qubit: physical int}.
+
+    PORTER's Layout carries dummy logical ids for the empty physical slots;
+    only the real logical qubits (< num_logical) are placed.
+    """
+    logical_to_phys = {q: layout.phys_of(q) for q in range(num_logical)}
+    if set(logical_to_phys) != set(range(num_logical)):
+        raise ValueError("PORTER layout does not cover exactly the circuit's logical qubits")
+    return {dag.qubits[q]: p for q, p in logical_to_phys.items()}
+
+
+def run_dsabre_porter_layout(
+    arch: DistributedArchitecture, hw_cfg: HardwareConfig, dag, rev_dag,
+    circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
+) -> Optional[dict]:
+    """dSABRE routed from PORTER's own deterministic temporal locality-greedy
+    layout -- the mirror of run_sfc_sabre_layout."""
+    cfg = dr.RouterConfig(random_seed=0)
+    try:
+        porter_layout = cdr.build_initial_layout(
+            circuit, hw, num_logical,
+            min_free_per_core=cfg.min_free_before_teleport,
+        )
+        layout = porter_layout_to_dsabre(porter_layout, dag, num_logical)
+    except ValueError:
+        return None
+    router = dSE(arch, hw_cfg)
+    t0 = time.perf_counter()
+    try:
+        with _compiler_time_limit():
+            m = run_sabre_passes(router, dag, rev_dag, layout)
+    except CompilerTimeout:
+        return None
+    elapsed = time.perf_counter() - t0
+    if not m or m.get("aborted"):
+        return None
+    repair = m.get("entry_repair_eprs", 0)
+    return dict(epr=m["eprs"] - repair, swaps=m["ls"], seconds=round(elapsed, 3),
+                entry_repair_eprs=repair)
+
+
+def run_sfc_sabre_layout_refined(
+    circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int, dag,
+    sabre_layouts: List[Dict],
+) -> Optional[dict]:
+    """PORTER+R on dSABRE's SabreLayout candidates; best over the candidates,
+    mirroring how dSE selects among them."""
+    qubit_index = {q: i for i, q in enumerate(dag.qubits)}
+    t_protocol = time.perf_counter()
+    best = None
+    for layout_dict in sabre_layouts:
+        logical_to_physical = {qubit_index[q]: p for q, p in layout_dict.items()}
+        if set(logical_to_physical) != set(range(num_logical)):
+            continue
+        physical_to_logical = {p: q for q, p in logical_to_physical.items()}
+        logical_to_core = {q: hw.phys_to_core[p] for q, p in logical_to_physical.items()}
+        dummy = num_logical
+        for ph in hw.phys_to_core:
+            if ph not in physical_to_logical:
+                physical_to_logical[ph] = dummy
+                dummy += 1
+        layout = dr.Layout(
+            logical_to_physical=logical_to_physical, logical_to_core=logical_to_core,
+            physical_to_logical=physical_to_logical, num_logical=num_logical,
+        )
+        rec = _run_porter_refined(circuit, hw, num_logical, layout)
+        if rec is not None and (best is None or rec["epr"] < best["epr"]):
+            best = rec
+    if best is not None:
+        best = dict(best, seconds=round(time.perf_counter() - t_protocol, 3),
+                    seconds_best_attempt=best["seconds"],
+                    n_candidates=len(sabre_layouts))
+    return best
+
+
+# ---------------------------------------------------------------------------
+# PORTER with backward refinement (opt-in extra leg)
+# ---------------------------------------------------------------------------
+#
+# PORTER's headline protocol stays a single forward pass from a single
+# deterministic layout.  These legs add SABRE-style forward--backward--forward
+# refinement (cdr.run_refinement_passes) so the two can be reported side by
+# side and the extra passes' contribution isolated.  Still seed-free and
+# deterministic; the only cost is routing passes.
+
+PORTER_REFINE_PASSES = 5
+
+
+def _porter_state_record(state, elapsed, **extra):
+    return dict(
+        epr=state.stats.epr, swaps=state.stats.local_swap_count,
+        depth=state.stats.depth, intercore_depth=state.stats.intercore_depth,
+        teleports=state.stats.teleport_count,
+        teleports_normal=state.stats.teleport_normal_count,
+        teleports_blocked=state.stats.teleport_blocked_count,
+        teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
+        telegates=state.stats.telegate_count,
+        telegate_packets=state.stats.telegate_packet_count,
+        seconds=round(elapsed, 3), **extra,
+    )
+
+
+def _run_porter_refined(circuit, hw, num_logical, layout, passes=None):
+    """Route `layout` with refinement; None if even the first pass fails."""
+    passes = PORTER_REFINE_PASSES if passes is None else passes
+    cfg = dr.RouterConfig(random_seed=0)
+    t0 = time.perf_counter()
+    try:
+        # The wall-clock guard is applied PER PASS (pass_guard), so a slow
+        # later pass degrades to the best forward pass already in hand instead
+        # of discarding the whole schedule.
+        state, info = cdr.run_refinement_passes(
+            hw, cfg, circuit, layout, passes=passes,
+            pass_guard=_compiler_time_limit,
+            pass_exceptions=(RuntimeError, ValueError, CompilerTimeout),
+        )
+    except (RuntimeError, ValueError, CompilerTimeout):
+        return None
+    if state is None:
+        return None
+    return _porter_state_record(
+        state, time.perf_counter() - t0,
+        passes=passes, passes_run=info["passes_run"],
+        chosen_pass=info["chosen_pass"], forward_eprs=info["forward_eprs"],
+    )
+
+
+def run_sfc_search(circuit: List[dr.Gate], hw: dr.Hardware,
+                   num_logical: int) -> Optional[dict]:
+    """PORTER's strengthened own protocol: best-of-gamma layout search plus
+    backward refinement (`cdr.run_layout_search`).
+
+    Two independent levers -- which layout the router starts from (gamma) and
+    how much routing is spent improving it (refinement) -- searched together.
+    Costs 9-13 routing passes against dSABRE's 18, and is still deterministic
+    and seed-free.
+    """
+    cfg = dr.RouterConfig(random_seed=0)
+    t0 = time.perf_counter()
+    try:
+        state, info = cdr.run_layout_search(
+            hw, cfg, circuit, num_logical, passes=PORTER_REFINE_PASSES,
+            pass_guard=_compiler_time_limit,
+            pass_exceptions=(RuntimeError, ValueError, CompilerTimeout),
+        )
+    except (RuntimeError, ValueError, CompilerTimeout):
+        return None
+    if state is None:
+        return None
+    return _porter_state_record(
+        state, time.perf_counter() - t0,
+        layout="temporal_locality_search", seed=0,
+        best_gamma=info["best_gamma"], by_gamma=info["by_gamma"],
+        routes=info["routes"], n_candidates=len(info["gammas"]),
+    )
+
+
+def run_sfc_refined(circuit: List[dr.Gate], hw: dr.Hardware,
+                    num_logical: int) -> Optional[dict]:
+    """PORTER's own layout, routed with backward refinement."""
+    cfg = dr.RouterConfig(random_seed=0)
+    t0 = time.perf_counter()
+    try:
+        layout = cdr.build_initial_layout(
+            circuit, hw, num_logical,
+            min_free_per_core=cfg.min_free_before_teleport,
+        )
+    except ValueError:
+        return None
+    layout_seconds = time.perf_counter() - t0
+    rec = _run_porter_refined(circuit, hw, num_logical, layout)
+    if not rec:
+        return None
+    # COMPLETE protocol: layout construction plus every pass actually run.
+    return dict(rec, layout="temporal_locality", seed=0,
+                seconds=round(rec["seconds"] + layout_seconds, 3),
+                layout_seconds=round(layout_seconds, 3))
+
+
+def run_sfc_shared_layout_refined(circuit, hw, num_logical,
+                                  phys_to_virt) -> Optional[dict]:
+    layout = dr.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
+    return _run_porter_refined(circuit, hw, num_logical, layout)
+
+
+def run_sfc_pytket_layout_refined(circuit, hw, num_logical, dag, arch,
+                                  placement, corner_nodes) -> Optional[dict]:
+    try:
+        layout = porter_layout_from_pytket_placement(
+            hw, num_logical, dag, arch, placement, corner_nodes)
+    except ValueError:
+        return None
+    return _run_porter_refined(circuit, hw, num_logical, layout)
 
 
 # Note: we do not reuse dSE's SabreLayout-corners-removed candidates for PORTER
@@ -961,8 +1381,18 @@ def run_suite(suite_key: str) -> List[dict]:
     arch = sfc_hardware_to_dsabre_architecture(hw)
     verify_topology_match(hw, arch)
     corner_nodes = _locked_boundary_corner_nodes(arch)
-    hw_cfg = HardwareConfig() if suite_key == "25" else HardwareConfig(
-        deadlock_limit=100, max_backup_attempts=100, max_iterations=20000
+    # dSABRE's own protocol: `None` on all three budgets means "derive from the
+    # architecture" -- `deadlock_limit_for(arch) = 4*max(1,diam(core graph))*(
+    # diam(core)+1)`, the only per-suite constant its current router has -- and
+    # is what every one of its own benchmark drivers passes.  The hand-tuned
+    # 100/100/20000 this harness used previously came from the pre-safe-mode
+    # router's scaling guidance: under safe mode `max_backup_attempts` is
+    # overridden to the unrouted-gate count regardless (so 100 was inert), and a
+    # binding `max_iterations` cuts the heuristic search short and hands the
+    # remainder to `_safe_drain`, which completes the route at a worse EPR
+    # count.  Deriving is both the baseline's own convention and the fairer one.
+    hw_cfg = HardwareConfig(
+        deadlock_limit=None, max_backup_attempts=None, max_iterations=None
     )
     pytket_seeds = PYTKET_NUM_SEEDS if suite_key != "80" else 1
 
@@ -983,9 +1413,12 @@ def run_suite(suite_key: str) -> List[dict]:
         print(f"  TeleSABRE          : {ts}", flush=True)
 
         # -- own-protocol comparison --------------------------------------
-        sabre_layouts = sabre_two_corner_layout(qc, dag, arch, seed=0)
+        _t_lay = time.perf_counter()
+        sabre_layouts = dsabre_layout_candidates(qc, dag, arch, seed=0)
+        sabre_layout_seconds = time.perf_counter() - _t_lay
 
-        dse = run_dsabre(dSABRE_BurstExt, arch, hw_cfg, dag, rev_dag, sabre_layouts)
+        dse = run_dsabre(dSE, arch, hw_cfg, dag, rev_dag, sabre_layouts,
+                         layout_seconds=sabre_layout_seconds)
         print(f"  dSE  (SabreLayout) : {dse}", flush=True)
 
         # pytket-dqc partition computed once here and reused twice: as PORTER's
@@ -1001,9 +1434,23 @@ def run_suite(suite_key: str) -> List[dict]:
             if PORTER_INCLUDE_PYTKET else None,
         )
         print(f"  PORTER  (own layouts{'+pytket' if PORTER_INCLUDE_PYTKET else ''}) : {sfc}", flush=True)
+        sfc_refined = run_sfc_refined(circuit, hw, num_logical)
+        print(f"  PORTER+R (own, {PORTER_REFINE_PASSES}p) : {sfc_refined}", flush=True)
+        sfc_search = run_sfc_search(circuit, hw, num_logical)
+        print(f"  PORTER+S (gamma search + refine) : {sfc_search}", flush=True)
+
+        # -- cross-layout: each router on the other's own initial layout ----
+        sfc_on_dse = run_sfc_sabre_layout(circuit, hw, num_logical, dag, sabre_layouts)
+        print(f"  PORTER  (dSE layout)  : {sfc_on_dse}", flush=True)
+        sfc_on_dse_refined = run_sfc_sabre_layout_refined(
+            circuit, hw, num_logical, dag, sabre_layouts)
+        print(f"  PORTER+R (dSE layout) : {sfc_on_dse_refined}", flush=True)
+        dse_on_porter = run_dsabre_porter_layout(
+            arch, hw_cfg, dag, rev_dag, circuit, hw, num_logical)
+        print(f"  dSE  (PORTER layout)  : {dse_on_porter}", flush=True)
 
         # -- shared-layout comparison (TeleSABRE's own initial layout) ----
-        dse_shared = sfc_shared = None
+        dse_shared = sfc_shared = sfc_shared_refined = None
         if ts_p2v is not None:
             try:
                 dse_shared = run_dsabre_shared_layout(arch, hw_cfg, dag, rev_dag, ts_p2v, num_logical)
@@ -1013,13 +1460,15 @@ def run_suite(suite_key: str) -> List[dict]:
                 print(f"  dSE  (TS layout)   : {dse_shared}", flush=True)
             sfc_shared = run_sfc_shared_layout(circuit, hw, num_logical, ts_p2v)
             print(f"  PORTER  (TS layout)   : {sfc_shared}", flush=True)
+            sfc_shared_refined = run_sfc_shared_layout_refined(circuit, hw, num_logical, ts_p2v)
+            print(f"  PORTER+R (TS layout)  : {sfc_shared_refined}", flush=True)
         else:
             print("  (no TeleSABRE initial layout available; skipping shared-layout comparison)", flush=True)
 
         # -- shared-layout comparison (pytket-dqc's own initial mapping,
         #    locked boundary -- reuses the partition computed above) --
         print(f"  pytket-dqc (e-bits): {pytket_cost}", flush=True)
-        dse_pytket = sfc_pytket = None
+        dse_pytket = sfc_pytket = sfc_pytket_refined = None
         if pytket_placement is not None:
             dse_pytket = run_dsabre_pytket_layout(arch, hw_cfg, dag, rev_dag, pytket_placement, corner_nodes)
             print(f"  dSE  (pytket layout): {dse_pytket}", flush=True)
@@ -1029,14 +1478,23 @@ def run_suite(suite_key: str) -> List[dict]:
                 print(f"  PORTER  (pytket layout): skipped ({exc})", flush=True)
             else:
                 print(f"  PORTER  (pytket layout): {sfc_pytket}", flush=True)
+            sfc_pytket_refined = run_sfc_pytket_layout_refined(
+                circuit, hw, num_logical, dag, arch, pytket_placement, corner_nodes)
+            print(f"  PORTER+R (pytket layout): {sfc_pytket_refined}", flush=True)
         else:
             print("  (pytket-dqc partitioning failed on all seeds; skipping)", flush=True)
 
         records.append(dict(
             suite=suite_key, circuit=cname, num_logical=num_logical, cx=n_cx,
             telesabre=ts, dSE=dse, sfc=sfc,
+            sfc_refined=sfc_refined, sfc_search=sfc_search,
+            sfc_on_dse_layout=sfc_on_dse,
+            sfc_on_dse_layout_refined=sfc_on_dse_refined,
+            dSE_on_porter_layout=dse_on_porter,
             dSE_shared=dse_shared, sfc_shared=sfc_shared,
+            sfc_shared_refined=sfc_shared_refined,
             pytket_ebits=pytket_cost, dSE_pytket=dse_pytket, sfc_pytket=sfc_pytket,
+            sfc_pytket_refined=sfc_pytket_refined,
         ))
     return records
 

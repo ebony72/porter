@@ -137,6 +137,33 @@ class RouterConfig:
     extended_packet_window: int = 120
     remote_gate_limit: int = 20
     max_packet_size: int = 8
+
+    # Action-vocabulary ablation.  With telegate_enabled=False the remote
+    # plan generator emits no TeleGate and no TeleGatePacket alternatives, so
+    # the only inter-core primitive left is TeleData (state teleportation) --
+    # dSABRE's action vocabulary inside PORTER's plan-committed framework.
+    # Default True; setting it False changes the emitted op stream.
+    telegate_enabled: bool = True
+    # When no normal remote plan exists at all, the tail-relief BFS is fed
+    # only the *distance-reducing* (non-adjacent) capacity-blocked plans; an
+    # all-adjacent blocked front therefore has no recovery.  With the
+    # TeleGate available that never bites, because a TeleGate needs no free
+    # slot and so is always a normal plan for an adjacent remote CX.  Under
+    # telegate_enabled=False it does bite, so this flag additionally routes
+    # adjacent-blocked plans (single relief hop) into the same BFS.
+    # Default False: the shipped protocol's op stream is unaffected.
+    capacity_relief_from_adjacent_blocked: bool = False
+
+    # Unit-of-commitment ablation.  PORTER's remote stage commits to a whole
+    # RemotePlan and will not reopen the choice until that plan is ready
+    # (_commit_remote_plan).  dSABRE's unit is one teleport hop, re-scored
+    # against the whole front every iteration.  With
+    # remote_plan_commitment=False the committed loop hands control back
+    # after ONE round of preparation SWAPs, so the front is re-classified and
+    # every plan re-generated and re-scored before the next move -- dSABRE's
+    # discipline inside PORTER's plan machinery.  Default True; setting it
+    # False changes the emitted op stream.
+    remote_plan_commitment: bool = True
    
 
     # Teleport benefit lookahead.

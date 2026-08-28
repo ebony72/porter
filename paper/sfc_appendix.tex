@@ -12,6 +12,29 @@
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{shapes.geometric,arrows,arrows.meta,positioning,fit,backgrounds,patterns,decorations.pathmorphing,calc}
+\tikzset{
+  slot/.style={circle,draw=black!60,fill=white,inner sep=0pt,minimum size=7pt},
+  occ/.style={slot,fill=black!25},
+  portslot/.style={rectangle,draw=black!60,fill=white,inner sep=0pt,minimum size=7.5pt},
+  bigslot/.style={slot,minimum size=12pt,font=\tiny},
+  bigocc/.style={bigslot,fill=black!15},
+  bigport/.style={portslot,minimum size=12.5pt,font=\tiny},
+  dagnode/.style={circle,draw,inner sep=1pt,minimum size=14pt,font=\scriptsize},
+  dagfront/.style={dagnode,fill=blue!15,thick},
+  dagedge/.style={-{Stealth[length=1.6mm]},semithick},
+  flowbox/.style={rectangle,rounded corners=2pt,draw,align=center,
+                  font=\scriptsize,inner sep=3pt},
+  flowdec/.style={diamond,aspect=2.4,draw,align=center,font=\scriptsize,
+                  inner sep=0.5pt},
+  flowarr/.style={-{Stealth[length=2mm]},semithick},
+  eprlink/.style={decorate,decoration={snake,amplitude=.5mm,segment length=1.8mm},
+                  red!70!black,semithick},
+  catline/.style={densely dashed,blue!60!black,semithick},
+}
+
 \usepackage{xcolor}
 \usepackage{url}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
@@ -101,6 +124,24 @@ sequence, all $\binom{64}{2}$ interacting pairs, 8{,}126 CX), so the
 graph, 12{,}718 CX) is a faithful extrapolation of the same
 construction.
 
+\begin{table}[h]
+\centering
+\caption{Benchmark circuit CX counts (measurements/barriers stripped).}
+\label{tab:circuits}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Circuit & 25q (arch.\ A) & 64q (arch.\ H) & 80q (arch.\ H) \\
+\midrule
+AE          &  558 & 1962 &  2780 \\
+GHZ         &   24 &   63 &    79 \\
+Graphstate  &   25 &   64 &    80 \\
+QFT         &  580 & 1966 &  2660 \\
+QNN         & 1223 & 8126 & 12718 \\
+Random      & 1124 & 1627 & 23381 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{External Layouts from pytket-dqc}
 \label{app:pytket}
 
@@ -156,18 +197,18 @@ Suite & Circuit & \texttt{pytket} e-bits & \multicolumn{2}{c}{\dSABRE{}} & \mult
 \cmidrule(lr){4-5}\cmidrule(lr){6-7}
 & & & EPR & SWAP & EPR & SWAP \\
 \midrule
-25q & ae         &  78 &   67 &  339 &   73 &  348 \\
-25q & ghz        &   3 &    3 &   14 &    3 &   17 \\
-25q & graphstate &   4 &    5 &   24 &    4 &   19 \\
-25q & qft        &  70 &   92 &  437 &  118 &  438 \\
-25q & qnn        & 148 &  168 &  848 &  127 &  703 \\
-25q & random     & 564 &  440 & 1482 &  395 & 1340 \\
-64q & ae         & 264 &  361 & 2243 &  223 & 1638 \\
-64q & ghz        &   5 &    5 &   74 &    5 &   62 \\
-64q & graphstate &  10 &    8 &   68 &   10 &   60 \\
-64q & qft        & 307 &  320 & 2112 &  278 & 2021 \\
-64q & qnn        & 621 &  509 & 8215 & 1031 & 6538 \\
-64q & random     & 1020 & 750 & 3969 &  861 & 4384 \\
+25q & ae         &   78 &   68 &  282 &   73 &  348 \\
+25q & ghz        &    3 &    3 &   17 &    3 &   17 \\
+25q & graphstate &    4 &    4 &   17 &    4 &   19 \\
+25q & qft        &   70 &   91 &  406 &  118 &  438 \\
+25q & qnn        &  148 &  151 &  714 &  127 &  703 \\
+25q & random     &  564 &  431 & 1409 &  395 & 1340 \\
+64q & ae         &  264 &  219 & 1560 &  223 & 1638 \\
+64q & ghz        &    5 &    5 &   58 &    5 &   62 \\
+64q & graphstate &   10 &    8 &   60 &   10 &   60 \\
+64q & qft        &  307 &  243 & 1736 &  278 & 2021 \\
+64q & qnn        &  621 &  535 & 5285 & 1031 & 6538 \\
+64q & random     & 1020 &  729 & 3770 &  861 & 4384 \\
 \bottomrule
 \end{tabular}%
 }
@@ -179,18 +220,15 @@ legalizes the three layouts that would
 otherwise violate its teleport precondition (25q QNN, 64q AE,
 64q QNN), at the cost of the layout-quality hit an emergency eviction
 inevitably takes -- most visibly on 64q QNN, where the evicted layout
-lands \PORTER{} at 1{,}031 EPR pairs against \dSABRE{}'s 509, its worst
-relative result on this suite. Excluding that outlier, results split
-close to evenly: \PORTER{} uses fewer EPR pairs on 25q
-Graphstate/QNN/Random and 64q AE/QFT, \dSABRE{} on 25q AE/QFT and 64q
-Graphstate/Random, and the two tie on both GHZ rows; geometric-mean
-EPR across all twelve rows is within $1.4\%$ of parity
-(\dSABRE{} $69.2$ vs.\ \PORTER{} $70.2$). Pooled with the
-\TeleSABRE{}-layout grid of \mainSharedTable{} of the main paper,
-\PORTER{} uses
-fewer EPR pairs on fifteen of the thirty fixed-layout instances,
-\dSABRE{} on twelve, with three ties
-(\mainSharedResults{}).
+lands \PORTER{} at 1{,}031 EPR pairs against \dSABRE{}'s 535, its worst
+relative result on this suite. \dSABRE{} takes this grid: it uses
+fewer EPR pairs on seven of the twelve rows (25q AE/QFT, 64q
+AE/Graphstate/QFT/QNN/Random) to \PORTER{}'s two (25q QNN/Random),
+with three ties, and its geometric mean is $11\%$ lower
+($63.1$ vs.\ \PORTER{} $70.2$). Pooled with the \TeleSABRE{}-layout
+grid of \mainSharedTable{} of the main paper, \dSABRE{} uses fewer EPR
+pairs on twenty-three of the forty-one fixed-layout instances, \PORTER{}
+on thirteen, with five ties (\mainSharedResults{}).
 
 The grid above feeds pytket-dqc's partition to \PORTER{} as a
 controlled probe. The complementary pipeline question -- offering the
@@ -382,5 +420,614 @@ intended check; the same harness runs on any benchmark QASM file.
 
 \bibliographystyle{IEEEtran}
 \bibliography{sfc}
+
+\section{Architecture and Primitive Figures}
+\label{app:catent}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=0.5cm,y=0.5cm]
+  % inter-core links first (below the port squares)
+  \draw[red!70!black,semithick] (2,-1) -- (5.2,-1)
+    node[midway,above,font=\tiny,black!60] {inter-core link};
+  \draw[red!70!black,semithick] (1,-2) -- (1,-5.2);
+  \draw[red!70!black,semithick] (6.2,-2) -- (6.2,-5.2);
+  \draw[red!70!black,semithick] (2,-6.2) -- (5.2,-6.2);
+  % cores
+  \foreach \ox/\oy/\cname in {0/0/c_0, 5.2/0/c_1, 0/-5.2/c_2, 5.2/-5.2/c_3}{
+    \draw[rounded corners=3pt,black!50]
+      (\ox-0.55,\oy+0.55) rectangle (\ox+2.55,\oy-2.55);
+    \foreach \r in {0,1,2}{
+      \draw[black!30] (\ox,\oy-\r) -- (\ox+2,\oy-\r);
+      \draw[black!30] (\ox+\r,\oy) -- (\ox+\r,\oy-2);
+    }
+    \foreach \xx in {0,1,2}
+      \foreach \yy in {0,1,2}
+        \node[slot] at (\ox+\xx,\oy-\yy) {};
+    \node[font=\scriptsize] at (\ox-1.05,\oy+0.45) {$\cname$};
+  }
+  % port squares (overdraw the corresponding slots)
+  \node[portslot] at (2,-1) {};    % c0 -> c1
+  \node[portslot] at (1,-2) {};    % c0 -> c2
+  \node[portslot] at (5.2,-1) {};  % c1 -> c0
+  \node[portslot] at (6.2,-2) {};  % c1 -> c3
+  \node[portslot] at (1,-5.2) {};  % c2 -> c0
+  \node[portslot] at (2,-6.2) {};  % c2 -> c3
+  \node[portslot] at (5.2,-6.2) {};% c3 -> c2
+  \node[portslot] at (6.2,-5.2) {};% c3 -> c1
+  \node[font=\tiny,black!60,align=left,anchor=west] at (7.4,-1)
+    {$\square$ = communication\\ \hphantom{$\square$ = }port};
+\end{tikzpicture}
+\caption{Architecture~A, introduced by
+  \TeleSABRE{}~\cite{russo2025telesabre}: a $2{\times}2$ array of cores,
+  each a
+  $3{\times}3$ grid of physical qubits (circles) with nearest-neighbour
+  intra-core coupling (grey edges). Squares are communication ports;
+  every inter-core link joins one port in each of two adjacent cores
+  and is the only place EPR pairs are consumed. Architecture~H
+  ($2{\times}3$ array of $4{\times}4$ cores,
+  Section~\ref{sec:experiments}) follows the same pattern.}
+\label{fig:arch}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=0.62cm,y=0.55cm,
+  gbox/.style={draw,fill=white,font=\scriptsize,inner sep=1.5pt,
+               minimum size=11pt},
+  cwire/.style={double,black!70,semithick}]
+  % wire labels
+  \node[font=\scriptsize,anchor=east] at (-0.15,3) {$q_c$};
+  \node[font=\scriptsize,anchor=east] at (-0.15,2) {$e_A$};
+  \node[font=\scriptsize,anchor=east] at (-0.15,0.6) {$e_B$};
+  \node[font=\scriptsize,anchor=east] at (-0.15,-0.4) {$t_i$};
+  % core boundary
+  \draw[black!30,densely dotted] (-1.1,1.3) -- (9.7,1.3);
+  \node[font=\tiny,black!60,anchor=west] at (9.75,1.6) {core $A$};
+  \node[font=\tiny,black!60,anchor=west] at (9.75,1.0) {core $B$};
+  % quantum wires
+  \draw (0,3) -- (9.6,3);
+  \draw (0,2) -- (2.6,2);
+  \draw (0,0.6) -- (8.2,0.6);
+  \draw (0,-0.4) -- (9.6,-0.4);
+  % EPR pair between the ports
+  \draw[eprlink] (0.5,2) -- (0.5,0.6);
+  \node[font=\tiny,red!70!black,anchor=west] at (0.78,1.62) {EPR};
+  % classical wires (drawn under the gates)
+  \draw[cwire] ($(2.6,2)+(0,-5pt)$) -- ($(2.6,0.6)+(0,5.5pt)$);
+  \draw[cwire] ($(8.2,0.6)+(0,5pt)$) -- ($(8.2,3)+(0,-5.5pt)$);
+  % cat-entangler: CX(q_c, e_A)
+  \filldraw (1.5,3) circle (1.6pt);
+  \draw (1.5,3) -- (1.5,2);
+  \draw (1.5,2) circle (3.0pt);
+  \draw (1.5,2) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  % measurement of e_A
+  \draw[fill=white] (2.6,2) +(-6.5pt,-5pt) rectangle +(6.5pt,5pt);
+  \draw (2.6,2) ++(-4pt,-2.5pt) arc[start angle=155,end angle=25,radius=4.4pt];
+  \draw (2.6,2) ++(0,-2.5pt) -- ++(3.2pt,5.2pt);
+  % classically controlled X on e_B
+  \node[gbox] at (2.6,0.6) {$X$};
+  % cat-CX run
+  \filldraw (4.0,0.6) circle (1.6pt);
+  \draw (4.0,0.6) -- (4.0,-0.4);
+  \draw (4.0,-0.4) circle (3.0pt);
+  \draw (4.0,-0.4) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  \node[font=\scriptsize] at (4.9,0.1) {$\cdots$};
+  \filldraw (5.8,0.6) circle (1.6pt);
+  \draw (5.8,0.6) -- (5.8,-0.4);
+  \draw (5.8,-0.4) circle (3.0pt);
+  \draw (5.8,-0.4) +(0,-3.0pt) -- +(0,3.0pt) +(-3.0pt,0) -- +(3.0pt,0);
+  % cat-disentangler: H, measurement, classically controlled Z
+  \node[gbox] at (7.0,0.6) {$H$};
+  \draw[fill=white] (8.2,0.6) +(-6.5pt,-5pt) rectangle +(6.5pt,5pt);
+  \draw (8.2,0.6) ++(-4pt,-2.5pt) arc[start angle=155,end angle=25,radius=4.4pt];
+  \draw (8.2,0.6) ++(0,-2.5pt) -- ++(3.2pt,5.2pt);
+  \node[gbox] at (8.2,3) {$Z$};
+  % stage boxes and labels
+  \draw[densely dashed,black!50,rounded corners=2pt]
+    (1.0,0.12) rectangle (3.2,3.45);
+  \draw[densely dashed,black!50,rounded corners=2pt]
+    (6.45,0.12) rectangle (8.85,3.45);
+  \node[font=\tiny,black!70] at (2.1,-1.1) {cat-entangler};
+  \node[font=\tiny,black!70] at (4.9,-1.1) {cat-CX run};
+  \node[font=\tiny,black!70] at (7.65,-1.1) {cat-disentangler};
+\end{tikzpicture}
+\caption{The cat-entangler and cat-disentangler
+  protocol~\cite{yimsiriwattana2004generalized} underlying
+  \TeleGate{} and \TeleGatePacket{}. The cat-entangler (left dashed
+  box) consumes the EPR pair between ports $e_A$ and $e_B$:
+  $\mathrm{CX}(q_c,e_A)$, measurement of $e_A$, and a classically
+  controlled $X$ (double lines are classical bits) leave $(q_c,e_B)$
+  in the cat state $\alpha|00\rangle+\beta|11\rangle$, making the
+  remote port $e_B$ a proxy for the control $q_c$. Every CX
+  controlled by $e_B$ (middle) then acts as if controlled by $q_c$
+  --- exactly one for \TeleGate{}, an ordered same-control run
+  (interleaved with target-side 1Q gates) for \TeleGatePacket{}. The
+  cat-disentangler (right dashed box) --- Hadamard, measurement,
+  classically controlled $Z$ --- restores $q_c$ and frees both
+  ports.}
+\label{fig:catent-app}
+\end{figure}
+
+\section{Running Example: Why Commit to a Plan?}
+\label{sec:sfc-example}
+
+Figure~\ref{fig:example} shows a front where plan commitment, the
+packet vocabulary, and the $f_\mathrm{min}$ capacity gate all
+interact, and where \PORTER{}'s decision differs from what either
+baseline would choose. Two adjacent cores of architecture~A are shown. Core $c_0$
+holds $\logi{0}$, $\logi{4}$ (adjacent to the port), and $\logi{6}$,
+with six free positions; core $c_1$ holds eight qubits --- the targets
+$\logi{1},\logi{2},\logi{3}$, the port-adjacent $\logi{5}$, and four
+spectators --- so its \emph{only} free position is its port. The
+remaining circuit fragment is
+$g_1{=}\mathrm{CX}(\logi{0},\logi{1})$,
+$g_2{=}\mathrm{CX}(\logi{0},\logi{2})$,
+$g_3{=}\mathrm{CX}(\logi{0},\logi{3})$,
+$g_5{=}\mathrm{CX}(\logi{0},\logi{6})$, chained on $\logi{0}$, plus an
+independent $g_4{=}\mathrm{CX}(\logi{4},\logi{5})$. The front is
+therefore $\{g_1, g_4\}$ --- $g_2$ and $g_3$ share $\logi{0}$ with
+$g_1$ and only surface after it executes. All front gates are
+adjacent-remote, so the plan-first stage fires.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=1.0cm,y=0.75cm]
+  \node[dagfront] (g1) at (0,0)    {$g_1$};
+  \node[dagnode]  (g2) at (1.15,0) {$g_2$};
+  \node[dagnode]  (g3) at (2.3,0)  {$g_3$};
+  \node[dagnode]  (g5) at (3.45,0) {$g_5$};
+  \node[dagfront] (g4) at (0,-1.15){$g_4$};
+  \draw[dagedge] (g1) -- (g2);
+  \draw[dagedge] (g2) -- (g3);
+  \draw[dagedge] (g3) -- (g5);
+  \node[font=\tiny,black!60] at (0,0.62)    {$(\logi{0},\logi{1})$};
+  \node[font=\tiny,black!60] at (1.15,0.62) {$(\logi{0},\logi{2})$};
+  \node[font=\tiny,black!60] at (2.3,0.62)  {$(\logi{0},\logi{3})$};
+  \node[font=\tiny,black!60] at (3.45,0.62) {$(\logi{0},\logi{6})$};
+  \node[font=\tiny,black!60] at (1.2,-1.15) {$(\logi{4},\logi{5})$};
+  \node[font=\scriptsize,anchor=west] at (4.3,-0.6) {(a)};
+\end{tikzpicture}\\[6pt]
+\begin{tikzpicture}[x=0.55cm,y=0.55cm]
+  % coupling grids
+  \foreach \ox in {0,4.8}{
+    \foreach \r in {0,1,2}{
+      \draw[black!25] (\ox,-\r) -- (\ox+2,-\r);
+      \draw[black!25] (\ox+\r,0) -- (\ox+\r,-2);
+    }
+    \draw[rounded corners=3pt,black!50] (\ox-0.55,0.55) rectangle (\ox+2.55,-2.55);
+  }
+  \node[font=\scriptsize] at (-1.1,0.45) {$c_0$};
+  \node[font=\scriptsize] at (7.9,0.45) {$c_1$};
+  % EPR link between ports
+  \draw[eprlink] (2,-1) -- (4.8,-1);
+  \node[font=\tiny,red!70!black] at (3.4,-0.55) {1 EPR};
+  % c0 slots
+  \node[bigslot] at (0,0) {};
+  \node[bigslot] at (1,0) {};
+  \node[bigslot] at (2,0) {};
+  \node[bigslot] at (2,-2) {};
+  \node[bigslot] at (1,-2) {};
+  \node[bigocc]  at (0,-2) {$\logi{6}$};
+  \node[bigocc,draw=blue!60!black,thick]   at (0,-1) {$\logi{0}$};
+  \node[bigocc,draw=orange!80!black,thick] at (1,-1) {$\logi{4}$};
+  \node[bigport] at (2,-1) {};
+  % c1 slots
+  \node[bigocc] at (4.8,0) {};
+  \node[bigocc] at (6.8,0) {};
+  \node[bigocc] at (5.8,-2) {};
+  \node[bigocc] at (6.8,-2) {};
+  \node[bigocc,draw=blue!60!black,thick]   at (5.8,0)  {$\logi{1}$};
+  \node[bigocc,draw=orange!80!black,thick] at (5.8,-1) {$\logi{5}$};
+  \node[bigocc,draw=blue!60!black,thick]   at (6.8,-1) {$\logi{2}$};
+  \node[bigocc,draw=blue!60!black,thick]   at (4.8,-2) {$\logi{3}$};
+  \node[bigport] at (4.8,-1) {};
+  % committed packet: prep swap + cat arcs
+  \draw[{Stealth[length=1.5mm]}-{Stealth[length=1.5mm]},dashed,black!70]
+    (0.02,-0.56) .. controls (0.32,-0.3) and (0.68,-0.3) .. (0.98,-0.56);
+  \draw[catline] (4.8,-1) .. controls (5.2,-0.2) .. (5.55,-0.12);
+  \draw[catline] (4.8,-1.25) .. controls (5.4,-1.62) and (6.2,-1.62)
+    .. (6.72,-1.34);
+  \draw[catline] (4.8,-1.42) -- (4.8,-1.6);
+  \node[font=\scriptsize,anchor=west] at (7.6,-2.4) {(b)};
+\end{tikzpicture}
+\caption{Running example. (a)~Remaining circuit fragment as a DAG;
+  the front (shaded) is $\{g_1,g_4\}$. (b)~Layout on two adjacent
+  cores of architecture~A. Blue circles are the committed
+  \TeleGatePacket{}'s participants ($\logi{0}$ and the targets
+  $\logi{1},\logi{2},\logi{3}$, reached by cat-CXs, dashed); orange
+  circles are the endpoints of the competing, already-ready single
+  \TeleGate{} for $g_4$; grey circles are spectators. Core $c_1$'s
+  only free position is its port, so $\mathrm{free}(c_1)=1 <
+  f_\mathrm{min}$ and every \TeleData{} into $c_1$ is
+  capacity-blocked. The dashed double arrow is the packet's one
+  preparation SWAP, which moves $\logi{0}$ next to the port.}
+\label{fig:example}
+\end{figure}
+
+\begin{table}[t]
+\caption{Remote plans generated for the front of
+  Figure~\ref{fig:example}, with total gains
+  (Section~\ref{sec:sfc-scoring}).}
+\label{tab:example-plans}
+\centering
+\scriptsize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llcll@{}}
+\toprule
+Plan & Set & Gain & Readiness & Outcome \\
+\midrule
+\TeleGatePacket{}($\logi{0}$; $g_1 g_2 g_3$) & $\mathcal{P}$ & $3.0$ & 1 prep SWAP & \textbf{committed} \\
+\TeleGate{}($g_4$) & $\mathcal{P}$ & $1.0$ & ready now & dominated \\
+\TeleGate{}($g_1$) & $\mathcal{P}$ & $1.0$ & 1 prep SWAP & dominated \\
+\TeleData{}($\logi{1}\!\to\!c_0$) & $\mathcal{P}$ & $1.0$ & prep needed & dominated \\
+\TeleData{}($\logi{5}\!\to\!c_0$) & $\mathcal{P}$ & $1.0$ & prep needed & committed later \\
+\TeleData{}($\logi{0}\!\to\!c_1$) & $\mathcal{B}$ & $\approx\!2.1$ & blocked & margin $<m_\mathrm{assist}$ \\
+\TeleData{}($\logi{4}\!\to\!c_1$) & $\mathcal{B}$ & $1.0$ & blocked & dominated \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{What \PORTER{} does.} Table~\ref{tab:example-plans} lists the
+generated plans. Seeding packet collection at $g_1$, the frontier
+simulation absorbs $g_2$ and $g_3$ (same control $\logi{0}$, targets
+in $c_1$): a three-gate packet with direct gain $3$. Both single
+telegates and all \TeleData{} plans into $c_0$ gain ${\approx}1$.
+\TeleData{}($\logi{0}\!\to\!c_1$) would gain more --- direct $1$ for
+$g_1$, latent-direct $2$ for $g_2,g_3$, minus $0.9$ of lookahead for
+$g_5$, whose partner $\logi{6}$ stays in $c_0$ --- but $c_1$ fails the
+$f_\mathrm{min}$ test, so it lands in $\mathcal{B}$; its gain
+${\approx}2.1$ does not exceed the packet's $3.0$ by
+$m_\mathrm{assist}{=}5$, so no capacity relief pre-empts. Plans are
+ranked by gain first --- readiness is only a tie-break --- so the
+\emph{unready} packet (gain $3$) beats the \emph{ready} telegate for
+$g_4$ (gain $1$). \PORTER{} commits the packet, generates its one
+preparation SWAP ($\logi{0}$ next to the port), then emits one
+cat-entangler, three cat-CXs (each target routed beside the port in
+turn), and the disentangler: \emph{one} EPR pair for $g_1,g_2,g_3$.
+The packet's completion exposes $g_4$ and $g_5$ together; the
+locality-first stage drains the now-local $g_5$ first (one SWAP plus
+a local CX), and the remote stage then re-generates plans for $g_4$:
+the single telegate and \TeleData{}($\logi{5}\!\to\!c_0$) now tie at
+gain $1$, and the plan-kind tie-break (\TeleData{} $\succ$
+\TeleGate{}, Section~\ref{sec:sfc-scoring}) commits the teleport ---
+$\logi{5}$ lands on $c_0$'s port and $g_4$ finishes as a local CX.
+Two EPR pairs for the whole fragment. This is not a stylised
+trace: it is exactly the operation stream the implementation emits
+on this instance, replayed and certified by the independent verifier
+of Appendix~D, which includes the full
+operation-by-operation certified trace.
+
+\textbf{What finer-grained routers do here.} A router that scores
+individual actions --- SWAPs and inter-core operations in one pool, as
+\TeleSABRE{} does --- fires the zero-cost ready telegate for $g_4$
+first. The deeper problem is the staging SWAP the packet needs:
+exchanging $\logi{0}$ and $\logi{4}$ moves $g_1$'s control one step
+closer to the port while moving $g_4$'s one step away, so under a
+front-averaged distance metric of the kind used by \SABRE{} descendants
+its score is ${\approx}0$; the information that makes this SWAP worth
+applying --- three remote CXs behind $g_1$ amortised onto one EPR pair
+--- is a property of a \emph{whole plan}, invisible at single-action
+granularity. That blind spot does not require a flat pool: \dSABRE{}
+reaches its inter-core stage on this front (no front gate is
+intra-core) and scores hops, not plans, so the same amortisation is
+outside what its candidate can express.
+
+Vocabulary compounds the gap. Gates $g_2$ and $g_3$ enter the front one
+at a time, so \TeleSABRE{} pays one telegate each, four EPR pairs for
+the fragment. \dSABRE{}, restricted to \TeleData{}, cannot move
+$\logi{0}$ into the saturated $c_1$ at all --- under its capacity
+floor a teleport into a core with fewer than two free slots is not a
+legal candidate --- so it must first relay a free slot into $c_1$ from
+elsewhere, and ferrying $\logi{1},\logi{2},\logi{3}$ out to $c_0$
+instead costs three EPR pairs before $g_4$ is even addressed.
+Commitment finally protects the choice once made: only the packet's
+preparation SWAPs are generated --- no staging effort is spent on the
+six losing plans --- and the committed plan cannot be pre-empted
+mid-preparation by a candidate that its own staging transiently
+improved, a churn per-action re-scoring permits by construction.
+
+
+\section{Inter-Core Action Mix}
+\label{sec:actionmix}
+
+\begin{table}[h]
+\centering
+\caption{Inter-core actions by primitive on the 64-qubit suite. Every action
+  consumes exactly one EPR pair, so the columns of each router sum to its EPR
+  count. ``pkt CX'' is the number of remote CX gates \PORTER{}'s packets
+  execute --- the only column in which an action count and a gate count
+  differ. \TeleSABRE{} does not converge on Random.}
+\label{tab:actionset}
+\setlength{\tabcolsep}{3.5pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}l rr r rrr r@{}}
+\toprule
+ & \multicolumn{2}{c}{\TeleSABRE} & \dSABRE{} & \multicolumn{4}{c}{\PORTER{}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-4}\cmidrule(lr){5-8}
+Circuit & \TeleData & \TeleGate & \TeleData & \TeleData & \TeleGate & pkt & pkt CX \\
+\midrule
+AE         &   259 &   94 &   165 &   145 &    0 &   32 &   101 \\
+GHZ        &    16 &    0 &     6 &     6 &    0 &    0 &     0 \\
+Graphstate &    60 &    2 &    15 &    20 &    0 &    0 &     0 \\
+QFT        &   308 &    4 &   179 &   216 &    1 &   45 &   105 \\
+QNN        &   883 &    6 &   538 &   619 &    5 &  240 &   630 \\
+Random     &   --- &  --- &   732 &   432 &  228 &   77 &   157 \\
+QPEexact   &   281 &    8 &   187 &   177 &    3 &   42 &   130 \\
+QAOA       &   824 &  132 &   555 &   507 &   16 &  331 &   761 \\
+Multiplier &  1558 &   43 &  1285 &   940 &  384 &   34 &    92 \\
+\midrule
+\textbf{Total} & \textbf{4189} & \textbf{289} & \textbf{3662} & \textbf{3062} & \textbf{637} & \textbf{801} & \textbf{1976} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Table~\ref{tab:actionset} puts the three compilers' primitives side by
+side on the 64-qubit suite, which is the sharpest statement of what a
+larger action vocabulary is worth: every action listed costs exactly one
+EPR pair, so an action count and an EPR count are the same number ---
+except for \PORTER{}'s packets, where one action executes several gates.
+
+\TeleSABRE{} spends $289$ of its $4{,}478$ actions ($6.5\%$) on single
+telegates, each serving exactly one remote CX, and uses the most EPR
+pairs of the three. \dSABRE{} spends none. \PORTER{}'s cat-entangler
+actions are $1{,}438$ of $4{,}500$ ($32.0\%$), but they are not the same
+object: $801$ packets carry $1{,}976$ remote CX gates, $2.47$ per EPR
+pair, against $1.00$ for the $637$ single telegates. Packets are $56\%$
+of \PORTER{}'s cat-entangler actions and $76\%$ of the gates those
+actions serve.
+
+Two features of the table shape the ablation of
+Section~\ref{sec:ablation}. First, the vocabulary is used very unevenly:
+Random and Multiplier account for $612$ of \PORTER{}'s $637$ single
+telegates, while QNN and QAOA account for $571$ of its $801$ packets.
+Second, amortisation and EPR consumption do not move together ---
+\PORTER{} spends more cat-entangler actions than \TeleSABRE{} and fewer
+EPR pairs than it, but also more EPR pairs than \dSABRE{}, which spends
+none at all. Whether the extra vocabulary pays is therefore not
+answerable from this table; Section~\ref{sec:ablation} answers it
+directly, and the answer is not the one the design assumed.
+
+
+\begin{table}[h]
+\centering
+\caption{Hardware cost and heuristic parameters (see Section~\ref{sec:sfc}).}
+\label{tab:params}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parameter & Symbol & Value \\
+\midrule
+Min.\ free before \TeleData{}      & $f_\mathrm{min}$        & 2 \\
+Opportunistic-relief margin        & $m_\mathrm{assist}$     & 5.0 \\
+Local-SWAP extended-set weight     & $\lambda_\mathrm{loc}$  & 0.8 \\
+Local extended-set max layers      & $L_\mathrm{loc}$        & 12 \\
+Local extended-set max CX          & $N_\mathrm{loc}$        & 20 \\
+Packet collection window (layers)  & --                      & 120 \\
+Max packet size (remote CX)        & --                      & 8 \\
+TeleData lookahead max layers      & $L_\mathrm{tp}$         & 16 \\
+TeleData lookahead max CX          & $N_\mathrm{tp}$         & 50 \\
+Lookahead weight / decay / floor   & $w_0,\gamma,w_\mathrm{min}$ & 0.9, 0.9, 0.5 \\
+DAG front cap (gates)              & --                      & 96 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Cross-layout comparison: geometric-mean EPR with each router routing
+  both its own and the other's initial layout. Columns are routers, and
+  within each router the left figure is its own layout and the right the
+  other's. \dSABRE{}'s layout is the best-of-six candidate set of
+  Section~\ref{sec:protocols}; \PORTER{}'s is its single deterministic
+  temporal locality-greedy layout.}
+\label{tab:crosslayout}
+\setlength{\tabcolsep}{4pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}l rr rr rr@{}}
+\toprule
+ & \multicolumn{2}{c}{\dSABRE{} router} & \multicolumn{2}{c}{\PORTER{} router}
+ & \multicolumn{2}{c}{\PORTER{}+R router} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Suite & own lay. & \PORTER{} lay. & own lay. & \dSABRE{} lay. & own lay. & \dSABRE{} lay. \\
+\midrule
+25q (6) & 44.0 & 41.7 & 43.1 & 40.7 & 38.8 & 36.1 \\
+64q (9) & 173.1 & 184.2 & 213.3 & 209.4 & 178.2 & 180.2 \\
+80q (9) & 372.7 & 408.2 & 484.9 & 403.0 & 444.1 & 390.8 \\
+\midrule
+\textbf{all (24)} & \textbf{163.9} & 171.2 & 194.6 & 177.8 & 171.4 & \textbf{161.1} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Architecture-independence check: the same nine-circuit 64-qubit
+  suite on four IBM 27-qubit heavy-hex cores (108 physical qubits), wired
+  as a \emph{ring} (4 links, every core degree 2) and as a \emph{star}
+  (3 links, core~0 a hub every inter-core route must cross). EPR pairs
+  only; the question here is architectural sensitivity, not the
+  EPR/SWAP trade-off of Table~\ref{tab:main}. The right-hand pair is
+  the fixed-layout control: \PORTER{} routing \dSABRE{}'s own
+  \texttt{SabreLayout} candidates, so the two routers differ only in the
+  routing loop.
+  $^{\ast}$\PORTER{} does not complete (Section~\ref{sec:sfc-progress}).
+  \dSABRE{} reproduces its own published numbers for these two
+  architectures on all eighteen instances~\cite{lidsabre}. The bracketed
+  star row excludes Multiplier so the two \PORTER{} columns are paired
+  against \dSABRE{} on the instances they complete.}
+\label{tab:heavyhex}
+\setlength{\tabcolsep}{4pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}ll r rr rr@{}}
+\toprule
+ & & & \multicolumn{2}{c}{own layout} & \multicolumn{2}{c}{\dSABRE{} layout} \\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Cores & Circuit & \dSABRE{} & \PORTER{} & $+$R & \PORTER{} & $+$R \\
+\midrule
+ring  & ae          &    86 &   116 &    88 &   115 &    85 \\
+ring  & ghz         &     2 &     2 &     2 &     2 &     2 \\
+ring  & graphstate  &    12 &    12 &    10 &    13 &    12 \\
+ring  & qft         &   110 &   141 &   103 &   144 &    97 \\
+ring  & qnn         &   249 &   240 &   240 &   290 &   246 \\
+ring  & random      &   465 &   506 &   452 &   419 &   419 \\
+ring  & qpeexact    &    80 &   116 &    90 &   100 &    84 \\
+ring  & qaoa        &   249 &   248 &   247 &   250 &   246 \\
+ring  & multiplier  &   451 &   506 &   397 &   483 &   373 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 85.2 & 96.0 & 82.3 & 95.0 & \textbf{81.4} \\
+\midrule
+star  & ae          &   118 &   161 &   144 &   152 &   114 \\
+star  & ghz         &     3 &     3 &     3 &     4 &     3 \\
+star  & graphstate  &    10 &    16 &    14 &    11 &     9 \\
+star  & qft         &   125 &   124 &   124 &   134 &   120 \\
+star  & qnn         &   241 &   535 &   314 &   321 &   314 \\
+star  & random      &   475 &   609 &   452 &   487 &   463 \\
+star  & qpeexact    &   120 &   162 &   162 &   144 &    90 \\
+star  & qaoa        &   251 &   473 &   245 &   251 &   244 \\
+star  & multiplier  &   722 & $^{\ast}$ & $^{\ast}$ &   462 &   462 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 101.1 & --- & --- & 109.9 & \textbf{93.5} \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 79.1 & 111.5 & 89.8 & 91.8 & \textbf{76.6} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{\emph{Complete} compile time (seconds, median of three repeats on
+  an idle machine): initial-layout generation plus every routing pass over
+  every candidate, for each router's whole protocol --- \dSABRE{}'s
+  best-of-six-layouts $\times$ three passes, \TeleSABRE{}'s three seeds,
+  \PORTER{}'s single pass and \PORTER{}+R's five. This is the cost a user
+  pays to obtain the corresponding EPR count, not the winning attempt alone.
+  Released as \texttt{timing\_results.json}. $^{\ast}$Did not complete.}
+\label{tab:timing}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}l r rrrr@{}}
+\toprule
+Circuit & CX & \TeleSABRE & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
+\midrule
+ae (25q)     &   558 &   0.58 &   1.38 &   0.13 &   0.63 \\
+random (25q) &  1124 &   4.14 &   5.77 &   0.71 &   3.69 \\
+ae (64q)     &  1962 &   4.58 &   3.98 &   0.46 &   2.78 \\
+qft (64q)    &  1966 &  20.81 &   4.25 &   0.71 &   3.55 \\
+qnn (64q)    &  8126 &  32.49 &  13.60 &   3.79 &  16.28 \\
+random (80q) & 23381 & $^{\ast}$ & 249.24 &  64.47 & 325.68 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Shared-layout comparison, all suites: \dSABRE{} and
+  \PORTER{} are both routed, single-shot, from \TeleSABRE{}'s own initial
+  layout (Section~\ref{sec:protocols}). $\Delta_\mathrm{TS}$ columns give
+  each router's EPR change relative to \TeleSABRE{}'s own-protocol
+  result; negative is better. Rows exist only where \TeleSABRE{}
+  converges and thus provides a layout to share: all six circuits at
+  25q, eight of nine at 64q (Random missing), three of nine at
+  80q (GHZ, Graphstate, and QPEexact); per-suite gmeans are over the
+  available rows, and the final \textbf{all} row is the gmean over all
+  17.}
+\label{tab:shared}
+\setlength{\tabcolsep}{3pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}ll rr rrr rrr@{}}
+\toprule
+ & & \multicolumn{2}{c}{\TeleSABRE} & \multicolumn{3}{c}{\dSABRE{}}
+ & \multicolumn{3}{c}{\PORTER{}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+Suite & Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & EPR$_{+\mathrm{R}}$ & $\Delta_\mathrm{TS}$ \\
+\midrule
+25q & ae          &  119 &   346 &   66 &   310 & $-44.5$ &   78 &    60 & $-49.6$ \\
+25q & ghz         &   13 &    44 &    9 &    29 & $-30.8$ &   10 &     8 & $-38.5$ \\
+25q & graphstate  &   21 &    63 &    6 &    30 & $-71.4$ &   14 &     6 & $-71.4$ \\
+25q & qft         &  138 &   448 &   81 &   362 & $-41.3$ &  121 &    89 & $-35.5$ \\
+25q & qnn         &  515 &   820 &  145 &   685 & $-71.8$ &  136 &   126 & $-75.5$ \\
+25q & random      &  636 &  1367 &  419 &  1442 & $-34.1$ &  397 &   367 & $-42.3$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & & 51.0 & & $\mathbf{-52.2}$ & 64.4 & 47.7 & $\mathbf{-55.2}$ \\
+\midrule
+64q & ae          &  353 &  1494 &  215 &  1672 & $-39.1$ &  151 &   151 & $-57.2$ \\
+64q & ghz         &   16 &   132 &   10 &   121 & $-37.5$ &   10 &     8 & $-50.0$ \\
+64q & graphstate  &   62 &   281 &   26 &   149 & $-58.1$ &   46 &    24 & $-61.3$ \\
+64q & qft         &  312 &  1711 &  223 &  1646 & $-28.5$ &  290 &   257 & $-17.6$ \\
+64q & qnn         &  889 &  5471 &  648 &  5707 & $-27.1$ &  580 &   580 & $-34.8$ \\
+64q & qpeexact    &  289 &  1706 &  193 &  1574 & $-33.2$ &  186 &   186 & $-35.6$ \\
+64q & qaoa        &  956 &  4189 &  673 &  4244 & $-29.6$ &  926 &   616 & $-35.6$ \\
+64q & multiplier  & 1601 &  9654 & 1564 &  9489 & $-2.3$ &  873 &   755 & $-52.8$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 284.5 & & 189.2 & & $\mathbf{-33.5}$ & 190.8 & 157.2 & $\mathbf{-44.7}$ \\
+\midrule
+80q & ghz         &   26 &   215 &   25 &   196 & $-3.8$ &   19 &    12 & $-53.8$ \\
+80q & graphstate  &   87 &   435 &   40 &   233 & $-54.0$ &   64 &    32 & $-63.2$ \\
+80q & qpeexact    &  784 &  2875 &  408 &  2732 & $-48.0$ &  451 &   451 & $-42.5$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (3)} & 121.0 & & 74.2 & & $\mathbf{-38.7}$ & 81.9 & 55.7 & $\mathbf{-53.9}$ \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{gmean, all} (17)} & 173.0 & & 100.9 & & $\mathbf{-41.7}$ & 112.0 & \textbf{86.0} & $\mathbf{-50.3}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\section{Local SWAP Counts}
+\label{app:tables}
+
+Table~\ref{tab:mainswaps} gives the intra-core SWAP counts for the runs of
+Table~V of the main paper, in the same row order. EPR pairs are the figure
+of merit throughout --- a SWAP is a local operation costing no
+entanglement --- so these are reported here rather than in the main text.
+Both baselines and \PORTER{} count intra-core SWAPs only; inter-core
+movement is charged in EPR pairs.
+
+\begin{table}[h]
+\centering
+\caption{Local SWAP counts, own protocol. Row order and the
+  $^{\ast}$ non-convergence marker match Table~V of the main paper.}
+\label{tab:mainswaps}
+\setlength{\tabcolsep}{4pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}ll rrrr@{}}
+\toprule
+Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
+\midrule
+25q & ae          &        346 &    309 &    328 &    328 \\
+25q & ghz         &         44 &     21 &     29 &     29 \\
+25q & graphstate  &         63 &     31 &     34 &     19 \\
+25q & qft         &        448 &    365 &    327 &    327 \\
+25q & qnn         &        820 &    711 &    642 &    603 \\
+25q & random      &       1367 &   1390 &   1327 &   1319 \\
+\midrule
+64q & ae          &       1494 &   1325 &   1627 &   1627 \\
+64q & ghz         &        132 &     39 &     86 &     86 \\
+64q & graphstate  &        281 &     88 &    131 &    103 \\
+64q & qft         &       1711 &   1480 &   1846 &   1846 \\
+64q & qnn         &       5471 &   5260 &   6595 &   5608 \\
+64q & random      &  $^{\ast}$ &   3603 &   4048 &   4048 \\
+64q & qpeexact    &       1706 &   1576 &   1729 &   1729 \\
+64q & qaoa        &       4189 &   3734 &   5394 &   4256 \\
+64q & multiplier  &       9654 &   8969 &   9878 &   8264 \\
+\midrule
+80q & ae          &  $^{\ast}$ &   2624 &   3156 &   3156 \\
+80q & ghz         &        215 &     51 &    115 &    115 \\
+80q & graphstate  &        435 &     97 &    198 &    150 \\
+80q & qft         &  $^{\ast}$ &   2311 &   2968 &   2692 \\
+80q & qnn         &  $^{\ast}$ &   8590 &  10920 &   9959 \\
+80q & random      &  $^{\ast}$ &  56624 &  62119 &  62119 \\
+80q & qpeexact    &       2875 &   2254 &   3427 &   3427 \\
+80q & qaoa        &  $^{\ast}$ &   6067 &   7370 &   7370 \\
+80q & multiplier  &  $^{\ast}$ &  19196 &  18863 &  16810 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 \end{document}

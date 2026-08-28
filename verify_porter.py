@@ -326,7 +326,8 @@ def fuzz(trials: int, verbose: bool = True) -> None:
     print(f"all {trials} fuzz trials passed", flush=True)
 
 
-def verify_qasm(qasm: Path, architecture: str, seed: int) -> None:
+def verify_qasm(qasm: Path, architecture: str, seed: int, passes: int = 1,
+                gamma_search: bool = False) -> None:
     import compile_porter as cdr
 
     circuit, num_logical = cdr.parse_qasm2(qasm)
@@ -336,12 +337,33 @@ def verify_qasm(qasm: Path, architecture: str, seed: int) -> None:
         circuit, hw, num_logical,
         min_free_per_core=cfg.min_free_before_teleport,
     )
-    router = dr.PorterRouter(hw, cfg)
-    state = router.compile(circuit, layout)
-    verify_state(hw, layout, circuit, state)
+    if gamma_search:
+        state, info = cdr.run_layout_search(hw, cfg, circuit, num_logical,
+                                            passes=passes)
+        if state is None:
+            raise AssertionError(f"no gamma routed: {info}")
+        start = info["start_layout"]
+        extra = (f" gamma_search best_gamma={info['best_gamma']} "
+                 f"routes={info['routes']}")
+    elif passes == 1:
+        router = dr.PorterRouter(hw, cfg)
+        state = router.compile(circuit, layout)
+        start, extra = layout, ""
+    else:
+        state, info = cdr.run_refinement_passes(hw, cfg, circuit, layout,
+                                                passes=passes)
+        if state is None:
+            raise AssertionError(f"first forward pass failed: {info}")
+        # The emitted stream belongs to the WINNING pass, so it must be
+        # replayed against that pass's own starting layout.
+        start = info["start_layout"]
+        extra = (f" passes={passes} chosen=p{info['chosen_pass']} "
+                 f"fwd={info['forward_eprs']}")
+    verify_state(hw, start, circuit, state)
     print(
         f"[ok] {qasm.name} arch={architecture} seed={seed} "
-        f"epr={state.stats.epr} swaps={state.stats.local_swap_count} depth={state.stats.depth}",
+        f"epr={state.stats.epr} swaps={state.stats.local_swap_count} "
+        f"depth={state.stats.depth}{extra}",
         flush=True,
     )
 
@@ -352,10 +374,15 @@ def main() -> None:
     parser.add_argument("--architecture", "-a", default="A", choices=("A", "H"))
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--trials", type=int, default=60)
+    parser.add_argument("--passes", type=int, default=1,
+                        help="routing passes for --qasm (odd; see compile_porter)")
+    parser.add_argument("--gamma-search", action="store_true",
+                        help="verify the best-of-gamma layout search result")
     args = parser.parse_args()
 
     if args.qasm is not None:
-        verify_qasm(args.qasm, args.architecture, args.seed)
+        verify_qasm(args.qasm, args.architecture, args.seed, args.passes,
+                    args.gamma_search)
     else:
         fuzz(args.trials)
 

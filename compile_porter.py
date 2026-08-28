@@ -123,6 +123,71 @@ def _grid_hardware(
     return porter.Hardware(cores=cores, core_edges=tuple(core_edges))
 
 
+def hardware_from_device_json(path: Path) -> Tuple[str, porter.Hardware]:
+    """Build a PORTER Hardware from a TeleSABRE device JSON.
+
+    Makes no grid assumptions: cores are the connected components of the
+    intra-core coupling graph, so any device file the baselines accept can be
+    routed by PORTER on the identical physical qubit ids.  Used for the
+    scale-up architectures (100/200/360 logical qubits), where hand-coding
+    inter-core port lists would be error-prone.
+    """
+    device = json.loads(Path(path).read_text())["device"]
+    intra = [tuple(e) for e in device["intra_core_edges"]]
+    inter = [tuple(e) for e in device["inter_core_edges"]]
+    n_phys = device["num_qubits"]
+
+    adjacency: Dict[int, List[int]] = {q: [] for q in range(n_phys)}
+    for a, b in intra:
+        adjacency[a].append(b)
+        adjacency[b].append(a)
+
+    core_of: Dict[int, int] = {}
+    components: List[List[int]] = []
+    for q in range(n_phys):
+        if q in core_of:
+            continue
+        cid = len(components)
+        stack, members = [q], []
+        core_of[q] = cid
+        while stack:
+            cur = stack.pop()
+            members.append(cur)
+            for nb in adjacency[cur]:
+                if nb not in core_of:
+                    core_of[nb] = cid
+                    stack.append(nb)
+        components.append(sorted(members))
+
+    if len(components) != device["num_cores"]:
+        raise ValueError(
+            f"{Path(path).name}: intra-core graph has {len(components)} components "
+            f"but the device declares {device['num_cores']} cores"
+        )
+
+    cores: Dict[int, porter.Core] = {}
+    for cid, members in enumerate(components):
+        member_set = set(members)
+        edges = tuple((a, b) for a, b in intra
+                      if a in member_set and b in member_set)
+        cores[cid] = porter.Core(cid=cid, physical_qubits=tuple(members),
+                                 coupling_edges=edges, ports={})
+
+    core_edges: List[Tuple[int, int]] = []
+    for p0, p1 in inter:
+        c0, c1 = core_of[p0], core_of[p1]
+        if c1 in cores[c0].ports or c0 in cores[c1].ports:
+            raise ValueError(
+                f"{Path(path).name}: more than one inter-core link between cores "
+                f"{c0} and {c1}; PORTER's Core.ports holds one port per neighbour"
+            )
+        cores[c0].ports[c1] = p0
+        cores[c1].ports[c0] = p1
+        core_edges.append((c0, c1))
+
+    return device["name"], porter.Hardware(cores=cores, core_edges=tuple(core_edges))
+
+
 def hardware_for_name(name: str) -> Tuple[str, porter.Hardware]:
     normalized = name.upper()
     if normalized == "A":
@@ -427,6 +492,243 @@ def build_telesabre_initial_layout(
     return convert_layout(telesabre_layout, hw, num_logical)
 
 
+# ---------------------------------------------------------------------------
+# Backward-refinement passes (opt-in)
+# ---------------------------------------------------------------------------
+#
+# PORTER's default protocol is one forward pass from one deterministic layout.
+# The shared-layout evaluation showed that a fixed layout is not the whole
+# story: routing the SAME externally supplied layout, a forward--backward--
+# forward schedule extracts more from it than a single forward pass does.
+# This is SABRE's bidirectional layout-refinement trick, and it is the direct
+# way to buy that back.
+#
+# The idea: routing the REVERSED circuit from pass 1's final layout ends on a
+# layout that is good for the *start* of the forward circuit, because routing
+# drifts interacting qubits together as it proceeds.  Pass 2's route is
+# discarded -- only its final layout is kept -- and pass 3 re-routes forward
+# from it.  We return the better of pass 1 and pass 3 by EPR, so refinement can
+# never make the reported result worse than the single-pass one.
+#
+# Kept opt-in: PORTER's headline protocol remains a single deterministic run,
+# and reporting both isolates what the extra passes are worth.
+
+
+# Temporal-discount values swept by `run_layout_search`. `gamma` weights each
+# CX by gamma**(its ASAP layer), so it sets how sharply the layout prefers
+# EARLY interactions: 1.0 weights the whole circuit equally, 0.8 concentrates
+# on the opening layers. No single value dominates -- measured over 24
+# instances the per-circuit argmin is 0.8 nine times, 1.0 five, 0.95 four,
+# 0.9 and 0.99 three each -- and 0.99 is uniquely best on QFT at 25q (74 vs 97)
+# and 64q (262 vs 331), so this is a search, not a constant waiting to be
+# retuned. gamma also affects ROUTABILITY, not only quality: 80q Random
+# deadlocks at 0.9 and routes at the other four, which is why a best-of-N is
+# the right shape and a single retuned value is not.
+DEFAULT_LAYOUT_GAMMAS: Tuple[float, ...] = (0.8, 0.9, 0.95, 0.99, 1.0)
+
+
+def run_layout_search(
+    hw: porter.Hardware,
+    cfg: porter.RouterConfig,
+    circuit: List[porter.Gate],
+    num_logical: int,
+    *,
+    gammas: Tuple[float, ...] = DEFAULT_LAYOUT_GAMMAS,
+    passes: int = 1,
+    refine_from: str = "both",
+    pass_guard=None,
+    pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
+) -> Tuple[Optional[porter.RouterState], Dict[str, object]]:
+    """Best-of-gamma initial-layout search, optionally with backward refinement.
+
+    Phase 1 routes one forward pass from each gamma's layout and keeps the best
+    by EPR -- `len(gammas)` routing passes. Phase 2, when ``passes > 1``, runs
+    the refinement schedule of `run_refinement_passes` from the WINNING gamma's
+    layout, adding ``passes - 1`` more. So the default protocol costs
+    ``len(gammas) + passes - 1`` = 9 routes against dSABRE's 18.
+
+    The two levers are independent and compose: gamma changes which layout the
+    router starts from, refinement changes how much routing is spent improving
+    it. On 64q QNN gamma=1.0 alone reaches 604 and refinement alone 537.
+
+    Deterministic and seed-free, like the single-pass protocol it generalises:
+    ``gammas=(0.99,), passes=1`` reproduces it byte-for-byte.
+
+    Returns ``(best_state, info)``; ``best_state`` is None only if no gamma
+    routes at all.
+    """
+    info: Dict[str, object] = {
+        "gammas": list(gammas), "by_gamma": {}, "best_gamma": None,
+        "passes": passes, "routes": 0, "refinement": None,
+        "start_layout": None,
+    }
+    best_state = None
+    best_layout = None
+
+    for gm in gammas:
+        try:
+            layout = build_initial_layout(
+                circuit, hw, num_logical,
+                min_free_per_core=cfg.min_free_before_teleport, gamma=gm,
+            )
+        except ValueError:
+            info["by_gamma"][str(gm)] = None
+            continue
+        router = porter.PorterRouter(hw, cfg)
+        try:
+            if pass_guard is None:
+                state = router.compile(circuit, layout)
+            else:
+                with pass_guard():
+                    state = router.compile(circuit, layout)
+        except pass_exceptions:
+            info["by_gamma"][str(gm)] = None
+            info["routes"] += 1
+            continue
+        info["by_gamma"][str(gm)] = state.stats.epr
+        info["routes"] += 1
+        if best_state is None or state.stats.epr < best_state.stats.epr:
+            best_state, best_layout = state, layout
+            info["best_gamma"] = gm
+            info["start_layout"] = layout
+
+    if best_state is None or passes <= 1:
+        return best_state, info
+
+    # Which layout(s) to refine from.  Refining the winning gamma is NOT
+    # reliably best: on 64q QNN gamma=1.0 wins phase 1 at 604 but refining it
+    # reaches only 604, while refining the gamma=0.99 layout reaches 537.  The
+    # two searches explore different neighbourhoods, so "both" runs the
+    # schedule from each and is the shipped default.
+    seeds = []
+    if refine_from in ("best", "both") and info["best_gamma"] is not None:
+        seeds.append((info["best_gamma"], best_layout))
+    if refine_from in ("default", "both"):
+        dg = 0.99 if 0.99 in gammas else gammas[len(gammas) // 2]
+        if not seeds or seeds[0][0] != dg:
+            try:
+                seeds.append((dg, build_initial_layout(
+                    circuit, hw, num_logical,
+                    min_free_per_core=cfg.min_free_before_teleport, gamma=dg)))
+            except ValueError:
+                pass
+
+    info["refinement"] = []
+    for gm, seed_layout in seeds:
+        refined, rinfo = run_refinement_passes(
+            hw, cfg, circuit, seed_layout, passes=passes,
+            pass_guard=pass_guard, pass_exceptions=pass_exceptions,
+        )
+        seed_start = rinfo.pop("start_layout", None)
+        info["refinement"].append(dict(rinfo, seed_gamma=gm))
+        info["routes"] += max(0, rinfo["passes_run"] - 1)  # pass 1 already counted
+        if refined is not None and refined.stats.epr < best_state.stats.epr:
+            best_state = refined
+            # The emitted stream belongs to that schedule's winning pass, so
+            # the verifier must replay it against that pass's own layout.
+            info["start_layout"] = seed_start
+    return best_state, info
+
+
+def reverse_circuit(circuit: List[porter.Gate]) -> List[porter.Gate]:
+    """The same gates in reverse order.
+
+    Gate ids are re-assigned by ``PorterRouter.compile`` via ``assign_gate_ids``,
+    so they do not need fixing here.  Reversing the list reverses every
+    per-qubit dependency edge, which is exactly the DAG pass 2 must route.
+    """
+    return list(reversed(circuit))
+
+
+def run_refinement_passes(
+    hw: porter.Hardware,
+    cfg: porter.RouterConfig,
+    circuit: List[porter.Gate],
+    initial_layout: porter.Layout,
+    *,
+    passes: int = 3,
+    pass_guard=None,
+    pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
+) -> Tuple[Optional[porter.RouterState], Dict[str, object]]:
+    """Forward -> backward -> forward routing, returning the better forward pass.
+
+    ``passes`` counts routing passes: 1 reproduces the default single-pass
+    protocol exactly, 3 is one full refinement cycle, and odd values above 3
+    repeat the cycle (each cycle is one backward pass plus one forward pass).
+    Even values are rejected -- a backward pass alone yields no routable
+    forward result.
+
+    Returns ``(best_state, info)``.  ``best_state`` is ``None`` only when the
+    very first forward pass fails; every later failure degrades to the best
+    result already in hand, so refinement is never worse than not refining.
+
+    ``info["start_layout"]`` is the layout the winning forward pass started
+    from.  It is what an independent replay verifier must be given: the
+    emitted stream belongs to that pass, not to pass 1, so replaying it
+    against the original layout would (correctly) fail.
+    """
+    if passes < 1 or passes % 2 == 0:
+        raise ValueError(
+            f"passes must be a positive odd number (1, 3, 5, ...); got {passes}"
+        )
+
+    router = porter.PorterRouter(hw, cfg)
+    reversed_gates = reverse_circuit(circuit)
+    info: Dict[str, object] = {"passes_run": 0, "passes_requested": passes,
+                               "forward_eprs": [], "chosen_pass": None,
+                               "failed_pass": None, "start_layout": None}
+
+    def _route(gates, layout):
+        # A pass that deadlocks, is rejected by the layout precondition, or
+        # exceeds `pass_guard`'s budget is a failed refinement ATTEMPT, not a
+        # failed compile: the caller keeps the best forward result so far.
+        # `pass_guard` is applied per pass rather than around the whole
+        # schedule, so one slow backward pass cannot discard a good pass 1 --
+        # which is exactly what a whole-schedule guard did on 360-qubit
+        # QPEexact.  Anything outside `pass_exceptions` still propagates.
+        try:
+            if pass_guard is None:
+                return router.compile(gates, layout)
+            with pass_guard():
+                return router.compile(gates, layout)
+        except pass_exceptions:
+            return None
+
+    best = _route(circuit, initial_layout)
+    info["passes_run"] = 1
+    if best is None:
+        info["failed_pass"] = 1
+        return None, info
+    info["forward_eprs"].append(best.stats.epr)
+    info["chosen_pass"] = 1
+    info["start_layout"] = initial_layout
+
+    layout = best.layout
+    forward_pass_index = 1
+    for cycle in range((passes - 1) // 2):
+        back = _route(reversed_gates, layout)
+        info["passes_run"] += 1
+        if back is None:
+            info["failed_pass"] = info["passes_run"]
+            break
+        fwd = _route(circuit, back.layout)
+        info["passes_run"] += 1
+        if fwd is None:
+            info["failed_pass"] = info["passes_run"]
+            break
+        forward_pass_index += 2
+        info["forward_eprs"].append(fwd.stats.epr)
+        if fwd.stats.epr < best.stats.epr:
+            best = fwd
+            info["chosen_pass"] = forward_pass_index
+            info["start_layout"] = back.layout
+        # Keep refining from the newest forward layout even when it did not
+        # win: the layout, not the route, is what the next cycle consumes.
+        layout = fwd.layout
+
+    return best, info
+
+
 def serialize_compiled_op(index: int, op: porter.CompiledOp) -> Dict[str, object]:
     return {
         "index": index,
@@ -498,6 +800,8 @@ def compile_qasm(
     *,
     initial_layout_mode: str = "porter",
     max_iterations: Optional[int] = None,
+    passes: int = 1,
+    gamma_search: bool = False,
 ) -> Dict[str, object]:
     circuit_gates, num_logical = parse_qasm2(qasm_path)
     router_kwargs = {"random_seed": seed}
@@ -536,10 +840,24 @@ def compile_qasm(
     else:
         raise ValueError(f"Unsupported initial layout mode {initial_layout_mode!r}")
 
-    router = porter.PorterRouter(hw, router_config)
-
     start = time.perf_counter()
-    state = router.compile(circuit_gates, initial_layout)
+    if gamma_search:
+        state, refine_info = run_layout_search(
+            hw, router_config, circuit_gates, num_logical, passes=passes)
+        if state is None:
+            raise RuntimeError(f"no gamma routed ({refine_info})")
+    elif passes == 1:
+        router = porter.PorterRouter(hw, router_config)
+        state = router.compile(circuit_gates, initial_layout)
+        refine_info = None
+    else:
+        state, refine_info = run_refinement_passes(
+            hw, router_config, circuit_gates, initial_layout, passes=passes
+        )
+        if state is None:
+            raise RuntimeError(
+                f"routing failed on the first forward pass ({refine_info})"
+            )
     seconds = time.perf_counter() - start
     stats = state.stats
 
@@ -582,8 +900,15 @@ def compile_qasm(
         "single": int(stats.single_count),
         "emitted_ops": len(state.emitted),
         "remaining_gates": len(state.remaining),
+        "passes": passes,
         "seconds": seconds,
     }
+    if refine_info is not None:
+        # `start_layout` is a Layout object -- useful to a caller (the replay
+        # verifier needs it) but not JSON-serialisable, so keep it out of the
+        # written summary.
+        summary["refinement"] = {k: v for k, v in refine_info.items()
+                                 if k != "start_layout"}
 
     paths = write_outputs(out_dir, qasm_path, architecture_name, seed, summary, ops)
     summary["outputs"] = {key: str(value) for key, value in paths.items()}
@@ -604,6 +929,18 @@ def main() -> None:
         help="porter uses the deterministic temporal locality-greedy mapper; telesabre reuses qlimt.initial_layout.",
     )
     parser.add_argument("--max-iterations", type=int, default=None)
+    parser.add_argument(
+        "--gamma-search", action="store_true",
+        help="best-of-gamma initial-layout search (see DEFAULT_LAYOUT_GAMMAS); "
+             "combine with --passes for the strengthened protocol.",
+    )
+    parser.add_argument(
+        "--passes", type=int, default=1,
+        help="routing passes (odd). 1 = PORTER's default single forward pass; "
+             "3 = one forward-backward-forward refinement cycle; 5 = two. "
+             "The best forward pass by EPR is reported, so more passes can "
+             "never report a worse result than fewer.",
+    )
     args = parser.parse_args()
 
     summary = compile_qasm(
@@ -613,6 +950,8 @@ def main() -> None:
         args.out_dir,
         initial_layout_mode=args.initial_layout,
         max_iterations=args.max_iterations,
+        passes=args.passes,
+        gamma_search=args.gamma_search,
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 

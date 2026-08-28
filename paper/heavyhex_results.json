@@ -1,0 +1,1215 @@
+[
+ {
+  "topology": "ring",
+  "circuit": "ae",
+  "cx": 1962,
+  "qubits": 64,
+  "dSE": {
+   "epr": 86,
+   "swaps": 2023,
+   "seconds": 4.717,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 116,
+   "swaps": 2671,
+   "teleports": 113,
+   "telegates": 0,
+   "packets": 3,
+   "depth": 4435,
+   "seconds": 0.503
+  },
+  "porter_refined": {
+   "epr": 88,
+   "swaps": 1979,
+   "teleports": 84,
+   "telegates": 0,
+   "packets": 4,
+   "depth": 3275,
+   "seconds": 2.608
+  },
+  "porter_on_dse": {
+   "epr": 115,
+   "swaps": 2271,
+   "depth": 3580,
+   "intercore_depth": 3474,
+   "teleports": 112,
+   "teleports_normal": 76,
+   "teleports_blocked": 36,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 3,
+   "seconds_best_attempt": 0.581,
+   "seconds": 1.618,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 85,
+   "swaps": 1927,
+   "depth": 3111,
+   "intercore_depth": 3000,
+   "teleports": 81,
+   "teleports_normal": 44,
+   "teleports_blocked": 37,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 4,
+   "seconds": 8.019,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    115,
+    88,
+    85
+   ],
+   "seconds_best_attempt": 2.526,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "ring",
+  "circuit": "ghz",
+  "cx": 63,
+  "qubits": 64,
+  "dSE": {
+   "epr": 2,
+   "swaps": 43,
+   "seconds": 0.102,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 2,
+   "swaps": 198,
+   "teleports": 2,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 169,
+   "seconds": 0.02
+  },
+  "porter_refined": {
+   "epr": 2,
+   "swaps": 198,
+   "teleports": 2,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 169,
+   "seconds": 0.061
+  },
+  "porter_on_dse": {
+   "epr": 2,
+   "swaps": 44,
+   "depth": 99,
+   "intercore_depth": 67,
+   "teleports": 2,
+   "teleports_normal": 2,
+   "teleports_blocked": 0,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 0,
+   "seconds_best_attempt": 0.005,
+   "seconds": 0.014,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 2,
+   "swaps": 44,
+   "depth": 99,
+   "intercore_depth": 67,
+   "teleports": 2,
+   "teleports_normal": 2,
+   "teleports_blocked": 0,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 0,
+   "seconds": 0.065,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 1,
+   "forward_eprs": [
+    2,
+    2,
+    2
+   ],
+   "seconds_best_attempt": 0.022,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "ring",
+  "circuit": "graphstate",
+  "cx": 64,
+  "qubits": 64,
+  "dSE": {
+   "epr": 12,
+   "swaps": 161,
+   "seconds": 0.289,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 12,
+   "swaps": 213,
+   "teleports": 12,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 91,
+   "seconds": 0.142
+  },
+  "porter_refined": {
+   "epr": 10,
+   "swaps": 108,
+   "teleports": 10,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 56,
+   "seconds": 0.37
+  },
+  "porter_on_dse": {
+   "epr": 13,
+   "swaps": 155,
+   "depth": 98,
+   "intercore_depth": 90,
+   "teleports": 11,
+   "teleports_normal": 11,
+   "teleports_blocked": 0,
+   "teleports_capacity_relief": 0,
+   "telegates": 2,
+   "telegate_packets": 0,
+   "seconds_best_attempt": 0.048,
+   "seconds": 0.186,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 12,
+   "swaps": 163,
+   "depth": 143,
+   "intercore_depth": 123,
+   "teleports": 11,
+   "teleports_normal": 11,
+   "teleports_blocked": 0,
+   "teleports_capacity_relief": 0,
+   "telegates": 1,
+   "telegate_packets": 0,
+   "seconds": 0.934,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    19,
+    13,
+    12
+   ],
+   "seconds_best_attempt": 0.327,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "ring",
+  "circuit": "qft",
+  "cx": 1966,
+  "qubits": 64,
+  "dSE": {
+   "epr": 110,
+   "swaps": 2461,
+   "seconds": 5.012,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 141,
+   "swaps": 2867,
+   "teleports": 131,
+   "telegates": 1,
+   "packets": 9,
+   "depth": 3880,
+   "seconds": 0.725
+  },
+  "porter_refined": {
+   "epr": 103,
+   "swaps": 2116,
+   "teleports": 90,
+   "telegates": 0,
+   "packets": 13,
+   "depth": 3171,
+   "seconds": 2.986
+  },
+  "porter_on_dse": {
+   "epr": 144,
+   "swaps": 2556,
+   "depth": 3645,
+   "intercore_depth": 3640,
+   "teleports": 132,
+   "teleports_normal": 104,
+   "teleports_blocked": 28,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 12,
+   "seconds_best_attempt": 0.535,
+   "seconds": 1.935,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 97,
+   "swaps": 2256,
+   "depth": 3289,
+   "intercore_depth": 3282,
+   "teleports": 88,
+   "teleports_normal": 54,
+   "teleports_blocked": 34,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 9,
+   "seconds": 9.528,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    152,
+    137,
+    97
+   ],
+   "seconds_best_attempt": 3.212,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "ring",
+  "circuit": "qnn",
+  "cx": 8126,
+  "qubits": 64,
+  "dSE": {
+   "epr": 249,
+   "swaps": 7669,
+   "seconds": 13.706,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 240,
+   "swaps": 8699,
+   "teleports": 240,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 11248,
+   "seconds": 2.0
+  },
+  "porter_refined": {
+   "epr": 240,
+   "swaps": 8699,
+   "teleports": 240,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 11248,
+   "seconds": 11.967
+  },
+  "porter_on_dse": {
+   "epr": 290,
+   "swaps": 8938,
+   "depth": 10788,
+   "intercore_depth": 10731,
+   "teleports": 283,
+   "teleports_normal": 204,
+   "teleports_blocked": 79,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 7,
+   "seconds_best_attempt": 1.927,
+   "seconds": 5.785,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 246,
+   "swaps": 7947,
+   "depth": 8667,
+   "intercore_depth": 8628,
+   "teleports": 242,
+   "teleports_normal": 133,
+   "teleports_blocked": 109,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 4,
+   "seconds": 35.482,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 3,
+   "forward_eprs": [
+    290,
+    246,
+    265
+   ],
+   "seconds_best_attempt": 11.706,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "ring",
+  "circuit": "random",
+  "cx": 1627,
+  "qubits": 64,
+  "dSE": {
+   "epr": 465,
+   "swaps": 5716,
+   "seconds": 7.98,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 506,
+   "swaps": 7338,
+   "teleports": 284,
+   "telegates": 168,
+   "packets": 54,
+   "depth": 6104,
+   "seconds": 3.097
+  },
+  "porter_refined": {
+   "epr": 452,
+   "swaps": 6710,
+   "teleports": 349,
+   "telegates": 69,
+   "packets": 34,
+   "depth": 5699,
+   "seconds": 14.048
+  },
+  "porter_on_dse": {
+   "epr": 419,
+   "swaps": 5975,
+   "depth": 4916,
+   "intercore_depth": 4912,
+   "teleports": 338,
+   "teleports_normal": 326,
+   "teleports_blocked": 12,
+   "teleports_capacity_relief": 0,
+   "telegates": 49,
+   "telegate_packets": 32,
+   "seconds_best_attempt": 2.347,
+   "seconds": 7.623,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 419,
+   "swaps": 5975,
+   "depth": 4916,
+   "intercore_depth": 4912,
+   "teleports": 338,
+   "teleports_normal": 326,
+   "teleports_blocked": 12,
+   "teleports_capacity_relief": 0,
+   "telegates": 49,
+   "telegate_packets": 32,
+   "seconds": 40.027,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 1,
+   "forward_eprs": [
+    419,
+    472,
+    482
+   ],
+   "seconds_best_attempt": 12.982,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "ring",
+  "circuit": "qpeexact",
+  "cx": 2139,
+  "qubits": 64,
+  "dSE": {
+   "epr": 80,
+   "swaps": 2001,
+   "seconds": 3.52,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 116,
+   "swaps": 2875,
+   "teleports": 113,
+   "telegates": 0,
+   "packets": 3,
+   "depth": 4188,
+   "seconds": 0.526
+  },
+  "porter_refined": {
+   "epr": 90,
+   "swaps": 2209,
+   "teleports": 83,
+   "telegates": 0,
+   "packets": 7,
+   "depth": 2878,
+   "seconds": 2.757
+  },
+  "porter_on_dse": {
+   "epr": 100,
+   "swaps": 2283,
+   "depth": 3343,
+   "intercore_depth": 3267,
+   "teleports": 95,
+   "teleports_normal": 55,
+   "teleports_blocked": 40,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 5,
+   "seconds_best_attempt": 0.526,
+   "seconds": 1.502,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 84,
+   "swaps": 2203,
+   "depth": 3593,
+   "intercore_depth": 3524,
+   "teleports": 81,
+   "teleports_normal": 44,
+   "teleports_blocked": 37,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 3,
+   "seconds": 8.077,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    121,
+    86,
+    84
+   ],
+   "seconds_best_attempt": 2.547,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "ring",
+  "circuit": "qaoa",
+  "cx": 3920,
+  "qubits": 64,
+  "dSE": {
+   "epr": 249,
+   "swaps": 5331,
+   "seconds": 7.272,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 248,
+   "swaps": 5967,
+   "teleports": 237,
+   "telegates": 0,
+   "packets": 11,
+   "depth": 5133,
+   "seconds": 2.022
+  },
+  "porter_refined": {
+   "epr": 247,
+   "swaps": 5366,
+   "teleports": 235,
+   "telegates": 0,
+   "packets": 12,
+   "depth": 4365,
+   "seconds": 9.83
+  },
+  "porter_on_dse": {
+   "epr": 250,
+   "swaps": 5307,
+   "depth": 4596,
+   "intercore_depth": 4514,
+   "teleports": 238,
+   "teleports_normal": 173,
+   "teleports_blocked": 65,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 12,
+   "seconds_best_attempt": 1.793,
+   "seconds": 5.612,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 246,
+   "swaps": 5769,
+   "depth": 5170,
+   "intercore_depth": 5147,
+   "teleports": 231,
+   "teleports_normal": 166,
+   "teleports_blocked": 65,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 15,
+   "seconds": 30.399,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 3,
+   "forward_eprs": [
+    262,
+    246,
+    255
+   ],
+   "seconds_best_attempt": 10.374,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "ring",
+  "circuit": "multiplier",
+  "cx": 13040,
+  "qubits": 64,
+  "dSE": {
+   "epr": 451,
+   "swaps": 11450,
+   "seconds": 26.479,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 506,
+   "swaps": 12475,
+   "teleports": 362,
+   "telegates": 134,
+   "packets": 10,
+   "depth": 33173,
+   "seconds": 2.001
+  },
+  "porter_refined": {
+   "epr": 397,
+   "swaps": 11456,
+   "teleports": 326,
+   "telegates": 62,
+   "packets": 9,
+   "depth": 32478,
+   "seconds": 9.785
+  },
+  "porter_on_dse": {
+   "epr": 483,
+   "swaps": 11769,
+   "depth": 33118,
+   "intercore_depth": 33095,
+   "teleports": 378,
+   "teleports_normal": 346,
+   "teleports_blocked": 32,
+   "teleports_capacity_relief": 0,
+   "telegates": 95,
+   "telegate_packets": 10,
+   "seconds_best_attempt": 1.944,
+   "seconds": 6.151,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 373,
+   "swaps": 11210,
+   "depth": 32247,
+   "intercore_depth": 32143,
+   "teleports": 300,
+   "teleports_normal": 282,
+   "teleports_blocked": 18,
+   "teleports_capacity_relief": 0,
+   "telegates": 61,
+   "telegate_packets": 12,
+   "seconds": 63.411,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    715,
+    410,
+    373
+   ],
+   "seconds_best_attempt": 9.351,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "ae",
+  "cx": 1962,
+  "qubits": 64,
+  "dSE": {
+   "epr": 118,
+   "swaps": 2236,
+   "seconds": 5.131,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 161,
+   "swaps": 3196,
+   "teleports": 90,
+   "telegates": 0,
+   "packets": 71,
+   "depth": 5077,
+   "seconds": 0.416
+  },
+  "porter_refined": {
+   "epr": 144,
+   "swaps": 2506,
+   "teleports": 96,
+   "telegates": 1,
+   "packets": 47,
+   "depth": 4568,
+   "seconds": 2.772
+  },
+  "porter_on_dse": {
+   "epr": 152,
+   "swaps": 2521,
+   "depth": 4285,
+   "intercore_depth": 4233,
+   "teleports": 98,
+   "teleports_normal": 72,
+   "teleports_blocked": 24,
+   "teleports_capacity_relief": 2,
+   "telegates": 1,
+   "telegate_packets": 53,
+   "seconds_best_attempt": 0.495,
+   "seconds": 1.601,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 114,
+   "swaps": 2230,
+   "depth": 4145,
+   "intercore_depth": 4074,
+   "teleports": 97,
+   "teleports_normal": 54,
+   "teleports_blocked": 42,
+   "teleports_capacity_relief": 1,
+   "telegates": 1,
+   "telegate_packets": 16,
+   "seconds": 8.939,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 3,
+   "forward_eprs": [
+    152,
+    114,
+    123
+   ],
+   "seconds_best_attempt": 3.052,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "ghz",
+  "cx": 63,
+  "qubits": 64,
+  "dSE": {
+   "epr": 3,
+   "swaps": 70,
+   "seconds": 0.118,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 3,
+   "swaps": 218,
+   "teleports": 3,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 182,
+   "seconds": 0.022
+  },
+  "porter_refined": {
+   "epr": 3,
+   "swaps": 218,
+   "teleports": 3,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 182,
+   "seconds": 0.066
+  },
+  "porter_on_dse": {
+   "epr": 4,
+   "swaps": 81,
+   "depth": 142,
+   "intercore_depth": 110,
+   "teleports": 4,
+   "teleports_normal": 4,
+   "teleports_blocked": 0,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 0,
+   "seconds_best_attempt": 0.008,
+   "seconds": 0.024,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 3,
+   "swaps": 67,
+   "depth": 131,
+   "intercore_depth": 88,
+   "teleports": 3,
+   "teleports_normal": 3,
+   "teleports_blocked": 0,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 0,
+   "seconds": 0.101,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 3,
+   "forward_eprs": [
+    4,
+    3,
+    3
+   ],
+   "seconds_best_attempt": 0.035,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "graphstate",
+  "cx": 64,
+  "qubits": 64,
+  "dSE": {
+   "epr": 10,
+   "swaps": 124,
+   "seconds": 0.256,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 16,
+   "swaps": 242,
+   "teleports": 16,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 95,
+   "seconds": 0.141
+  },
+  "porter_refined": {
+   "epr": 14,
+   "swaps": 184,
+   "teleports": 14,
+   "telegates": 0,
+   "packets": 0,
+   "depth": 122,
+   "seconds": 0.371
+  },
+  "porter_on_dse": {
+   "epr": 11,
+   "swaps": 110,
+   "depth": 83,
+   "intercore_depth": 70,
+   "teleports": 11,
+   "teleports_normal": 11,
+   "teleports_blocked": 0,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 0,
+   "seconds_best_attempt": 0.048,
+   "seconds": 0.162,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 9,
+   "swaps": 127,
+   "depth": 97,
+   "intercore_depth": 90,
+   "teleports": 9,
+   "teleports_normal": 9,
+   "teleports_blocked": 0,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 0,
+   "seconds": 0.761,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    15,
+    10,
+    9
+   ],
+   "seconds_best_attempt": 0.241,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "qft",
+  "cx": 1966,
+  "qubits": 64,
+  "dSE": {
+   "epr": 125,
+   "swaps": 2129,
+   "seconds": 5.296,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 124,
+   "swaps": 2392,
+   "teleports": 112,
+   "telegates": 2,
+   "packets": 10,
+   "depth": 3259,
+   "seconds": 0.748
+  },
+  "porter_refined": {
+   "epr": 124,
+   "swaps": 2392,
+   "teleports": 112,
+   "telegates": 2,
+   "packets": 10,
+   "depth": 3259,
+   "seconds": 3.609
+  },
+  "porter_on_dse": {
+   "epr": 134,
+   "swaps": 2430,
+   "depth": 3274,
+   "intercore_depth": 3268,
+   "teleports": 109,
+   "teleports_normal": 81,
+   "teleports_blocked": 24,
+   "teleports_capacity_relief": 4,
+   "telegates": 0,
+   "telegate_packets": 25,
+   "seconds_best_attempt": 0.594,
+   "seconds": 1.913,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 120,
+   "swaps": 2175,
+   "depth": 3575,
+   "intercore_depth": 3573,
+   "teleports": 101,
+   "teleports_normal": 68,
+   "teleports_blocked": 32,
+   "teleports_capacity_relief": 1,
+   "telegates": 0,
+   "telegate_packets": 19,
+   "seconds": 10.031,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    305,
+    156,
+    120
+   ],
+   "seconds_best_attempt": 3.562,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "qnn",
+  "cx": 8126,
+  "qubits": 64,
+  "dSE": {
+   "epr": 241,
+   "swaps": 7765,
+   "seconds": 14.006,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 535,
+   "swaps": 11390,
+   "teleports": 341,
+   "telegates": 0,
+   "packets": 194,
+   "depth": 14955,
+   "seconds": 2.736
+  },
+  "porter_refined": {
+   "epr": 314,
+   "swaps": 10346,
+   "teleports": 213,
+   "telegates": 3,
+   "packets": 98,
+   "depth": 12601,
+   "seconds": 11.033
+  },
+  "porter_on_dse": {
+   "epr": 321,
+   "swaps": 9138,
+   "depth": 11668,
+   "intercore_depth": 11629,
+   "teleports": 264,
+   "teleports_normal": 213,
+   "teleports_blocked": 51,
+   "teleports_capacity_relief": 0,
+   "telegates": 2,
+   "telegate_packets": 55,
+   "seconds_best_attempt": 1.948,
+   "seconds": 6.459,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 314,
+   "swaps": 9374,
+   "depth": 11612,
+   "intercore_depth": 11564,
+   "teleports": 213,
+   "teleports_normal": 158,
+   "teleports_blocked": 55,
+   "teleports_capacity_relief": 0,
+   "telegates": 3,
+   "telegate_packets": 98,
+   "seconds": 30.276,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    651,
+    436,
+    314
+   ],
+   "seconds_best_attempt": 10.353,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "random",
+  "cx": 1627,
+  "qubits": 64,
+  "dSE": {
+   "epr": 475,
+   "swaps": 6059,
+   "seconds": 7.991,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 609,
+   "swaps": 6920,
+   "teleports": 208,
+   "telegates": 321,
+   "packets": 80,
+   "depth": 7642,
+   "seconds": 2.771
+  },
+  "porter_refined": {
+   "epr": 452,
+   "swaps": 5283,
+   "teleports": 276,
+   "telegates": 127,
+   "packets": 49,
+   "depth": 6121,
+   "seconds": 13.86
+  },
+  "porter_on_dse": {
+   "epr": 487,
+   "swaps": 5596,
+   "depth": 6230,
+   "intercore_depth": 6227,
+   "teleports": 282,
+   "teleports_normal": 269,
+   "teleports_blocked": 6,
+   "teleports_capacity_relief": 7,
+   "telegates": 162,
+   "telegate_packets": 43,
+   "seconds_best_attempt": 2.474,
+   "seconds": 7.942,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 463,
+   "swaps": 5329,
+   "depth": 5854,
+   "intercore_depth": 5849,
+   "teleports": 280,
+   "teleports_normal": 266,
+   "teleports_blocked": 8,
+   "teleports_capacity_relief": 6,
+   "telegates": 139,
+   "telegate_packets": 44,
+   "seconds": 38.841,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 3,
+   "forward_eprs": [
+    529,
+    463,
+    490
+   ],
+   "seconds_best_attempt": 12.876,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "qpeexact",
+  "cx": 2139,
+  "qubits": 64,
+  "dSE": {
+   "epr": 120,
+   "swaps": 2484,
+   "seconds": 3.878,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 162,
+   "swaps": 3667,
+   "teleports": 87,
+   "telegates": 0,
+   "packets": 75,
+   "depth": 4710,
+   "seconds": 0.576
+  },
+  "porter_refined": {
+   "epr": 162,
+   "swaps": 3667,
+   "teleports": 87,
+   "telegates": 0,
+   "packets": 75,
+   "depth": 4710,
+   "seconds": 3.302
+  },
+  "porter_on_dse": {
+   "epr": 144,
+   "swaps": 2475,
+   "depth": 4208,
+   "intercore_depth": 4132,
+   "teleports": 106,
+   "teleports_normal": 64,
+   "teleports_blocked": 38,
+   "teleports_capacity_relief": 4,
+   "telegates": 0,
+   "telegate_packets": 38,
+   "seconds_best_attempt": 0.661,
+   "seconds": 1.638,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 90,
+   "swaps": 2272,
+   "depth": 3924,
+   "intercore_depth": 3847,
+   "teleports": 85,
+   "teleports_normal": 45,
+   "teleports_blocked": 40,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 5,
+   "seconds": 9.089,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    166,
+    99,
+    90
+   ],
+   "seconds_best_attempt": 2.919,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "qaoa",
+  "cx": 3920,
+  "qubits": 64,
+  "dSE": {
+   "epr": 251,
+   "swaps": 5431,
+   "seconds": 7.466,
+   "n_candidates": 3
+  },
+  "porter": {
+   "epr": 473,
+   "swaps": 7195,
+   "teleports": 225,
+   "telegates": 6,
+   "packets": 242,
+   "depth": 8537,
+   "seconds": 2.561
+  },
+  "porter_refined": {
+   "epr": 245,
+   "swaps": 5664,
+   "teleports": 232,
+   "telegates": 0,
+   "packets": 13,
+   "depth": 5299,
+   "seconds": 9.54
+  },
+  "porter_on_dse": {
+   "epr": 251,
+   "swaps": 5760,
+   "depth": 5484,
+   "intercore_depth": 5406,
+   "teleports": 239,
+   "teleports_normal": 179,
+   "teleports_blocked": 60,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 12,
+   "seconds_best_attempt": 1.964,
+   "seconds": 5.933,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 244,
+   "swaps": 5573,
+   "depth": 4507,
+   "intercore_depth": 4398,
+   "teleports": 235,
+   "teleports_normal": 176,
+   "teleports_blocked": 59,
+   "teleports_capacity_relief": 0,
+   "telegates": 0,
+   "telegate_packets": 9,
+   "seconds": 28.301,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 5,
+   "forward_eprs": [
+    361,
+    297,
+    244
+   ],
+   "seconds_best_attempt": 9.77,
+   "n_candidates": 3
+  }
+ },
+ {
+  "topology": "star",
+  "circuit": "multiplier",
+  "cx": 13040,
+  "qubits": 64,
+  "dSE": {
+   "epr": 722,
+   "swaps": 12183,
+   "seconds": 26.907,
+   "n_candidates": 3
+  },
+  "porter": {
+   "error": "RuntimeError: Router exceeded max_iterations; possible oscillation or deadlock"
+  },
+  "porter_refined": {
+   "error": "first forward pass failed; see the one-pass leg",
+   "failed_pass": 1
+  },
+  "porter_on_dse": {
+   "epr": 462,
+   "swaps": 12377,
+   "depth": 32966,
+   "intercore_depth": 32873,
+   "teleports": 347,
+   "teleports_normal": 310,
+   "teleports_blocked": 37,
+   "teleports_capacity_relief": 0,
+   "telegates": 102,
+   "telegate_packets": 13,
+   "seconds_best_attempt": 1.819,
+   "seconds": 6.547,
+   "n_candidates": 3
+  },
+  "porter_on_dse_refined": {
+   "epr": 462,
+   "swaps": 12377,
+   "depth": 32966,
+   "intercore_depth": 32873,
+   "teleports": 347,
+   "teleports_normal": 310,
+   "teleports_blocked": 37,
+   "teleports_capacity_relief": 0,
+   "telegates": 102,
+   "telegate_packets": 13,
+   "seconds": 30.958,
+   "passes": 5,
+   "passes_run": 5,
+   "chosen_pass": 1,
+   "forward_eprs": [
+    462,
+    1152,
+    471
+   ],
+   "seconds_best_attempt": 10.102,
+   "n_candidates": 3
+  }
+ }
+]
