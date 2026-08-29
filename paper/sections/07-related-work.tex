@@ -17,16 +17,10 @@ Its capacity handling is also more proactive: alongside \TeleSABRE{}'s
 safety-valve cap it maintains an explicit blocked-plan set with a
 tail-relief search and a pre-emptive relief comparator.
 
-\textbf{\dSABRE{}}~\cite{lidsabre} is concurrent work on the same
-problem, and the two compilers are close relatives developed in
-parallel. Its router was substantially revised
-while this paper was in preparation --- a shared extended-set
-construction and a safe-mode capacity discipline --- lowering its EPR
-on every one of our own-protocol instances relative to its published
-tables, by up to $40\%$, and cutting its compile time by up to
-$97\times$. We therefore re-ran it from source throughout rather than
-quoting figures its current code does not reproduce, and our numbers
-match those it now publishes for the architectures it reports.
+\textbf{\dSABRE{}}~\cite{lidsabre} attacks the same problem, and the two
+compilers are close relatives. We run it in its default configuration
+throughout, and our numbers match those it publishes for the
+architectures it reports.
 
 Stating what the two share keeps either from being credited with the
 other's ideas: both rank moves by \SABRE{}'s

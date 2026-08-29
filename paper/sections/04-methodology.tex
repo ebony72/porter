@@ -11,8 +11,7 @@ Section~\ref{sec:results} is organised around them.
 \begin{itemize}[leftmargin=1.4em,itemsep=1pt,topsep=2pt]
 \item[\textbf{RQ1}] \textbf{End-to-end cost.} Under each compiler's own
   recommended protocol, how does \PORTER{}'s EPR consumption and compile
-  time compare with \TeleSABRE{}'s and with the evaluated \dSABRE{}
-  revision's?
+  time compare with \TeleSABRE{}'s and \dSABRE{}'s?
 \item[\textbf{RQ2}] \textbf{Routing quality with the layout controlled.}
   Given the \emph{same} externally supplied initial layout, and at matched
   routing budgets, how does \PORTER{}'s routing loop compare with
@@ -65,42 +64,36 @@ complete does so by \emph{deadlock}, \emph{livelock}, \emph{timeout} or
 \subsection{Implementation and Verification}
 \label{sec:perf}
 
-\PORTER{} is implemented in Python and is publicly available together
-with the verifier and comparison harness. It takes no seed: heuristic
-ties resolve through a fixed chain of deterministic keys and any
-residual tie through a constant-initialised generator, and every
-residual tie-break is counted in the emitted statistics, so a single
-routing pass on a fixed circuit and hardware emits a byte-identical
-operation stream across runs and behaviour preservation across
-refactorings is certified by hashing it. One caveat applies to the
-selection protocol of Section~\ref{sec:horizon} and we state it
-plainly: the speculative horizons are guarded by a wall-clock budget, so
-on a loaded machine a candidate may be abandoned that would otherwise
-have won, and the protocol's output is reproducible only up to that
-budget. Each individual route remains exactly reproducible, and the
-horizon a run selected is recorded alongside its result. Compile time is
-kept low by incremental data structures --- chiefly a copy-on-write DAG
-frontier simulator\label{sec:sfc-simstate} shared by extended-set
-collection and teleport lookahead, whose snapshots cost
-$O(|\text{frontier}|)$ rather than $O(|\text{remaining circuit}|)$ ---
-together with cached distance tables, $O(1)$ free-slot accounting, and
-apply/restore SWAP scoring in place of layout cloning.
+\PORTER{} is implemented in Python and released with the verifier and
+comparison harness. It takes no seed: heuristic ties resolve through a
+fixed chain of deterministic keys, any residual tie through a
+constant-initialised generator, and every residual tie-break is counted
+in the emitted statistics. One routing pass on a fixed circuit and
+hardware therefore emits a byte-identical stream across runs, and we
+certify behaviour preservation across refactorings by hashing it. One
+caveat applies to horizon selection (Section~\ref{sec:horizon}): its
+speculative routes share a wall-clock budget, so on a loaded machine a
+candidate may be abandoned that would otherwise have won. Each route is
+exactly reproducible; the protocol is reproducible only up to that
+budget, and the horizon a run selected is recorded with its result.
+Compile time is kept low by incremental data structures --- chiefly a
+copy-on-write DAG frontier simulator\label{sec:sfc-simstate} whose
+snapshots cost $O(|\text{frontier}|)$ rather than $O(|\text{remaining
+circuit}|)$ --- together with cached distance tables, $O(1)$ free-slot
+accounting, and apply/restore SWAP scoring in place of layout cloning.
 
-Every reported \PORTER{} run is certified by a replay verifier, written
-separately from the router and sharing no routing, scoring or layout code
-with it --- it consumes only the emitted operation stream and the operation
-schema, and calls nothing in the routing loop. It treats the compiler as a
-black box: from the emitted operation stream,
-the original circuit and the initial layout alone it re-derives gate
-coverage (each gate exactly once), per-qubit dependency order,
-coupling-edge legality of every local operation, port rules for every
-teleport, telegate and packet, and consistency of every reported
-statistic. The verifier is itself tested by fault injection --- ten
-classes of mutation applied to passing streams, every mutant rejected
-(\appVerification{}). All \PORTER{} numbers in this paper are
-verifier-certified. Baseline routes are \emph{not}: \TeleSABRE{} and
-\dSABRE{} emit their own operation formats, and we report the EPR counts
-their own harnesses produce, as their published evaluations do.
+Every reported \PORTER{} run is certified by a replay verifier written
+separately from the router. It shares no routing, scoring or layout code
+and calls nothing in the routing loop: from the emitted operation stream,
+the original circuit and the initial layout alone, it re-derives gate
+coverage, per-qubit dependency order, coupling-edge legality of every
+local operation, port rules for every teleport, telegate and packet, and
+the consistency of every reported statistic. The verifier is itself
+tested by fault injection --- ten classes of mutation applied to passing
+streams, every mutant rejected (\appVerification{}). Baseline routes are
+\emph{not} verified this way: \TeleSABRE{} and \dSABRE{} emit their own
+operation formats, and we report the EPR counts their harnesses produce,
+as their published evaluations do.
 
 \subsection{Setup}
 \label{sec:setup}
@@ -115,57 +108,52 @@ two networks of IBM 27-qubit heavy-hex tiles. All are read from the
 baselines' own device files, so every compiler sees identical physical
 qubit ids.
 
-\textbf{Benchmarks.} We use the same MQT-Bench~\cite{quetschlich2023mqtbench}
-circuit files \dSABRE{}'s own evaluation uses, confirmed by exact
-CX-count match against its published tables: a 25-qubit suite (AE, GHZ,
-Graphstate, QFT, QNN, Random) on architecture~A and a 64-qubit suite
-(the same six families, plus QPEexact, QAOA and Multiplier) on
-architecture~H, with QNN the deeper $8{,}126$-CX variant. To test at
-intermediate scale on the same architecture we add an 80-qubit suite of
-the same nine families. The 80-qubit AE and QNN instances cannot be
-produced by the stock generator and are reconstructed to match its own
-construction exactly --- in particular QNN is the deep $12{,}718$-CX
-ZZ-feature-map circuit, not the degenerate 79-CX chain the current
-generator emits, whose interaction graph is identical to GHZ's.
-\appSuite{} details both reconstructions, their byte-level validation,
-and the CX counts.
+\textbf{Benchmarks.} We use the same
+MQT-Bench~\cite{quetschlich2023mqtbench} circuit files \dSABRE{}'s
+evaluation uses, confirmed by exact CX-count match: a 25-qubit suite
+(AE, GHZ, Graphstate, QFT, QNN, Random) on architecture~A, and a
+64-qubit suite adding QPEexact, QAOA and Multiplier on architecture~H,
+with QNN the deeper $8{,}126$-CX variant. We add an 80-qubit suite of
+the same nine families. Its AE and QNN instances are not produced by the
+stock generator and were reconstructed to match its construction: QNN is
+the $12{,}718$-CX ZZ-feature-map circuit rather than the 79-CX chain the
+current generator emits, whose interaction graph matches GHZ's.
+\appSuite{} gives both reconstructions, their validation and the CX
+counts; the scripts and files are released.
 
 \label{sec:baselines}
 \textbf{Baselines.} We compare against
 \TeleSABRE{}~\cite{russo2025telesabre} and \dSABRE{}~\cite{lidsabre},
 the latter in its default \texttt{dSABRE\_BurstExt} mode with its
-shipped configuration --- which since its most recent revision means
-\emph{safe mode}: capacity as a legality condition with a per-core
-reserve, BFS slack relay, and a guaranteed per-gate recovery
-transaction (Section~\ref{sec:related}). Its router has changed
-materially since the version its published tables report, so every
-\dSABRE{} number here was regenerated from revision \texttt{cb5515b}
-(2026-08-21) rather than quoted, and the harness that produced them is
-released with \PORTER{}.
+shipped configuration, which is \emph{safe mode}: capacity as a legality
+condition with a per-core reserve, BFS slack relay, and a guaranteed
+per-gate recovery transaction (Section~\ref{sec:related}). Every
+\dSABRE{} number here was generated from revision \texttt{cb5515b}
+(2026-08-21), and the harness that produced them is released with
+\PORTER{}.
 
-Three protocol decisions are worth stating, since each avoids
-disadvantaging the baseline. We run \dSABRE{} under its own budget convention,
-letting all three of its recovery budgets derive from the architecture
-as its own drivers do rather than imposing values of our own --- a
-binding iteration budget would cut its heuristic search short and hand
-the remainder to its guaranteed drain at a worse EPR count. We do not charge it for pre-routing layout repair: in safe mode
-\texttt{route} brings an externally supplied layout up to its reserve
-before the clock starts, and those relay teleports land in its EPR
-counter although they adjust the \emph{starting layout} rather than
-route anything; \PORTER{} performs the same repair as a free
-permutation, so we net it out uniformly. And we
-hand it both families of its own layout candidates rather than picking
-one (Section~\ref{sec:protocols}), which can only strengthen it
-relative to its own published protocol.
+Three protocol decisions avoid disadvantaging \dSABRE{}. First, we run
+it under its own budget convention, letting its three recovery budgets
+derive from the architecture as its own drivers do; a binding iteration
+budget would cut its heuristic search short and hand the remainder to
+its guaranteed drain at a worse EPR count. Second, we do not charge it
+for pre-routing layout repair. In safe mode it brings an external layout
+up to its reserve before the clock starts, and those relay teleports
+land in its EPR counter although they adjust the starting layout rather
+than route anything; \PORTER{} performs the same repair as a free
+permutation, so we net it out for both. Third, we hand it both families
+of its layout candidates rather than picking one
+(Section~\ref{sec:protocols}).
 
-\TeleSABRE{}'s stock reference C binary crashes deterministically on
+\TeleSABRE{}'s stock C binary crashes deterministically on
 architecture~A, in its Hungarian initial-layout pass rather than in
 routing: a hard-coded capacity threshold leaves some qubits unplaced and
-their sentinel index is then dereferenced. All \TeleSABRE{} numbers here
-use a minimally patched binary that falls back to the least-loaded core;
-the patch is in our repository. Every compiler invocation is capped at $900$\,s
-wall-clock, uniformly across all three compilers, and a call exceeding
-it is recorded like any other failure to complete.
+their sentinel index is then dereferenced. All \TeleSABRE{} numbers use
+a minimally patched binary that falls back to the least-loaded core. The
+patch changes placement only for qubits the stock binary leaves
+unplaced, and architecture-H results are unchanged by it; it is in our
+repository. Every compiler invocation is capped at $900$\,s wall-clock,
+and a call exceeding it is recorded as a failure to complete.
 
 \subsection{Initial-Layout Protocols}
 \label{sec:protocols}
@@ -227,48 +215,41 @@ wants $16$, and every $100$-, $200$- and $360$-qubit instance wants
 $128$, beyond which EPR saturates. The gap between the shipped $16$ and
 the per-instance best is $17.2\%$ geometric-mean EPR.
 
-The direction is set by how dense the circuit's interaction graph is.
-Writing $\rho$ for the mean fraction of the other logical qubits each
-qubit shares a CX with, a long horizon reports the moving qubit as needed
-in \emph{every} core at once when $\rho\to1$, so the gain estimate
-degenerates into noise and short horizons win; when $\rho$ is small the
-signal is coherent and long horizons win. Across the benchmark, $\rho$
-ranks the best horizon at Spearman $-0.765$. It is not, however, a
-usable predictor on its own: in the band $0.42\le\rho\le0.53$, where most
-$64$-qubit circuits sit, QAOA wants $8$ while AE wants $128$, and a
-threshold rule on $\rho$ recovers only $8.0\%$ of the available
-$17.2\%$.
+Interaction density sets the direction. Write $\rho$ for the mean
+fraction of the other logical qubits each qubit shares a CX with. As
+$\rho\to1$ a long horizon reports the moving qubit as needed in every
+core at once, so the gain estimate degenerates into noise and short
+horizons win; when $\rho$ is small the signal is coherent and long
+horizons win. Across the benchmark $\rho$ ranks the best horizon at
+Spearman $-0.765$, but it is not a usable predictor alone: in the band
+$0.42\le\rho\le0.53$, where most 64-qubit circuits sit, QAOA wants $8$
+and AE wants $128$, and a threshold rule on $\rho$ recovers only $8.0\%$
+of the available $17.2\%$.
 
 \PORTER{} therefore uses $\rho$ to \emph{prune} rather than to choose. A
-circuit with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$ and
-every other circuit at $\{8,16,128\}$; the lowest-EPR route is kept. No
-instance above the threshold ever selected the long horizon, so pruning
-costs no EPR, and it removes the case where the long horizon fails to
-converge and consumes the whole attempt --- the dominant compile-time
-term. Two rules keep the cost bounded and the result safe. The
-circuit's own default horizon is routed first and unguarded, and wins
-ties, so selection can never return a worse route than routing once;
-the remaining candidates then share a wall-clock budget proportional to
-what that first route cost, and one that overruns it is abandoned. The
-budget is what makes a deep horizon affordable to try, and it is also
+circuit with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$,
+every other circuit at $\{8,16,128\}$, and the lowest-EPR route is kept.
+No instance above the threshold ever selected the long horizon, so
+pruning costs no EPR and removes the dominant compile-time term: a long
+horizon that fails to converge and consumes the whole attempt. Two rules
+bound the cost. The circuit's configured horizon is routed first,
+unguarded, and wins ties, so selection can never return a worse route
+than routing once. The remaining candidates share a wall-clock budget
+proportional to what that first route cost, and one that overruns it is
+abandoned. That budget makes a deep horizon affordable to try, and it is
 the one place \PORTER{}'s output depends on the machine it runs on
 (Section~\ref{sec:perf}).
 
-\textbf{This rule was derived from the same corpus it is evaluated on,
-and we do not claim otherwise.} The sweep above, the two candidate sets
-and the $0.80$ threshold were all fixed by inspecting the $48$ benchmark
-instances; there is no held-out family. Evidence for the \emph{size} of
-the gain it delivers is therefore in-sample, and the pruning rule in
-particular should be read as a cost-saving heuristic fitted to this
-benchmark rather than as a validated predictor. Two things nonetheless
-bound the risk. The rule is a portfolio, not a prediction: the
-configured horizon is always a candidate and wins ties, so a badly chosen
-candidate set can cost compile time but cannot make the selected route
-worse than routing once. And the direction the sweep exposes --- that no
-single constant serves circuits whose interaction densities differ by an
-order of magnitude --- does not depend on the particular values chosen.
-An out-of-sample validation, by leave-one-family-out or on a fresh
-benchmark, is the natural next step and we have not performed it.
+\textbf{This rule was fitted on the corpus it is evaluated on.} The
+sweep, both candidate sets and the $0.80$ threshold were fixed by
+inspecting the $48$ benchmark instances, and there is no held-out
+family, so evidence for the \emph{size} of the gain is in-sample. Two
+things bound the risk. The rule is a portfolio, not a prediction: the
+configured horizon always competes and wins ties, so a poor candidate
+set costs compile time but cannot worsen the selected route. And the
+direction the sweep exposes --- that no constant serves circuits whose
+densities differ by an order of magnitude --- does not depend on the
+values chosen. An out-of-sample validation remains to be done.
 
 \subsubsection{Backward refinement (\PORTER{}+R)}
 \label{sec:sfc-refine}
@@ -365,38 +346,35 @@ ablation legs     & \PORTER{}    & temporal locality-greedy & 1 & 1 & 1 & --- \\
 
 Three notions of a matched budget are in play and none is universally
 fair, so we report against more than one. Equal \emph{route counts}
-(\PORTER{} shared against \dSABRE{} shared, three each) equalise how many
-times the router is invoked. Equal \emph{layout budgets} put \PORTER{} on
-\dSABRE{}'s candidate set. Equal \emph{wall-clock} is not enforced
-anywhere; instead every table reports complete compile time, so a reader
-can renormalise. \PORTER{} costs more per routing pass than \dSABRE{}
-(Section~\ref{sec:frontier}), so equal route counts favour \PORTER{} on
-time and disfavour it on effort, and the reverse holds for equal layout
-budgets.
+(shared-layout \PORTER{} against shared-layout \dSABRE{}, three each)
+equalise how often the router runs. Equal \emph{layout budgets} put
+\PORTER{} on \dSABRE{}'s candidate set. Equal \emph{wall-clock} is not
+enforced anywhere; instead every table reports complete compile time so
+a reader can renormalise. \PORTER{} costs more per route than \dSABRE{}
+(Section~\ref{sec:frontier}), so equal route counts favour it on time
+and not on effort, and equal layout budgets do the reverse.
 
 \subsection{Metrics and Aggregation}
 \label{sec:metrics}
 
-The primary metric is EPR pairs consumed: \TeleSABRE{} counts teledata
+The primary metric is EPR pairs consumed. \TeleSABRE{} counts teledata
 plus telegate operations, \dSABRE{} counts teledata, and \PORTER{} counts
 teleports plus telegates plus telegate packets, one pair per packet
-regardless of how many remote CX gates it amortises. All three are counts
-of the same physical resource. Intra-core SWAP counts and compile time are
-reported as secondary metrics and are never traded against EPR in any
-selection rule.
+however many remote CX gates it amortises; all three count the same
+physical resource. Intra-core SWAP counts and compile time are secondary
+and are never traded against EPR by any selection rule.
 
 Aggregates are unweighted geometric means over circuits,
-$\bigl(\prod_i x_i\bigr)^{1/m}$, so each circuit contributes equally and a
-suite with large absolute counts does not dominate. Percentage changes are
-$100(b/a-1)$ against the stated baseline $a$, and ratios $b/a$; both are
-computed from the geometric means, not averaged per circuit.
+$\bigl(\prod_i x_i\bigr)^{1/m}$, so each circuit counts equally and a
+suite with large absolute counts does not dominate. Percentage changes
+are $100(b/a-1)$ against the stated baseline $a$; ratios are $b/a$. Both
+are computed from the geometric means, not averaged per circuit.
 
 Failures are never imputed. A configuration that does not complete an
-instance is marked and \emph{excluded from every geometric mean it
-appears in}, together with the instance's other columns where the
-comparison is stated as paired --- so a mean labelled $(n)$ is over
-exactly those $n$ circuits all its columns completed. This keeps quality
-and completion separate, and it means a baseline that fails its hardest
-instances is compared only on the ones it survives, which flatters it. We
-therefore always report completion counts alongside, and
-Section~\ref{sec:rq1} states both.
+instance is marked and excluded from every geometric mean it appears in,
+along with that instance's other columns where the comparison is paired.
+A mean labelled $(n)$ is therefore over exactly the $n$ circuits all its
+columns completed. This separates quality from completion, but it also
+means a baseline that fails its hardest instances is scored only on the
+ones it survives, which flatters it. We report completion counts
+alongside every such mean.

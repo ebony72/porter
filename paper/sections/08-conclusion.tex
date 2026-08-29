@@ -14,8 +14,7 @@ Three conclusions are supported. First, on the evaluated MQT-Bench suites
 \TeleSABRE{} --- $59.6\%$, $41.6\%$ and $68.2\%$ less in geometric mean at
 25, 64 and 80 logical qubits, at a matched attempt budget --- and
 completes every instance in all three suites, including the seven on
-which \TeleSABRE{} does not converge. Second, against the concurrent
-\dSABRE{} revision measured here, \PORTER{} is competitive rather than
+which \TeleSABRE{} does not converge. Second, against \dSABRE{}, \PORTER{} is competitive rather than
 dominant, and which compiler leads depends on the operating point: it uses
 $7\%$ more pooled EPR at $0.58\times$ the compile time under each
 compiler's own protocol, and leads on identical externally supplied
@@ -36,14 +35,13 @@ gate teleportation entirely beats the full action set by $32.8\%$ on the
 packet-heaviest circuits, which we read as the plan scorer undervaluing
 teleportation's latent return rather than as a verdict on amortisation.
 
-The evaluation is bounded in ways worth restating: two circuit families at
-the largest widths, two non-grid core graphs, horizon-selection rules
-fitted on the same corpus they are measured on, and a cost model that
-charges one pair per inter-core action and ignores link contention,
-latency and fidelity (Section~\ref{sec:threats}). The openings that
-follow are correspondingly concrete: a completion guarantee to match
-\dSABRE{}'s, an out-of-sample validation of the horizon rule, a lookahead
-horizon that scales with the core count rather than being selected by
-trial, a plan comparator that weighs a resolved gate against a latent
-distance reduction on a common scale, and a richer hardware cost model
-under which EPR count is no longer the whole objective.
+The evaluation is bounded: two circuit families at the largest widths,
+two non-grid core graphs, horizon rules fitted on the corpus they are
+measured on, and a cost model charging one pair per inter-core action
+that ignores link contention, latency and fidelity
+(Section~\ref{sec:threats}). Five openings follow: a completion
+guarantee to match \dSABRE{}'s, an out-of-sample validation of the
+horizon rule, a horizon that scales with core count rather than being
+chosen by trial, a comparator that weighs a resolved gate against a
+latent distance reduction on one scale, and a hardware cost model under
+which EPR count is not the whole objective.

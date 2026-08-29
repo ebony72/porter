@@ -18,11 +18,11 @@ teleport-lookahead horizon. On MQT-Bench suites at 25, 64 and 80 logical
 qubits \PORTER{} uses $59.6\%$, $41.6\%$ and $68.2\%$ fewer EPR pairs in
 geometric mean than published \TeleSABRE{} at a matched attempt budget,
 and completes all twenty-four instances where \TeleSABRE{} completes
-seventeen. Against \dSABRE{}, concurrent work re-run here from a pinned
-revision, \PORTER{} is competitive, and which compiler leads depends on
-the operating point: it uses $7\%$ more pooled EPR at $0.58\times$ the
-compile time under each compiler's own protocol, and leads once the
-initial layout is controlled and at the largest scales evaluated.
+seventeen. Against \dSABRE{}, \PORTER{} is competitive, and which
+compiler leads depends on the operating point: it uses $7\%$ more pooled
+EPR at $0.58\times$ the compile time under each compiler's own protocol,
+and leads once the initial layout is controlled and at the largest scales
+evaluated.
 Controlled ablations attribute these results to individual mechanisms and
 report two negative findings that bound them. Every \PORTER{} route is
 certified by a separately implemented replay verifier; the

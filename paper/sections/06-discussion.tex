@@ -2,52 +2,46 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-Section~\ref{sec:results} reports several results that are individually
-clear but that read as tensions when placed side by side. We resolve them
-here, then state what the evaluation does not establish.
+Several results in Section~\ref{sec:results} read as tensions when
+placed side by side. We resolve them here, then state what the
+evaluation does not establish.
 
-\textbf{What the plan abstraction buys, and what commitment buys.}
-These are separable and the paper's own terminology has to keep them
-apart. The \emph{plan-oriented} design --- generating whole inter-core
-actions as candidates and ranking them on gain with preparation cost
-demoted to a tie-break --- is what distinguishes \PORTER{}'s remote stage,
-and it is the configuration that produces the EPR reductions of
-Section~\ref{sec:rq1}. \emph{Commitment} is the narrower rule that the
-selected plan is not reopened until it is ready. Only the latter is
-ablated in Table~\ref{tab:ablation}: the hop-wise column re-derives and
-re-scores the same plan set every iteration, so it changes when the choice
-is revisited and nothing else. That it reaches the same EPR on the same
-number of routing moves says commitment is not where the quality comes
-from; it does not say the plan abstraction is idle, because no column
-removes it. Isolating the abstraction would need a hop-granular candidate
-set, which is a different router and which we have not built. This is the
-clearest gap in our attribution.
+\textbf{The plan abstraction and the commitment rule are separable.}
+The \emph{plan-oriented} design --- whole inter-core actions as
+candidates, ranked on gain with preparation cost demoted to a tie-break
+--- is what distinguishes \PORTER{}'s remote stage and what produces the
+reductions of Section~\ref{sec:rq1}. \emph{Commitment} is the narrower
+rule that a selected plan is not reopened until ready. Only the latter is
+ablated: the hop-wise column re-derives and re-scores the same plan set
+every iteration, changing when the choice is revisited and nothing else.
+That it reaches the same EPR on the same number of moves says commitment
+is not where quality comes from. It does not say the abstraction is idle,
+because no column removes it. Isolating the abstraction would need a
+hop-granular candidate set --- a different router, which we have not
+built. This is the clearest gap in our attribution.
 
-\textbf{Layout below about a hundred physical qubits, horizon above it.}
-\PORTER{} trails \dSABRE{} under RQ2 at $\le 108$ physical qubits, and
-controlling the layout while matching the pass budget erases the
-difference (Sections~\ref{sec:shared_results} and~\ref{sec:heavyhex}).
-On the scale-up series neither the layout control nor extra refinement
-passes help --- \dSABRE{}'s layout is worse for \PORTER{} there than its
-own --- while selecting a longer lookahead horizon moves \PORTER{} from
-$1.45\times$ behind to $0.72\times$ ahead. The two regimes are consistent
-with the horizon being an absolute gate count that does not grow with the
-core count $K$, so that a plan at twenty cores is scored over
-proportionally less of the circuit than at four. We have not tested a
-$K$-scaled horizon, so that remains a hypothesis rather than a finding.
+\textbf{Layout binds below about a hundred physical qubits, the horizon
+above it.} \PORTER{} trails \dSABRE{} under RQ2 at $\le 108$ physical
+qubits, and controlling the layout at a matched budget erases the
+difference. On the scale-up series neither that control nor extra
+refinement helps --- \dSABRE{}'s layout is worse for \PORTER{} there than
+its own --- while a longer horizon moves \PORTER{} from $1.45\times$
+behind to $0.72\times$ ahead. Both regimes are consistent with the
+horizon being an absolute gate count that does not grow with the core
+count $K$, so a plan at twenty cores is scored over proportionally less
+of the circuit than at four. We have not tested a $K$-scaled horizon, so
+this is a hypothesis, not a finding.
 
-\textbf{Why \TeleData{}-only can beat the full action set.} Packets
-clearly beat the single telegates they degrade into, yet removing gate
-teleportation entirely is cheaper still on the packet-heaviest circuits
-at 80 qubits. We read this as an interaction between the action
-vocabulary and the scorer rather than as a failure of packetisation. The
-two are scored in different currencies: a packet's gain is a count of
-remote CX gates it resolves immediately, whereas a \TeleData{} plan's is a
-sum of core-distance reductions, most of it discounted over a bounded
-horizon. Nothing establishes that one resolved gate and one unit of
-distance reduction are commensurate, and where a teleport's repayment
-extends past the horizon the comparator cannot see it. The ablation is
-evidence that this mismatch costs EPR pairs at scale; it is not evidence
+\textbf{Why \TeleData{}-only can beat the full action set.} Packets beat
+the single telegates they degrade into, yet removing gate teleportation
+entirely is cheaper still on the packet-heaviest 80-qubit circuits. The
+cause is a currency mismatch in the scorer. A packet's gain counts remote
+CX gates resolved immediately; a \TeleData{} plan's is a sum of
+core-distance reductions, most of it discounted over a bounded horizon.
+Nothing establishes that one resolved gate and one unit of distance
+reduction are commensurate, and where a teleport repays past the horizon
+the comparator cannot see it. The ablation is evidence that this mismatch
+costs EPR pairs at scale; it is not evidence
 that a pair spread over a run of gates is a bad idea.
 
 \textbf{What the completion record does and does not show.}
@@ -95,10 +89,6 @@ patched to avoid an out-of-range index in its initial-layout pass
 the stock binary leaves unplaced, and architecture-H results, where the
 stock binary does not crash, are unchanged by it; we have not otherwise
 audited its effect.
-
-\textbf{An evolving concurrent baseline.} \dSABRE{} was revised during
-this work. We pin an exact revision and re-run rather than quoting, but a
-later revision may move the comparison again.
 
 \textbf{Unequal native budgets.} The own-protocol comparison gives
 \dSABRE{} nine to eighteen routes against \PORTER{}'s three. This is each

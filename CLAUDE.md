@@ -639,6 +639,48 @@ device ("not a monotone difficulty ladder ... six 81-slot cores ... fewer
 EPR at 360q than 200q") and has been deleted: on the correct series
 dSABRE's own cost rises 200 -> 765 -> 1890 on QFT.
 
+## Compression + framing pass (2026-08-29, after the review restructure)
+
+Five author instructions, all applied:
+
+1. **Contributions merged to three**: the compiler (plan-oriented stage +
+   capacity relief + deterministic layout); the horizon finding; the
+   controlled study (verifier and harness folded into it).
+2. **No mention of dSABRE's previous version anywhere.** We compare only
+   against the current default. Removed from abstract, intro, methodology,
+   results, discussion (the "evolving baseline" threat) and related work:
+   the "substantially revised", "re-ran rather than quoted", "up to 40% /
+   97x", "published tables" and "target that moved" material. The pinned
+   revision `cb5515b` stays in IV-D as provenance, nothing more.
+3. **The standalone SABRE paragraph is gone from Section II**; its content
+   is one sentence at the head of III-C, where the scoring form is used.
+4--5. **Concise language, section by section.** Prose is down **10.3%**
+   (12,703 -> 11,400 words) and the paper from 17 to **15 pages**. Per
+   section: intro -17.5%, results -20%, related work -14.6%, discussion
+   -9.8%, background -8.8%, methodology -7.7%, conclusion -4.5%,
+   Section III -5%.
+
+Two structural improvements landed alongside:
+
+- **III-E now names its summation sets** (`D(p)`, `L(p)`, `A_k(p)`) instead
+  of overloading "direct/latent/la" as both concepts and domains. The
+  side-by-side `align` overflowed the column; it is stacked now.
+- **Terminology moved to IV-B**, ahead of its first use (it had been sitting
+  after two subsections that already used the terms it defines).
+
+**Watch for lost `\ref`s when tightening.** Two rounds of compression
+silently orphaned `tab:main` and `tab:heavyhex` --- the sentences that cited
+them were the ones cut. The label/ref sweep catches this; run it after any
+prose pass:
+
+```python
+labels=set(re.findall(r'\\label\{([^}]+)\}',main)); refs=set(re.findall(r'\\ref\{([^}]+)\}',main))
+sorted({l for l in labels if l.startswith(('tab:','fig:'))}-refs)
+```
+
+`paper/response_to_organisation_review.md` answers the review point by
+point and is kept in step with the manuscript.
+
 ## Restructured after an organisation review (2026-08-29)
 
 `porter_presentation_organisation_review.md` (Obsidian vault) was reviewed

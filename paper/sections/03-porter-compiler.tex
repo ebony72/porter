@@ -50,14 +50,14 @@ front where it changes the outcome.
 \subsection{Initial Layout}
 \label{sec:sfc-layout}
 
-\PORTER{} builds its starting layout $\ell_0$ with one deterministic,
-seed-free heuristic --- no external partitioner, no best-of-$N$ search
---- and respects the capacity invariant the routing loop depends on:
-every core keeps at least $f_\mathrm{min}{=}2$ free positions, so from
-the first iteration any core can serve as a \TeleData{} destination and
-as a relief reservoir.
+\PORTER{} builds $\ell_0$ with one deterministic heuristic --- no
+external partitioner, no best-of-$N$ search --- and enforces the
+invariant the routing loop depends on: every core keeps at least
+$f_\mathrm{min}{=}2$ free positions, so any core can serve as a
+\TeleData{} destination and as a relief reservoir from the first
+iteration.
 
-\textbf{Temporal locality-greedy.} Three deterministic steps.
+\textbf{Temporal locality-greedy.} Three steps.
 \emph{(i) Weighting}: each CX gate $g=(q_i,q_j)$ contributes
 $\gamma^{\mathrm{asap}(g)}$ to the interaction weight $w(q_i,q_j)$, where
 $\mathrm{asap}(g)$ is $g$'s as-soon-as-possible layer in the CX-only DAG and
@@ -72,14 +72,14 @@ onto positions by descending interaction weight onto ascending
 intra-core centrality, so the most-connected qubits take the most
 central slots.
 
-The steps are complementary. The temporal discount front-loads the
-opening layers, co-locating the pairs that must interact soonest;
-accumulated multiplicity plus first-appearance order tracks
-chain-structured circuits, where only one disjoint pair is exposed per
-layer and a balanced-first-layer rule would scatter the chain across
-cores; and the centrality step keeps hub qubits cheap to reach. The
-construction costs microseconds and consumes no randomness, so
-\PORTER{} has no seed to report.
+The steps are complementary. The discount co-locates the pairs that
+must interact soonest; first-appearance order handles chain-structured
+circuits, where a balanced-first-layer rule would scatter the chain
+across cores; and the centrality step keeps hub qubits cheap to reach.
+The construction costs microseconds and uses no randomness, so \PORTER{}
+has no seed to report. Its one weakness is that the $f_\mathrm{min}$
+reservation is uniform across cores, which suits a grid or a ring but
+not a core graph with a hub (Section~\ref{sec:heavyhex}).
 
 \subsection{Front Classification}
 \label{sec:sfc-classify}
@@ -109,11 +109,16 @@ below $47$ gates and the cap does not bind. Both figures are reproduced by
 \subsection{Intra-Core SWAP Scoring}
 \label{sec:sfc-intra}
 
+\SABRE{}~\cite{li2019tackling} routes a single-core circuit by
+repeatedly applying the SWAP that minimises a front-layer distance term
+plus a weighted lookahead term, each a $\Delta$ (old distance minus new)
+over gates sharing a qubit with the SWAP. \PORTER{} uses that form here
+and extends it to inter-core plans in Section~\ref{sec:sfc-scoring}.
+
 For a local-needing-SWAP gate set $F_\mathrm{loc}$, \PORTER{} builds
 candidate SWAP edges from the coupling-graph neighbours of every
-physical position touched by $F_\mathrm{loc}$, simulates each SWAP,
-and scores it with \SABRE{}'s front-plus-lookahead
-form~\cite{li2019tackling}:
+physical position touched by $F_\mathrm{loc}$, simulates each SWAP, and
+scores it:
 \begin{equation}
   J(a) = \bar d_{\mathcal{F}}(a) + \lambda_\mathrm{loc}\,\bar d_{\mathcal{E}}(a),
   \qquad \lambda_\mathrm{loc}=0.8,
@@ -167,97 +172,92 @@ $\mathrm{ready}$ holds. Section~\ref{sec:related} places both against the
 baselines' choices; Section~\ref{sec:ablation} measures the second.
 
 When the front holds only remote CX gates, \PORTER{} generates two
-disjoint candidate sets. \textbf{Normal plans} $\mathcal{P}$: for every
-adjacent-remote CX, a \TeleGate{}; a \TeleGatePacket{} if a
-same-control run of $\ge 2$ remote CX gates can be collected by
-forward DAG simulation (Section~\ref{sec:sfc-packet}); and, for either
-endpoint, a \TeleData{} plan into the partner's core if that core has
-at least $f_\mathrm{min}{=}2$ free positions. For non-adjacent-remote
-CX gates, only distance-reducing \TeleData{} hops with sufficient
-destination capacity. \textbf{Blocked plans} $\mathcal{B}$: the same
-\TeleData{} candidates for destinations that currently fail the
-$f_\mathrm{min}$ test. These are never executed; they exist to detect
-when no normal plan exists because every destination is saturated, or
-when one is available but a blocked plan promises much more if capacity
-were relieved first.
+disjoint candidate sets. \textbf{Normal plans} $\mathcal{P}$ hold, for
+each adjacent-remote CX, a \TeleGate{}; a \TeleGatePacket{} if a
+same-control run of $\ge 2$ remote CX gates can be collected
+(Section~\ref{sec:sfc-packet}); and, for either endpoint, a \TeleData{}
+plan into the partner's core if that core has $f_\mathrm{min}{=}2$ free
+positions. Non-adjacent-remote CX gates admit only distance-reducing
+\TeleData{} hops with sufficient destination capacity.
+\textbf{Blocked plans} $\mathcal{B}$ hold the same \TeleData{}
+candidates for destinations failing the $f_\mathrm{min}$ test. They are
+never executed. They exist to detect two situations: every destination
+saturated, so $\mathcal{P}$ is empty; and a blocked plan promising much
+more than the best available one.
 
 Every plan is scored (Section~\ref{sec:sfc-scoring}) \emph{before} any
-preparation SWAP for it exists. \PORTER{} then selects the best plan in
-$\mathcal{P}$ that is ready or admits an improving preparation SWAP;
-compares its gain against the best of $\mathcal{B}$ and, if the blocked
-plan leads by more than $m_\mathrm{assist}{=}5.0$, runs opportunistic
-capacity relief for that saturated core instead
-(Section~\ref{sec:sfc-relief}); and, if $\mathcal{P}$ is empty, runs
-the same breadth-first relief search directly on $\mathcal{B}$'s
-destinations, shortest hop count first. Once committed, it generates
-and applies \emph{only that plan's} preparation SWAPs until the plan is
-ready, no improving SWAP remains, or the full decision state --- plan
-identity, layout, RNG state --- repeats, which raises rather than
-looping.
+preparation SWAP for it exists. \PORTER{} then takes the best plan in
+$\mathcal{P}$ that is ready or admits an improving preparation SWAP. If
+the best blocked plan leads it by more than $m_\mathrm{assist}{=}5.0$,
+it runs opportunistic relief on that saturated core instead; if
+$\mathcal{P}$ is empty, it runs the same relief search on
+$\mathcal{B}$'s destinations, shortest hop count first
+(Section~\ref{sec:sfc-relief}). Once committed it applies \emph{only
+that plan's} preparation SWAPs, until the plan is ready, no improving
+SWAP remains, or the decision state --- plan, layout, RNG --- repeats,
+which raises rather than loops.
 
-\textbf{Preparation SWAPs.}\label{sec:sfc-prep} A committed plan's
-readiness requirements are exactly two \emph{(core, neighbour-core,
-endpoint)} triples (source and destination side for \TeleData{};
-control and target side for \TeleGate{}/\TeleGatePacket{}, whose
-target-side routing is deferred to execution time,
-Section~\ref{sec:sfc-packet}). For each unmet requirement, candidate
-preparation SWAPs are restricted to edges incident to either the
-plan's logical endpoint or a nearest free physical position tied for
-minimum distance to the relevant communication port (only while that
-port remains occupied); each candidate is scored by the post-SWAP
-value of the same readiness-cost function used to rank blocked plans
-(Section~\ref{sec:sfc-scoring}), and at most one improving SWAP per
-core side is applied per pass.
+\textbf{Preparation SWAPs.}\label{sec:sfc-prep} A committed plan has
+exactly two readiness requirements, one per side: source and destination
+for \TeleData{}, control and target for \TeleGate{} and
+\TeleGatePacket{}, whose target side is routed at execution time
+(Section~\ref{sec:sfc-packet}). For each unmet requirement, candidate
+SWAPs are the edges incident to the plan's logical endpoint, or to a
+nearest free position tied for minimum distance to the relevant port
+while that port stays occupied. Each is scored by the post-SWAP
+readiness cost, and at most one improving SWAP per side is applied per
+pass.
 
 \subsection{Plan Scoring: Direct, Latent, and Lookahead Gain}
 \label{sec:sfc-scoring}
 
-Every plan scores $\mathrm{total} = \mathrm{direct} +
-\mathrm{lookahead}$, computed per plan kind but sharing one
-$\Delta$-form convention: for a CX gate $g=(q_i,q_j)$ and a candidate
-relocation, $\Delta(g) = \dC(\kappa(q_i),\kappa(q_j)) -
-\dC(\kappa'(q_i),\kappa'(q_j))$, the reduction in core-graph distance
+Every plan $p$ scores $\mathrm{total}(p) = \mathrm{direct}(p) +
+\mathrm{lookahead}(p)$. All kinds share one convention: for a CX gate
+$g=(q_i,q_j)$ and a candidate relocation,
+$\Delta(g) = \dC(\kappa(q_i),\kappa(q_j)) -
+\dC(\kappa'(q_i),\kappa'(q_j))$ is the reduction in core-graph distance
 between $g$'s two cores.
 
-A \textbf{\TeleGate{}} contributes a constant direct gain of $1$ --- one
-remote CX resolved --- and no lookahead. A \textbf{\TeleGatePacket{}}
-contributes a direct gain equal to the number of remote CX gates in the
-collected packet; every gate in an accepted packet is current rather
-than speculative work, since the whole packet executes under one
+A \textbf{\TeleGate{}} scores a constant direct gain of $1$, one remote
+CX resolved, with no lookahead. A \textbf{\TeleGatePacket{}} scores the
+number of remote CX gates in the collected packet; those are current
+work, not speculation, since the whole packet executes under one
 cat-entangler resource once started. A \textbf{\TeleData{}} plan
-decomposes into three tiers, all computed by simulating the DAG
-frontier under the hypothetical post-teleport core assignment:
-\emph{direct} --- front-layer CX gates already involving the moving
-qubit, plus the seed gate; \emph{latent-direct} --- CX gates on the
-moving qubit that surface while the simulator can still progress using
-only 1Q and now-local gates, which are current pressure rather than
-prediction because the candidate teleport fixes their core distance the
-moment they appear; and \emph{lookahead} --- gates on the moving qubit
-found in up to $L_\mathrm{tp}$ further simulated layers, a gate in layer
-$k$ entering with weight
-$w_k = \max(w_\mathrm{min}, w_0\gamma^{k-1})$, $w_0{=}0.9$,
-$\gamma{=}0.9$, $w_\mathrm{min}{=}0.5$. Thus
+partitions the affected gates into three sets, all found by simulating
+the DAG frontier under the hypothetical post-teleport assignment:
+\begin{itemize}[leftmargin=1.2em,itemsep=0pt,topsep=2pt]
+\item $D(p)$, front CX gates already on the moving qubit, plus the seed
+  gate;
+\item $L(p)$, CX gates on the moving qubit that surface while the
+  simulator progresses on 1Q and now-local gates alone --- current
+  pressure rather than prediction, since the teleport fixes their core
+  distance the moment they appear;
+\item $A_k(p)$, gates on the moving qubit found in simulated layer
+  $k \le L_\mathrm{tp}$, discounted by
+  $w_k = \max(w_\mathrm{min}, w_0\gamma^{k-1})$ with $w_0{=}0.9$,
+  $\gamma{=}0.9$, $w_\mathrm{min}{=}0.5$.
+\end{itemize}
+Then
 \begin{align}
-  \mathrm{direct} &= \!\!\sum_{g\in\mathrm{direct}\cup\mathrm{latent}}\!\!\Delta(g),
-  &
-  \mathrm{lookahead} &= \!\!\sum_{(g,k)\in\mathrm{la}}\!\!w_k\,\Delta(g),
-  \label{eq:sfc-teleport}
+  \mathrm{direct}(p)    &= \!\!\!\sum_{g\in D(p)\cup L(p)}\!\!\!\Delta(g),
+    \label{eq:sfc-teleport}\\[-2pt]
+  \mathrm{lookahead}(p) &= \sum_{k\ge1}\ \sum_{g\in A_k(p)} w_k\,\Delta(g),
+    \nonumber
 \end{align}
-with latent-direct gates entering at full weight alongside direct ones.
-A capacity-risk term $1/\max(1,f_\mathrm{dst}{-}1)$ is tracked
-alongside the score for tie-breaking, but never added to it.
+so $L(p)$ enters at full weight alongside $D(p)$. A capacity-risk term
+$1/\max(1,f_\mathrm{dst}{-}1)$ is tracked for tie-breaking but never
+added to the score.
 
-This is the point at which \PORTER{} differs most sharply from
-\dSABRE{}: preparation cost appears nowhere in $\mathrm{total}$. Plans
-are ranked on gain, and readiness cost enters only as the third
-tie-break in the selection key, after gain and plan kind. The horizon $L_\mathrm{tp}$ is counted in
-\emph{layers}, and the collection admits at most one gate on the moving
-qubit per layer, because a qubit has at most one zero-predecessor gate at
-any time. A gate cap $N_\mathrm{tp}$ therefore cannot bind whenever
-$N_\mathrm{tp}\ge L_\mathrm{tp}$, so $L_\mathrm{tp}$ alone governs how far
-the estimate looks. It is the one parameter \PORTER{} does not fix by
-constant; how a value is chosen per circuit is a protocol question and is
-deferred to Section~\ref{sec:horizon}.
+Preparation cost appears nowhere in $\mathrm{total}$. Plans are ranked
+on gain; readiness cost enters only as the third tie-break, after gain
+and plan kind. The horizon $L_\mathrm{tp}$ counts \emph{layers}, and at
+most one gate on the moving qubit can appear per layer, since a qubit
+has at most one zero-predecessor gate at a time. A gate cap
+$N_\mathrm{tp}$ therefore cannot bind whenever
+$N_\mathrm{tp}\ge L_\mathrm{tp}$, so $L_\mathrm{tp}$ alone governs how
+far the estimate looks. It is the one parameter \PORTER{} does not fix
+by constant; choosing it is a protocol question, deferred to
+Section~\ref{sec:horizon}.
 
 \subsection{Same-Control Packet Collection}
 \label{sec:sfc-packet}
@@ -265,17 +265,18 @@ deferred to Section~\ref{sec:horizon}.
 Same-control CX gates are chained by DAG dependency edges, so they
 never appear in the front together: a packet cannot be read off the
 front and must be collected by forward simulation.
-From a seed adjacent-remote CX $g=(q_c,q_t)$ with control core $c_c$
-and target core $c_t$, \PORTER{} simulates the DAG frontier forward for
-up to $120$ layers, greedily absorbing any front CX sharing control
-$q_c$ whose target is also in $c_t$ (up to $8$ such gates) and any
-front 1Q gate whose qubit is already in $c_t$, since those execute
-freely while the cat resource is live. Collection stops at the first
-unproductive layer or at the size cap. The window counts simulated \emph{layers}, not collected CXs, because
-same-control CXs are DAG-chained and surface one at a time; in practice
-it is a cost guard, not an active knob. Because the simulation admits gates from later
-generations than the bounded current front, a packet may contain gates
-a naively front-limited scan could not reach. The collected order is
+From a seed adjacent-remote CX $g=(q_c,q_t)$ with target core $c_t$,
+\PORTER{} simulates the DAG frontier forward for up to $120$ layers,
+absorbing any front CX that shares control $q_c$ and has its target in
+$c_t$ (up to $8$ gates), and any front 1Q gate whose qubit is already in
+$c_t$, since those execute freely while the cat resource is live.
+Collection stops at the first unproductive layer or at the size cap. The
+window counts simulated layers, not collected CXs, so it acts as a cost
+guard rather than a tuning knob. Because the simulation reaches past the
+current front, a packet may contain gates a front-limited scan could not.
+Collection is a heuristic in one respect we have not ablated: stopping at
+the first unproductive layer can miss a profitable packet separated by
+harmless intervening work. The collected order is
 replayed exactly at commit time as one \texttt{cat\_entangler}
 (consuming the packet's single pair), one \texttt{cat\_cx} per member
 --- each target routed to its port by ordinary local SWAPs forbidden
@@ -305,35 +306,31 @@ the margin $m_\mathrm{assist}$ is exceeded.
 \label{sec:sfc-progress}
 
 Deterministic greedy routing on a capacity-constrained machine can
-stall, and the mechanisms above are best read as one answer to that
-risk. \PORTER{} layers four defences.
+stall. \PORTER{} layers four defences against that.
 
 \emph{(i) Keep capacity from reaching zero.} A core with no free
-physical qubit is terminal under the port-based action model: it can
-never vacate an occupied communication port with local SWAPs, so no
-inter-core action can touch it and its qubits are stranded. \PORTER{}
-legalises the entry layout so no core starts full, and admits a
-\TeleData{} plan into core $c$ as a \emph{normal} plan only while
-$\mathrm{free}(c) \ge f_\mathrm{min}{=}2$. Ordinary routing therefore
-cannot drive a core into the terminal state; only an externally
-supplied layout can present one, which is why \appPytket{}'s
+physical qubit is terminal: it can never vacate an occupied
+communication port with local SWAPs, so no inter-core action can touch
+it and its qubits are stranded. \PORTER{} legalises the entry layout so
+no core starts full, and admits a \TeleData{} plan into core $c$ as a
+normal plan only while $\mathrm{free}(c) \ge f_\mathrm{min}{=}2$.
+Routing therefore cannot drive a core into the terminal state. Only an
+externally supplied layout can present one, which is why \appPytket{}'s
 pytket-dqc source is the only place the compiler reports
 \emph{infeasibility}.
 
-\emph{(ii) Detect starvation rather than thrash.} An empty plan set
-alongside a non-empty $\mathcal{B}$ is an explicit signal that the
-front is starved \emph{by capacity}, and it names the cores
-responsible. \emph{(iii) Manufacture capacity where it is missing.}
-Tail-relief BFS turns that signal into work
-(Section~\ref{sec:sfc-relief}). \emph{(iv) Bound every loop.} Plan
-sides whose preparation score is infinite are never selected; during
-preparation the compiler hashes its full decision state once per round
-and raises if it repeats; two budgets bound the loops from outside; and
-when no relief path reaches a reservoir \PORTER{} raises a diagnostic
-naming the saturated cores.
+\emph{(ii) Detect starvation rather than thrash.} An empty $\mathcal{P}$
+alongside a non-empty $\mathcal{B}$ signals that the front is starved by
+capacity, and names the cores responsible. \emph{(iii) Manufacture
+capacity.} Tail-relief BFS turns that signal into work
+(Section~\ref{sec:sfc-relief}). \emph{(iv) Bound every loop.} Plan sides
+with infinite preparation score are never selected; the compiler hashes
+its decision state once per preparation round and raises if it repeats;
+two budgets bound the loops from outside; and when no relief path reaches
+a reservoir it raises a diagnostic naming the saturated cores.
 
-These defences establish two of the three guarantees a router might
-offer, and it is worth separating them. \emph{Correctness}: a returned
+These defences give two of the three guarantees a router might offer.
+\emph{Correctness}: a returned
 operation stream realises every gate of the input circuit and violates no
 coupling or port rule. \emph{Termination}: every run ends, either in
 success or by raising a diagnostic or tripping a guard.
@@ -343,14 +340,13 @@ no analogue of \dSABRE{}'s termination-with-success proof under stated
 architectural hypotheses (Section~\ref{sec:related}); its completion
 record is empirical, and Section~\ref{sec:results} reports it.
 
-A run that does not complete does so in one of four distinguishable ways,
-and we use these terms consistently. A capacity \emph{deadlock} leaves no
-legal plan and no relief path, and raises a diagnostic naming the
-saturated cores. A \emph{livelock} makes local progress indefinitely while
-retired gates and EPR count stand still, and is stopped by the iteration
-guard rather than by any diagnostic. A \emph{timeout} exceeds the
-wall-clock cap. An \emph{infeasible input} is an externally supplied
-layout that already fills a core, which is reported rather than routed.
+A run that does not complete does so in one of four ways, and we use
+these terms consistently. A capacity \emph{deadlock} leaves no legal plan
+and no relief path, and raises a diagnostic. A \emph{livelock} makes
+local progress indefinitely while retired gates and EPR count stand
+still, and is stopped by the iteration guard. A \emph{timeout} exceeds
+the wall-clock cap. An \emph{infeasible input} is an external layout that
+already fills a core, reported rather than routed.
 
 A per-iteration cost analysis of the loop is given in \appComplexity{}.
 

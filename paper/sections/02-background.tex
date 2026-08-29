@@ -5,26 +5,25 @@
 \subsection{Quantum Circuits and Routing}
 \label{sec:qcircuits}
 
-A circuit acts on $n$ logical qubits through a sequence of gates; we
-work in the restricted basis $\{\texttt{id}, \texttt{rz}, \texttt{sx},
-\texttt{x}, \texttt{cx}\}$ of MQT-Bench's Qiskit-opt3-transpiled
-circuits~\cite{quetschlich2023mqtbench}, i.e.\ arbitrary one-qubit
-gates plus the two-qubit CX. A circuit is a directed acyclic graph
-(DAG): for every logical qubit, consecutive gates acting on it are
-joined by a dependency edge. The \emph{front} is the set of gates with
-no unexecuted predecessor; only front gates can execute or be routed
-towards execution.
+A circuit acts on $n$ logical qubits. We work in the basis
+$\{\texttt{id}, \texttt{rz}, \texttt{sx}, \texttt{x}, \texttt{cx}\}$ of
+MQT-Bench's Qiskit-opt3-transpiled
+circuits~\cite{quetschlich2023mqtbench}: arbitrary one-qubit gates plus
+the two-qubit CX. A circuit is a directed acyclic graph, with a
+dependency edge between consecutive gates on each logical qubit. The
+\emph{front} is the set of gates with no unexecuted predecessor; only
+front gates can execute or be routed toward execution.
 
-Physical qubits are partitioned into \emph{cores}; each core has an
+Physical qubits are partitioned into \emph{cores}. Each core has an
 intra-core coupling graph, and pairs of cores may be joined by an
-inter-core link whose two endpoints are designated \emph{communication
-ports}. A \emph{layout} maps every logical qubit to a physical
-position. A two-qubit gate is \emph{local} if both operands share a
-core and \emph{remote} otherwise; routing a local gate that is not yet
-adjacent requires intra-core SWAPs, and routing a remote gate requires
-an inter-core communication primitive. We write $\kappa_\ell(q)$ for
-the core holding $q$ under layout $\ell$, $\dL(c,p,p')$ for
-intra-core distance and $\dC(c,c')$ for core-graph distance.
+inter-core link whose endpoints are \emph{communication ports}. A
+\emph{layout} maps every logical qubit to a physical position. A
+two-qubit gate is \emph{local} if both operands share a core and
+\emph{remote} otherwise: a local gate that is not yet adjacent needs
+intra-core SWAPs, a remote gate needs an inter-core primitive. We write
+$\kappa_\ell(q)$ for the core holding $q$ under layout $\ell$,
+$\dL(c,p,p')$ for intra-core distance and $\dC(c,c')$ for core-graph
+distance.
 
 \subsection{Objective, Scope, and Assumptions}
 \label{sec:scope}
@@ -181,20 +180,11 @@ each. This is the amortisation idea of AutoComm~\cite{wu2022autocomm},
 specialised to the shared-control case and applied inside a routing
 loop rather than as a pre-pass.
 
-The three differ in exactly one respect that matters for scoring: how
-many gates one pair is spread over. \TeleData{} amortises over an
-unknown future, \TeleGate{} over exactly one gate, and
-\TeleGatePacket{} over a run whose length the compiler must discover.
-Section~\ref{sec:sfc-scoring} makes that difference explicit as a
-direct/latent/lookahead decomposition.
-
-\textbf{\SABRE{}.} \SABRE{}~\cite{li2019tackling} routes a single-core
-circuit by repeatedly selecting the SWAP that minimises a front-layer
-distance term plus a weighted extended-set lookahead term, both
-expressed as $\Delta$ (old distance minus new distance) on gates sharing
-a qubit with the candidate SWAP. \PORTER{} inherits this scoring form
-for its intra-core stage (Section~\ref{sec:sfc-intra}) and extends the
-same decomposition to its inter-core plan scorer
-(Section~\ref{sec:sfc-scoring}).
+The three differ in one respect that matters for scoring: how many
+gates one pair is spread over. \TeleData{} amortises over an unknown
+future, \TeleGate{} over exactly one gate, \TeleGatePacket{} over a run
+whose length the compiler must discover.
+Section~\ref{sec:sfc-scoring} makes that a direct/latent/lookahead
+decomposition.
 
 %%────────────────────────────────────────────────────────────────────────────
