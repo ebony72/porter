@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import csv
+import dataclasses
 import json
 import math
 import random
+import signal
+import threading
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -536,6 +540,8 @@ def run_layout_search(
     gammas: Tuple[float, ...] = DEFAULT_LAYOUT_GAMMAS,
     passes: int = 1,
     refine_from: str = "both",
+    horizons: Optional[Tuple[int, ...]] = None,
+    selection: bool = False,
     pass_guard=None,
     pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
 ) -> Tuple[Optional[porter.RouterState], Dict[str, object]]:
@@ -613,15 +619,23 @@ def run_layout_search(
             except ValueError:
                 pass
 
+    # Phase 1 ranks the gammas at cfg's own horizon rather than under
+    # selection: making it select per gamma would cost len(gammas) x
+    # len(horizons) routes for a ranking, and the horizon is a property of the
+    # circuit rather than of the layout.  Selection is applied once, in phase
+    # 2, by run_refinement_passes.
     info["refinement"] = []
     for gm, seed_layout in seeds:
         refined, rinfo = run_refinement_passes(
             hw, cfg, circuit, seed_layout, passes=passes,
+            horizons=horizons, selection=selection,
             pass_guard=pass_guard, pass_exceptions=pass_exceptions,
         )
         seed_start = rinfo.pop("start_layout", None)
         info["refinement"].append(dict(rinfo, seed_gamma=gm))
-        info["routes"] += max(0, rinfo["passes_run"] - 1)  # pass 1 already counted
+        # pass 1 is already counted; selection's extra probes are not
+        info["routes"] += (max(0, rinfo["passes_run"] - 1)
+                           + max(0, int(rinfo.get("horizon_routes", 1)) - 1))
         if refined is not None and refined.stats.epr < best_state.stats.epr:
             best_state = refined
             # The emitted stream belongs to that schedule's winning pass, so
@@ -647,10 +661,23 @@ def run_refinement_passes(
     initial_layout: porter.Layout,
     *,
     passes: int = 3,
+    horizons: Optional[Tuple[int, ...]] = None,
+    selection: bool = False,
     pass_guard=None,
     pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
 ) -> Tuple[Optional[porter.RouterState], Dict[str, object]]:
     """Forward -> backward -> forward routing, returning the better forward pass.
+
+    Refinement deliberately does NOT select a lookahead horizon
+    (``selection=False`` by default), so it stays the independent lever it was
+    measured as and its published numbers stand unchanged.  Selection and
+    refinement also compose badly: a horizon that converges on the INITIAL
+    layout can oscillate on the refined layouts later passes start from, and
+    each such pass then burns the caller's whole per-pass time guard (900 s in
+    `compare_routers`) -- on 64q AE that cost ~20 minutes for one instance.
+    Pass ``selection=True`` to opt in; the horizon is then chosen once, on the
+    first forward pass, and held fixed, with ``info["horizon_routes"]``
+    recording the extra routes so callers can report the complete protocol.
 
     ``passes`` counts routing passes: 1 reproduces the default single-pass
     protocol exactly, 3 is one full refinement cycle, and odd values above 3
@@ -672,11 +699,31 @@ def run_refinement_passes(
             f"passes must be a positive odd number (1, 3, 5, ...); got {passes}"
         )
 
+    # PORTER's routing protocol picks a lookahead horizon per circuit; the
+    # choice is made ONCE, on the first forward pass, and reused for the whole
+    # schedule.  Re-selecting on every pass would multiply the pass count by
+    # len(horizons) for no measured benefit -- the horizon is a property of the
+    # circuit's interaction structure, which refinement does not change.
+    if selection:
+        first, sel_info = run_horizon_selection(
+            hw, cfg, circuit, initial_layout, horizons=horizons,
+            pass_guard=pass_guard, pass_exceptions=pass_exceptions)
+        chosen = sel_info.get("chosen_horizon")
+        if chosen is not None:
+            cfg = dataclasses.replace(cfg, dag_extended_max_layers=int(chosen))
+    else:
+        first, sel_info = None, {"chosen_horizon": int(cfg.dag_extended_max_layers),
+                                 "selection": False}
+
     router = porter.PorterRouter(hw, cfg)
     reversed_gates = reverse_circuit(circuit)
     info: Dict[str, object] = {"passes_run": 0, "passes_requested": passes,
                                "forward_eprs": [], "chosen_pass": None,
-                               "failed_pass": None, "start_layout": None}
+                               "failed_pass": None, "start_layout": None,
+                               "chosen_horizon": sel_info.get("chosen_horizon"),
+                               "horizon_eprs": sel_info.get("horizon_eprs", {}),
+                               "horizon_routes": len(sel_info.get("horizon_eprs", {})),
+                               "selection": bool(selection)}
 
     def _route(gates, layout):
         # A pass that deadlocks, is rejected by the layout precondition, or
@@ -694,7 +741,7 @@ def run_refinement_passes(
         except pass_exceptions:
             return None
 
-    best = _route(circuit, initial_layout)
+    best = first if first is not None else _route(circuit, initial_layout)
     info["passes_run"] = 1
     if best is None:
         info["failed_pass"] = 1
@@ -727,6 +774,285 @@ def run_refinement_passes(
         layout = fwd.layout
 
     return best, info
+
+
+# PORTER's teleport-benefit lookahead peels `dag_extended_max_layers` DAG
+# layers and, for each, credits the moving qubit's CXs exposed there.  The
+# shipped 16 is well tuned for the 25q and 64q suites it was chosen on, but is
+# far too short above ~64 logical qubits (100q/200q QFT and QPEexact all want
+# >=128, saturating there) and too long for near-all-to-all interaction graphs
+# (64q QNN wants 8, 80q QNN wants 4).  No single value serves both regimes and
+# no single circuit statistic separates them -- interaction-graph density,
+# `partners/(n-1)`, is the best predictor found (Spearman -0.765 on log2 of
+# the best horizon) but cannot resolve the 0.42-0.53 band where most 64q
+# circuits sit.  Selection does: over 24 instances, best-of-3 recovers 16.0%
+# of the 17.2% oracle gain against the fixed default.
+#
+# Note `teleport_lookahead_cx_count` is NOT a second horizon: the lookahead
+# collects only CXs of the one moving qubit, and a qubit has at most one
+# zero-predecessor gate at a time, so the collected count can never exceed
+# the layer budget and that knob is inert at any value >= this one.
+PORTER_HORIZONS: Tuple[int, ...] = (8, 16, 128)
+
+# How much wall clock a speculative (non-default) horizon may spend, as a
+# multiple of what the default horizon took, and a floor for fast circuits.
+# A deep peel makes each router iteration far more expensive AND can stop it
+# converging: 64q QFT at L=128 takes ~24 ms per iteration against ~0.06 ms at
+# L=16 and never terminates, so 20k iterations alone burn 471 s where the
+# whole default route takes 1.2 s.  An iteration cap is therefore the wrong
+# instrument; a relative time budget is the right one.  Every horizon that
+# actually won in measurement finished in comparable or LESS time than the
+# default (200q QPEexact 1.2 s at L=128 against 2.4 s at L=16), so a horizon
+# that wants more than SPECULATIVE_TIME_FACTOR x the default's time is
+# oscillating rather than converging and is safe to abandon.
+SPECULATIVE_TIME_FACTOR: float = 4.0
+SPECULATIVE_MIN_SECONDS: int = 5
+
+# Which horizons are worth trying depends on the circuit's interaction-graph
+# density -- the mean fraction of the other logical qubits each qubit shares a
+# CX with.  When that approaches 1 (near all-to-all: QNN, and Random at 80
+# qubits) a long horizon reports the moving qubit as "needed" in every core at
+# once, so the lookahead gain is noise; measured over 48 instances, NO circuit
+# at density >= DENSE_INTERACTION_THRESHOLD ever selected the long horizon
+# (25q ae/qft/qnn/random, 64q QNN, 80q QNN and 80q Random all chose 8 or 16),
+# while the long horizon is exactly where those circuits burn their whole
+# speculative time budget without converging.  Dropping it there costs no EPR
+# and removes the single largest compile-time sink; the freed slot goes to a
+# shorter horizon, which is what 80q QNN actually wants (1070 at L=4 against
+# 1517 at the default).
+PORTER_HORIZONS_DENSE: Tuple[int, ...] = (4, 8, 16)
+DENSE_INTERACTION_THRESHOLD: float = 0.80
+
+
+def circuit_interaction_density(circuit: List[porter.Gate], num_logical: int) -> float:
+    """Mean fraction of the other logical qubits each qubit interacts with.
+
+    1.0 is all-to-all; a linear chain of CXs tends to 2/(n-1).  Qubits that
+    never take part in a CX are excluded -- they say nothing about how the
+    interaction graph is shaped.
+    """
+    if num_logical < 2:
+        return 0.0
+    partners: Dict[int, set] = {}
+    for gate in circuit:
+        if not gate.is_cx():
+            continue
+        q0, q1 = gate.qubits
+        partners.setdefault(q0, set()).add(q1)
+        partners.setdefault(q1, set()).add(q0)
+    if not partners:
+        return 0.0
+    return (sum(len(v) for v in partners.values())
+            / len(partners) / (num_logical - 1))
+
+
+def select_horizons(
+    circuit: List[porter.Gate],
+    num_logical: int,
+    *,
+    sparse: Tuple[int, ...] = PORTER_HORIZONS,
+    dense: Tuple[int, ...] = PORTER_HORIZONS_DENSE,
+    threshold: float = DENSE_INTERACTION_THRESHOLD,
+) -> Tuple[Tuple[int, ...], float]:
+    """Pick the horizon candidate set for a circuit.  Returns (horizons, density)."""
+    density = circuit_interaction_density(circuit, num_logical)
+    return (dense if density >= threshold else sparse), density
+
+
+class HorizonTimeout(Exception):
+    """A speculative horizon exceeded its wall-clock share."""
+
+
+@contextlib.contextmanager
+def _horizon_time_limit(seconds: Optional[int]):
+    """SIGALRM wall-clock guard, or a no-op when it cannot be installed.
+
+    Mirrors ``compare_routers._compiler_time_limit``: SIGALRM only interrupts
+    at the next Python bytecode, which is fine for PORTER's pure-Python
+    routing loop.  Signals can only be installed on the main thread of the
+    main interpreter, so off-main-thread callers silently run unguarded
+    rather than failing.
+    """
+    if (seconds is None or seconds <= 0
+            or not hasattr(signal, "SIGALRM")
+            or threading.current_thread() is not threading.main_thread()):
+        yield
+        return
+
+    def _handler(signum, frame):
+        raise HorizonTimeout(f"exceeded {seconds}s wall-clock share")
+
+    previous = signal.signal(signal.SIGALRM, _handler)
+    signal.alarm(int(seconds))
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous)
+
+
+def run_horizon_selection(
+    hw: porter.Hardware,
+    cfg: porter.RouterConfig,
+    circuit: List[porter.Gate],
+    initial_layout: porter.Layout,
+    *,
+    horizons: Optional[Tuple[int, ...]] = None,
+    time_factor: float = SPECULATIVE_TIME_FACTOR,
+    min_seconds: int = SPECULATIVE_MIN_SECONDS,
+    pass_guard=None,
+    pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
+) -> Tuple[Optional[porter.RouterState], Dict[str, object]]:
+    """Route once per teleport-lookahead horizon and keep the best by EPR.
+
+    ``horizons=None`` (the default) picks the candidate set from the circuit's
+    interaction density via ``select_horizons``: near-all-to-all circuits get
+    the short set, everything else the long one.  Pass an explicit tuple to
+    override.
+
+    ``cfg``'s own ``dag_extended_max_layers`` is routed FIRST, at the full
+    iteration budget and with no time guard: it is the result the caller would
+    have got anyway, and its wall time sets the budget for the rest.  Every
+    other horizon is speculative and is abandoned once it exceeds
+    ``time_factor`` times that baseline (floored at ``min_seconds``).
+
+    Every attempt starts from the SAME ``initial_layout`` -- only the horizon
+    differs -- so unlike ``run_refinement_passes`` the winning stream always
+    replays against the layout that was passed in, and there is no
+    ``start_layout`` to thread through a verifier.
+
+    Selection is by EPR, ties broken in favour of ``cfg``'s own horizon and
+    then by position in ``horizons``.  When ``cfg.dag_extended_max_layers`` is
+    among ``horizons`` (as it is for the default tuple) the result is
+    therefore never worse, and never slower by more than the speculative
+    budget, than routing at ``cfg`` alone.
+
+    A horizon that deadlocks, trips the iteration budget or runs out of its
+    time share is a failed ATTEMPT, not a failed compile; ``best_state`` is
+    ``None`` only when every horizon fails.
+    """
+    density: Optional[float] = None
+    if horizons is None:
+        horizons, density = select_horizons(circuit, initial_layout.num_logical)
+
+    ordered: List[int] = []
+    for raw in horizons:
+        value = int(raw)
+        if value < 1:
+            raise ValueError(f"horizons must be positive; got {raw!r}")
+        if value not in ordered:
+            ordered.append(value)
+    if not ordered:
+        raise ValueError("horizons must not be empty")
+
+    # The caller's own horizon goes first so it is never the one abandoned.
+    default_horizon = int(cfg.dag_extended_max_layers)
+    if default_horizon in ordered:
+        ordered.remove(default_horizon)
+        ordered.insert(0, default_horizon)
+
+    info: Dict[str, object] = {
+        "horizons_requested": list(ordered),
+        "horizon_eprs": {},
+        "horizon_seconds": {},
+        "failed_horizons": {},
+        "chosen_horizon": None,
+        "default_horizon": default_horizon,
+        "interaction_density": None if density is None else round(density, 4),
+    }
+
+    attempt_exceptions = tuple(pass_exceptions) + (HorizonTimeout,)
+
+    def _route(router, gates, layout, budget):
+        # The speculative budget must be installed INNERMOST.  Both guards use
+        # SIGALRM, and signal.alarm() replaces any pending alarm rather than
+        # queueing, so whichever is entered last is the one that fires.  With
+        # the order reversed a caller-supplied pass_guard (900 s in
+        # compare_routers) silently overwrote the speculative share and a
+        # non-converging horizon ran for the full 900 s -- which is exactly
+        # what it is meant to prevent.
+        try:
+            if pass_guard is None:
+                with _horizon_time_limit(budget):
+                    return router.compile(gates, layout)
+            with pass_guard():
+                with _horizon_time_limit(budget):
+                    return router.compile(gates, layout)
+        except attempt_exceptions as exc:
+            return exc
+
+    best: Optional[porter.RouterState] = None
+    best_key: Optional[Tuple[int, int, int]] = None
+    budget: Optional[int] = None
+    for position, horizon in enumerate(ordered):
+        attempt_cfg = dataclasses.replace(cfg, dag_extended_max_layers=horizon)
+        started = time.perf_counter()
+        # The first horizon establishes the time budget, so it runs unguarded.
+        outcome = _route(porter.PorterRouter(hw, attempt_cfg), circuit,
+                         initial_layout, None if position == 0 else budget)
+        elapsed = time.perf_counter() - started
+        info["horizon_seconds"][horizon] = round(elapsed, 3)
+        if position == 0:
+            budget = max(int(min_seconds), math.ceil(time_factor * elapsed))
+
+        if isinstance(outcome, BaseException):
+            info["failed_horizons"][horizon] = (
+                f"{type(outcome).__name__}: {str(outcome)[:120]}")
+            continue
+        info["horizon_eprs"][horizon] = outcome.stats.epr
+        key = (outcome.stats.epr, 0 if horizon == default_horizon else 1, position)
+        if best_key is None or key < best_key:
+            best, best_key = outcome, key
+            info["chosen_horizon"] = horizon
+
+    return best, info
+
+
+def route(
+    hw: porter.Hardware,
+    cfg: porter.RouterConfig,
+    circuit: List[porter.Gate],
+    initial_layout: porter.Layout,
+    *,
+    horizons: Optional[Tuple[int, ...]] = None,
+    selection: bool = True,
+    pass_guard=None,
+    pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
+) -> Tuple[porter.RouterState, Dict[str, object]]:
+    """PORTER's routing protocol: density-adaptive best-of-3 horizon selection.
+
+    This is the single entry point every caller should use to route a layout,
+    so that "what PORTER does" is defined in one place.  ``selection=False``
+    falls back to one forward pass at ``cfg``'s own horizon, which is the
+    pre-2026-08-29 protocol and is kept for ablations and for the paper's
+    single-pass column.
+
+    Raises the underlying router exception when no horizon completes, so the
+    failure behaviour matches a plain ``PorterRouter.compile`` call.
+    """
+    if not selection:
+        if pass_guard is None:
+            state = porter.PorterRouter(hw, cfg).compile(circuit, initial_layout)
+        else:
+            with pass_guard():
+                state = porter.PorterRouter(hw, cfg).compile(circuit, initial_layout)
+        return state, {"chosen_horizon": int(cfg.dag_extended_max_layers),
+                       "horizon_eprs": {int(cfg.dag_extended_max_layers): state.stats.epr},
+                       "selection": False}
+
+    state, info = run_horizon_selection(
+        hw, cfg, circuit, initial_layout, horizons=horizons,
+        pass_guard=pass_guard, pass_exceptions=pass_exceptions)
+    if state is None:
+        # Re-raise the default horizon's own failure so callers see the same
+        # exception type they would have seen without selection.
+        with _horizon_time_limit(None):
+            if pass_guard is None:
+                return porter.PorterRouter(hw, cfg).compile(circuit, initial_layout), info
+            with pass_guard():
+                return porter.PorterRouter(hw, cfg).compile(circuit, initial_layout), info
+    info["selection"] = True
+    return state, info
 
 
 def serialize_compiled_op(index: int, op: porter.CompiledOp) -> Dict[str, object]:

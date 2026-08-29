@@ -1,0 +1,1672 @@
+{
+ "main/25/ae": {
+  "dSE": 65,
+  "telesabre": 119,
+  "sfc": 65,
+  "sfc_refined": 65,
+  "sfc_search": 62,
+  "horizon_eprs": {
+   "16": 65,
+   "4": 68,
+   "8": 69
+  },
+  "horizon_seconds": {
+   "16": 0.198,
+   "4": 0.127,
+   "8": 0.122
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.93,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.449,
+  "epr": 65,
+  "swaps": 328,
+  "teleports": 57,
+  "telegates": 0,
+  "packets": 8,
+  "depth": 1095,
+  "verified": true
+ },
+ "main/25/ghz": {
+  "dSE": 4,
+  "telesabre": 13,
+  "sfc": 4,
+  "sfc_refined": 4,
+  "sfc_search": 4,
+  "horizon_eprs": {
+   "16": 4,
+   "8": 4,
+   "128": 4
+  },
+  "horizon_seconds": {
+   "16": 0.004,
+   "8": 0.004,
+   "128": 0.004
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.08,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.0,
+  "seconds": 0.013,
+  "epr": 4,
+  "swaps": 29,
+  "teleports": 4,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 62,
+  "verified": true
+ },
+ "main/25/graphstate": {
+  "dSE": 6,
+  "telesabre": 21,
+  "sfc": 7,
+  "sfc_refined": 4,
+  "sfc_search": 4,
+  "horizon_eprs": {
+   "16": 7,
+   "8": 7,
+   "128": 7
+  },
+  "horizon_seconds": {
+   "16": 0.012,
+   "8": 0.013,
+   "128": 0.012
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.0833,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.0,
+  "seconds": 0.037,
+  "epr": 7,
+  "swaps": 34,
+  "teleports": 7,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 58,
+  "verified": true
+ },
+ "main/25/qft": {
+  "dSE": 81,
+  "telesabre": 138,
+  "sfc": 74,
+  "sfc_refined": 74,
+  "sfc_search": 74,
+  "horizon_eprs": {
+   "16": 74,
+   "4": 109,
+   "8": 111
+  },
+  "horizon_seconds": {
+   "16": 0.162,
+   "4": 0.163,
+   "8": 0.171
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.92,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.498,
+  "epr": 74,
+  "swaps": 327,
+  "teleports": 74,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 1000,
+  "verified": true
+ },
+ "main/25/qnn": {
+  "dSE": 143,
+  "telesabre": 515,
+  "sfc": 119,
+  "sfc_refined": 116,
+  "sfc_search": 116,
+  "horizon_eprs": {
+   "16": 119,
+   "4": 165,
+   "8": 174
+  },
+  "horizon_seconds": {
+   "16": 0.407,
+   "4": 0.318,
+   "8": 0.405
+  },
+  "default_horizon": 16,
+  "interaction_density": 1.0,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 1.133,
+  "epr": 119,
+  "swaps": 642,
+  "teleports": 119,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 1700,
+  "verified": true
+ },
+ "main/25/random": {
+  "dSE": 404,
+  "telesabre": 636,
+  "sfc": 401,
+  "sfc_refined": 383,
+  "sfc_search": 379,
+  "horizon_eprs": {
+   "16": 401,
+   "4": 452,
+   "8": 415
+  },
+  "horizon_seconds": {
+   "16": 1.013,
+   "4": 0.63,
+   "8": 0.815
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.85,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 2.462,
+  "epr": 401,
+  "swaps": 1327,
+  "teleports": 265,
+  "telegates": 93,
+  "packets": 43,
+  "depth": 3410,
+  "verified": true
+ },
+ "main/64/ae": {
+  "dSE": 165,
+  "telesabre": 353,
+  "sfc": 177,
+  "sfc_refined": 177,
+  "sfc_search": 176,
+  "horizon_eprs": {
+   "16": 177,
+   "8": 229,
+   "128": 157
+  },
+  "horizon_seconds": {
+   "16": 0.685,
+   "8": 0.62,
+   "128": 2.645
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4866,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.003,
+  "seconds": 3.956,
+  "epr": 157,
+  "swaps": 1468,
+  "teleports": 119,
+  "telegates": 0,
+  "packets": 38,
+  "depth": 4637,
+  "verified": true
+ },
+ "main/64/ghz": {
+  "dSE": 6,
+  "telesabre": 16,
+  "sfc": 6,
+  "sfc_refined": 6,
+  "sfc_search": 6,
+  "horizon_eprs": {
+   "16": 6,
+   "8": 6,
+   "128": 6
+  },
+  "horizon_seconds": {
+   "16": 0.014,
+   "8": 0.016,
+   "128": 0.015
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.0312,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.045,
+  "epr": 6,
+  "swaps": 86,
+  "teleports": 6,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 133,
+  "verified": true
+ },
+ "main/64/graphstate": {
+  "dSE": 15,
+  "telesabre": 62,
+  "sfc": 20,
+  "sfc_refined": 16,
+  "sfc_search": 16,
+  "horizon_eprs": {
+   "16": 20,
+   "8": 20,
+   "128": 20
+  },
+  "horizon_seconds": {
+   "16": 0.122,
+   "8": 0.119,
+   "128": 0.119
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.0317,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.36,
+  "epr": 20,
+  "swaps": 131,
+  "teleports": 20,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 105,
+  "verified": true
+ },
+ "main/64/qft": {
+  "dSE": 179,
+  "telesabre": 312,
+  "sfc": 262,
+  "sfc_refined": 262,
+  "sfc_search": 262,
+  "horizon_eprs": {
+   "16": 262,
+   "8": 322
+  },
+  "horizon_seconds": {
+   "16": 0.957,
+   "8": 0.72,
+   "128": 5.006
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4752,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 5s wall-clock share"
+  },
+  "chosen_horizon": 16,
+  "layout_seconds": 0.002,
+  "seconds": 6.686,
+  "epr": 262,
+  "swaps": 1846,
+  "teleports": 216,
+  "telegates": 1,
+  "packets": 45,
+  "depth": 3722,
+  "verified": true
+ },
+ "main/64/qnn": {
+  "dSE": null,
+  "telesabre": null,
+  "sfc": null,
+  "sfc_refined": null,
+  "sfc_search": null,
+  "horizon_eprs": {
+   "16": 864,
+   "4": 658,
+   "8": 638
+  },
+  "horizon_seconds": {
+   "16": 5.328,
+   "4": 2.417,
+   "8": 3.674
+  },
+  "default_horizon": 16,
+  "interaction_density": 1.0,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 8,
+  "layout_seconds": 0.007,
+  "seconds": 11.445,
+  "epr": 638,
+  "swaps": 5901,
+  "teleports": 568,
+  "telegates": 1,
+  "packets": 69,
+  "depth": 10717,
+  "verified": true
+ },
+ "main/64/random": {
+  "dSE": 732,
+  "telesabre": null,
+  "sfc": 737,
+  "sfc_refined": 737,
+  "sfc_search": 664,
+  "horizon_eprs": {
+   "16": 737,
+   "8": 741
+  },
+  "horizon_seconds": {
+   "16": 4.336,
+   "8": 3.235,
+   "128": 18.006
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.3313,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 18s wall-clock share"
+  },
+  "chosen_horizon": 16,
+  "layout_seconds": 0.002,
+  "seconds": 25.58,
+  "epr": 737,
+  "swaps": 4048,
+  "teleports": 432,
+  "telegates": 228,
+  "packets": 77,
+  "depth": 5623,
+  "verified": true
+ },
+ "main/64/qpeexact": {
+  "dSE": 187,
+  "telesabre": 289,
+  "sfc": 222,
+  "sfc_refined": 222,
+  "sfc_search": 197,
+  "horizon_eprs": {
+   "16": 222,
+   "8": 236
+  },
+  "horizon_seconds": {
+   "16": 0.89,
+   "8": 0.569,
+   "128": 5.008
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.5308,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 5s wall-clock share"
+  },
+  "chosen_horizon": 16,
+  "layout_seconds": 0.003,
+  "seconds": 6.47,
+  "epr": 222,
+  "swaps": 1729,
+  "teleports": 177,
+  "telegates": 3,
+  "packets": 42,
+  "depth": 4070,
+  "verified": true
+ },
+ "main/64/qaoa": {
+  "dSE": 555,
+  "telesabre": 956,
+  "sfc": 854,
+  "sfc_refined": 607,
+  "sfc_search": 576,
+  "horizon_eprs": {
+   "16": 854,
+   "8": 775
+  },
+  "horizon_seconds": {
+   "16": 5.157,
+   "8": 3.827,
+   "128": 21.01
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4861,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 21s wall-clock share"
+  },
+  "chosen_horizon": 8,
+  "layout_seconds": 0.004,
+  "seconds": 30.004,
+  "epr": 775,
+  "swaps": 4784,
+  "teleports": 607,
+  "telegates": 6,
+  "packets": 162,
+  "depth": 7032,
+  "verified": true
+ },
+ "main/64/multiplier": {
+  "dSE": 1285,
+  "telesabre": 1601,
+  "sfc": 1358,
+  "sfc_refined": 763,
+  "sfc_search": 763,
+  "horizon_eprs": {
+   "16": 1358,
+   "8": 1619,
+   "128": 1076
+  },
+  "horizon_seconds": {
+   "16": 3.047,
+   "8": 2.896,
+   "128": 4.919
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4707,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.012,
+  "seconds": 10.894,
+  "epr": 1076,
+  "swaps": 8649,
+  "teleports": 622,
+  "telegates": 379,
+  "packets": 75,
+  "depth": 32976,
+  "verified": true
+ },
+ "main/80/ae": {
+  "dSE": 332,
+  "telesabre": null,
+  "sfc": 490,
+  "sfc_refined": 490,
+  "sfc_search": 399,
+  "horizon_eprs": {
+   "16": 490,
+   "8": 390,
+   "128": 299
+  },
+  "horizon_seconds": {
+   "16": 1.426,
+   "8": 0.919,
+   "128": 5.207
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4399,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.005,
+  "seconds": 7.565,
+  "epr": 299,
+  "swaps": 2433,
+  "teleports": 166,
+  "telegates": 2,
+  "packets": 131,
+  "depth": 6220,
+  "verified": true
+ },
+ "main/80/ghz": {
+  "dSE": 7,
+  "telesabre": 26,
+  "sfc": 7,
+  "sfc_refined": 7,
+  "sfc_search": 7,
+  "horizon_eprs": {
+   "16": 7,
+   "8": 7,
+   "128": 7
+  },
+  "horizon_seconds": {
+   "16": 0.019,
+   "8": 0.018,
+   "128": 0.02
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.025,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.057,
+  "epr": 7,
+  "swaps": 115,
+  "teleports": 7,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 168,
+  "verified": true
+ },
+ "main/80/graphstate": {
+  "dSE": 20,
+  "telesabre": 87,
+  "sfc": 28,
+  "sfc_refined": 24,
+  "sfc_search": 24,
+  "horizon_eprs": {
+   "16": 28,
+   "8": 28,
+   "128": 28
+  },
+  "horizon_seconds": {
+   "16": 0.267,
+   "8": 0.271,
+   "128": 0.283
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.0253,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.822,
+  "epr": 28,
+  "swaps": 198,
+  "teleports": 28,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 134,
+  "verified": true
+ },
+ "main/80/qft": {
+  "dSE": 315,
+  "telesabre": null,
+  "sfc": 446,
+  "sfc_refined": 393,
+  "sfc_search": 383,
+  "horizon_eprs": {
+   "16": 446,
+   "8": 506
+  },
+  "horizon_seconds": {
+   "16": 1.231,
+   "8": 1.126,
+   "128": 5.012
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4209,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 5s wall-clock share"
+  },
+  "chosen_horizon": 16,
+  "layout_seconds": 0.003,
+  "seconds": 7.374,
+  "epr": 446,
+  "swaps": 2968,
+  "teleports": 235,
+  "telegates": 2,
+  "packets": 209,
+  "depth": 6321,
+  "verified": true
+ },
+ "main/80/qnn": {
+  "dSE": 791,
+  "telesabre": null,
+  "sfc": 1517,
+  "sfc_refined": 1181,
+  "sfc_search": 938,
+  "horizon_eprs": {
+   "16": 1517,
+   "4": 1070,
+   "8": 1600
+  },
+  "horizon_seconds": {
+   "16": 11.576,
+   "4": 4.777,
+   "8": 7.291
+  },
+  "default_horizon": 16,
+  "interaction_density": 1.0,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 4,
+  "layout_seconds": 0.011,
+  "seconds": 23.681,
+  "epr": 1070,
+  "swaps": 9347,
+  "teleports": 908,
+  "telegates": 1,
+  "packets": 161,
+  "depth": 17767,
+  "verified": true
+ },
+ "main/80/random": {
+  "dSE": 10551,
+  "telesabre": null,
+  "sfc": 11040,
+  "sfc_refined": 11040,
+  "sfc_search": 10836,
+  "horizon_eprs": {
+   "16": 11040,
+   "4": 11149
+  },
+  "horizon_seconds": {
+   "16": 89.998,
+   "4": 39.659,
+   "8": 360.056
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.9671,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {
+   "8": "HorizonTimeout: exceeded 360s wall-clock share"
+  },
+  "chosen_horizon": 16,
+  "layout_seconds": 0.022,
+  "seconds": 489.744,
+  "epr": 11040,
+  "swaps": 62119,
+  "teleports": 6930,
+  "telegates": 3538,
+  "packets": 572,
+  "depth": 77093,
+  "verified": true
+ },
+ "main/80/qpeexact": {
+  "dSE": 347,
+  "telesabre": 784,
+  "sfc": 526,
+  "sfc_refined": 526,
+  "sfc_search": 365,
+  "horizon_eprs": {
+   "16": 526,
+   "8": 403,
+   "128": 291
+  },
+  "horizon_seconds": {
+   "16": 1.503,
+   "8": 0.939,
+   "128": 5.213
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4399,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.004,
+  "seconds": 7.668,
+  "epr": 291,
+  "swaps": 2378,
+  "teleports": 169,
+  "telegates": 0,
+  "packets": 122,
+  "depth": 5902,
+  "verified": true
+ },
+ "main/80/qaoa": {
+  "dSE": 862,
+  "telesabre": null,
+  "sfc": 1122,
+  "sfc_refined": 1122,
+  "sfc_search": 1122,
+  "horizon_eprs": {
+   "16": 1122,
+   "8": 1334
+  },
+  "horizon_seconds": {
+   "16": 9.476,
+   "8": 6.483,
+   "128": 38.008
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4823,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 38s wall-clock share"
+  },
+  "chosen_horizon": 16,
+  "layout_seconds": 0.006,
+  "seconds": 53.976,
+  "epr": 1122,
+  "swaps": 7370,
+  "teleports": 804,
+  "telegates": 15,
+  "packets": 303,
+  "depth": 10151,
+  "verified": true
+ },
+ "main/80/multiplier": {
+  "dSE": 3793,
+  "telesabre": null,
+  "sfc": 3501,
+  "sfc_refined": 2699,
+  "sfc_search": 2699,
+  "horizon_eprs": {
+   "16": 3501,
+   "8": 4098,
+   "128": 2411
+  },
+  "horizon_seconds": {
+   "16": 6.007,
+   "8": 5.965,
+   "128": 10.418
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4547,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.018,
+  "seconds": 22.439,
+  "epr": 2411,
+  "swaps": 15709,
+  "teleports": 1126,
+  "telegates": 1087,
+  "packets": 198,
+  "depth": 55486,
+  "verified": true
+ },
+ "heavyhex/ring/ae": {
+  "dSE": 86,
+  "porter_refined": 88,
+  "porter_on_dse": 115,
+  "sfc": 116,
+  "horizon_eprs": {
+   "16": 116,
+   "8": 113,
+   "128": 69
+  },
+  "horizon_seconds": {
+   "16": 0.703,
+   "8": 0.605,
+   "128": 1.212
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4866,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.003,
+  "seconds": 2.529,
+  "epr": 69,
+  "swaps": 2282,
+  "teleports": 49,
+  "telegates": 0,
+  "packets": 20,
+  "depth": 3941,
+  "verified": true
+ },
+ "heavyhex/ring/ghz": {
+  "dSE": 2,
+  "porter_refined": 2,
+  "porter_on_dse": 2,
+  "sfc": 2,
+  "horizon_eprs": {
+   "16": 2,
+   "8": 2,
+   "128": 2
+  },
+  "horizon_seconds": {
+   "16": 0.025,
+   "8": 0.023,
+   "128": 0.025
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.0312,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.074,
+  "epr": 2,
+  "swaps": 198,
+  "teleports": 2,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 169,
+  "verified": true
+ },
+ "heavyhex/ring/graphstate": {
+  "dSE": 12,
+  "porter_refined": 10,
+  "porter_on_dse": 13,
+  "sfc": 12,
+  "horizon_eprs": {
+   "16": 12,
+   "8": 12,
+   "128": 12
+  },
+  "horizon_seconds": {
+   "16": 0.192,
+   "8": 0.19,
+   "128": 0.193
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.0317,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.577,
+  "epr": 12,
+  "swaps": 213,
+  "teleports": 12,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 91,
+  "verified": true
+ },
+ "heavyhex/ring/qft": {
+  "dSE": 110,
+  "porter_refined": 103,
+  "porter_on_dse": 144,
+  "sfc": 141,
+  "horizon_eprs": {
+   "16": 141,
+   "8": 125,
+   "128": 109
+  },
+  "horizon_seconds": {
+   "16": 1.047,
+   "8": 0.829,
+   "128": 1.763
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4752,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.003,
+  "seconds": 3.647,
+  "epr": 109,
+  "swaps": 2349,
+  "teleports": 90,
+  "telegates": 0,
+  "packets": 19,
+  "depth": 3425,
+  "verified": true
+ },
+ "heavyhex/ring/qnn": {
+  "dSE": 249,
+  "porter_refined": 240,
+  "porter_on_dse": 290,
+  "sfc": 240,
+  "horizon_eprs": {
+   "16": 240,
+   "4": 249,
+   "8": 244
+  },
+  "horizon_seconds": {
+   "16": 3.033,
+   "4": 2.213,
+   "8": 2.623
+  },
+  "default_horizon": 16,
+  "interaction_density": 1.0,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.008,
+  "seconds": 7.887,
+  "epr": 240,
+  "swaps": 8699,
+  "teleports": 240,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 11248,
+  "verified": true
+ },
+ "heavyhex/ring/random": {
+  "dSE": 465,
+  "porter_refined": 452,
+  "porter_on_dse": 419,
+  "sfc": 506,
+  "horizon_eprs": {
+   "16": 506,
+   "8": 465
+  },
+  "horizon_seconds": {
+   "16": 4.401,
+   "8": 2.964,
+   "128": 18.007
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.3313,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 18s wall-clock share"
+  },
+  "chosen_horizon": 8,
+  "layout_seconds": 0.003,
+  "seconds": 25.38,
+  "epr": 465,
+  "swaps": 6842,
+  "teleports": 354,
+  "telegates": 79,
+  "packets": 32,
+  "depth": 5419,
+  "verified": true
+ },
+ "heavyhex/ring/qpeexact": {
+  "dSE": 80,
+  "porter_refined": 90,
+  "porter_on_dse": 100,
+  "sfc": 116,
+  "horizon_eprs": {
+   "16": 116,
+   "8": 113,
+   "128": 105
+  },
+  "horizon_seconds": {
+   "16": 0.787,
+   "8": 0.613,
+   "128": 2.684
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.5308,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.004,
+  "seconds": 4.094,
+  "epr": 105,
+  "swaps": 2687,
+  "teleports": 98,
+  "telegates": 0,
+  "packets": 7,
+  "depth": 3881,
+  "verified": true
+ },
+ "heavyhex/ring/qaoa": {
+  "dSE": 249,
+  "porter_refined": 247,
+  "porter_on_dse": 250,
+  "sfc": 248,
+  "horizon_eprs": {
+   "16": 248,
+   "8": 244
+  },
+  "horizon_seconds": {
+   "16": 2.918,
+   "8": 2.274,
+   "128": 12.009
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4861,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 12s wall-clock share"
+  },
+  "chosen_horizon": 8,
+  "layout_seconds": 0.004,
+  "seconds": 17.211,
+  "epr": 244,
+  "swaps": 6076,
+  "teleports": 240,
+  "telegates": 0,
+  "packets": 4,
+  "depth": 5590,
+  "verified": true
+ },
+ "heavyhex/ring/multiplier": {
+  "dSE": 451,
+  "porter_refined": 397,
+  "porter_on_dse": 483,
+  "sfc": 506,
+  "horizon_eprs": {
+   "16": 506,
+   "8": 832,
+   "128": 573
+  },
+  "horizon_seconds": {
+   "16": 2.831,
+   "8": 2.996,
+   "128": 4.6
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4707,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.013,
+  "seconds": 10.462,
+  "epr": 506,
+  "swaps": 12475,
+  "teleports": 362,
+  "telegates": 134,
+  "packets": 10,
+  "depth": 33173,
+  "verified": true
+ },
+ "heavyhex/star/ae": {
+  "dSE": 118,
+  "porter_refined": 144,
+  "porter_on_dse": 152,
+  "sfc": 161,
+  "horizon_eprs": {
+   "16": 161,
+   "8": 149,
+   "128": 190
+  },
+  "horizon_seconds": {
+   "16": 0.607,
+   "8": 0.568,
+   "128": 4.431
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4866,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 8,
+  "layout_seconds": 0.003,
+  "seconds": 5.616,
+  "epr": 149,
+  "swaps": 3333,
+  "teleports": 90,
+  "telegates": 0,
+  "packets": 59,
+  "depth": 4831,
+  "verified": true
+ },
+ "heavyhex/star/ghz": {
+  "dSE": 3,
+  "porter_refined": 3,
+  "porter_on_dse": 4,
+  "sfc": 3,
+  "horizon_eprs": {
+   "16": 3,
+   "8": 3,
+   "128": 3
+  },
+  "horizon_seconds": {
+   "16": 0.028,
+   "8": 0.029,
+   "128": 0.028
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.0312,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.086,
+  "epr": 3,
+  "swaps": 218,
+  "teleports": 3,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 182,
+  "verified": true
+ },
+ "heavyhex/star/graphstate": {
+  "dSE": 10,
+  "porter_refined": 14,
+  "porter_on_dse": 11,
+  "sfc": 16,
+  "horizon_eprs": {
+   "16": 16,
+   "8": 16,
+   "128": 16
+  },
+  "horizon_seconds": {
+   "16": 0.204,
+   "8": 0.202,
+   "128": 0.202
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.0317,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 16,
+  "layout_seconds": 0.001,
+  "seconds": 0.609,
+  "epr": 16,
+  "swaps": 242,
+  "teleports": 16,
+  "telegates": 0,
+  "packets": 0,
+  "depth": 95,
+  "verified": true
+ },
+ "heavyhex/star/qft": {
+  "dSE": 125,
+  "porter_refined": 124,
+  "porter_on_dse": 134,
+  "sfc": 124,
+  "horizon_eprs": {
+   "16": 124,
+   "8": 144,
+   "128": 117
+  },
+  "horizon_seconds": {
+   "16": 1.054,
+   "8": 0.905,
+   "128": 1.822
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4752,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.003,
+  "seconds": 3.786,
+  "epr": 117,
+  "swaps": 2661,
+  "teleports": 94,
+  "telegates": 3,
+  "packets": 20,
+  "depth": 3486,
+  "verified": true
+ },
+ "heavyhex/star/qnn": {
+  "dSE": 241,
+  "porter_refined": 314,
+  "porter_on_dse": 321,
+  "sfc": 535,
+  "horizon_eprs": {
+   "16": 535,
+   "4": 449,
+   "8": 645
+  },
+  "horizon_seconds": {
+   "16": 3.809,
+   "4": 2.629,
+   "8": 2.779
+  },
+  "default_horizon": 16,
+  "interaction_density": 1.0,
+  "horizons_requested": [
+   16,
+   4,
+   8
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 4,
+  "layout_seconds": 0.008,
+  "seconds": 9.243,
+  "epr": 449,
+  "swaps": 11479,
+  "teleports": 274,
+  "telegates": 0,
+  "packets": 175,
+  "depth": 15043,
+  "verified": true
+ },
+ "heavyhex/star/random": {
+  "dSE": 475,
+  "porter_refined": 452,
+  "porter_on_dse": 487,
+  "sfc": 609,
+  "horizon_eprs": {
+   "16": 609,
+   "8": 547
+  },
+  "horizon_seconds": {
+   "16": 3.913,
+   "8": 2.874,
+   "128": 16.01
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.3313,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 16s wall-clock share"
+  },
+  "chosen_horizon": 8,
+  "layout_seconds": 0.003,
+  "seconds": 22.806,
+  "epr": 547,
+  "swaps": 6744,
+  "teleports": 276,
+  "telegates": 201,
+  "packets": 70,
+  "depth": 7351,
+  "verified": true
+ },
+ "heavyhex/star/qpeexact": {
+  "dSE": 120,
+  "porter_refined": 162,
+  "porter_on_dse": 144,
+  "sfc": 162,
+  "horizon_eprs": {
+   "16": 162,
+   "8": 181
+  },
+  "horizon_seconds": {
+   "16": 0.682,
+   "8": 0.587,
+   "128": 5.004
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.5308,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 5s wall-clock share"
+  },
+  "chosen_horizon": 16,
+  "layout_seconds": 0.004,
+  "seconds": 6.277,
+  "epr": 162,
+  "swaps": 3667,
+  "teleports": 87,
+  "telegates": 0,
+  "packets": 75,
+  "depth": 4710,
+  "verified": true
+ },
+ "heavyhex/star/qaoa": {
+  "dSE": 251,
+  "porter_refined": 245,
+  "porter_on_dse": 251,
+  "sfc": 473,
+  "horizon_eprs": {
+   "16": 473,
+   "8": 405
+  },
+  "horizon_seconds": {
+   "16": 3.581,
+   "8": 2.314,
+   "128": 15.01
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4861,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "128": "HorizonTimeout: exceeded 15s wall-clock share"
+  },
+  "chosen_horizon": 8,
+  "layout_seconds": 0.004,
+  "seconds": 20.915,
+  "epr": 405,
+  "swaps": 7147,
+  "teleports": 219,
+  "telegates": 7,
+  "packets": 179,
+  "depth": 8506,
+  "verified": true
+ },
+ "heavyhex/star/multiplier": {
+  "dSE": 722,
+  "porter_refined": null,
+  "porter_on_dse": 462,
+  "sfc": null,
+  "horizon_eprs": {
+   "8": 1489,
+   "128": 455
+  },
+  "horizon_seconds": {
+   "16": 25.013,
+   "8": 3.408,
+   "128": 3.905
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.4707,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "16": "RuntimeError: Router exceeded max_iterations; possible oscillation or deadlock"
+  },
+  "chosen_horizon": 128,
+  "layout_seconds": 0.013,
+  "seconds": 32.363,
+  "epr": 455,
+  "swaps": 11974,
+  "teleports": 272,
+  "telegates": 160,
+  "packets": 23,
+  "depth": 32635,
+  "verified": true
+ },
+ "scaleup/100/qft": {
+  "dSE": 200,
+  "sfc": 446,
+  "sfc_refined": 339,
+  "sfc_on_dse_layout": 315,
+  "horizon_eprs": {
+   "16": 446,
+   "8": 502,
+   "128": 198
+  },
+  "horizon_seconds": {
+   "16": 1.342,
+   "8": 1.186,
+   "128": 4.153
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.3455,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.005,
+  "seconds": 6.692,
+  "epr": 198,
+  "swaps": 2407,
+  "teleports": 139,
+  "telegates": 0,
+  "packets": 59,
+  "depth": 5782,
+  "verified": true
+ },
+ "scaleup/100/qpeexact": {
+  "dSE": 246,
+  "sfc": 262,
+  "sfc_refined": 262,
+  "sfc_on_dse_layout": 283,
+  "horizon_eprs": {
+   "16": 262,
+   "8": 299,
+   "128": 200
+  },
+  "horizon_seconds": {
+   "16": 1.377,
+   "8": 1.143,
+   "128": 2.937
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.3616,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.005,
+  "seconds": 5.467,
+  "epr": 200,
+  "swaps": 2713,
+  "teleports": 156,
+  "telegates": 0,
+  "packets": 44,
+  "depth": 6698,
+  "verified": true
+ },
+ "scaleup/200/qft": {
+  "dSE": 765,
+  "sfc": 1128,
+  "sfc_refined": 1128,
+  "sfc_on_dse_layout": 1031,
+  "horizon_eprs": {
+   "16": 1128,
+   "8": 1152,
+   "128": 579
+  },
+  "horizon_seconds": {
+   "16": 3.927,
+   "8": 3.121,
+   "128": 15.576
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.1814,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.01,
+  "seconds": 22.646,
+  "epr": 579,
+  "swaps": 5977,
+  "teleports": 410,
+  "telegates": 3,
+  "packets": 166,
+  "depth": 13321,
+  "verified": true
+ },
+ "scaleup/200/qpeexact": {
+  "dSE": 896,
+  "sfc": 1343,
+  "sfc_refined": 979,
+  "sfc_on_dse_layout": 946,
+  "horizon_eprs": {
+   "16": 1343,
+   "8": 1104,
+   "128": 528
+  },
+  "horizon_seconds": {
+   "16": 5.354,
+   "8": 2.993,
+   "128": 12.792
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.1905,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.012,
+  "seconds": 21.173,
+  "epr": 528,
+  "swaps": 6177,
+  "teleports": 400,
+  "telegates": 0,
+  "packets": 128,
+  "depth": 13888,
+  "verified": true
+ },
+ "scaleup/360/qft": {
+  "dSE": 1890,
+  "sfc": 2822,
+  "sfc_refined": 2822,
+  "sfc_on_dse_layout": 3266,
+  "horizon_eprs": {
+   "16": 2822,
+   "8": 2702,
+   "128": 1156
+  },
+  "horizon_seconds": {
+   "16": 9.064,
+   "8": 7.25,
+   "128": 29.82
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.1029,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {},
+  "chosen_horizon": 128,
+  "layout_seconds": 0.019,
+  "seconds": 46.193,
+  "epr": 1156,
+  "swaps": 11588,
+  "teleports": 800,
+  "telegates": 0,
+  "packets": 356,
+  "depth": 25361,
+  "verified": true
+ },
+ "scaleup/360/qpeexact": {
+  "dSE": 1938,
+  "sfc": 2342,
+  "sfc_refined": 2342,
+  "sfc_on_dse_layout": 2603,
+  "horizon_eprs": {
+   "16": 2342
+  },
+  "horizon_seconds": {
+   "16": 8.349,
+   "8": 34.01,
+   "128": 34.028
+  },
+  "default_horizon": 16,
+  "interaction_density": 0.1082,
+  "horizons_requested": [
+   16,
+   8,
+   128
+  ],
+  "failed_horizons": {
+   "8": "HorizonTimeout: exceeded 34s wall-clock share",
+   "128": "HorizonTimeout: exceeded 34s wall-clock share"
+  },
+  "chosen_horizon": 16,
+  "layout_seconds": 0.021,
+  "seconds": 76.414,
+  "epr": 2342,
+  "swaps": 18834,
+  "teleports": 1439,
+  "telegates": 15,
+  "packets": 888,
+  "depth": 31323,
+  "verified": true
+ }
+}

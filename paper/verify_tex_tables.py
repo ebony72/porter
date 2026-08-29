@@ -14,13 +14,23 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 TEX = (_HERE / "sfc.tex").read_text()
 APP = (_HERE / "sfc_appendix.tex").read_text()
-CMP = json.load(open(_HERE / "compare_results.json"))
+# The tex tracks the results files the tables were generated from.  During a
+# protocol migration those are the `*_results_selection.json` variants; once
+# they are promoted to the released names this falls back automatically.
+_SEL = "_selection" if (_HERE / "compare_results_selection.json").exists() else ""
+
+
+def _res(name):
+    return _HERE / f"{name}_results{_SEL}.json"
+
+
+CMP = json.load(open(_res("compare")))
 BY = {(r["suite"], "qnn" if r["circuit"].startswith("qnn") else r["circuit"]): r
       for r in CMP}
 HH = {(r["topology"], r["circuit"]): r
-      for r in json.load(open(_HERE / "heavyhex_results.json"))}
+      for r in json.load(open(_res("heavyhex")))}
 SU = {(r["suite"], r["circuit"]): r
-      for r in json.load(open(_HERE / "scaleup_results.json"))}
+      for r in json.load(open(_res("scaleup")))}
 ABL = {(r["suite"], r["circuit"]): r
        for r in json.load(open(_HERE.parent / "ablation_results.json"))}
 TD = {(r["suite"], r["circuit"]): r
@@ -79,9 +89,12 @@ for cols in rows:
     r = BY[key]
     for j, leg in enumerate(("telesabre", "dSE", "sfc", "sfc_refined")):
         chk(f"main {key} {leg}", cell(cols[2 + j]), (r.get(leg) or {}).get("epr"))
-    ts, rf = (r.get("telesabre") or {}).get("epr"), r["sfc_refined"]["epr"]
+    # Delta follows whichever PORTER protocol is stronger on the row:
+    # horizon selection overtakes refinement on some circuits.
+    ts = (r.get("telesabre") or {}).get("epr")
+    best = min(r["sfc"]["epr"], r["sfc_refined"]["epr"])
     chk(f"main {key} dTS", num(cols[6]),
-        round(100 * (rf - ts) / ts, 1) if ts else None)
+        round(100 * (best - ts) / ts, 1) if ts else None)
 for cols in gmean_rows(seg):
     n = int(re.search(r"\((\d+)\)", cols[0]).group(1))
     suite = {6: "25", 8: "64", 3: "80"}[n]
@@ -138,7 +151,14 @@ for key, cols in zip(SU_ORDER, rows):
 O9 = ["ae", "ghz", "graphstate", "qft", "qnn", "random", "qpeexact",
       "qaoa", "multiplier"]
 seg, rows = rows_of("tab:heavyhex", r"^(ring|star)\s")
-chk("heavyhex summary row count", 4, len(rows))
+# The "star (8)" row exists only while PORTER fails star/Multiplier under its
+# own layout; horizon selection routes it, so the expected count follows the
+# data rather than being hardcoded.
+_star_incomplete = any(
+    (r.get("porter") or {}).get("epr") is None
+    for r in json.load(open(_res("heavyhex"))) if r["topology"] == "star")
+# The regex also matches the "star Multiplier" callout row, hence the +1.
+chk("heavyhex summary row count", 4 if _star_incomplete else 3, len(rows))
 HH_LEGS = ("dSE", "porter", "porter_refined", "porter_on_dse",
            "porter_on_dse_refined")
 for cols in rows:

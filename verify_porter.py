@@ -346,9 +346,12 @@ def verify_qasm(qasm: Path, architecture: str, seed: int, passes: int = 1,
         extra = (f" gamma_search best_gamma={info['best_gamma']} "
                  f"routes={info['routes']}")
     elif passes == 1:
-        router = dr.PorterRouter(hw, cfg)
-        state = router.compile(circuit, layout)
-        start, extra = layout, ""
+        # PORTER's protocol is horizon selection; every candidate horizon
+        # routes from the SAME layout, so the winning stream replays against
+        # the layout built above.
+        state, sel = cdr.route(hw, cfg, circuit, layout)
+        start = layout
+        extra = f" L={sel.get('chosen_horizon')} horizons={sel.get('horizon_eprs')}"
     else:
         state, info = cdr.run_refinement_passes(hw, cfg, circuit, layout,
                                                 passes=passes)

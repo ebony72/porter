@@ -280,6 +280,93 @@ x 25/64/80q, which is what `tab:ablation`'s TeleData column and
   reproduces `full` exactly, without which the column is not a pure
   vocabulary comparison).
 
+## PORTER's routing protocol: horizon selection (headline since 2026-08-29)
+
+`compile_porter.route(hw, cfg, circuit, layout)` is the ONE entry point every
+caller uses to route a layout, so "what PORTER does" is defined in one place.
+It runs **density-adaptive best-of-3 lookahead-horizon selection**
+(`run_horizon_selection`) and keeps the lowest-EPR result.
+`route(..., selection=False)` is the old single forward pass, kept for
+ablations and for the paper's single-pass column.
+
+**There is only ONE lookahead horizon, and it is not the one the parameter
+table implies.** `_collect_teleport_post_latent_lookahead_gates` collects only
+CXs of the ONE moving qubit, and a qubit has at most one zero-predecessor gate
+at a time, so the collected count can never exceed the layer budget:
+`teleport_lookahead_cx_count` is **inert at any value >=
+`dag_extended_max_layers`** (proved: changing it 50 -> 200 alone gives a
+byte-identical stream; instrumented over 3830-11395 calls the cap was hit
+zero times, max |out| = 10-11). `dag_extended_max_layers` carries the whole
+effect. Section III of the paper still presents both as live parameters.
+
+- Candidate set comes from `select_horizons` /
+  `circuit_interaction_density` (mean fraction of the other logicals each
+  qubit shares a CX with): density >= `DENSE_INTERACTION_THRESHOLD` (0.80)
+  gets `PORTER_HORIZONS_DENSE = (4, 8, 16)`, everything else
+  `PORTER_HORIZONS = (8, 16, 128)`. Density is a **pruning** rule, not a
+  picker — as a picker it recovers only 8% of the 17% oracle gain (Spearman
+  -0.765 on log2 of the best horizon; the 0.42-0.53 band is unresolvable,
+  64q QAOA wants 8 and 64q AE wants 128 at the same density).
+- **`cfg`'s own horizon is routed FIRST, unguarded**, and its wall time sets
+  a `SPECULATIVE_TIME_FACTOR` (4x, floor `SPECULATIVE_MIN_SECONDS`=5) budget
+  for the rest via SIGALRM. Ties go to `cfg`'s horizon, so the result is
+  never worse than routing at `cfg` alone.
+- **An iteration cap is the WRONG guard.** A deep peel makes each router
+  iteration ~400x costlier AND can stop it converging: 64q QFT at L=128 runs
+  ~24 ms/iteration against ~0.06 ms at L=16, so 20k iterations alone burn
+  471 s where the whole L=16 route takes 1.2 s. Only a relative *time*
+  budget works.
+- All horizons start from the SAME layout, so the winning stream replays
+  against the layout passed in — no `start_layout` to thread through a
+  verifier, unlike `run_refinement_passes`.
+- `run_refinement_passes` and `run_layout_search` select the horizon **once**
+  (on the first forward pass) and hold it fixed; `info["horizon_routes"]`
+  records the extra routes so callers can report the complete protocol.
+  `run_layout_search` phase 1 still ranks gammas at `cfg`'s horizon — making
+  it select per gamma would cost `len(gammas) x len(horizons)` routes for a
+  ranking, and the horizon is a property of the circuit, not the layout.
+
+Measured over all 48 paper instances (`bench_horizon.py` ->
+`paper/horizon_results.json`), 48/48 replay-verified, **23 wins / 0 losses /
+24 ties** against the single pass:
+
+Re-run through the real harnesses (`rerun_porter_legs.py` ->
+`paper/{compare,scaleup,heavyhex}_results_selection.json`; the released
+`*_results.json` files are untouched until the migration completes):
+
+| | 1 pass | best-of-3 | dSABRE | ratio |
+|---|---|---|---|---|
+| main (24) | 194.6 | 174.9 (-10.1%) | 163.9 | 1.19x -> **1.07x** |
+| heavy-hex ring (9) | 96.0 | 86.1 (-10.3%) | 85.2 | 1.13x -> **1.01x** |
+| heavy-hex star (8) | 111.5 | 103.8 (-6.9%) | 79.1 | 1.41x -> **1.31x** |
+| scale-up (6) | 1026.5 | **507.7 (-50.5%)** | 705.7 | 1.45x -> **0.72x** |
+
+No regressions anywhere. **Scale-up flips from 0/6 to 6/6 against dSABRE**
+(360q QFT 2822 -> 1156, 360q QPEexact 2342 -> 1224, 200q QPEexact 1343 ->
+528), and **heavy-hex star/multiplier goes from livelock to 455** against
+dSABRE's 722, so PORTER now completes all 18 heavy-hex instances — this
+supersedes the centrality-aware-reservation livelock fix, which is not
+shipped.
+
+**Compile time: PORTER stays ahead of dSABRE.** Measured through the harness
+path (`paper/compare_results_selection.json`), the main suite costs **338 s
+against dSABRE's 396 s (0.85x)** -- 5.1x PORTER's own former single pass, but
+still faster than the baseline. (An earlier 713 s / "1.80x slower" figure came
+from a contended `bench_horizon.py` run and is superseded.)
+
+**Refinement and the gamma search deliberately do NOT select**
+(`run_refinement_passes` / `run_layout_search` default `selection=False`), so
+`sfc_refined`, `sfc_search` and every `*_refined` leg keep their published
+numbers. The two levers stay independent, and they compose badly: a horizon
+that converges on the initial layout can oscillate on the refined layouts
+later passes start from.
+
+**Nested SIGALRM guards are a trap here.** `_horizon_time_limit` and
+`compare_routers._compiler_time_limit` both call `signal.alarm`, which
+*replaces* a pending alarm rather than queueing it. The speculative budget
+must be installed INNERMOST or the caller's 900 s guard silently overwrites
+it (64q AE: 907 s for one instance before the fix, 10 s after).
+
 ## Backward refinement (opt-in, added 2026-08-23)
 
 `compile_porter.run_refinement_passes(hw, cfg, circuit, layout, passes=N)` is
@@ -336,10 +423,15 @@ Both are wired into `SUITES` in `compare_routers.py`.
 
 ## Key invariants
 
-- **Determinism**: for a fixed `(circuit, hardware, RouterConfig.random_seed)`
-  the emitted op stream is byte-identical across runs. Any refactor must
-  preserve this — compare SHA256 of the serialized `compiled_ops` JSON and the
-  `seeded_tie_break_count` stat (identical RNG consumption) before/after.
+- **Determinism**: for a fixed `(circuit, hardware, RouterConfig.random_seed,
+  protocol)` the emitted op stream is byte-identical across runs. Any refactor
+  must preserve this — compare SHA256 of the serialized `compiled_ops` JSON and
+  the `seeded_tie_break_count` stat (identical RNG consumption) before/after.
+  Since 2026-08-29 "protocol" is load-bearing: `compile_porter.route(...,
+  selection=False)` reproduces the pre-2026-08-29 single-pass stream exactly
+  (verified byte-identical on 25q ae/random and 64q ae/qft), while the default
+  `selection=True` picks a per-circuit lookahead horizon and so emits a
+  different — and usually shorter — stream.
   (Last verified 2026-07-12 after the temporal-locality layout switch:
   8 circuits byte-identical with matching tie counts, 60/60 fuzz trials
   pass. Note the initial layout itself is now seed-free, so the op stream

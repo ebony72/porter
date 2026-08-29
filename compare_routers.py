@@ -668,14 +668,14 @@ def run_dsabre_shared_layout(
 
 def run_sfc_shared_layout(
     circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int, phys_to_virt: List[int],
+    *, horizons=None,
 ) -> Optional[dict]:
     layout = dr.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
     cfg = dr.RouterConfig(random_seed=0)
-    router = dr.PorterRouter(hw, cfg)
     t0 = time.perf_counter()
     try:
-        with _compiler_time_limit():
-            state = router.compile(circuit, layout)
+        state, sel_info = cdr.route(hw, cfg, circuit, layout, horizons=horizons,
+                                    pass_guard=_compiler_time_limit)
     except (RuntimeError, ValueError, CompilerTimeout):
         # ValueError: RouterConfig.repair_full_cores found the whole chip at
         # capacity (see run_sfc, above).
@@ -690,6 +690,7 @@ def run_sfc_shared_layout(
         teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
         telegates=state.stats.telegate_count,
         telegate_packets=state.stats.telegate_packet_count,
+        chosen_horizon=sel_info.get("chosen_horizon"),
         seconds=round(elapsed, 3),
     )
 
@@ -891,6 +892,7 @@ def porter_layout_from_pytket_placement(
 def run_sfc_pytket_layout(
     circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
     dag, arch: DistributedArchitecture, placement: Dict[int, int], corner_nodes: Set[int],
+    *, horizons=None,
 ) -> Optional[dict]:
     """Route PORTER from the same topology-aware physical placement used for
     dSE above (`placement_to_layout_locked`, which places within each
@@ -912,11 +914,10 @@ def run_sfc_pytket_layout(
     layout = porter_layout_from_pytket_placement(
         hw, num_logical, dag, arch, placement, corner_nodes)
     cfg = dr.RouterConfig(random_seed=0)
-    router = dr.PorterRouter(hw, cfg)
     t0 = time.perf_counter()
     try:
-        with _compiler_time_limit():
-            state = router.compile(circuit, layout)
+        state, sel_info = cdr.route(hw, cfg, circuit, layout, horizons=horizons,
+                                    pass_guard=_compiler_time_limit)
     except (RuntimeError, ValueError, CompilerTimeout):
         return None
     elapsed = time.perf_counter() - t0
@@ -929,13 +930,14 @@ def run_sfc_pytket_layout(
         teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
         telegates=state.stats.telegate_count,
         telegate_packets=state.stats.telegate_packet_count,
+        chosen_horizon=sel_info.get("chosen_horizon"),
         seconds=round(elapsed, 3),
     )
 
 
 def run_sfc_sabre_layout(
     circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
-    dag, sabre_layouts: List[Dict],
+    dag, sabre_layouts: List[Dict], *, horizons=None,
 ) -> Optional[dict]:
     """Route PORTER from dSABRE's own initial layouts -- SabreLayout on the
     corners-removed architecture graph (`sabre_locked_boundary_layout`, the
@@ -967,11 +969,10 @@ def run_sfc_sabre_layout(
             physical_to_logical=physical_to_logical, num_logical=num_logical,
         )
         cfg = dr.RouterConfig(random_seed=0)
-        router = dr.PorterRouter(hw, cfg)
         t0 = time.perf_counter()
         try:
-            with _compiler_time_limit():
-                state = router.compile(circuit, layout)
+            state, sel_info = cdr.route(hw, cfg, circuit, layout, horizons=horizons,
+                                        pass_guard=_compiler_time_limit)
         except (RuntimeError, ValueError, CompilerTimeout):
             continue
         elapsed = time.perf_counter() - t0
@@ -985,6 +986,7 @@ def run_sfc_sabre_layout(
                 teleports_capacity_relief=state.stats.teleport_capacity_relief_count,
                 telegates=state.stats.telegate_count,
                 telegate_packets=state.stats.telegate_packet_count,
+                chosen_horizon=sel_info.get("chosen_horizon"),
                 seconds_best_attempt=round(elapsed, 3),
             )
     if best is not None:
@@ -1069,7 +1071,8 @@ def build_seeded_locality_layout(
 
 
 def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
-            *, pytket_candidate: Optional[tuple] = None) -> Optional[dict]:
+            *, pytket_candidate: Optional[tuple] = None,
+            horizons=None) -> Optional[dict]:
     """PORTER with its own initial layout: ONE deterministic temporal
     locality-greedy layout (``cdr.build_initial_layout``, seed-free) routed
     in a single pass at router seed 0.  No layout search -- this replaced
@@ -1099,11 +1102,10 @@ def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
         layout = None
     layout_seconds = time.perf_counter() - t_protocol
     if layout is not None:
-        router = dr.PorterRouter(hw, cfg)
         t0 = time.perf_counter()
         try:
-            with _compiler_time_limit():
-                state = router.compile(circuit, layout)
+            state, sel_info = cdr.route(hw, cfg, circuit, layout, horizons=horizons,
+                                        pass_guard=_compiler_time_limit)
         except (RuntimeError, ValueError, CompilerTimeout):
             # ValueError can only come from RouterConfig.repair_full_cores
             # finding the whole chip at capacity (no core has room to
@@ -1126,6 +1128,7 @@ def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
                 # routing pass. PORTER builds one layout and routes once, so
                 # this is its entire compile cost.
                 seconds=round(layout_seconds + elapsed, 3),
+                chosen_horizon=sel_info.get("chosen_horizon"),
                 seconds_best_attempt=round(elapsed, 3),
                 layout_seconds=round(layout_seconds, 3), n_candidates=1,
             )
@@ -1198,7 +1201,7 @@ def run_dsabre_porter_layout(
 
 def run_sfc_sabre_layout_refined(
     circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int, dag,
-    sabre_layouts: List[Dict],
+    sabre_layouts: List[Dict], *, horizons=None,
 ) -> Optional[dict]:
     """PORTER+R on dSABRE's SabreLayout candidates; best over the candidates,
     mirroring how dSE selects among them."""
@@ -1220,7 +1223,7 @@ def run_sfc_sabre_layout_refined(
             logical_to_physical=logical_to_physical, logical_to_core=logical_to_core,
             physical_to_logical=physical_to_logical, num_logical=num_logical,
         )
-        rec = _run_porter_refined(circuit, hw, num_logical, layout)
+        rec = _run_porter_refined(circuit, hw, num_logical, layout, horizons=horizons)
         if rec is not None and (best is None or rec["epr"] < best["epr"]):
             best = rec
     if best is not None:
@@ -1257,7 +1260,7 @@ def _porter_state_record(state, elapsed, **extra):
     )
 
 
-def _run_porter_refined(circuit, hw, num_logical, layout, passes=None):
+def _run_porter_refined(circuit, hw, num_logical, layout, passes=None, horizons=None):
     """Route `layout` with refinement; None if even the first pass fails."""
     passes = PORTER_REFINE_PASSES if passes is None else passes
     cfg = dr.RouterConfig(random_seed=0)
@@ -1267,7 +1270,7 @@ def _run_porter_refined(circuit, hw, num_logical, layout, passes=None):
         # later pass degrades to the best forward pass already in hand instead
         # of discarding the whole schedule.
         state, info = cdr.run_refinement_passes(
-            hw, cfg, circuit, layout, passes=passes,
+            hw, cfg, circuit, layout, passes=passes, horizons=horizons,
             pass_guard=_compiler_time_limit,
             pass_exceptions=(RuntimeError, ValueError, CompilerTimeout),
         )
@@ -1283,7 +1286,7 @@ def _run_porter_refined(circuit, hw, num_logical, layout, passes=None):
 
 
 def run_sfc_search(circuit: List[dr.Gate], hw: dr.Hardware,
-                   num_logical: int) -> Optional[dict]:
+                   num_logical: int, *, horizons=None) -> Optional[dict]:
     """PORTER's strengthened own protocol: best-of-gamma layout search plus
     backward refinement (`cdr.run_layout_search`).
 
@@ -1297,7 +1300,7 @@ def run_sfc_search(circuit: List[dr.Gate], hw: dr.Hardware,
     try:
         state, info = cdr.run_layout_search(
             hw, cfg, circuit, num_logical, passes=PORTER_REFINE_PASSES,
-            pass_guard=_compiler_time_limit,
+            horizons=horizons, pass_guard=_compiler_time_limit,
             pass_exceptions=(RuntimeError, ValueError, CompilerTimeout),
         )
     except (RuntimeError, ValueError, CompilerTimeout):
@@ -1313,7 +1316,7 @@ def run_sfc_search(circuit: List[dr.Gate], hw: dr.Hardware,
 
 
 def run_sfc_refined(circuit: List[dr.Gate], hw: dr.Hardware,
-                    num_logical: int) -> Optional[dict]:
+                    num_logical: int, *, horizons=None) -> Optional[dict]:
     """PORTER's own layout, routed with backward refinement."""
     cfg = dr.RouterConfig(random_seed=0)
     t0 = time.perf_counter()
@@ -1325,7 +1328,7 @@ def run_sfc_refined(circuit: List[dr.Gate], hw: dr.Hardware,
     except ValueError:
         return None
     layout_seconds = time.perf_counter() - t0
-    rec = _run_porter_refined(circuit, hw, num_logical, layout)
+    rec = _run_porter_refined(circuit, hw, num_logical, layout, horizons=horizons)
     if not rec:
         return None
     # COMPLETE protocol: layout construction plus every pass actually run.
@@ -1335,19 +1338,19 @@ def run_sfc_refined(circuit: List[dr.Gate], hw: dr.Hardware,
 
 
 def run_sfc_shared_layout_refined(circuit, hw, num_logical,
-                                  phys_to_virt) -> Optional[dict]:
+                                  phys_to_virt, *, horizons=None) -> Optional[dict]:
     layout = dr.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
-    return _run_porter_refined(circuit, hw, num_logical, layout)
+    return _run_porter_refined(circuit, hw, num_logical, layout, horizons=horizons)
 
 
 def run_sfc_pytket_layout_refined(circuit, hw, num_logical, dag, arch,
-                                  placement, corner_nodes) -> Optional[dict]:
+                                  placement, corner_nodes, *, horizons=None) -> Optional[dict]:
     try:
         layout = porter_layout_from_pytket_placement(
             hw, num_logical, dag, arch, placement, corner_nodes)
     except ValueError:
         return None
-    return _run_porter_refined(circuit, hw, num_logical, layout)
+    return _run_porter_refined(circuit, hw, num_logical, layout, horizons=horizons)
 
 
 # Note: we do not reuse dSE's SabreLayout-corners-removed candidates for PORTER

@@ -1,0 +1,68 @@
+[
+ {
+  "suite": "25",
+  "circuit": "ae",
+  "cx": 558,
+  "telesabre": 0.58,
+  "dsabre": 0.83,
+  "porter": 0.17,
+  "porter_refined": 0.37,
+  "convention": "complete protocol: layout generation + all routing passes",
+  "timing_session": "porter/porter_refined/dsabre re-measured together; telesabre from the original run"
+ },
+ {
+  "suite": "25",
+  "circuit": "random",
+  "cx": 1124,
+  "telesabre": 4.14,
+  "dsabre": 3.5,
+  "porter": 1.11,
+  "porter_refined": 2.23,
+  "convention": "complete protocol: layout generation + all routing passes",
+  "timing_session": "porter/porter_refined/dsabre re-measured together; telesabre from the original run"
+ },
+ {
+  "suite": "64",
+  "circuit": "ae",
+  "cx": 1962,
+  "telesabre": 4.58,
+  "dsabre": 2.37,
+  "porter": 1.69,
+  "porter_refined": 1.69,
+  "convention": "complete protocol: layout generation + all routing passes",
+  "timing_session": "porter/porter_refined/dsabre re-measured together; telesabre from the original run"
+ },
+ {
+  "suite": "64",
+  "circuit": "qft",
+  "cx": 1966,
+  "telesabre": 20.81,
+  "dsabre": 2.51,
+  "porter": 5.74,
+  "porter_refined": 2.15,
+  "convention": "complete protocol: layout generation + all routing passes",
+  "timing_session": "porter/porter_refined/dsabre re-measured together; telesabre from the original run"
+ },
+ {
+  "suite": "64",
+  "circuit": "qnn",
+  "cx": 8126,
+  "telesabre": 32.49,
+  "dsabre": 7.88,
+  "porter": 4.92,
+  "porter_refined": 9.92,
+  "convention": "complete protocol: layout generation + all routing passes",
+  "timing_session": "porter/porter_refined/dsabre re-measured together; telesabre from the original run"
+ },
+ {
+  "suite": "80",
+  "circuit": "random",
+  "cx": 23381,
+  "telesabre": null,
+  "dsabre": 144.16,
+  "porter": 208.04,
+  "porter_refined": 191.47,
+  "convention": "complete protocol: layout generation + all routing passes",
+  "timing_session": "porter/porter_refined/dsabre re-measured together; telesabre from the original run"
+ }
+]

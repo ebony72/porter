@@ -808,13 +808,26 @@ Local extended-set max layers      & $L_\mathrm{loc}$        & 12 \\
 Local extended-set max CX          & $N_\mathrm{loc}$        & 20 \\
 Packet collection window (layers)  & --                      & 120 \\
 Max packet size (remote CX)        & --                      & 8 \\
-TeleData lookahead max layers      & $L_\mathrm{tp}$         & 16 \\
-TeleData lookahead max CX          & $N_\mathrm{tp}$         & 50 \\
+TeleData lookahead max layers      & $L_\mathrm{tp}$         & $\{4,8,16\}$ or $\{8,16,128\}$\rlap{$^\dagger$} \\
+TeleData lookahead max CX          & $N_\mathrm{tp}$         & 50\rlap{$^\ddagger$} \\
 Lookahead weight / decay / floor   & $w_0,\gamma,w_\mathrm{min}$ & 0.9, 0.9, 0.5 \\
 DAG front cap (gates)              & --                      & 96 \\
 \bottomrule
 \end{tabular}%
 }
+\begin{minipage}{\columnwidth}\vspace{2pt}\footnotesize
+$^\dagger$ The teleport-lookahead horizon is not a fixed constant:
+\PORTER{} routes the circuit once per candidate value and keeps the
+lowest-EPR result, taking the short candidate set when the interaction
+graph is near all-to-all and the long one otherwise
+(Section~\ref{sec:horizon}).\\
+$^\ddagger$ Inert at this value. The lookahead admits at most one gate on
+the moving qubit per simulated layer, so the collected count cannot exceed
+$L_\mathrm{tp}$ and the cap cannot bind while
+$N_\mathrm{tp}\ge L_\mathrm{tp}$; over $3\,830$--$11\,395$ scoring
+calls per circuit it was never reached, and changing it leaves the emitted
+circuit bit-for-bit identical.
+\end{minipage}
 \end{table}
 
 \begin{table}[h]
@@ -872,28 +885,28 @@ Suite & own lay. & \PORTER{} lay. & own lay. & \dSABRE{} lay. & own lay. & \dSAB
 \cmidrule(lr){4-5}\cmidrule(lr){6-7}
 Cores & Circuit & \dSABRE{} & \PORTER{} & $+$R & \PORTER{} & $+$R \\
 \midrule
-ring  & ae          &    86 &   116 &    88 &   115 &    85 \\
+ring  & ae          &    86 &    69 &    88 &    61 &    85 \\
 ring  & ghz         &     2 &     2 &     2 &     2 &     2 \\
 ring  & graphstate  &    12 &    12 &    10 &    13 &    12 \\
-ring  & qft         &   110 &   141 &   103 &   144 &    97 \\
-ring  & qnn         &   249 &   240 &   240 &   290 &   246 \\
-ring  & random      &   465 &   506 &   452 &   419 &   419 \\
-ring  & qpeexact    &    80 &   116 &    90 &   100 &    84 \\
-ring  & qaoa        &   249 &   248 &   247 &   250 &   246 \\
-ring  & multiplier  &   451 &   506 &   397 &   483 &   373 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 85.2 & 96.0 & 82.3 & 95.0 & \textbf{81.4} \\
+ring  & qft         &   110 &   109 &   103 &   110 &    97 \\
+ring  & qnn         &   249 &   240 &   240 &   269 &   246 \\
+ring  & random      &   465 &   465 &   452 &   419 &   419 \\
+ring  & qpeexact    &    80 &   105 &    90 &    93 &    84 \\
+ring  & qaoa        &   249 &   244 &   247 &   244 &   246 \\
+ring  & multiplier  &   451 &   506 &   397 &   416 &   373 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 85.2 & 86.1 & 82.3 & 82.9 & \textbf{81.4} \\
 \midrule
-star  & ae          &   118 &   161 &   144 &   152 &   114 \\
+star  & ae          &   118 &   149 &   144 &   104 &   114 \\
 star  & ghz         &     3 &     3 &     3 &     4 &     3 \\
 star  & graphstate  &    10 &    16 &    14 &    11 &     9 \\
-star  & qft         &   125 &   124 &   124 &   134 &   120 \\
-star  & qnn         &   241 &   535 &   314 &   321 &   314 \\
-star  & random      &   475 &   609 &   452 &   487 &   463 \\
-star  & qpeexact    &   120 &   162 &   162 &   144 &    90 \\
-star  & qaoa        &   251 &   473 &   245 &   251 &   244 \\
-star  & multiplier  &   722 & $^{\ast}$ & $^{\ast}$ &   462 &   462 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 101.1 & --- & --- & 109.9 & \textbf{93.5} \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 79.1 & 111.5 & 89.8 & 91.8 & \textbf{76.6} \\
+star  & qft         &   125 &   117 &   124 &   108 &   120 \\
+star  & qnn         &   241 &   449 &   314 &   321 &   314 \\
+star  & random      &   475 &   547 &   452 &   478 &   463 \\
+star  & qpeexact    &   120 &   162 &   162 &   102 &    90 \\
+star  & qaoa        &   251 &   405 &   245 &   245 &   244 \\
+star  & multiplier  &   722 &   455 & $^{\ast}$ &   462 &   462 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 101.1 & 122.3 & --- & 98.5 & \textbf{93.5} \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 79.1 & 103.8 & 89.8 & 81.2 & \textbf{76.6} \\
 \bottomrule
 \end{tabular}%
 }
@@ -914,12 +927,12 @@ star  & multiplier  &   722 & $^{\ast}$ & $^{\ast}$ &   462 &   462 \\
 \toprule
 Circuit & CX & \TeleSABRE & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
 \midrule
-ae (25q)     &   558 &   0.58 &   1.38 &   0.13 &   0.63 \\
-random (25q) &  1124 &   4.14 &   5.77 &   0.71 &   3.69 \\
-ae (64q)     &  1962 &   4.58 &   3.98 &   0.46 &   2.78 \\
-qft (64q)    &  1966 &  20.81 &   4.25 &   0.71 &   3.55 \\
-qnn (64q)    &  8126 &  32.49 &  13.60 &   3.79 &  16.28 \\
-random (80q) & 23381 & $^{\ast}$ & 249.24 &  64.47 & 325.68 \\
+ae (25q)     &   558 &   0.58 &   0.83 &   0.17 &   0.37 \\
+random (25q) &  1124 &   4.14 &   3.50 &   1.11 &   2.23 \\
+ae (64q)     &  1962 &   4.58 &   2.37 &   1.69 &   1.69 \\
+qft (64q)    &  1966 &  20.81 &   2.51 &   5.74 &   2.15 \\
+qnn (64q)    &  8126 &  32.49 &   7.88 &   4.92 &   9.92 \\
+random (80q) & 23381 & $^{\ast}$ & 144.16 & 208.04 & 191.47 \\
 \bottomrule
 \end{tabular}%
 }
@@ -951,10 +964,10 @@ Suite & Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & EPR$_{+
 25q & ae          &  119 &   346 &   66 &   310 & $-44.5$ &   78 &    60 & $-49.6$ \\
 25q & ghz         &   13 &    44 &    9 &    29 & $-30.8$ &   10 &     8 & $-38.5$ \\
 25q & graphstate  &   21 &    63 &    6 &    30 & $-71.4$ &   14 &     6 & $-71.4$ \\
-25q & qft         &  138 &   448 &   81 &   362 & $-41.3$ &  121 &    89 & $-35.5$ \\
+25q & qft         &  138 &   448 &   81 &   362 & $-41.3$ &  100 &    89 & $-35.5$ \\
 25q & qnn         &  515 &   820 &  145 &   685 & $-71.8$ &  136 &   126 & $-75.5$ \\
 25q & random      &  636 &  1367 &  419 &  1442 & $-34.1$ &  397 &   367 & $-42.3$ \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & & 51.0 & & $\mathbf{-52.2}$ & 64.4 & 47.7 & $\mathbf{-55.2}$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & & 51.0 & & $\mathbf{-52.2}$ & 62.4 & 47.7 & $\mathbf{-55.2}$ \\
 \midrule
 64q & ae          &  353 &  1494 &  215 &  1672 & $-39.1$ &  151 &   151 & $-57.2$ \\
 64q & ghz         &   16 &   132 &   10 &   121 & $-37.5$ &   10 &     8 & $-50.0$ \\
@@ -962,16 +975,16 @@ Suite & Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & EPR$_{+
 64q & qft         &  312 &  1711 &  223 &  1646 & $-28.5$ &  290 &   257 & $-17.6$ \\
 64q & qnn         &  889 &  5471 &  648 &  5707 & $-27.1$ &  580 &   580 & $-34.8$ \\
 64q & qpeexact    &  289 &  1706 &  193 &  1574 & $-33.2$ &  186 &   186 & $-35.6$ \\
-64q & qaoa        &  956 &  4189 &  673 &  4244 & $-29.6$ &  926 &   616 & $-35.6$ \\
+64q & qaoa        &  956 &  4189 &  673 &  4244 & $-29.6$ &  598 &   616 & $-35.6$ \\
 64q & multiplier  & 1601 &  9654 & 1564 &  9489 & $-2.3$ &  873 &   755 & $-52.8$ \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 284.5 & & 189.2 & & $\mathbf{-33.5}$ & 190.8 & 157.2 & $\mathbf{-44.7}$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 284.5 & & 189.2 & & $\mathbf{-33.5}$ & 180.7 & 157.2 & $\mathbf{-44.7}$ \\
 \midrule
 80q & ghz         &   26 &   215 &   25 &   196 & $-3.8$ &   19 &    12 & $-53.8$ \\
 80q & graphstate  &   87 &   435 &   40 &   233 & $-54.0$ &   64 &    32 & $-63.2$ \\
-80q & qpeexact    &  784 &  2875 &  408 &  2732 & $-48.0$ &  451 &   451 & $-42.5$ \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (3)} & 121.0 & & 74.2 & & $\mathbf{-38.7}$ & 81.9 & 55.7 & $\mathbf{-53.9}$ \\
+80q & qpeexact    &  784 &  2875 &  408 &  2732 & $-48.0$ &  436 &   451 & $-42.5$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (3)} & 121.0 & & 74.2 & & $\mathbf{-38.7}$ & 80.9 & 55.7 & $\mathbf{-53.9}$ \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{gmean, all} (17)} & 173.0 & & 100.9 & & $\mathbf{-41.7}$ & 112.0 & \textbf{86.0} & $\mathbf{-50.3}$ \\
+\multicolumn{2}{@{}l}{\textbf{gmean, all} (17)} & 173.0 & & 100.9 & & $\mathbf{-41.7}$ & 107.7 & \textbf{86.0} & $\mathbf{-50.3}$ \\
 \bottomrule
 \end{tabular}%
 }

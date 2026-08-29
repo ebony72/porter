@@ -166,7 +166,7 @@ def run_topology(topo: str, circuits: list[str] | None = None) -> list[dict]:
                     lay = cdr.build_initial_layout(
                         circuit, hw, num_logical,
                         min_free_per_core=cfg.min_free_before_teleport)
-                    st = dr.PorterRouter(hw, cfg).compile(circuit, lay)
+                    st, sel_info = cdr.route(hw, cfg, circuit, lay)
                     s = st.stats
                 else:
                     st, info = cdr.run_refinement_passes(
@@ -184,6 +184,8 @@ def run_topology(topo: str, circuits: list[str] | None = None) -> list[dict]:
                         continue
                     s = st.stats
                 rec[leg] = dict(epr=s.epr, swaps=s.local_swap_count,
+                                chosen_horizon=(sel_info.get("chosen_horizon")
+                                                if passes == 1 else info.get("chosen_horizon")),
                                 teleports=s.teleport_count,
                                 telegates=s.telegate_count,
                                 packets=s.telegate_packet_count,
