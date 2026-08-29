@@ -986,9 +986,11 @@ same one-EPR-pair unit. SWAP counts intra-core SWAPs only.
 \centering
 \caption{Main comparison, own protocol: each compiler from its own
   initial layout. \TeleSABRE{} and \dSABRE{} report the best of three
-  seeds; \PORTER{} is a \emph{single} run from one deterministic layout,
-  and \PORTER{}+R adds the backward-refinement schedule that matches
-  \dSABRE{}'s pass count (Section~\ref{sec:sfc-refine}).
+  seeds; \PORTER{} routes one deterministic layout at each of three
+  candidate lookahead horizons (Section~\ref{sec:horizon}), and
+  \PORTER{}+R spends five routes on the backward-refinement schedule of
+  Section~\ref{sec:sfc-refine} instead --- closer to \dSABRE{}'s nine to
+  eighteen, though still short of them.
   $\Delta_\mathrm{TS}$ is the EPR change of whichever \PORTER{} column is
   stronger on that row, against \TeleSABRE{} (\%); negative is better.
   The bolded \PORTER{} column is that stronger one --- refinement leads at
@@ -1076,7 +1078,10 @@ leaves $1.08\times$ at 80. Per circuit \PORTER{}+R wins seven, loses
 thirteen and ties four; where it wins it wins large --- 64q~Multiplier
 is $763$ against $1{,}285$, the widest margin here --- and where it
 loses worst the gap is $1.5\times$, on 80q~QPEexact ($526$ against
-$347$) and 64q~QFT ($262$ against $179$). This is a comparison against a target that
+$347$) and 64q~QFT ($262$ against $179$). Both of those are losses for
+\emph{refinement}: on 80q~QPEexact the selected single pass takes the
+instance outright at $291$, which is one of the places the two schedules
+have changed places. This is a comparison against a target that
 moved: the \dSABRE{} revision measured here lowers its EPR on every one
 of our instances relative to its published tables, by up to $40\%$
 (Section~\ref{sec:related}). Against that earlier version a single
@@ -1563,8 +1568,8 @@ Protocol & routes & EPR & vs.\ \dSABRE{} & time (s) & vs.\ \dSABRE{} \\
 
 \PORTER{}'s protocol routes one deterministic layout at each of three
 candidate lookahead horizons and keeps the best
-(Section~\ref{sec:horizon}), and two optional schedules trade compile
-time back for EPR pairs: \PORTER{}+R adds the backward refinement of
+(Section~\ref{sec:horizon}), and two further schedules spend more
+routes: \PORTER{}+R adds the backward refinement of
 Section~\ref{sec:sfc-refine}, and \PORTER{}+S additionally sweeps the
 one free scalar in the layout heuristic --- the per-layer discount
 $\gamma$, pinned at $0.99$ elsewhere --- over $\{0.90,0.95,0.99,1.0\}$
@@ -1574,18 +1579,32 @@ rather than an external partitioner or a seed sweep.
 Table~\ref{tab:protocols} places the three points against \dSABRE{}
 pooled over all twenty-four own-protocol instances.
 
-No point dominates. The shipped protocol costs $1.07\times$
-\dSABRE{}'s EPR at $0.58\times$ its compile time; refinement reaches
-$1.05\times$ at $0.74\times$; the layout search reaches parity
-($163.2$ against $163.9$) at $2.03\times$, because \PORTER{} is
-roughly twice as expensive per routing pass and $\gamma$-search runs
-$12.4$ of them on average. Selecting the horizon is much the best of
-the three trades: it recovers most of what refinement recovers
-($1.07\times$ against $1.05\times$) for three routes rather than five,
-and it is the only one of them that helps where \PORTER{} was weakest
---- Sections~\ref{sec:scaleup} and~\ref{sec:heavyhex}, neither of
-which refinement improves. Which point to prefer depends on whether
-EPR pairs or compile seconds are the scarce resource.
+No point dominates, and the three are not a ladder. The shipped
+protocol costs $1.07\times$ \dSABRE{}'s EPR at $0.58\times$ its compile
+time; refinement reaches $1.05\times$ at $0.74\times$; the layout
+search reaches parity ($163.2$ against $163.9$) at $2.03\times$,
+because \PORTER{} is dearer per routing pass and $\gamma$-search runs
+$12.4$ of them on average.
+
+Selecting the horizon has largely overtaken refinement as an
+\emph{operating point}. Over the twenty-four instances \PORTER{}+R is
+ahead by only $2.0\%$ in geometric mean, winning nine and losing five,
+for four extra routes; it is $12.0\%$ \emph{behind} the single selected
+pass at 80 qubits, $83\%$ behind on the scale-up series of
+Section~\ref{sec:scaleup}, and it is the configuration that fails
+star~Multiplier in Section~\ref{sec:heavyhex}. We nonetheless report
+\PORTER{}+R throughout, because it is what makes the fixed-layout
+comparison of Section~\ref{sec:shared_results} a fair one: that
+experiment holds the initial layout constant and asks about routing
+alone, so it needs a \PORTER{} configuration whose extra effort goes
+into routing passes rather than into layouts, and \PORTER{}+S --- which
+searches over layouts --- cannot serve that role. \PORTER{}+S earns its
+place for the opposite reason: it never loses to \PORTER{}+R on any of
+the twenty-four instances (eleven wins, thirteen ties), and it is the
+only configuration that closes the own-protocol gap to \dSABRE{}
+entirely, which is the honest answer to whether the gap is a routing
+deficit or a search-budget one. Which point to prefer depends on
+whether EPR pairs or compile seconds are the scarce resource.
 
 
 All times are \emph{complete} compile costs, following \dSABRE{}'s own
