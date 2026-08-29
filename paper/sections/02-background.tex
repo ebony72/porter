@@ -1,5 +1,5 @@
 %% 02-background.tex --- included by ../sfc.tex
-\section{Background}
+\section{Model, Primitives, and Problem Formulation}
 \label{sec:background}
 
 \subsection{Quantum Circuits and Routing}
@@ -25,6 +25,45 @@ adjacent requires intra-core SWAPs, and routing a remote gate requires
 an inter-core communication primitive. We write $\kappa_\ell(q)$ for
 the core holding $q$ under layout $\ell$, $\dL(c,p,p')$ for
 intra-core distance and $\dC(c,c')$ for core-graph distance.
+
+\subsection{Objective, Scope, and Assumptions}
+\label{sec:scope}
+
+\textbf{Objective.} Given a circuit DAG $C$ on $n$ logical qubits, a
+machine $\arch$ of $K$ cores with intra-core coupling graphs, inter-core
+links and designated communication ports, and an initial layout $\ell_0$,
+produce a legal operation stream that realises every gate of $C$ while
+minimising the number of EPR pairs consumed. Intra-core SWAP count,
+circuit depth and compile time are recorded but are not part of the
+objective and are never traded against EPR pairs by any rule in this
+paper.
+
+\textbf{Cost model.} One EPR pair is consumed per \TeleData{},
+per \TeleGate{}, and per \TeleGatePacket{} --- one per packet, however
+many remote CX gates the packet amortises --- and a pair is charged the
+same regardless of which link carries it. A multi-hop relocation is a
+sequence of single-hop \TeleData{} actions and is charged once per hop.
+This is the model \TeleSABRE{}~\cite{russo2025telesabre} and
+\dSABRE{}~\cite{lidsabre} use, which is what makes the three compilers
+comparable in a single unit.
+
+\textbf{Excluded.} The model abstracts away everything about how a pair is
+produced and consumed: entanglement-generation latency and fidelity,
+purification, link contention and concurrency between links, classical
+communication and measurement latency, decoherence during a reserved
+cat resource, and gate error rates. Communication ports are ordinary
+physical qubits that are occupied for the duration of an action and free
+otherwise, and no core is assumed to have dedicated communication memory.
+Every CX is treated as directed, with direction reversal assumed compiled
+away by the single-qubit basis.
+
+\textbf{What this scopes.} EPR consumption is the primary metric
+\emph{under this model}. On hardware where link contention or
+entanglement fidelity dominates, a compiler minimising pair count need not
+minimise runtime or error, and a policy that serialises many actions
+across one link may be worse than its pair count suggests. We do not
+evaluate that regime. Section~\ref{sec:threats} restates the consequences
+for the conclusions drawn here.
 
 \subsection{Communication Primitives}
 \label{sec:primitives}
@@ -147,8 +186,7 @@ many gates one pair is spread over. \TeleData{} amortises over an
 unknown future, \TeleGate{} over exactly one gate, and
 \TeleGatePacket{} over a run whose length the compiler must discover.
 Section~\ref{sec:sfc-scoring} makes that difference explicit as a
-direct/latent/lookahead decomposition, and Section~\ref{sec:ablation}
-measures whether the richer vocabulary is worth having.
+direct/latent/lookahead decomposition.
 
 \textbf{\SABRE{}.} \SABRE{}~\cite{li2019tackling} routes a single-core
 circuit by repeatedly selecting the SWAP that minimises a front-layer

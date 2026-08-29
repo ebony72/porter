@@ -59,8 +59,8 @@ as a relief reservoir.
 
 \textbf{Temporal locality-greedy.} Three deterministic steps.
 \emph{(i) Weighting}: each CX gate $g=(q_i,q_j)$ contributes
-$\gamma^{\ell(g)}$ to the interaction weight $w(q_i,q_j)$, where
-$\ell(g)$ is $g$'s as-soon-as-possible layer in the CX-only DAG and
+$\gamma^{\mathrm{asap}(g)}$ to the interaction weight $w(q_i,q_j)$, where
+$\mathrm{asap}(g)$ is $g$'s as-soon-as-possible layer in the CX-only DAG and
 $\gamma{=}0.99$, so early interactions weigh more than late ones while
 repeated interactions accumulate. \emph{(ii) Core assignment}: logical
 qubits are visited in the order they first appear as a CX operand and
@@ -81,37 +81,6 @@ cores; and the centrality step keeps hub qubits cheap to reach. The
 construction costs microseconds and consumes no randomness, so
 \PORTER{} has no seed to report.
 
-\subsection{Backward Refinement}
-\label{sec:sfc-refine}
-
-\PORTER{}'s default protocol is one forward pass from $\ell_0$. We also
-report an optional refinement schedule, because
-Section~\ref{sec:shared_results} shows a fixed layout is not the whole
-difference between the two compilers: given the \emph{same} externally
-supplied layout, \dSABRE{}'s forward--backward--forward schedule
-extracts more from it than a single forward pass does.
-
-The schedule is \SABRE{}'s bidirectional layout
-refinement~\cite{li2019tackling} applied to whole routes. Let $R(C,\ell)$
-denote routing $C$ from $\ell$ and $\ell'$ the layout it ends on.
-Pass~1 computes $R(C,\ell_0)$; pass~2 computes
-$R(C^{\mathrm{rev}},\ell_1')$ on the reversed circuit and
-\emph{discards its route}, keeping only $\ell_2'$; pass~3 computes
-$R(C,\ell_2')$. Reversing $C$ reverses every dependency edge, so
-routing it from the forward pass's end state yields a layout adapted to
-the \emph{start} of the forward circuit. Odd pass counts above three
-repeat the cycle; $P{=}5$ throughout. We report the best forward pass
-by EPR, so refinement can never report worse than the single pass. It
-adds no randomness and its whole cost is routing passes --- $P$ calls
-where the default makes one, against \dSABRE{}'s nine.
-
-It recovers less here than it does for \dSABRE{}, for a structural
-reason: refinement consumes a post-routing layout, and routing destroys
-the free-slot reservation $\ell_0$ was built with, so intermediate
-passes often regress and only the best-pass rule keeps that harmless.
-Where it pays it pays well --- 64q~QNN $864 \to 537$, 64q~Multiplier
-$1{,}358 \to 763$.
-
 \subsection{Front Classification}
 \label{sec:sfc-classify}
 
@@ -124,9 +93,18 @@ otherwise; a CX whose operands lie in different cores is
 \emph{non-adjacent-remote} otherwise. Directly executable gates drain
 first and completely, intra-core SWAPs are exhausted next, and
 remote-stage decisions are taken only once no front gate is
-intra-core. The front is size-capped at $96$ gates to bound
-per-iteration cost, a cap that never binds here since front gates are
-pairwise qubit-disjoint.
+intra-core. The front is size-capped at $\mathrm{dag\_front\_limit}{=}96$ gates to bound
+per-iteration cost. Front gates are pairwise qubit-disjoint, so the front
+can never exceed the logical-qubit count $n$; single-qubit gates are not
+excluded by that bound, however, and on the three QPEexact instances of the
+scale-up suite the front does reach $n$ (100, 200 and 360) and the cap
+binds. It is inert where it binds: truncation is by ascending gate index,
+directly executable gates drain before any routing decision is taken, and
+the discarded gates therefore reappear on the following iteration.
+Re-routing all three with the cap removed leaves EPR and SWAP counts
+unchanged. On every other instance evaluated here the front stays at or
+below $47$ gates and the cap does not bind. Both figures are reproduced by
+\texttt{probe\_front\_limit.py} in the artifact.
 
 \subsection{Intra-Core SWAP Scoring}
 \label{sec:sfc-intra}
@@ -168,19 +146,25 @@ compared at the level of \emph{what} remote work to do next, each
 scored as if its preconditions were met; only the committed plan is
 handed to the machinery that works out \emph{how}.
 
-Both baselines decide at a finer grain. \TeleSABRE{}'s pool holds
-staging SWAPs and remote operations together, so the choice is made
-implicitly, one micro-move at a time: every staging SWAP it selects is
-also a vote for whichever remote action that SWAP happens to serve,
-votes for competing actions interleave, and staging effort is routinely
-spent on actions never taken. \dSABRE{} does separate the stages, but
-its candidate is a single teleport hop rather than a plan, and its
-score adds that hop's staging and eviction cost directly to the
-progress it buys, so a hop cheap to stage now can outrank one that
-resolves more gates. \PORTER{} ranks by gain alone, demotes readiness
-cost to a tie-break, and refuses to reopen the choice until the
-selected plan is ready (\appExample{}); Section~\ref{sec:ablation}
-measures what that persistence is worth.
+Formally, a plan is a tuple
+\[
+  p \;=\; \bigl(\pi,\; G(p),\; \mathrm{dir},\; c_\mathrm{src},\;
+                c_\mathrm{dst},\; \Pi(p),\; \mathrm{ready}(p,\ell)\bigr),
+\]
+with $\pi\in\{\TeleData{},\TeleGate{},\TeleGatePacket{}\}$ the primitive,
+$G(p)$ the front or collected gates it resolves, $\mathrm{dir}$ its
+orientation, $c_\mathrm{src}$ and $c_\mathrm{dst}$ the cores involved,
+$\Pi(p)$ the communication ports it reserves, and
+$\mathrm{ready}(p,\ell)$ the predicate on layouts that holds when $p$ can
+fire. Three quantities are kept distinct: the plan's \emph{utility},
+evaluated under the hypothesis $\mathrm{ready}(p,\ell)$ regardless of
+whether it currently holds (Section~\ref{sec:sfc-scoring}); its
+\emph{readiness cost}, used only to break ties; and the \emph{preparation
+policy} that chooses local SWAPs once $p$ is committed. Two design
+decisions follow and are what distinguish the remote stage: utility never
+includes readiness cost, and a committed plan is not reopened until
+$\mathrm{ready}$ holds. Section~\ref{sec:related} places both against the
+baselines' choices; Section~\ref{sec:ablation} measures the second.
 
 When the front holds only remote CX gates, \PORTER{} generates two
 disjoint candidate sets. \textbf{Normal plans} $\mathcal{P}$: for every
@@ -270,11 +254,10 @@ tie-break in the selection key, after gain and plan kind. The horizon $L_\mathrm
 \emph{layers}, and the collection admits at most one gate on the moving
 qubit per layer, because a qubit has at most one zero-predecessor gate at
 any time. A gate cap $N_\mathrm{tp}$ therefore cannot bind whenever
-$N_\mathrm{tp}\ge L_\mathrm{tp}$, and the horizon is the single
-parameter that governs how far the estimate looks. No one value of
-$L_\mathrm{tp}$ serves every circuit --- Section~\ref{sec:horizon}
-shows the best value spans $4$ to $128$ across the benchmark --- so
-\PORTER{} selects it per circuit rather than fixing it.
+$N_\mathrm{tp}\ge L_\mathrm{tp}$, so $L_\mathrm{tp}$ alone governs how far
+the estimate looks. It is the one parameter \PORTER{} does not fix by
+constant; how a value is chosen per circuit is a protocol question and is
+deferred to Section~\ref{sec:horizon}.
 
 \subsection{Same-Control Packet Collection}
 \label{sec:sfc-packet}
@@ -349,26 +332,25 @@ and raises if it repeats; two budgets bound the loops from outside; and
 when no relief path reaches a reservoir \PORTER{} raises a diagnostic
 naming the saturated cores.
 
-We state the resulting guarantee precisely, because it is weaker than
-it may appear. \PORTER{} is \emph{safe} but not \emph{complete}: it
-never emits an invalid or partial circuit and always terminates, but
-termination may be by exception, and it has no analogue of
-\dSABRE{}'s termination-with-success proof
-(Section~\ref{sec:related}). Its completeness is empirical, and
-Section~\ref{sec:ablation} measures what buys it: with both relief
-tiers active none of the twenty-four instances deadlocks in any
-protocol; with both disabled, four of the six 80-qubit instances do.
-No instance in this evaluation is left unrouted, but that is a
-property of the protocol rather than of the router, and the exception
-is instructive: at a fixed lookahead horizon, Multiplier on the
-heavy-hex star of Section~\ref{sec:heavyhex} livelocks in the
-intra-core SWAP loop --- capacity never reaches zero, no plan is
-starved, the diagnostic never fires, and it is the iteration budget
-that ends the run. Routing a second horizon escapes it
-(Section~\ref{sec:horizon}), which is a way of not encountering the
-failure rather than of ruling it out. Supplying a comparable
-worst-case guarantee is the clearest piece of future work this design
-leaves open.
+These defences establish two of the three guarantees a router might
+offer, and it is worth separating them. \emph{Correctness}: a returned
+operation stream realises every gate of the input circuit and violates no
+coupling or port rule. \emph{Termination}: every run ends, either in
+success or by raising a diagnostic or tripping a guard.
+\emph{Completion}: that a run ends in success. \PORTER{} provides the
+first two by construction. It does \emph{not} provide the third, and has
+no analogue of \dSABRE{}'s termination-with-success proof under stated
+architectural hypotheses (Section~\ref{sec:related}); its completion
+record is empirical, and Section~\ref{sec:results} reports it.
+
+A run that does not complete does so in one of four distinguishable ways,
+and we use these terms consistently. A capacity \emph{deadlock} leaves no
+legal plan and no relief path, and raises a diagnostic naming the
+saturated cores. A \emph{livelock} makes local progress indefinitely while
+retired gates and EPR count stand still, and is stopped by the iteration
+guard rather than by any diagnostic. A \emph{timeout} exceeds the
+wall-clock cap. An \emph{infeasible input} is an externally supplied
+layout that already fills a core, which is reported rather than routed.
 
 A per-iteration cost analysis of the loop is given in \appComplexity{}.
 

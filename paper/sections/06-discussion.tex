@@ -1,0 +1,125 @@
+%% 06-discussion.tex --- included by ../sfc.tex
+\section{Discussion and Limitations}
+\label{sec:discussion}
+
+Section~\ref{sec:results} reports several results that are individually
+clear but that read as tensions when placed side by side. We resolve them
+here, then state what the evaluation does not establish.
+
+\textbf{What the plan abstraction buys, and what commitment buys.}
+These are separable and the paper's own terminology has to keep them
+apart. The \emph{plan-oriented} design --- generating whole inter-core
+actions as candidates and ranking them on gain with preparation cost
+demoted to a tie-break --- is what distinguishes \PORTER{}'s remote stage,
+and it is the configuration that produces the EPR reductions of
+Section~\ref{sec:rq1}. \emph{Commitment} is the narrower rule that the
+selected plan is not reopened until it is ready. Only the latter is
+ablated in Table~\ref{tab:ablation}: the hop-wise column re-derives and
+re-scores the same plan set every iteration, so it changes when the choice
+is revisited and nothing else. That it reaches the same EPR on the same
+number of routing moves says commitment is not where the quality comes
+from; it does not say the plan abstraction is idle, because no column
+removes it. Isolating the abstraction would need a hop-granular candidate
+set, which is a different router and which we have not built. This is the
+clearest gap in our attribution.
+
+\textbf{Layout below about a hundred physical qubits, horizon above it.}
+\PORTER{} trails \dSABRE{} under RQ2 at $\le 108$ physical qubits, and
+controlling the layout while matching the pass budget erases the
+difference (Sections~\ref{sec:shared_results} and~\ref{sec:heavyhex}).
+On the scale-up series neither the layout control nor extra refinement
+passes help --- \dSABRE{}'s layout is worse for \PORTER{} there than its
+own --- while selecting a longer lookahead horizon moves \PORTER{} from
+$1.45\times$ behind to $0.72\times$ ahead. The two regimes are consistent
+with the horizon being an absolute gate count that does not grow with the
+core count $K$, so that a plan at twenty cores is scored over
+proportionally less of the circuit than at four. We have not tested a
+$K$-scaled horizon, so that remains a hypothesis rather than a finding.
+
+\textbf{Why \TeleData{}-only can beat the full action set.} Packets
+clearly beat the single telegates they degrade into, yet removing gate
+teleportation entirely is cheaper still on the packet-heaviest circuits
+at 80 qubits. We read this as an interaction between the action
+vocabulary and the scorer rather than as a failure of packetisation. The
+two are scored in different currencies: a packet's gain is a count of
+remote CX gates it resolves immediately, whereas a \TeleData{} plan's is a
+sum of core-distance reductions, most of it discounted over a bounded
+horizon. Nothing establishes that one resolved gate and one unit of
+distance reduction are commensurate, and where a teleport's repayment
+extends past the horizon the comparator cannot see it. The ablation is
+evidence that this mismatch costs EPR pairs at scale; it is not evidence
+that a pair spread over a run of gates is a bad idea.
+
+\textbf{What the completion record does and does not show.}
+Section~\ref{sec:sfc-progress} separates correctness and termination,
+which \PORTER{} guarantees by construction, from completion, which it does
+not. Every instance in this evaluation completes under the selected-horizon
+protocol, but that is a property of the protocol and the benchmark rather
+than of the router: at a fixed horizon, heavy-hex star Multiplier
+livelocks, and the extra candidate is a way of not meeting the failure
+rather than of excluding it. Two of the four failure modes were observed
+here --- livelock at a fixed horizon, and infeasibility on an external
+pytket-dqc layout that fills a core --- while capacity deadlock was
+observed only with relief disabled. \dSABRE{}'s safe mode carries a
+termination-with-success proof under stated architectural hypotheses, and
+supplying a comparable guarantee is the clearest piece of theory this
+design leaves open.
+
+\subsection{Threats to Validity}
+\label{sec:threats}
+
+\textbf{Benchmark coverage.} The main suites are nine MQT-Bench families
+at three widths; the scale-up series is two families (QFT and QPEexact)
+only, so nothing here supports a claim about scaling behaviour on
+irregular or randomly structured circuits at those widths. The two
+heavy-hex networks are two core graphs, not a survey of architectures.
+
+\textbf{Parameter rules fitted in-sample.} The horizon candidate sets and
+the density threshold were chosen by inspecting these same instances
+(Section~\ref{sec:horizon}). The magnitude of the horizon-selection gain
+is therefore in-sample. The portfolio construction bounds the downside ---
+the configured horizon is always a candidate and wins ties --- but an
+out-of-sample validation has not been performed. The same caution applies
+in weaker form to $f_\mathrm{min}$, $m_\mathrm{assist}$ and the packet
+window, which were fixed early and not swept.
+
+\textbf{Reconstructed benchmark instances.} The 80-qubit AE and QNN
+circuits are not produced by the stock generator and were reconstructed
+(\appSuite{}). We release the construction scripts and the files, and
+validate the QNN reconstruction by exact CNOT-sequence match against the
+64-qubit file, but they remain our circuits rather than the generator's.
+
+\textbf{Patched baseline binary.} All \TeleSABRE{} numbers use a binary
+patched to avoid an out-of-range index in its initial-layout pass
+(Section~\ref{sec:baselines}). The patch changes placement only for qubits
+the stock binary leaves unplaced, and architecture-H results, where the
+stock binary does not crash, are unchanged by it; we have not otherwise
+audited its effect.
+
+\textbf{An evolving concurrent baseline.} \dSABRE{} was revised during
+this work. We pin an exact revision and re-run rather than quoting, but a
+later revision may move the comparison again.
+
+\textbf{Unequal native budgets.} The own-protocol comparison gives
+\dSABRE{} nine to eighteen routes against \PORTER{}'s three. This is each
+compiler's own convention rather than a controlled budget, which is why
+RQ2 exists and why compile time is reported everywhere.
+
+\textbf{Aggregation over failures.} Geometric means are taken over jointly
+completed instances, so a baseline that fails hard instances is scored
+only on easier ones. Completion counts are reported alongside every such
+mean, but the two must be read together.
+
+\textbf{Implementation and timing.} \PORTER{} is Python and the baselines
+are Python and C respectively, so per-pass times compare implementations
+as much as algorithms. Compile times are wall-clock on one machine.
+Horizon selection additionally guards its speculative routes with a
+wall-clock budget, so on a loaded machine it may abandon a candidate that
+would otherwise have won: the protocol's output is reproducible only up to
+that budget, though each individual route is exactly reproducible.
+
+\textbf{Cost model.} One EPR pair per inter-core action, independent of
+hop count and generation protocol; link contention, entanglement latency
+and fidelity, purification, and classical communication cost are all
+outside the model (Section~\ref{sec:scope}). Conclusions are relative to
+that model.

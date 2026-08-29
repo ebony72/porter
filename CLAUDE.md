@@ -141,8 +141,8 @@ The "+7% overall gmean" figure that looked wrong on first check is correct
 --- it is over the 14-instance gmean basis including the omitted
 GHZ/Graphstate rows, not over the 12 rows shown.
 
-`paper/sfc.tex` is now a **13-page** paper (was 20; 12 pages of body plus
-a references page) framed as: PORTER is a
+`paper/sfc.tex` was compressed to 13 pages here; the 2026-08-29 review
+restructure took it back to 17. It is framed as: PORTER is a
 new DQC compiler that **beats published TeleSABRE** and is **competitive
 with a concurrent compiler, dSABRE**. dSABRE is described as concurrent
 work throughout, not as a baseline PORTER must beat; §III-A's
@@ -638,6 +638,93 @@ A whole paragraph of the old scale-up prose was an artefact of the wrong
 device ("not a monotone difficulty ladder ... six 81-slot cores ... fewer
 EPR at 360q than 200q") and has been deleted: on the correct series
 dSABRE's own cost rises 200 -> 765 -> 1890 on QFT.
+
+## Restructured after an organisation review (2026-08-29)
+
+`porter_presentation_organisation_review.md` (Obsidian vault) was reviewed
+claim by claim; most of it was adopted. The paper is now **17 pages** with
+eight sections:
+
+I Introduction, II Model/Primitives/Problem Formulation, III The PORTER
+Compiler, IV Experimental Methodology, V Results (RQ1--RQ4), VI Discussion
+and Limitations, VII Related Work, VIII Conclusion.
+
+**Two boundaries are load-bearing; do not undo them.**
+1. **Section III describes ONE routing pass.** Horizon selection, backward
+   refinement and the gamma-search are multi-pass *operating protocols* and
+   live in IV-E, because they invoke the router repeatedly rather than
+   changing what a pass does.
+2. **Section III states no results.** No numbers, no win/loss records, no
+   forward references to outcomes. Interpretation spanning several results
+   goes in VI, not in the results subsections.
+
+**Rejected: the review's proposal to retitle away from "Plan-Committed."**
+Its argument was that the ablation shows commitment does not lower EPR. That
+conflates two things the paper now keeps apart: the **plan-oriented
+framework** (whole-plan candidates, ranked on gain with preparation cost as a
+tie-break) and the **commitment rule** (do not reopen the choice until the
+plan is ready). `tab:ablation`'s hop-wise column holds the plan set, scoring
+and relief tiers fixed and varies ONLY the commitment rule -- so it says
+nothing about the abstraction, which no experiment removes. Sec VI states
+that gap explicitly as the weakest point in the attribution. The paper's
+theme, per the author: an effective, efficient, arguably robust DQC compiler
+that saves EPR against TeleSABRE and is competitive with dSABRE. **Compile
+time is not a selling point** -- report it, never lead with it.
+
+**Factual defects the review surfaced, both confirmed:**
+- **The front-cap claim was wrong.** "A cap that never binds since front
+  gates are pairwise qubit-disjoint" -- disjointness bounds the front by $n$,
+  not by 96, and 1Q gates are not excluded. The cap **binds on all three
+  QPEexact scale-up instances** (front reaches 100/200/360). It is
+  output-neutral there (truncation is by ascending gate index and executable
+  gates drain first), verified by re-routing uncapped. New released probe
+  `paper/probe_front_limit.py` reproduces both figures; max front elsewhere
+  is 47 (64q random).
+- **Notation collision**: `\ell` was the layout *and* `\ell(g)` the ASAP
+  layer. The ASAP layer is now `\mathrm{asap}(g)`.
+
+**Claims narrowed** (all were overstated): "the figure of merit that matters"
+-> primary metric under the stated cost model; "architecture independence" ->
+robustness on two non-grid core graphs; "Scaling to 360 qubits" -> scale-up
+on QFT and QPEexact only; "capacity relief ... a non-event" -> the measured
+completion statement; "the residual gap is a search-budget gap" -> increased
+search closes it, without the causal claim (the +S schedule varies layouts
+too, and route counts are matched but wall-clock is not); "independent replay
+verifier" -> written separately from the router, sharing no routing/scoring/
+layout code, **and baselines are NOT replay-verified** (now stated).
+Removed: "decisively better", "one-sided", "the cleanest comparison",
+"the honest description", "a target that moved", "all three favour the
+baseline".
+
+**Horizon selection is disclosed as in-sample.** The sweep, both candidate
+sets and the 0.80 density threshold were fixed by inspecting the same 48
+instances the paper reports on; there is no held-out family. Sec IV-E now
+says so, and bounds the risk: the rule is a *portfolio*, not a predictor --
+the configured horizon is always a candidate and wins ties, so a bad
+candidate set costs compile time but cannot make the selected route worse
+than routing once.
+
+**Added**: research questions (IV-A) with each results subsection opening on
+its question/controls/metric; a terminology subsection fixing
+route/candidate-layout/protocol/candidate-horizon (no synonyms -- "attempt"
+is banned); `tab:budgets`, which states layout source, layout count, passes
+per layout, total routes and selection rule for **every** configuration in
+the paper; a metrics-and-aggregation subsection defining the geometric mean
+and the failure policy; a scope-and-assumptions subsection (II-B) stating the
+one-pair-per-action cost model and everything it excludes; `tab:taxonomy` in
+Related Work; and VI's threats to validity.
+
+**Not done** (deliberate): `tab:main` was not split into a suite-level
+summary with per-circuit rows in the appendix, though the review is right
+that it is dense -- it is the headline evidence and `verify_tex_tables.py`'s
+main check parses it. Algorithm 1 was not split into three.
+
+**`sfc_appendix.tex` no longer hardcodes main-paper numbers.** It loads
+`sfc.aux` via `xr` (`\externaldocument[main-]{sfc}`), so the main paper can
+be renumbered freely; shared labels (`tab:shared`, `tab:heavyhex`) are
+disambiguated by the `main-` prefix. **Compile `sfc.tex` first** or the
+appendix's cross-references render as `??`. Its own `\app*` letters (A--I)
+are still hardcoded in `sfc.tex`.
 
 ## The main paper is split by section (2026-08-29)
 

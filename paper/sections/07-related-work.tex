@@ -18,8 +18,8 @@ safety-valve cap it maintains an explicit blocked-plan set with a
 tail-relief search and a pre-emptive relief comparator.
 
 \textbf{\dSABRE{}}~\cite{lidsabre} is concurrent work on the same
-problem, and the honest description is that the two compilers are close
-relatives developed in parallel. Its router was substantially revised
+problem, and the two compilers are close relatives developed in
+parallel. Its router was substantially revised
 while this paper was in preparation --- a shared extended-set
 construction and a safe-mode capacity discipline --- lowering its EPR
 on every one of our own-protocol instances relative to its published
@@ -40,9 +40,41 @@ evaluates: \PORTER{}'s action vocabulary is larger (\dSABRE{} ships
 teledata only); its unit of commitment is a whole plan rather than one
 hop; preparation cost enters as a tiebreaker rather than additively;
 and its initial layout is one deterministic construction rather than a
-seeded best-of-$N$ search. \dSABRE{}'s safe mode additionally carries a
-termination-with-success proof under stated architectural hypotheses,
-which \PORTER{} has no analogue of (Section~\ref{sec:sfc-progress}).
+seeded best-of-$N$ search. \dSABRE{}'s safe mode additionally carries a completion guarantee that
+\PORTER{} does not match (Sections~\ref{sec:sfc-progress}
+and~\ref{sec:discussion}).
+
+\begin{table}[t]
+\centering
+\caption{Design axes of the compilers discussed here. ``Commitment'' is
+  the unit a scoring decision is taken over. \texttt{pytket-dqc} is
+  partition-first and does not route with these primitives, so several
+  axes do not apply.}
+\label{tab:taxonomy}
+\setlength{\tabcolsep}{3pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}l l l l l@{}}
+\toprule
+ & \TeleSABRE{} & \dSABRE{} & pytket-dqc & \PORTER{} \\
+\midrule
+Paradigm       & online & online & partition-first & online \\
+Primitives     & data, gate & data & (e-bit) & data, gate, packet \\
+Local/remote   & one pool & staged & --- & staged \\
+Commitment     & one move & one hop & whole plan & whole plan \\
+Prep.\ cost    & in score & in score & --- & tie-break \\
+Layout         & Hungarian, & SabreLayout, & hypergraph & one \\
+               & \ 3 seeds  & \ 3 seeds    & partition  & \ deterministic \\
+Capacity       & cap & legality + relay & partition & legality + relief \\
+Termination    & --- & with-success proof & --- & correct, terminates \\
+Metric         & EPR & EPR & e-bits & EPR \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Table~\ref{tab:taxonomy} places the four systems on the axes that
+matter here.
 
 \textbf{Other approaches.} Partition-first compilers assign qubits to
 cores by hypergraph or community

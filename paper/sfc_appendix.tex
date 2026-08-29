@@ -51,17 +51,21 @@
 \newcommand{\phys}[1]{\mathrm{p}_{#1}}
 
 %% ── References into the main paper ──────────────────────────────────────────
-%% The supplement compiles independently, so these are hardcoded; update here
-%% (single place) if the main paper is renumbered.
-\newcommand{\mainInitialLayout}{Section~III-A}   % sec:sfc-layout
-\newcommand{\mainRunningExample}{Section~III-G}  % sec:sfc-example
-\newcommand{\mainExampleFig}{Figure~5}           % fig:example
-\newcommand{\mainEvaluation}{Section~IV}         % sec:experiments
-\newcommand{\mainSetup}{Section~IV-B}            % sec:setup
-\newcommand{\mainProtocols}{Section~IV-C}        % sec:protocols
-\newcommand{\mainSharedResults}{Section~IV-E}    % sec:shared_results
-\newcommand{\mainCompileTime}{Section~IV-G}      % sec:time
-\newcommand{\mainSharedTable}{Table~VII}         % tab:shared
+%% Resolved from sfc.aux via xr, so the main paper can be renumbered freely.
+%% Compile sfc.tex first; if sfc.aux is absent every number below renders as
+%% "??" rather than silently going stale.  Labels shared by both documents
+%% (tab:shared, tab:heavyhex) are disambiguated by the main- prefix.
+\usepackage{xr}
+\externaldocument[main-]{sfc}
+\newcommand{\mainInitialLayout}{Section~\ref{main-sec:sfc-layout}}
+\newcommand{\mainRunningExample}{Section~\ref{main-sec:sfc-plan-first}}
+\newcommand{\mainExampleFig}{Figure~\ref{fig:example}}
+\newcommand{\mainEvaluation}{Section~\ref{main-sec:methodology}}
+\newcommand{\mainSetup}{Section~\ref{main-sec:setup}}
+\newcommand{\mainProtocols}{Section~\ref{main-sec:protocols}}
+\newcommand{\mainSharedResults}{Section~\ref{main-sec:shared_results}}
+\newcommand{\mainCompileTime}{Section~\ref{main-sec:time}}
+\newcommand{\mainSharedTable}{Table~\ref{main-tab:shared}}
 
 \begin{document}
 
@@ -466,7 +470,7 @@ intended check; the same harness runs on any benchmark QASM file.
   every inter-core link joins one port in each of two adjacent cores
   and is the only place EPR pairs are consumed. Architecture~H
   ($2{\times}3$ array of $4{\times}4$ cores,
-  Section~\ref{sec:experiments}) follows the same pattern.}
+  Section~\ref{main-sec:methodology}) follows the same pattern.}
 \label{fig:arch}
 \end{figure}
 
@@ -648,7 +652,7 @@ adjacent-remote, so the plan-first stage fires.
 \begin{table}[t]
 \caption{Remote plans generated for the front of
   Figure~\ref{fig:example}, with total gains
-  (Section~\ref{sec:sfc-scoring}).}
+  (Section~\ref{main-sec:sfc-scoring}).}
 \label{tab:example-plans}
 \centering
 \scriptsize
@@ -691,7 +695,7 @@ locality-first stage drains the now-local $g_5$ first (one SWAP plus
 a local CX), and the remote stage then re-generates plans for $g_4$:
 the single telegate and \TeleData{}($\logi{5}\!\to\!c_0$) now tie at
 gain $1$, and the plan-kind tie-break (\TeleData{} $\succ$
-\TeleGate{}, Section~\ref{sec:sfc-scoring}) commits the teleport ---
+\TeleGate{}, Section~\ref{main-sec:sfc-scoring}) commits the teleport ---
 $\logi{5}$ lands on $c_0$'s port and $g_4$ finishes as a local CX.
 Two EPR pairs for the whole fragment. This is not a stylised
 trace: it is exactly the operation stream the implementation emits
@@ -781,22 +785,22 @@ of \PORTER{}'s cat-entangler actions and $76\%$ of the gates those
 actions serve.
 
 Two features of the table shape the ablation of
-Section~\ref{sec:ablation}. First, the vocabulary is used very unevenly:
+Section~\ref{main-sec:ablation}. First, the vocabulary is used very unevenly:
 Random and Multiplier account for $612$ of \PORTER{}'s $637$ single
 telegates, while QNN and QAOA account for $571$ of its $801$ packets.
 Second, amortisation and EPR consumption do not move together ---
 \PORTER{} spends more cat-entangler actions than \TeleSABRE{} and fewer
 EPR pairs than it, but also more EPR pairs than \dSABRE{}, which spends
 none at all. Whether the extra vocabulary pays is therefore not
-answerable from this table; Section~\ref{sec:ablation} answers it
+answerable from this table; Section~\ref{main-sec:ablation} answers it
 directly, and the answer is not the one the design assumed.
 
 
 \section{Supplementary Tables}
 \label{app:tables}
 
-The tables below support claims made in Sections~\ref{sec:sfc}
-and~\ref{sec:experiments} of the main paper: the full parameter set
+The tables below support claims made in Sections~\ref{main-sec:sfc}
+and~\ref{main-sec:results} of the main paper: the full parameter set
 (Table~\ref{tab:params}), the cross-layout grid
 (Table~\ref{tab:crosslayout}), the per-circuit heavy-hex and shared-layout
 rows summarised there (Tables~\ref{tab:heavyhex} and~\ref{tab:shared}),
@@ -807,7 +811,7 @@ SWAP counts are reported here rather than in the main text.
 
 \begin{table}[h]
 \centering
-\caption{Hardware cost and heuristic parameters (see Section~\ref{sec:sfc}).}
+\caption{Hardware cost and heuristic parameters (see Section~\ref{main-sec:sfc}).}
 \label{tab:params}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lll@{}}
@@ -833,7 +837,7 @@ $^\dagger$ The teleport-lookahead horizon is not a fixed constant:
 \PORTER{} routes the circuit once per candidate value and keeps the
 lowest-EPR result, taking the short candidate set when the interaction
 graph is near all-to-all and the long one otherwise
-(Section~\ref{sec:horizon}).\\
+(Section~\ref{main-sec:horizon}).\\
 $^\ddagger$ Inert at this value. The lookahead admits at most one gate on
 the moving qubit per simulated layer, so the collected count cannot exceed
 $L_\mathrm{tp}$ and the cap cannot bind while
@@ -849,7 +853,7 @@ circuit bit-for-bit identical.
   both its own and the other's initial layout. Columns are routers, and
   within each router the left figure is its own layout and the right the
   other's. \dSABRE{}'s layout is the best-of-six candidate set of
-  Section~\ref{sec:protocols}; \PORTER{}'s is its single deterministic
+  Section~\ref{main-sec:protocols}; \PORTER{}'s is its single deterministic
   temporal locality-greedy layout.}
 \label{tab:crosslayout}
 \setlength{\tabcolsep}{4pt}
@@ -879,11 +883,11 @@ Suite & own lay. & \PORTER{} lay. & own lay. & \dSABRE{} lay. & own lay. & \dSAB
   as a \emph{ring} (4 links, every core degree 2) and as a \emph{star}
   (3 links, core~0 a hub every inter-core route must cross). EPR pairs
   only; the question here is architectural sensitivity, not the
-  EPR/SWAP trade-off of Table~\ref{tab:main}. The right-hand pair is
+  EPR/SWAP trade-off of Table~\ref{main-tab:main}. The right-hand pair is
   the fixed-layout control: \PORTER{} routing \dSABRE{}'s own
   \texttt{SabreLayout} candidates, so the two routers differ only in the
   routing loop.
-  $^{\ast}$\PORTER{} does not complete (Section~\ref{sec:sfc-progress}).
+  $^{\ast}$\PORTER{} does not complete (Section~\ref{main-sec:sfc-progress}).
   \dSABRE{} reproduces its own published numbers for these two
   architectures on all eighteen instances~\cite{lidsabre}. The bracketed
   star row excludes Multiplier so the two \PORTER{} columns are paired
@@ -955,7 +959,7 @@ random (80q) & 23381 & $^{\ast}$ & 144.16 & 208.04 & 191.47 \\
 \centering
 \caption{Shared-layout comparison, all suites: \dSABRE{} and
   \PORTER{} are both routed, single-shot, from \TeleSABRE{}'s own initial
-  layout (Section~\ref{sec:protocols}). $\Delta_\mathrm{TS}$ columns give
+  layout (Section~\ref{main-sec:protocols}). $\Delta_\mathrm{TS}$ columns give
   each router's EPR change relative to \TeleSABRE{}'s own-protocol
   result; negative is better. Rows exist only where \TeleSABRE{}
   converges and thus provides a layout to share: all six circuits at
