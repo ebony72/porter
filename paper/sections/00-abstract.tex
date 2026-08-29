@@ -1,39 +1,32 @@
 %% 00-abstract.tex --- included by ../sfc.tex
 \begin{abstract}
-A distributed quantum computer runs one circuit across several small
-cores joined by links that distribute entanglement on demand, and under
-the usual cost model the compiler's objective is to spend as few
+A distributed quantum computer runs one circuit across several small cores
+joined by links that distribute entanglement on demand. Under the usual
+cost model the compiler's objective is to spend as few
 Einstein--Podolsky--Rosen (EPR) pairs as possible on gates that straddle
-cores. Existing routers decide among inter-core actions while
+cores. Existing routers choose among inter-core actions while
 simultaneously staging them, so an action's apparent value depends on the
 layout the compiler happens to occupy. We present \PORTER{}, a compiler
 that instead scores a complete inter-core \emph{plan} --- which primitive
 fires, which gates it resolves, and which readiness conditions it needs
 --- before any preparation SWAP for it exists, commits to one, and only
-then generates that plan's preparation. Around this it adds a two-tier
-capacity-relief mechanism, a deterministic seed-free initial layout, and a
-per-circuit choice of teleport-lookahead horizon. \PORTER{} unifies the
-three known inter-core primitives, including cat-entangler packets that
-amortise one pair across a run of remote gates sharing a control.
-On MQT-Bench suites at 25, 64 and 80 logical qubits \PORTER{} uses
-$59.6\%$, $41.6\%$ and $68.2\%$ fewer EPR pairs in geometric mean than
-published \TeleSABRE{} at a matched three-attempt budget, and completes
-all twenty-four instances where \TeleSABRE{} completes seventeen. Against
-\dSABRE{}, concurrent work whose router was revised during this study and
-which we therefore re-ran from a pinned revision, \PORTER{} is
-competitive, and which compiler leads depends on the operating point:
-under each compiler's own protocol \PORTER{} uses $7\%$ more pooled EPR
-at $0.58\times$ the compile time, a comparable search budget reverses
-that, and \PORTER{} leads on identical externally supplied layouts, on
-both heavy-hex core graphs and on a $100$--$360$-qubit scale-up series.
-Controlled ablations attribute the results: capacity relief is what makes
-a deterministic-greedy design complete in practice, the initial layout
-dominates below roughly a hundred physical qubits and the lookahead
-horizon above it, and plan commitment reaches the same EPR as re-scoring
-every iteration while costing less time. A richer gate-teleportation
-vocabulary does not always help, which we report as measured. Every
-\PORTER{} route is certified by a separately implemented replay verifier;
-the implementation, verifier, harness and raw results are public.
+then prepares it. \PORTER{} supports all three known inter-core
+primitives, including cat-entangler packets that amortise one pair over a
+run of remote gates sharing a control, and adds capacity-aware relief, a
+deterministic seed-free initial layout, and a per-circuit choice of
+teleport-lookahead horizon. On MQT-Bench suites at 25, 64 and 80 logical
+qubits \PORTER{} uses $59.6\%$, $41.6\%$ and $68.2\%$ fewer EPR pairs in
+geometric mean than published \TeleSABRE{} at a matched attempt budget,
+and completes all twenty-four instances where \TeleSABRE{} completes
+seventeen. Against \dSABRE{}, concurrent work re-run here from a pinned
+revision, \PORTER{} is competitive, and which compiler leads depends on
+the operating point: it uses $7\%$ more pooled EPR at $0.58\times$ the
+compile time under each compiler's own protocol, and leads once the
+initial layout is controlled and at the largest scales evaluated.
+Controlled ablations attribute these results to individual mechanisms and
+report two negative findings that bound them. Every \PORTER{} route is
+certified by a separately implemented replay verifier; the
+implementation, verifier, harness and raw results are public.
 \end{abstract}
 
 \begin{IEEEkeywords}

@@ -31,6 +31,37 @@ places where they appear to conflict, is collected in
 Section~\ref{sec:discussion}.
 
 
+\subsection{Terminology}
+\label{sec:terms}
+
+Budget comparisons depend on using these terms consistently, so we fix
+them here and use no synonyms.
+
+\begin{itemize}[leftmargin=1.2em,itemsep=0pt,topsep=2pt]
+\item A \textbf{route} (equivalently a \emph{routing pass}) is one
+  invocation of the routing loop of Section~\ref{sec:sfc} on one circuit
+  from one layout, producing one operation stream.
+\item A \textbf{candidate layout} is one initial mapping a protocol
+  supplies to the router. A protocol's cost is its layout count times its
+  routes per layout.
+\item A \textbf{protocol} is a named row of Table~\ref{tab:budgets}: a
+  layout source, a route budget and a selection rule. We avoid
+  ``attempt'', which the baselines use for both meanings.
+\item A \textbf{candidate horizon} is one value of $L_\mathrm{tp}$ offered
+  to horizon selection; selecting among them costs one route each.
+\item \textbf{Complete compile cost} is the wall-clock time of an entire
+  protocol --- layout generation plus every route over every candidate ---
+  not of the winning route alone.
+\end{itemize}
+
+For the machine and the router we use: \emph{core}, \emph{communication
+port}, and \emph{reservoir} (a core holding at least $f_\mathrm{min}$ free
+positions); a front CX is \emph{local}, \emph{adjacent-remote} or
+\emph{non-adjacent-remote}; a plan is \emph{normal} or \emph{blocked}, and
+\emph{ready}, \emph{preparable} or neither; and a run that does not
+complete does so by \emph{deadlock}, \emph{livelock}, \emph{timeout} or
+\emph{infeasible input} (Section~\ref{sec:sfc-progress}).
+
 \subsection{Implementation and Verification}
 \label{sec:perf}
 
@@ -281,37 +312,6 @@ a worse route than the single pass.
 lower EPR of the two, netting the one route they share. The two look for
 different things --- the horizon at a fixed layout against the layout at a
 fixed horizon --- so neither subsumes the other.
-
-\subsection{Terminology}
-\label{sec:terms}
-
-Budget comparisons depend on using these terms consistently, so we fix
-them here and use no synonyms.
-
-\begin{itemize}[leftmargin=1.2em,itemsep=0pt,topsep=2pt]
-\item A \textbf{route} (equivalently a \emph{routing pass}) is one
-  invocation of the routing loop of Section~\ref{sec:sfc} on one circuit
-  from one layout, producing one operation stream.
-\item A \textbf{candidate layout} is one initial mapping a protocol
-  supplies to the router. A protocol's cost is its layout count times its
-  routes per layout.
-\item A \textbf{protocol} is a named row of Table~\ref{tab:budgets}: a
-  layout source, a route budget and a selection rule. We avoid
-  ``attempt'', which the baselines use for both meanings.
-\item A \textbf{candidate horizon} is one value of $L_\mathrm{tp}$ offered
-  to horizon selection; selecting among them costs one route each.
-\item \textbf{Complete compile cost} is the wall-clock time of an entire
-  protocol --- layout generation plus every route over every candidate ---
-  not of the winning route alone.
-\end{itemize}
-
-For the machine and the router we use: \emph{core}, \emph{communication
-port}, and \emph{reservoir} (a core holding at least $f_\mathrm{min}$ free
-positions); a front CX is \emph{local}, \emph{adjacent-remote} or
-\emph{non-adjacent-remote}; a plan is \emph{normal} or \emph{blocked}, and
-\emph{ready}, \emph{preparable} or neither; and a run that does not
-complete does so by \emph{deadlock}, \emph{livelock}, \emph{timeout} or
-\emph{infeasible input} (Section~\ref{sec:sfc-progress}).
 
 \subsection{Comparison Protocols and Budgets}
 \label{sec:budgets}
