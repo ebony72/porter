@@ -13,9 +13,9 @@ Section~\ref{sec:results} is organised around them.
   recommended protocol, how does \PORTER{}'s EPR consumption and compile
   time compare with \TeleSABRE{}'s and \dSABRE{}'s?
 \item[\textbf{RQ2}] \textbf{Routing quality with the layout controlled.}
-  Given the \emph{same} externally supplied initial layout, and at matched
-  routing budgets, how does \PORTER{}'s routing loop compare with
-  \dSABRE{}'s?
+  Given the \emph{same} externally supplied initial layout, how does
+  \PORTER{}'s routing loop compare with \dSABRE{}'s --- first at an equal
+  route count, then when each is allowed its own refinement schedule?
 \item[\textbf{RQ3}] \textbf{Mechanism attribution.} What does each of
   \PORTER{}'s mechanisms --- plan commitment, capacity relief, the packet
   primitive, the \TeleGate{} family, the initial layout and horizon
@@ -68,9 +68,11 @@ complete does so by \emph{deadlock}, \emph{livelock}, \emph{timeout} or
 comparison harness. It takes no seed: heuristic ties resolve through a
 fixed chain of deterministic keys, any residual tie through a
 constant-initialised generator, and every residual tie-break is counted
-in the emitted statistics. One routing pass on a fixed circuit and
-hardware therefore emits a byte-identical stream across runs, and we
-certify behaviour preservation across refactorings by hashing it. One
+in the emitted statistics. In the released software environment, one route on a fixed circuit,
+hardware and revision therefore emits a byte-identical stream across
+repeated runs, and we certify behaviour preservation across refactorings
+by hashing it; we have not tested identity across Python versions or
+platforms. One
 caveat applies to horizon selection (Section~\ref{sec:horizon}): its
 speculative routes share a wall-clock budget, so on a loaded machine a
 candidate may be abandoned that would otherwise have won. Each route is
@@ -208,8 +210,8 @@ none takes a seed.
 \label{sec:horizon}
 
 The teleport-lookahead horizon $L_\mathrm{tp}$ is the one parameter of
-Section~\ref{sec:sfc-scoring} that no single value serves. In an
-offline sweep over $\{4,8,\dots,1024\}$ on every instance the best value
+Section~\ref{sec:sfc-scoring} for which no tested constant is best across
+the corpus. In an offline sweep over $\{4,8,\dots,1024\}$ on every instance the best value
 spans the whole range: $80$-qubit QNN wants $4$, the $25$-qubit suite
 wants $16$, and every $100$-, $200$- and $360$-qubit instance wants
 $128$, beyond which EPR saturates. The gap between the shipped $16$ and
@@ -231,14 +233,16 @@ circuit with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$,
 every other circuit at $\{8,16,128\}$, and the lowest-EPR route is kept.
 No instance above the threshold ever selected the long horizon, so
 pruning costs no EPR and removes the dominant compile-time term: a long
-horizon that fails to converge and consumes the whole attempt. Two rules
-bound the cost. The circuit's configured horizon is routed first,
-unguarded, and wins ties, so selection can never return a worse route
-than routing once. The remaining candidates share a wall-clock budget
-proportional to what that first route cost, and one that overruns it is
-abandoned. That budget makes a deep horizon affordable to try, and it is
-the one place \PORTER{}'s output depends on the machine it runs on
-(Section~\ref{sec:perf}).
+horizon that fails to converge and consumes the whole protocol's budget.
+Two rules bound the cost. The circuit's configured horizon is routed
+first, unguarded, and wins ties. The remaining candidates share a
+wall-clock budget proportional to what that first route cost, and one
+that overruns it is abandoned. The guarantee this gives is conditional
+and worth stating exactly: \emph{provided the configured-horizon route
+completes}, selection returns no higher an EPR count than that route
+would alone. It can still raise compile time, and which speculative
+candidates finish --- hence which route is selected --- depends on the
+wall-clock budget and so on the machine (Section~\ref{sec:perf}).
 
 \textbf{This rule was fitted on the corpus it is evaluated on.} The
 sweep, both candidate sets and the $0.80$ threshold were fixed by
@@ -247,9 +251,9 @@ family, so evidence for the \emph{size} of the gain is in-sample. Two
 things bound the risk. The rule is a portfolio, not a prediction: the
 configured horizon always competes and wins ties, so a poor candidate
 set costs compile time but cannot worsen the selected route. And the
-direction the sweep exposes --- that no constant serves circuits whose
-densities differ by an order of magnitude --- does not depend on the
-values chosen. An out-of-sample validation remains to be done.
+direction the sweep exposes --- that no tested constant is best across
+circuits whose densities differ by an order of magnitude --- does not
+depend on the values chosen. An out-of-sample validation remains to be done.
 
 \subsubsection{Backward refinement (\PORTER{}+R)}
 \label{sec:sfc-refine}
@@ -281,13 +285,26 @@ some instances, and only the best-pass rule keeps that from surfacing.
 \subsubsection{Layout-discount search (\PORTER{}+S)}
 \label{sec:layoutsearch}
 
-\PORTER{}+S sweeps the one free scalar in the layout heuristic --- the
+\PORTER{}+S searches the one free scalar in the layout heuristic --- the
 per-layer discount $\gamma$ of Section~\ref{sec:sfc-layout}, fixed at
-$0.99$ elsewhere --- over $\{0.90,0.95,0.99,1.0\}$, routes each resulting
-layout, and keeps the lowest-EPR route. It is a search inside \PORTER{}'s
-own layout construction rather than an external partitioner or a seed
-sweep, and $0.99$ is always among the candidates, so it too cannot return
-a worse route than the single pass.
+$0.99$ elsewhere --- in two phases.
+
+\emph{Phase 1} builds a layout for each
+$\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ and routes it once at the
+configured horizon, without selection: five routes. The lowest-EPR layout
+wins.
+\emph{Phase 2} runs the $P{=}5$ refinement schedule above from two seed
+layouts --- phase 1's winner, and the $\gamma{=}0.99$ layout when that is
+not already the winner --- adding $P{-}1{=}4$ routes each. Refining the
+winner is not reliably best: on 64q~QNN, $\gamma{=}1.0$ wins phase 1 at
+$604$ and refines no further, while refining the $\gamma{=}0.99$ layout
+reaches $537$, so both are run.
+
+The total is therefore $5+4=9$ routes when $\gamma{=}0.99$ wins phase 1
+and $5+4+4=13$ otherwise, which is the $9$--$13$ of
+Table~\ref{tab:budgets}; a schedule that converges early can stop between
+the two. $\gamma{=}0.99$ is always a candidate, so \PORTER{}+S cannot
+return a higher EPR count than the configured single route.
 
 \PORTER{}+SR runs horizon selection and the $\gamma$-search and keeps the
 lower EPR of the two, netting the one route they share. The two look for
@@ -363,6 +380,18 @@ teleports plus telegates plus telegate packets, one pair per packet
 however many remote CX gates it amortises; all three count the same
 physical resource. Intra-core SWAP counts and compile time are secondary
 and are never traded against EPR by any selection rule.
+
+\textbf{Timing.} All compile times are wall-clock on one otherwise idle
+machine (Apple M2, macOS 26.5, CPython 3.13), measured once per
+configuration rather than as a median of repetitions, with no warm-up:
+each invocation is a fresh process, so no cache is carried between
+circuits. Two consequences follow. Times are indicative rather than
+precise, and should be read at the resolution the paper uses them --- as
+ratios between protocols, not as absolute costs. And because horizon
+selection guards its speculative routes by wall-clock
+(Section~\ref{sec:horizon}), machine load can in principle change which
+route it selects; the horizon each reported run chose is recorded with
+its result.
 
 Aggregates are unweighted geometric means over circuits,
 $\bigl(\prod_i x_i\bigr)^{1/m}$, so each circuit counts equally and a

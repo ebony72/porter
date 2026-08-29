@@ -9,16 +9,19 @@ evaluation does not establish.
 \textbf{The plan abstraction and the commitment rule are separable.}
 The \emph{plan-oriented} design --- whole inter-core actions as
 candidates, ranked on gain with preparation cost demoted to a tie-break
---- is what distinguishes \PORTER{}'s remote stage and what produces the
-reductions of Section~\ref{sec:rq1}. \emph{Commitment} is the narrower
-rule that a selected plan is not reopened until ready. Only the latter is
-ablated: the hop-wise column re-derives and re-scores the same plan set
-every iteration, changing when the choice is revisited and nothing else.
-That it reaches the same EPR on the same number of moves says commitment
-is not where quality comes from. It does not say the abstraction is idle,
-because no column removes it. Isolating the abstraction would need a
-hop-granular candidate set --- a different router, which we have not
-built. This is the clearest gap in our attribution.
+--- is the defining structural difference in \PORTER{}'s remote stage.
+\emph{Commitment} is the narrower rule that a selected plan is not
+reopened until ready. Only the latter is ablated: the hop-wise column
+re-derives and re-scores the same plan set every iteration, changing when
+the choice is revisited and nothing else. That it reaches the same EPR on
+the same number of moves says commitment is not where quality comes from.
+It says nothing either way about the abstraction, which no column
+removes. We therefore do not attribute the reductions of
+Section~\ref{sec:rq1} to it: those are produced by the whole system ---
+layout, relief, vocabulary, scoring, horizon and protocol together ---
+and the present ablations do not isolate the abstraction's share.
+Doing so would need a hop-granular candidate set, which is a different
+router. This is the clearest gap in our attribution.
 
 \textbf{Layout binds below about a hundred physical qubits, the horizon
 above it.} \PORTER{} trails \dSABRE{} under RQ2 at $\le 108$ physical

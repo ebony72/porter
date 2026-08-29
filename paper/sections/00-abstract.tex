@@ -16,13 +16,15 @@ run of remote gates sharing a control, and adds capacity-aware relief, a
 deterministic seed-free initial layout, and a per-circuit choice of
 teleport-lookahead horizon. On MQT-Bench suites at 25, 64 and 80 logical
 qubits \PORTER{} uses $59.6\%$, $41.6\%$ and $68.2\%$ fewer EPR pairs in
-geometric mean than published \TeleSABRE{} at a matched attempt budget,
-and completes all twenty-four instances where \TeleSABRE{} completes
-seventeen. Against \dSABRE{}, \PORTER{} is competitive, and which
-compiler leads depends on the operating point: it uses $7\%$ more pooled
-EPR at $0.58\times$ the compile time under each compiler's own protocol,
-and leads once the initial layout is controlled and at the largest scales
-evaluated.
+geometric mean than published \TeleSABRE{} at three routes each, and
+completes all twenty-four instances where \TeleSABRE{} completes
+seventeen. Against \dSABRE{}, the outcome depends on both the initial
+layout and the routing budget, and we report every point: under each
+compiler's own protocol \PORTER{} uses $7\%$ more pooled EPR at
+$0.58\times$ the compile time; from an identical layout at three routes
+each \dSABRE{} has the lower pooled count, and adding \PORTER{}'s
+five-route refinement schedule reverses that; and on a $100$--$360$-qubit
+scale-up series \PORTER{} leads outright.
 Controlled ablations attribute these results to individual mechanisms and
 report two negative findings that bound them. Every \PORTER{} route is
 certified by a separately implemented replay verifier; the

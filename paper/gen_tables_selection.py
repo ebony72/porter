@@ -123,12 +123,14 @@ def tab_scaleup():
         vals = [epr(r, k) for k in cols]
         for k, v in zip(cols, vals):
             cols[k].append(v)
-        # The caption defines t as ONE dSABRE attempt, not the complete
-        # protocol, so seconds_best_attempt is the right field here.
-        t = (r.get("dSE") or {}).get("seconds_best_attempt")
+        # Complete protocol cost for both, matching the paper's declared
+        # timing metric -- NOT seconds_best_attempt, which is one dSABRE
+        # route and is not comparable with PORTER's three-route protocol.
+        td = (r.get("dSE") or {}).get("seconds")
+        tp = (r.get("sfc") or {}).get("seconds")
         out.append(f"{r['circuit'].upper().replace('QPEEXACT','QPEexact'):<8} & {cx:>9} & "
-                   f"{n:>3} & {P:>3} & {K:>2} & {vals[0]:>4} & {t:>4.1f} & "
-                   f"{vals[1]:>4} & {vals[2]:>4} & {vals[3]:>4} & {vals[4]:>4} \\\\")
+                   f"{n:>3} & {P:>3} & {K:>2} & {vals[0]:>4} & {td:>5.1f} & "
+                   f"{vals[1]:>4} & {tp:>5.1f} & {vals[2]:>4} & {vals[3]:>4} & {vals[4]:>4} \\\\")
     g = {k: gmean(v) for k, v in cols.items()}
     out.append("\\midrule")
     # dSABRE's gmean is bolded as the baseline; among PORTER's four variants
@@ -139,8 +141,12 @@ def tab_scaleup():
     cells = " & ".join(
         (f"\\textbf{{{g[k]:.1f}}}" if k == best else f"{g[k]:.1f}")
         for k in porter_keys)
-    out.append(f"\\textbf{{gmean}} (6) & & & & & \\textbf{{{g['dSE']:.1f}}} & & "
-               f"{cells} \\\\")
+    # gmean of complete protocol time, alongside each EPR gmean.
+    tds = gmean([(r.get("dSE") or {}).get("seconds") for r in rows])
+    tps = gmean([(r.get("sfc") or {}).get("seconds") for r in rows])
+    first, rest = cells.split(" & ", 1)
+    out.append(f"\\textbf{{gmean}} (6) & & & & & \\textbf{{{g['dSE']:.1f}}} & "
+               f"\\textbf{{{tds:.1f}}} & {first} & \\textbf{{{tps:.1f}}} & {rest} \\\\")
     return "\n".join(out)
 
 
@@ -274,8 +280,11 @@ def app_shared():
     return "\n".join(out2)
 
 
-TABLES = {"tab:main": tab_main, "tab:shared": tab_shared,
+TABLES = {"tab:shared": tab_shared,
           "tab:scaleup": tab_scaleup, "tab:heavyhex": tab_heavyhex}
+# The per-circuit main comparison moved to the appendix as tab:maineprs;
+# the main paper keeps only a hand-maintained suite-level summary.
+APP_MAIN = {"tab:maineprs": tab_main}
 def app_pytket():
     """Per-circuit pytket-shared-layout rows in the appendix:
     ebits, then dSABRE (EPR, SWAP) and PORTER (EPR, SWAP) on that partition."""
@@ -316,7 +325,7 @@ def app_timing():
 
 
 APP_TABLES = {"tab:heavyhex": app_heavyhex, "tab:shared": app_shared,
-              "tab:timing": app_timing}
+              "tab:timing": app_timing, **APP_MAIN}
 
 
 def splice(tex: str, label: str, block: str) -> str:

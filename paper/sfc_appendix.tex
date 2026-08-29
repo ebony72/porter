@@ -1007,6 +1007,64 @@ Suite & Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & EPR$_{+
 }
 \end{table}
 
+Table~\ref{tab:maineprs} gives the per-circuit EPR counts summarised by
+Table~\ref{main-tab:main} of the main paper.
+
+\begin{table}[h]
+\centering
+\caption{Per-circuit EPR counts, own protocol --- the detail behind
+  Table~\ref{main-tab:main} of the main paper. \TeleSABRE{} and
+  \dSABRE{} report the best of three seeds; \PORTER{} routes one
+  deterministic layout at each of three candidate lookahead horizons; and
+  \PORTER{}+R spends five routes on backward refinement instead.
+  $\Delta_\mathrm{TS}$ is the EPR change of whichever \PORTER{} column is
+  stronger on that row, against \TeleSABRE{} (\%); negative is better,
+  and the bolded \PORTER{} column is that stronger one.
+  $^{\ast}$\TeleSABRE{} does not converge in three seeds; each gmean row
+  covers the circuits it completes. Local SWAP counts, in the same row
+  order, are in Table~\ref{tab:mainswaps}.}
+\label{tab:maineprs}
+\setlength{\tabcolsep}{4pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}ll rrrr r@{}}
+\toprule
+Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\mathrm{TS}$ \\
+\midrule
+25q & ae          &        119 &    65 &    65 &    65 &   $-45.4$ \\
+25q & ghz         &         13 &     4 &     4 &     4 &   $-69.2$ \\
+25q & graphstate  &         21 &     6 &     7 &     4 &   $-81.0$ \\
+25q & qft         &        138 &    81 &    74 &    74 &   $-46.4$ \\
+25q & qnn         &        515 &   143 &   119 &   116 &   $-77.5$ \\
+25q & random      &        636 &   404 &   401 &   383 &   $-39.8$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & 44.0 & 43.1 & \textbf{38.8} & $\mathbf{-63.6}$ \\
+\midrule
+64q & ae          &        353 &   165 &   157 &   177 &   $-55.5$ \\
+64q & ghz         &         16 &     6 &     6 &     6 &   $-62.5$ \\
+64q & graphstate  &         62 &    15 &    20 &    16 &   $-74.2$ \\
+64q & qft         &        312 &   179 &   262 &   262 &   $-16.0$ \\
+64q & qnn         &        889 &   538 &   638 &   537 &   $-39.6$ \\
+64q & random      &  $^{\ast}$ &   732 &   737 &   737 &       --- \\
+64q & qpeexact    &        289 &   187 &   222 &   222 &   $-23.2$ \\
+64q & qaoa        &        956 &   555 &   775 &   607 &   $-36.5$ \\
+64q & multiplier  &       1601 &  1285 &  1076 &   763 &   $-52.3$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 284.5 & 144.6 & 166.2 & \textbf{149.2} & $\mathbf{-47.6}$ \\
+\midrule
+80q & ae          &  $^{\ast}$ &   332 &   299 &   490 &       --- \\
+80q & ghz         &         26 &     7 &     7 &     7 &   $-73.1$ \\
+80q & graphstate  &         87 &    20 &    28 &    24 &   $-72.4$ \\
+80q & qft         &  $^{\ast}$ &   315 &   446 &   393 &       --- \\
+80q & qnn         &  $^{\ast}$ &   791 &  1070 &  1181 &       --- \\
+80q & random      &  $^{\ast}$ & 10551 & 11040 & 11040 &       --- \\
+80q & qpeexact    &        784 &   347 &   291 &   526 &   $-62.9$ \\
+80q & qaoa        &  $^{\ast}$ &   862 &  1122 &  1122 &       --- \\
+80q & multiplier  &  $^{\ast}$ &  3793 &  2411 &  2699 &       --- \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (3)} & 121.0 & 36.5 & \textbf{38.5} & 44.5 & $\mathbf{-68.2}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
 Table~\ref{tab:mainswaps} gives the intra-core SWAP counts for the runs of
 Table~V of the main paper, in the same row order. Both baselines and
 \PORTER{} count intra-core SWAPs only; inter-core movement is charged in

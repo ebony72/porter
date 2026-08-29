@@ -639,6 +639,67 @@ device ("not a monotone difficulty ladder ... six 81-slot cores ... fewer
 EPR at 360q than 200q") and has been deleted: on the correct series
 dSABRE's own cost rises 200 -> 765 -> 1890 on QFT.
 
+## Second review round (2026-08-29) --- two more real errors
+
+`additional_review_revised_PORTER.md` (vault) reviewed the revised paper and
+the response. All ten of its Priority-1 items were accepted, and two were
+**errors, not wording**:
+
+1. **`f_min` was never a maintained invariant.** III-A claimed every core
+   "keeps at least f_min=2 free positions". The router tests
+   `free(dst) >= min_free` **before** a TeleData (`router.py:1044,1655`), so
+   a core admitted at exactly 2 drops to 1. Instrumented on four circuits:
+   the minimum free-per-core reached during routing is **1** every time.
+   III-A now separates the three roles f_min plays (initial condition,
+   pre-action admission threshold, reservoir threshold). **Do not restore
+   invariant language.**
+2. **PORTER+S was described wrongly.** The paper said four gammas
+   `{0.90,0.95,0.99,1.0}`; `DEFAULT_LAYOUT_GAMMAS` is **five**, including
+   **0.80 --- which wins phase 1 on 9 of 24 instances**, i.e. the omitted
+   value is the most frequent winner. And `run_layout_search(refine_from=
+   "both")` runs the 5-pass refinement from **two** seeds (phase-1 winner +
+   the gamma=0.99 layout), so routes = 5+4 = 9 when 0.99 wins, 5+4+4 = 13
+   otherwise. That is the 9--13 in `tab:budgets`.
+3. Also wrong: the stated tie-break order. The real key is
+   `(-total, not ready, prep, rank(kind), cap, -lookahead)` --- prep cost
+   comes **before** plan kind, and a readiness flag precedes both. The paper
+   had said readiness cost enters "after gain and plan kind". III-E now
+   displays the key.
+
+**The central correction is budget language.** We had presented a
+five-route PORTER+R result as a *matched-budget* shared-layout result and
+generalised it to the abstract and conclusion. Under **equal three-route**
+budgets dSABRE wins (100.9 vs 107.7); PORTER leads only at 5 routes against
+dSABRE's 3. V-B is now split into an equal-route comparison (labelled the
+controlled test, and a loss for PORTER) and a refinement-schedule
+comparison (explicitly *not* budget-matched). RQ2 no longer says "matched
+routing budgets". **Never call 5-vs-3 a matched budget.**
+
+**Structural changes:** the per-circuit main table moved to the appendix as
+`tab:maineprs`; the main paper now carries a hand-maintained suite-level
+summary (`tab:main`) with EPR gmeans over jointly-completed circuits,
+completion counts and complete times. `verify_tex_tables.py` parses
+`tab:maineprs` from APP and adds 12 checks on the new summary's cells;
+`gen_tables_selection.py` routes `tab:main`'s generator to the appendix via
+`APP_MAIN`. `tab:scaleup`'s `t` column changed from one dSABRE route
+(`seconds_best_attempt`) to **complete protocol time for both** compilers.
+
+**`verify_tex_tables.gmean` clamps with `max(x,1)`** for EPR counts, which
+silently inflates sub-second times; use the new `gmean_raw` for timing.
+
+Other accepted: no positive attribution of EPR reductions to the plan
+abstraction (VI); the TeleData column presented as strict removal + a
+vocabulary variant rather than a one-factor ablation; "TeleGate makes
+PORTER terminate" -> essential to *completion* (guards give termination
+either way); causal/threshold language scoped throughout; the portfolio
+guarantee made conditional on the configured route completing;
+reproducibility scoped to the released environment; timing methodology
+added (Apple M2, macOS 26.5, CPython 3.13, one measurement, no warm-up);
+"0.27x speed" -> "3.7x as long"; "attempt" eliminated.
+
+Response letter is now `paper/responses_to_reviews.md` (Part I second
+review, Part II first).
+
 ## Compression + framing pass (2026-08-29, after the review restructure)
 
 Five author instructions, all applied:

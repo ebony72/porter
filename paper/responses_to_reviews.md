@@ -1,7 +1,107 @@
-# Response to the Presentation and Organisation Review
+# Responses to the PORTER Reviews
 
 *Manuscript:* **PORTER: A Plan-Committed Router for Multi-Core Distributed
 Quantum Computers**
+
+This document answers both reviews, most recent first. Part I responds to
+the additional review of the revised manuscript; Part II is the response to
+the original presentation-and-organisation review, retained for reference.
+Section numbers refer to the current manuscript.
+
+---
+
+# Part I --- Response to the Second (Additional) Review
+
+The second review found ten Priority-1 issues; we accept all ten, and all
+of the Priority-2 and most of the Priority-3 items. Two of its findings
+were errors in the manuscript, not only in its wording, and we describe
+those first. Section numbers refer to the current manuscript.
+
+## Errors it uncovered
+
+**The `f_min` invariant did not hold (its §4).** Section III-A said every
+core "keeps at least `f_min = 2` free positions". The router tests
+`free(dst) >= f_min` *before* a TELEDATA, so a core admitted at exactly two
+free drops to one. We instrumented four circuits and confirmed cores do
+reach one free position during routing. III-A now separates the three roles
+`f_min` plays — the initial condition, the pre-action admission threshold
+(leaving at least one free afterward), and the reservoir threshold — and no
+longer claims a maintained invariant.
+
+**PORTER+S was described wrongly (its §5).** Chasing the reported 9–13
+routes against a stated four-γ sweep showed the method text was wrong in
+three ways: the sweep is over **five** values `{0.80, 0.90, 0.95, 0.99,
+1.0}`, not four — and `γ = 0.80` in fact wins phase 1 on nine of the
+twenty-four instances, so the omitted value is the most frequent winner —
+and the protocol then runs the five-pass refinement schedule from **two**
+seed layouts, phase 1's winner and the `γ = 0.99` layout. IV-F3 now gives
+the composition and derives the counts: `5 + 4 = 9` routes when `γ = 0.99`
+wins, `5 + 4 + 4 = 13` otherwise.
+
+**The stated tie-break order was also wrong.** Answering §25 required
+reading the selection key, which is
+`(−total, ¬ready, prep, rank(π), cap, −lookahead)`. The paper had said
+readiness cost enters "after gain and plan kind"; it enters *before* plan
+kind, and a readiness flag precedes it. III-E now displays the key.
+
+## The central correction: budget language (its §1, §2, §3)
+
+The review is right that we presented a five-route PORTER result as a
+matched-budget shared-layout result and generalised it into the Abstract and
+Conclusion. Under equal three-route budgets DSABRE has the lower pooled
+count (100.9 against 107.7); PORTER leads only with its five-route
+refinement schedule against DSABRE's three.
+
+V-B is now split into an **equal-route** comparison, labelled as the
+controlled test and reported as a loss for PORTER, and a
+**refinement-schedule** comparison, explicitly stated not to be
+budget-matched and not to isolate the router. RQ2 no longer says "matched
+routing budgets"; the pooled grid states both budgets; "single-shot" is
+gone; and the Abstract and Conclusion now say that the outcome depends on
+both layout and routing budget, giving both directions.
+
+## Other accepted items
+
+| Item | Change |
+|---|---|
+| §6 | All uses of "attempt" removed outside the sentence banning it |
+| §7 | Table V now reports complete protocol time for **both** compilers, replacing the single per-route DSABRE column |
+| §8 | VI no longer claims the plan abstraction produces the reductions; it is the defining structural difference, and the ablations do not isolate its share |
+| §9 | The TELEDATA column is presented as two configurations — strict removal (ten failures) and a vocabulary variant with generalised relief — and no longer as a one-factor ablation |
+| §10 | "TELEGATE is what makes PORTER terminate" → essential to successful *completion*, since the guards give termination regardless |
+| §11–15 | Causal and threshold language scoped: "of the interventions we tested"; evaluated sizes rather than "above 150"; core graph matters *more than* core shape; the star gap is the *dominant observed* source; "no *tested* constant is best" |
+| §16 | The portfolio guarantee is now conditional on the configured route completing, and notes it can raise compile time and that selection depends on the wall-clock budget |
+| §17 | Byte-identical reproducibility scoped to the released environment and revision |
+| §18 | The baseline verification asymmetry is stated at the first comparison table, not only in Methodology |
+| §19 | Introduction compressed again; the 41-instance, heavy-hex, 0.72× and 0.6% figures moved to Results |
+| §20 | **Accepted.** The per-circuit table moved to the appendix; the main paper carries a suite-level summary with completion counts and complete times. The reviewer is right that our earlier reason — that the harness parses it — was not a reason; the harness now parses it in the appendix |
+| §21 | Ablation gmean rows are self-labelling (`paired n=14/16/12`) |
+| §22 | Protocol names expanded in each table caption (we keep `+R`/`+S`/`+SR` rather than renaming) |
+| §23 | "published state of the art" → "the strongest published router we identified under this cost model" |
+| §24 | III-C now states that local candidates *minimise* distance while remote plans *maximise* gain |
+| §26 | `D(p)` now reads "including the plan's seed gate" |
+| §27 | Packet gain described as a committed executable sequence, not "current work" |
+| §28 | IV-H adds timing methodology: machine, OS, interpreter, single measurement per configuration, no warm-up, and what that implies for reading the ratios |
+| §29 | "0.27× DSABRE's speed" → "takes 3.7× as long per route" |
+
+## Declined
+
+**§22, renaming the protocols.** We expand `PORTER+R`, `+S` and `+SR` in
+every table caption but keep the names, which are established across the
+released harness and results files.
+
+**§30, shortening this document.** The format here is issue, action and
+location, as suggested; we have kept the reasoning on the two declined
+items and on the errors, since those are where a reader most needs it.
+
+Every number in the manuscript remains checked by two harnesses — 186
+checks on what the paper states, 46 on the LaTeX rows that will typeset —
+and both pass, including new checks on the suite-level summary table's
+cells, its completion counts, and the two new complete-time columns.
+
+---
+
+# Part II --- Response to the Presentation and Organisation Review
 
 We thank the reviewer for a detailed and constructive reading. The review's
 central diagnosis — that the paper had more technical content than its
@@ -16,6 +116,8 @@ describe first because they matter more than any presentational point.
 
 Section numbers below refer to the revised manuscript unless marked
 *(previous)*.
+
+---
 
 ---
 

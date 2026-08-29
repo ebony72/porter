@@ -50,7 +50,14 @@ def chk(name, want, got):
 
 
 def gmean(v):
+    # max(x,1) guards EPR counts, which can legitimately be 0.
     return math.exp(sum(math.log(max(x, 1)) for x in v) / len(v))
+
+
+def gmean_raw(v):
+    # Unclamped: compile times are routinely below 1 s, where the guard above
+    # would silently inflate the mean.
+    return math.exp(sum(math.log(x) for x in v) / len(v))
 
 
 def cell(tok):
@@ -85,7 +92,9 @@ def gmean_rows(seg):
 
 
 # ---------------------------------------------------------------- tab:main
-seg, rows = rows_of("tab:main", r"^\d\dq\s*&")
+# The per-circuit rows moved to the appendix (tab:maineprs); the main paper
+# now carries only a suite-level summary, whose gmeans are checked below.
+seg, rows = rows_of("tab:maineprs", r"^\d\dq\s*&", APP)
 chk("main row count", 24, len(rows))
 for cols in rows:
     key = (cols[0].replace("q", ""), cols[1])
@@ -135,6 +144,28 @@ for cols in rows:
     chk(f"shared {key} P", cell(cols[7]), r["sfc_shared"]["epr"])
     chk(f"shared {key} P+R", cell(cols[8]), r["sfc_shared_refined"]["epr"])
 
+# --------------------------------------------- tab:main (suite-level summary)
+# Hand-maintained in the main paper, so every cell is checked against the data.
+seg, rows = rows_of("tab:main", r"^\d\dq \(\d\)\s*&")
+chk("main summary row count", 3, len(rows))
+_LEGS = ("telesabre", "dSE", "sfc", "sfc_refined")
+for suite, cols in zip(("25", "64", "80"), rows):
+    all_r = [r for r in CMP if r["suite"] == suite]
+    # EPR gmeans are over the circuits ALL FOUR compilers complete.
+    paired = [r for r in all_r if all((r.get(k) or {}).get("epr") for k in _LEGS)]
+    for j, leg in enumerate(_LEGS):
+        chk(f"main summary {suite} {leg} epr", num(cols[1 + 2 * j]),
+            round(gmean([r[leg]["epr"] for r in paired]), 1))
+        chk(f"main summary {suite} {leg} time", num(cols[2 + 2 * j]),
+            round(gmean_raw([r[leg]["seconds"] for r in
+                             (paired if leg == "telesabre" else all_r)]), 2))
+_done = [l for l in seg.splitlines() if l.strip().startswith("done")]
+chk("main summary has a completion row", 1, len(_done))
+for leg, want in zip(_LEGS, re.findall(r"(\d+) / (\d+)", _done[0])):
+    chk(f"main summary {leg} completed",
+        sum(1 for r in CMP if (r.get(leg) or {}).get("epr")), int(want[0]))
+    chk(f"main summary {leg} total", len(CMP), int(want[1]))
+
 # ------------------------------------------------------------- tab:scaleup
 SU_ORDER = [("100", "qft"), ("100", "qpeexact"), ("200", "qft"),
             ("200", "qpeexact"), ("360", "qft"), ("360", "qpeexact")]
@@ -146,9 +177,16 @@ for key, cols in zip(SU_ORDER, rows):
     chk(f"scaleup {key} P", cell(cols[3]), r["physical"])
     chk(f"scaleup {key} K", cell(cols[4]), r["cores"])
     chk(f"scaleup {key} dSE", cell(cols[5]), r["dSE"]["epr"])
-    for j, leg in enumerate(("sfc", "sfc_refined", "sfc_on_dse_layout",
+    # cols: 0 circ 1 cx 2 n 3 P 4 K 5 dSE-EPR 6 dSE-t 7 sfc-EPR 8 sfc-t
+    #       9 sfc+R 10 on-dse 11 on-dse+R
+    chk(f"scaleup {key} sfc", cell(cols[7]), r["sfc"]["epr"])
+    for j, leg in enumerate(("sfc_refined", "sfc_on_dse_layout",
                              "sfc_on_dse_layout_refined")):
-        chk(f"scaleup {key} {leg}", cell(cols[7 + j]), r[leg]["epr"])
+        chk(f"scaleup {key} {leg}", cell(cols[9 + j]), r[leg]["epr"])
+    # the two time columns must be the COMPLETE protocol cost, not one route
+    for idx, leg in ((6, "dSE"), (8, "sfc")):
+        chk(f"scaleup {key} {leg} time", float(cols[idx]),
+            round(r[leg]["seconds"], 1))
 
 # ------------------------------------------------------------ tab:heavyhex
 O9 = ["ae", "ghz", "graphstate", "qft", "qnn", "random", "qpeexact",

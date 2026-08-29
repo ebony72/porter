@@ -12,18 +12,21 @@ teleport-lookahead horizon.
 Three conclusions are supported. First, on the evaluated MQT-Bench suites
 \PORTER{} uses substantially fewer EPR pairs than published
 \TeleSABRE{} --- $59.6\%$, $41.6\%$ and $68.2\%$ less in geometric mean at
-25, 64 and 80 logical qubits, at a matched attempt budget --- and
+25, 64 and 80 logical qubits, at three routes each --- and
 completes every instance in all three suites, including the seven on
 which \TeleSABRE{} does not converge. Second, against \dSABRE{}, \PORTER{} is competitive rather than
-dominant, and which compiler leads depends on the operating point: it uses
-$7\%$ more pooled EPR at $0.58\times$ the compile time under each
-compiler's own protocol, and leads on identical externally supplied
-layouts, on both heavy-hex core graphs, and on the $100$--$360$-qubit
-scale-up series. Third, the ablations attribute those results rather than
-leaving them to the system as a whole: capacity relief is what makes a
-deterministic-greedy design complete in practice, the initial layout is
-what separates the two compilers below roughly a hundred physical qubits,
-and the lookahead horizon is what separates them above it.
+dominant, and which compiler leads depends on both the initial layout and
+the routing budget. Under each compiler's own protocol \PORTER{} uses
+$7\%$ more pooled EPR at $0.58\times$ the compile time. From an identical
+externally supplied layout at three routes each, \dSABRE{} has the lower
+pooled count; adding \PORTER{}'s five-route refinement schedule reverses
+that, on those layouts and on both heavy-hex core graphs. On the
+$100$--$360$-qubit scale-up series \PORTER{} leads outright. Third, the
+ablations attribute these results rather than leaving them to the system
+as a whole: capacity relief is what lets a deterministic-greedy design
+complete in practice; the initial layout dominates the difference between
+the two compilers at the smaller sizes evaluated, and the lookahead
+horizon at the larger ones.
 
 Two ablation results are negative and they delimit the contribution.
 Plan commitment does not lower EPR consumption --- it makes the same
