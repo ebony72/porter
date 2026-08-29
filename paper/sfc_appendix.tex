@@ -1,4 +1,4 @@
-%% sfc_appendix.tex — Supplementary material (Appendices A–D) for sfc.tex.
+%% sfc_appendix.tex — Supplementary material (Appendices A–I) for sfc.tex.
 %% Standalone document: compiles independently of the main paper.
 %%   pdflatex sfc_appendix
 %%   bibtex   sfc_appendix
@@ -74,7 +74,7 @@
 \maketitle
 
 \noindent
-This supplement contains Appendices A--D of the main paper. Section,
+This supplement contains Appendices A--I of the main paper. Section,
 figure, and table numbers of the form ``Section~III-A'' or
 ``Table~VII'' refer to the main paper; numbers local to this document
 refer to the supplement itself.
@@ -792,6 +792,19 @@ answerable from this table; Section~\ref{sec:ablation} answers it
 directly, and the answer is not the one the design assumed.
 
 
+\section{Supplementary Tables}
+\label{app:tables}
+
+The tables below support claims made in Sections~\ref{sec:sfc}
+and~\ref{sec:experiments} of the main paper: the full parameter set
+(Table~\ref{tab:params}), the cross-layout grid
+(Table~\ref{tab:crosslayout}), the per-circuit heavy-hex and shared-layout
+rows summarised there (Tables~\ref{tab:heavyhex} and~\ref{tab:shared}),
+compile times (Table~\ref{tab:timing}) and local SWAP counts
+(Table~\ref{tab:mainswaps}). EPR pairs are the figure of merit throughout
+--- a SWAP is a local operation costing no entanglement --- which is why
+SWAP counts are reported here rather than in the main text.
+
 \begin{table}[h]
 \centering
 \caption{Hardware cost and heuristic parameters (see Section~\ref{sec:sfc}).}
@@ -990,15 +1003,10 @@ Suite & Circuit & EPR & SWAP & EPR & SWAP & $\Delta_\mathrm{TS}$ & EPR & EPR$_{+
 }
 \end{table}
 
-\section{Local SWAP Counts}
-\label{app:tables}
-
 Table~\ref{tab:mainswaps} gives the intra-core SWAP counts for the runs of
-Table~V of the main paper, in the same row order. EPR pairs are the figure
-of merit throughout --- a SWAP is a local operation costing no
-entanglement --- so these are reported here rather than in the main text.
-Both baselines and \PORTER{} count intra-core SWAPs only; inter-core
-movement is charged in EPR pairs.
+Table~V of the main paper, in the same row order. Both baselines and
+\PORTER{} count intra-core SWAPs only; inter-core movement is charged in
+EPR pairs.
 
 \begin{table}[h]
 \centering
@@ -1042,5 +1050,22 @@ Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
 \end{tabular}%
 }
 \end{table}
+
+\section{Computational Complexity}
+\label{sec:sfc-complexity}
+
+Let $N$ be the gate count, $n$ the logical-qubit count, $K$ the core
+count and $M$ the per-core physical-qubit count. Distance tables are
+precomputed once at construction in $O(KM^2\log M + K^2\log K)$,
+matching the two-level Dijkstra decomposition comparable compilers
+use~\cite{lidsabre}. Per iteration, classification and draining cost
+$O(|F|)$; intra-core SWAP scoring evaluates $O(M)$ candidate edges,
+each at $O(|F_\mathrm{loc}| + N_\mathrm{loc})$ over one DAG snapshot
+reused across candidates; remote-plan scoring evaluates $O(n)$
+candidates at $O(N_\mathrm{tp})$ over the same snapshot. Free-slot
+queues are $O(1)$ amortised per layout mutation. Summing over $N$
+iterations gives $T_\mathrm{total} = O(N(Mn + KM^2\log M))$ excluding
+precomputation, in line with other core-local distributed
+compilers~\cite{lidsabre,russo2025telesabre}.
 
 \end{document}

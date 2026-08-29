@@ -19,6 +19,7 @@ td_rows = json.load(open(f"{BASE}/paper/teledata_ablation_basis.json"))
 hh_rows = json.load(open(f"{BASE}/paper/heavyhex_results{_SEL}.json"))
 pc_rows = json.load(open(f"{BASE}/paper/plan_commitment_results.json"))
 su_rows = json.load(open(f"{BASE}/paper/scaleup_results{_SEL}.json"))
+hz_rows = json.load(open(f"{BASE}/paper/horizon_results.json"))
 
 def norm(c):
     return "qnn" if c.startswith("qnn") else c
@@ -448,6 +449,76 @@ check("64q multiplier per-pass", 0.29,
       round(_dse_per_route(_mult) / _p_per_route(_mult), 2))
 check("64q multiplier is the only per-pass win", 0,
       sum(1 for x in _ratios if x >= 1))
+# ---- Sec IV-E prose, rewritten 2026-08-29 when the shipped protocol became
+# horizon selection.  Every figure below was stale (it described the old
+# single-pass run) and contradicted tab:scaleup, so all of it is pinned now.
+_su_p = gmean([r["sfc"]["epr"] for r in su_rows])
+_su_d = gmean([r["dSE"]["epr"] for r in su_rows])
+check("scaleup PORTER beats dSABRE on all six", 6,
+      sum(1 for r in su_rows if r["sfc"]["epr"] < r["dSE"]["epr"]))
+check("scaleup gmean ratio", 0.72, round(_su_p / _su_d, 2))
+for _n, _want in (("100", 0.90), ("200", 0.67), ("360", 0.62)):
+    _rs = [r for r in su_rows if r["suite"] == _n]
+    check(f"scaleup {_n}q ratio", _want,
+          round(gmean([r["sfc"]["epr"] for r in _rs])
+                / gmean([r["dSE"]["epr"] for r in _rs]), 2))
+check("scaleup complete-cost PORTER", 8.4,
+      round(gmean([r["sfc"]["seconds"] for r in su_rows]), 1))
+check("scaleup complete-cost dSABRE", 41.1,
+      round(gmean([r["dSE"]["seconds"] for r in su_rows]), 1))
+check("scaleup complete-cost ratio", 0.20,
+      round(gmean([r["sfc"]["seconds"] for r in su_rows])
+            / gmean([r["dSE"]["seconds"] for r in su_rows]), 2))
+check("scaleup +R loses on all six", 6,
+      sum(1 for r in su_rows if r["sfc_refined"]["epr"] > r["sfc"]["epr"]))
+check("scaleup +R pct behind selection", 83,
+      round(100 * (gmean([r["sfc_refined"]["epr"] for r in su_rows]) / _su_p - 1)))
+check("scaleup dSE-layout ratio", 0.94,
+      round(gmean([r["sfc_on_dse_layout"]["epr"] for r in su_rows]) / _su_d, 2))
+check("scaleup default-horizon ratio (the 1.45x it replaces)", 1.45,
+      round(gmean([hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
+                   ["horizon_eprs"][str(hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
+                                        ["default_horizon"])] for r in su_rows]) / _su_d, 2))
+check("scaleup every instance selects the long horizon", 6,
+      sum(1 for r in su_rows if r["sfc"].get("chosen_horizon") == 128))
+_q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
+check("scaleup 360q qft: dSABRE's layout is worse for PORTER", True,
+      _q360["sfc_on_dse_layout"]["epr"] > _q360["sfc"]["epr"])
+check("scaleup 360q qft own layout", 1156, _q360["sfc"]["epr"])
+check("scaleup 360q qft on dSE layout", 1870, _q360["sfc_on_dse_layout"]["epr"])
+
+# Sec IV-F: the star gmeans quoted in prose (PORTER's own protocol, all nine).
+_star = [r for r in hh_rows if r["topology"] == "star"]
+check("star PORTER own-protocol gmean", 122.3,
+      round(gmean([r["porter"]["epr"] for r in _star]), 1))
+check("star dSABRE gmean", 101.1,
+      round(gmean([r["dSE"]["epr"] for r in _star]), 1))
+check("star PORTER wins", 2,
+      sum(1 for r in _star if r["porter"]["epr"] < r["dSE"]["epr"]))
+
+# Sec IV-J: per-ROUTE cost.  PORTER's protocol is three routes, so its
+# per-route cost is its protocol time / 3 -- comparing dSABRE's per-route cost
+# against PORTER's whole protocol (as the prose once did) gives a bogus 0.08x.
+def _p_per_route3(r):
+    return (r["sfc"]["seconds"] - r["sfc"].get("layout_seconds", 0)) / 3
+_ratios3 = [_dse_per_route(r) / _p_per_route3(r) for r in _r64]
+check("64q per-route gmean (3 routes)", 0.27, round(gmean(_ratios3), 2))
+check("64q PORTER dearer per route on all nine", 9,
+      sum(1 for x in _ratios3 if x < 1))
+
+# Sec IV-J: selection vs the gamma-search, per instance.
+check("search beats selection on", 14,
+      sum(1 for r in cmp_rows if r["sfc_search"]["epr"] < r["sfc"]["epr"]))
+check("selection beats search on", 4,
+      sum(1 for r in cmp_rows if r["sfc"]["epr"] < r["sfc_search"]["epr"]))
+check("selection/search ties", 6,
+      sum(1 for r in cmp_rows if r["sfc"]["epr"] == r["sfc_search"]["epr"]))
+# Sec IV-D: PORTER's own protocol against dSABRE, per instance.
+check("PORTER own-protocol wins vs dSE", 8,
+      sum(1 for r in cmp_rows if r["sfc"]["epr"] < r["dSE"]["epr"]))
+check("PORTER own-protocol losses vs dSE", 12,
+      sum(1 for r in cmp_rows if r["sfc"]["epr"] > r["dSE"]["epr"]))
+
 # Scale-up per-attempt speed range quoted in Sec IV-G.
 _su_rat = [r["dSE"]["seconds_best_attempt"] / r["sfc"]["seconds"] for r in su_rows]
 check("scaleup per-attempt min", 0.6, round(min(_su_rat), 1))
@@ -455,7 +526,8 @@ check("scaleup per-attempt max", 1.5, round(max(_su_rat), 1))
 _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
 check("scaleup 360q qft per-attempt", 1.5,
       round(_q360["dSE"]["seconds_best_attempt"] / _q360["sfc"]["seconds"], 1))
-# "Refinement helps PORTER on two" of the six scale-up instances.
+# Refinement now helps on NONE of the six scale-up instances (the shipped
+# protocol selects a horizon; refinement holds it fixed and loses on all six).
 check("scaleup refinement helps", 0,
       sum(1 for r in su_rows if r["sfc_refined"]["epr"] < r["sfc"]["epr"]))
 
@@ -498,16 +570,28 @@ check("crosslayout dSE gain from own layout", 4.3,
       round(100 * (1 - _g("dSE") / _g("dSE_on_porter_layout")), 1))
 check("crosslayout PORTER gain from dSE layout", 4.7,
       round(100 * (1 - _g("sfc_on_dse_layout") / _g("sfc")), 1))
-# shared-layout single-pass figures quoted in the prose but no longer in the table
-check("shared 25q PORTER 1-pass dTS", -41.5,
+check("crosslayout PORTER+R gain from dSE layout", 6.0,
+      round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_refined")), 1))
+# shared-layout figures quoted in the prose but no longer in the table.
+# These legs run PORTER's own (horizon-selecting) protocol, not one pass.
+check("shared 25q PORTER selected dTS", -41.5,
       round(100 * (gmean([r["sfc_shared"]["epr"] for r in _ts if r["suite"] == "25"])
                    / gmean([r["telesabre"]["epr"] for r in _ts if r["suite"] == "25"]) - 1), 1))
-check("shared pooled PORTER 1-pass dTS", -37.7,
+check("shared pooled PORTER selected dTS", -37.7,
       round(100 * (gmean([r["sfc_shared"]["epr"] for r in _ts])
                    / gmean([r["telesabre"]["epr"] for r in _ts]) - 1), 1))
 # "removing plan commitment moves EPR by only 0.6%, in PORTER's favour"
 _c = gmean([r["out"]["committed"]["epr"] for r in pc_rows])
 _h = gmean([r["out"]["hopwise"]["epr"] for r in pc_rows])
+for _s, _want in (("64", -36.5), ("80", -33.1)):
+    check(f"shared {_s}q PORTER selected dTS", _want,
+          round(100 * (gmean([r["sfc_shared"]["epr"] for r in _ts if r["suite"] == _s])
+                       / gmean([r["telesabre"]["epr"] for r in _ts if r["suite"] == _s]) - 1), 1))
+check("shared pooled PORTER selected gmean", 107.7,
+      round(gmean([r["sfc_shared"]["epr"] for r in _ts]), 1))
+check("shared: dSABRE leads at 25 and 80, PORTER at 64", True,
+      gmean([r["dSE_shared"]["epr"] for r in _ts if r["suite"] == "64"])
+      > gmean([r["sfc_shared"]["epr"] for r in _ts if r["suite"] == "64"]))
 check("hopwise delta pct", -0.6, round(100 * (_h / _c - 1), 1))
 check("hopwise is the lower of the two", True, _h < _c)
 # Related Work: our dSABRE column must never exceed what it publishes at 64q.

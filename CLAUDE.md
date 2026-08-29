@@ -141,7 +141,8 @@ The "+7% overall gmean" figure that looked wrong on first check is correct
 --- it is over the 14-instance gmean basis including the omitted
 GHZ/Graphstate rows, not over the 12 rows shown.
 
-`paper/sfc.tex` is now a **12-page** paper (was 20) framed as: PORTER is a
+`paper/sfc.tex` is now a **13-page** paper (was 20; 12 pages of body plus
+a references page) framed as: PORTER is a
 new DQC compiler that **beats published TeleSABRE** and is **competitive
 with a concurrent compiler, dSABRE**. dSABRE is described as concurrent
 work throughout, not as a baseline PORTER must beat; §III-A's
@@ -637,6 +638,83 @@ A whole paragraph of the old scale-up prose was an artefact of the wrong
 device ("not a monotone difficulty ladder ... six 81-slot cores ... fewer
 EPR at 360q than 200q") and has been deleted: on the correct series
 dSABRE's own cost rises 200 -> 765 -> 1890 on QFT.
+
+## Paper proofread + restructure (2026-08-29) --- the protocol migration left prose fossils
+
+Full audit of `sfc.tex` after horizon selection became the headline protocol.
+**Both verifiers passed the whole time**: `verify_tex_tables.py` only checks
+table *cells*, and `verify_paper_numbers.py` had already been updated to the
+new values while its check *names* and the paper's *prose* still carried the
+old ones. That is the failure mode to watch for --- a green verifier is not
+evidence the prose is current.
+
+**Sec IV-E (scale-up) was entirely stale and contradicted its own table.**
+Every figure in it came from the pre-selection `scaleup_results.json`:
+"dSABRE takes all six instances" (PORTER takes all six, 6W/0L), "refinement
+helps on two ... 1.45 to 1.32" (it helps on **zero**), "the fixed-layout
+control does not rescue it" (nothing to rescue), 1.35x/1.24x/3266-vs-2822,
+and "PORTER remains 1.8-6.5x faster per attempt" (that is the *old single
+pass*; the shipped three-route protocol is 0.61-1.53x one dSABRE attempt,
+but 0.20x its **complete** cost, which is the paper's own convention).
+The stale reading had propagated to Sec IV-D's forward pointer, Sec IV-F's
+closing paragraph and the Conclusion. Corrected reading: **below ~108
+physical qubits the initial layout binds (control it and the gap closes);
+from 150 up the layout stops binding and the lookahead horizon does** ---
+all six scale-up instances select L=128, and dSABRE's layout makes PORTER
+*worse* there (0.94x vs 0.72x).
+
+Other corrections, all now pinned (183 checks, was 158):
+
+- "a single PORTER pass lowers ... 41.6% and 68.2%" (abstract, intro,
+  Sec IV-D) --- those need **three** routes; single-pass is 35.8%/61.2%.
+  Sec IV-C's protocol bullet and tab:shared's caption said "single-shot" too.
+- "0.08x dSABRE's per-pass speed" compared dSABRE's *per-route* cost against
+  PORTER's *three-route protocol*. True per-route gmean is **0.27x**.
+- "selection gives the better route on ten ... search on fourteen" ---
+  selection wins **4**, search 14, 6 tie.
+- Cross-layout "8.7% for PORTER's" is the old single pass; it is **6.0%**
+  for +R (the row tab:crosslayout actually shows), 4.7% for selection.
+- Shared-layout prose quoted the old -39.6/-35.3; with selection it is
+  -41.5/-37.7, **and dSABRE no longer leads at every scale** (PORTER takes
+  64q). The inference survives and sharpens: three routes spent on horizons
+  do not close the fixed-layout gap, five spent on f-b-f do.
+- "ahead on both heavy-hex core graphs" (abstract/intro/conclusion) was
+  unscoped --- true only under the fixed-layout control; under its own
+  layout PORTER trails the star 122.3 vs 101.1.
+- tab:heavyhex bolded 462 in the star-Multiplier row where 455 is lowest.
+- `\author` said "Yongjian Xie", `\thanks` said "Y. Xing"; the
+  acknowledgment said "the author" (singular) for four authors.
+- Appendix header said "Appendices A--D"; it holds A--I.
+
+**Determinism is now qualified, and it has to be.** The speculative horizons
+share a *wall-clock* budget, so the protocol's output depends on machine
+load: `horizon_results.json` has 360q/QPEexact falling back to L=16 at 2342
+EPR (both speculative candidates hit `HorizonTimeout`), while
+`scaleup_results_selection.json` has it at L=128 and **1224**. Sec IV-A now
+says a single route is byte-identical and the *protocol* is reproducible
+only up to that budget. Do not restore the unqualified claim.
+
+**Still unreproducible from released data** (flagged, not fixed): Sec IV-G's
+opening sweep over {4,...,1024}, the 17.2% oracle gap, Spearman -0.765 and
+the 8.0% threshold-rule recovery. `bench_horizon.py` only routes the
+best-of-3 candidates; no sweep harness or results file is released. Same
+class as the deleted `tab:timedecomp` figures. The prose now says "in an
+offline sweep" so the reader knows it is a separate measurement.
+
+**Structure.** 14 -> 13 pages (body ends on 12; p13 is references), -686
+prose words. Removed: the dSABRE corner-rule digression, the TeleSABRE
+crash mechanism, the `DagFrontierSimulator` internals and the "4x against a
+straightforward implementation" claim, the refinement free-slot-vector
+diagnostic, the f_min in {4,6} sweep, the two paragraphs justifying why
+both +R and +S are reported, and the star-row basis note. Deduplicated the
+"differ in exactly one respect" thesis, the front-adjacency fact (stated
+3x), the safe-but-not-complete guarantee (2x) and the AutoComm description
+(2x); the Contributions block became a four-item list. Sec III-I
+(complexity) moved to the appendix as **Appendix I**, and the five
+supplementary tables that had been sitting unlabelled inside the action-mix
+section got their own **Appendix H, "Supplementary Tables"** (the SWAP-count
+section folded into it) --- which is what `\appTables` had always claimed to
+point at. Appendix letters A--G are unchanged.
 
 ## Fixed-layout control extended to scale-up and heavy-hex (2026-08-28)
 
