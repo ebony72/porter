@@ -37,9 +37,9 @@
       "telegate_packets": 8,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.177,
+      "seconds": 0.161,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.176,
+      "seconds_best_attempt": 0.161,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -104,8 +104,8 @@
       "telegates": 0,
       "telegate_packets": 10,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 0.195,
-      "seconds": 0.684,
+      "seconds_best_attempt": 0.177,
+      "seconds": 0.612,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -154,8 +154,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 8,
-      "chosen_horizon": 16,
-      "seconds": 0.213
+      "seconds": 0.064
     },
     "sfc_shared_refined": {
       "epr": 60,
@@ -196,8 +195,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 11,
-      "chosen_horizon": 16,
-      "seconds": 0.205
+      "seconds": 0.082
     },
     "sfc_pytket_refined": {
       "epr": 73,
@@ -219,6 +217,25 @@
         114,
         82
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 62,
+      "swaps": 314,
+      "depth": 1095,
+      "intercore_depth": 1071,
+      "teleports": 53,
+      "teleports_normal": 42,
+      "teleports_blocked": 11,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 9,
+      "seconds": 1.246,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 65,
+      "chosen_horizon": 16,
+      "search_epr": 62,
+      "best_gamma": 0.8
     }
   },
   {
@@ -261,7 +278,7 @@
       "seed": 0,
       "seconds": 0.006,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.006,
+      "seconds_best_attempt": 0.005,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -327,7 +344,7 @@
       "telegate_packets": 0,
       "chosen_horizon": 16,
       "seconds_best_attempt": 0.004,
-      "seconds": 0.013,
+      "seconds": 0.012,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -376,8 +393,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.008
+      "seconds": 0.003
     },
     "sfc_shared_refined": {
       "epr": 8,
@@ -418,8 +434,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.004
+      "seconds": 0.001
     },
     "sfc_pytket_refined": {
       "epr": 3,
@@ -441,6 +456,25 @@
         3,
         3
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 4,
+      "swaps": 29,
+      "depth": 62,
+      "intercore_depth": 57,
+      "teleports": 4,
+      "teleports_normal": 4,
+      "teleports_blocked": 0,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 0,
+      "seconds": 0.028,
+      "chosen_schedule": "selection",
+      "routes": 15,
+      "selection_epr": 4,
+      "chosen_horizon": 16,
+      "search_epr": 4,
+      "best_gamma": 0.8
     }
   },
   {
@@ -481,9 +515,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.016,
+      "seconds": 0.015,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.016,
+      "seconds_best_attempt": 0.015,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -549,7 +583,7 @@
       "telegate_packets": 0,
       "chosen_horizon": 16,
       "seconds_best_attempt": 0.01,
-      "seconds": 0.037,
+      "seconds": 0.034,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -598,8 +632,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 1,
-      "chosen_horizon": 16,
-      "seconds": 0.026
+      "seconds": 0.009
     },
     "sfc_shared_refined": {
       "epr": 6,
@@ -640,8 +673,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.008
+      "seconds": 0.002
     },
     "sfc_pytket_refined": {
       "epr": 4,
@@ -663,6 +695,25 @@
         4,
         4
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 4,
+      "swaps": 19,
+      "depth": 42,
+      "intercore_depth": 37,
+      "teleports": 4,
+      "teleports_normal": 4,
+      "teleports_blocked": 0,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 0,
+      "seconds": 0.071,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 7,
+      "chosen_horizon": 16,
+      "search_epr": 4,
+      "best_gamma": 0.8
     }
   },
   {
@@ -703,9 +754,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.223,
+      "seconds": 0.271,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.223,
+      "seconds_best_attempt": 0.271,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -770,8 +821,8 @@
       "telegates": 0,
       "telegate_packets": 5,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.218,
-      "seconds": 0.772,
+      "seconds_best_attempt": 0.198,
+      "seconds": 0.702,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -810,18 +861,17 @@
       "entry_repair_eprs": 1
     },
     "sfc_shared": {
-      "epr": 100,
-      "swaps": 430,
-      "depth": 1197,
-      "intercore_depth": 1193,
-      "teleports": 78,
-      "teleports_normal": 64,
-      "teleports_blocked": 14,
+      "epr": 121,
+      "swaps": 415,
+      "depth": 1216,
+      "intercore_depth": 1212,
+      "teleports": 92,
+      "teleports_normal": 76,
+      "teleports_blocked": 16,
       "teleports_capacity_relief": 0,
-      "telegates": 0,
-      "telegate_packets": 22,
-      "chosen_horizon": 8,
-      "seconds": 0.25
+      "telegates": 1,
+      "telegate_packets": 28,
+      "seconds": 0.111
     },
     "sfc_shared_refined": {
       "epr": 89,
@@ -852,18 +902,17 @@
       "entry_repair_eprs": 1
     },
     "sfc_pytket": {
-      "epr": 96,
-      "swaps": 388,
-      "depth": 1065,
-      "intercore_depth": 1061,
-      "teleports": 89,
-      "teleports_normal": 76,
-      "teleports_blocked": 13,
+      "epr": 118,
+      "swaps": 438,
+      "depth": 1350,
+      "intercore_depth": 1347,
+      "teleports": 71,
+      "teleports_normal": 61,
+      "teleports_blocked": 10,
       "teleports_capacity_relief": 0,
       "telegates": 0,
-      "telegate_packets": 7,
-      "chosen_horizon": 8,
-      "seconds": 0.256
+      "telegate_packets": 47,
+      "seconds": 0.103
     },
     "sfc_pytket_refined": {
       "epr": 100,
@@ -885,6 +934,25 @@
         100,
         104
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 74,
+      "swaps": 327,
+      "depth": 1000,
+      "intercore_depth": 996,
+      "teleports": 74,
+      "teleports_normal": 58,
+      "teleports_blocked": 16,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 0,
+      "seconds": 1.168,
+      "chosen_schedule": "selection",
+      "routes": 11,
+      "selection_epr": 74,
+      "chosen_horizon": 16,
+      "search_epr": 74,
+      "best_gamma": 0.99
     }
   },
   {
@@ -925,9 +993,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.473,
+      "seconds": 0.439,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.472,
+      "seconds_best_attempt": 0.438,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -992,8 +1060,8 @@
       "telegates": 0,
       "telegate_packets": 7,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 0.554,
-      "seconds": 1.591,
+      "seconds_best_attempt": 0.433,
+      "seconds": 1.445,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1042,8 +1110,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 10,
-      "chosen_horizon": 16,
-      "seconds": 0.464
+      "seconds": 0.186
     },
     "sfc_shared_refined": {
       "epr": 126,
@@ -1084,8 +1151,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 4,
-      "chosen_horizon": 16,
-      "seconds": 0.532
+      "seconds": 0.179
     },
     "sfc_pytket_refined": {
       "epr": 122,
@@ -1107,6 +1173,25 @@
         140,
         122
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 116,
+      "swaps": 603,
+      "depth": 1470,
+      "intercore_depth": 1464,
+      "teleports": 116,
+      "teleports_normal": 90,
+      "teleports_blocked": 26,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 0,
+      "seconds": 3.004,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 119,
+      "chosen_horizon": 16,
+      "search_epr": 116,
+      "best_gamma": 0.8
     }
   },
   {
@@ -1147,9 +1232,9 @@
       "telegate_packets": 43,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 1.168,
+      "seconds": 1.073,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 1.167,
+      "seconds_best_attempt": 1.072,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -1214,8 +1299,8 @@
       "telegates": 51,
       "telegate_packets": 37,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 1.078,
-      "seconds": 3.192,
+      "seconds_best_attempt": 0.99,
+      "seconds": 2.94,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1264,8 +1349,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 63,
       "telegate_packets": 38,
-      "chosen_horizon": 16,
-      "seconds": 1.0
+      "seconds": 0.441
     },
     "sfc_shared_refined": {
       "epr": 367,
@@ -1306,8 +1390,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 78,
       "telegate_packets": 48,
-      "chosen_horizon": 16,
-      "seconds": 0.992
+      "seconds": 0.495
     },
     "sfc_pytket_refined": {
       "epr": 393,
@@ -1329,6 +1412,25 @@
         398,
         393
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 379,
+      "swaps": 1341,
+      "depth": 3395,
+      "intercore_depth": 3373,
+      "teleports": 270,
+      "teleports_normal": 262,
+      "teleports_blocked": 8,
+      "teleports_capacity_relief": 0,
+      "telegates": 71,
+      "telegate_packets": 38,
+      "seconds": 7.455,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 401,
+      "chosen_horizon": 16,
+      "search_epr": 379,
+      "best_gamma": 0.8
     }
   },
   {
@@ -1369,9 +1471,9 @@
       "telegate_packets": 38,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 1.77,
+      "seconds": 1.638,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 1.769,
+      "seconds_best_attempt": 1.637,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -1436,8 +1538,8 @@
       "telegates": 1,
       "telegate_packets": 68,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.333,
-      "seconds": 10.086,
+      "seconds_best_attempt": 2.155,
+      "seconds": 9.679,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1486,8 +1588,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 0,
       "telegate_packets": 14,
-      "chosen_horizon": 16,
-      "seconds": 5.486
+      "seconds": 0.332
     },
     "sfc_shared_refined": {
       "epr": 151,
@@ -1528,8 +1629,7 @@
       "teleports_capacity_relief": 3,
       "telegates": 0,
       "telegate_packets": 21,
-      "chosen_horizon": 16,
-      "seconds": 2.453
+      "seconds": 0.24
     },
     "sfc_pytket_refined": {
       "epr": 190,
@@ -1551,6 +1651,25 @@
         269,
         196
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 157,
+      "swaps": 1468,
+      "depth": 4637,
+      "intercore_depth": 4581,
+      "teleports": 119,
+      "teleports_normal": 85,
+      "teleports_blocked": 34,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 38,
+      "seconds": 6.521,
+      "chosen_schedule": "selection",
+      "routes": 15,
+      "selection_epr": 157,
+      "chosen_horizon": 128,
+      "search_epr": 176,
+      "best_gamma": 0.95
     }
   },
   {
@@ -1591,9 +1710,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.02,
+      "seconds": 0.018,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.02,
+      "seconds_best_attempt": 0.018,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -1658,8 +1777,8 @@
       "telegates": 0,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.015,
-      "seconds": 0.042,
+      "seconds_best_attempt": 0.014,
+      "seconds": 0.039,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1708,8 +1827,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.027
+      "seconds": 0.008
     },
     "sfc_shared_refined": {
       "epr": 8,
@@ -1750,8 +1868,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.014
+      "seconds": 0.004
     },
     "sfc_pytket_refined": {
       "epr": 5,
@@ -1773,6 +1890,25 @@
         5,
         5
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 6,
+      "swaps": 86,
+      "depth": 133,
+      "intercore_depth": 121,
+      "teleports": 6,
+      "teleports_normal": 6,
+      "teleports_blocked": 0,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 0,
+      "seconds": 0.091,
+      "chosen_schedule": "selection",
+      "routes": 15,
+      "selection_epr": 6,
+      "chosen_horizon": 16,
+      "search_epr": 6,
+      "best_gamma": 0.8
     }
   },
   {
@@ -1813,9 +1949,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.162,
+      "seconds": 0.15,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.161,
+      "seconds_best_attempt": 0.15,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -1880,8 +2016,8 @@
       "telegates": 2,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.074,
-      "seconds": 0.333,
+      "seconds_best_attempt": 0.069,
+      "seconds": 0.308,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1930,8 +2066,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 4,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.374
+      "seconds": 0.129
     },
     "sfc_shared_refined": {
       "epr": 24,
@@ -1972,8 +2107,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 1,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.05
+      "seconds": 0.017
     },
     "sfc_pytket_refined": {
       "epr": 8,
@@ -1995,6 +2129,25 @@
         8,
         8
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 16,
+      "swaps": 103,
+      "depth": 94,
+      "intercore_depth": 88,
+      "teleports": 16,
+      "teleports_normal": 16,
+      "teleports_blocked": 0,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 0,
+      "seconds": 0.829,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 20,
+      "chosen_horizon": 16,
+      "search_epr": 16,
+      "best_gamma": 0.8
     }
   },
   {
@@ -2035,9 +2188,9 @@
       "telegate_packets": 45,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 5.77,
+      "seconds": 5.716,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 5.769,
+      "seconds_best_attempt": 5.715,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -2102,8 +2255,8 @@
       "telegates": 1,
       "telegate_packets": 63,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.66,
-      "seconds": 8.89,
+      "seconds_best_attempt": 2.469,
+      "seconds": 8.311,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2152,8 +2305,7 @@
       "teleports_capacity_relief": 5,
       "telegates": 48,
       "telegate_packets": 55,
-      "chosen_horizon": 16,
-      "seconds": 5.661
+      "seconds": 0.335
     },
     "sfc_shared_refined": {
       "epr": 257,
@@ -2184,18 +2336,17 @@
       "entry_repair_eprs": 1
     },
     "sfc_pytket": {
-      "epr": 231,
-      "swaps": 1700,
-      "depth": 3991,
-      "intercore_depth": 3986,
-      "teleports": 168,
-      "teleports_normal": 123,
-      "teleports_blocked": 45,
-      "teleports_capacity_relief": 0,
-      "telegates": 2,
-      "telegate_packets": 61,
-      "chosen_horizon": 128,
-      "seconds": 2.516
+      "epr": 348,
+      "swaps": 2104,
+      "depth": 4514,
+      "intercore_depth": 4509,
+      "teleports": 228,
+      "teleports_normal": 172,
+      "teleports_blocked": 47,
+      "teleports_capacity_relief": 9,
+      "telegates": 3,
+      "telegate_packets": 117,
+      "seconds": 0.45
     },
     "sfc_pytket_refined": {
       "epr": 238,
@@ -2217,6 +2368,25 @@
         364,
         238
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 262,
+      "swaps": 1846,
+      "depth": 3722,
+      "intercore_depth": 3717,
+      "teleports": 216,
+      "teleports_normal": 179,
+      "teleports_blocked": 37,
+      "teleports_capacity_relief": 0,
+      "telegates": 1,
+      "telegate_packets": 45,
+      "seconds": 10.399,
+      "chosen_schedule": "selection",
+      "routes": 11,
+      "selection_epr": 262,
+      "chosen_horizon": 16,
+      "search_epr": 262,
+      "best_gamma": 0.99
     }
   },
   {
@@ -2257,9 +2427,9 @@
       "telegate_packets": 69,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 5.12,
+      "seconds": 4.769,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 5.117,
+      "seconds_best_attempt": 4.766,
       "layout_seconds": 0.003,
       "n_candidates": 1
     },
@@ -2324,8 +2494,8 @@
       "telegates": 1,
       "telegate_packets": 122,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 5.025,
-      "seconds": 16.507,
+      "seconds_best_attempt": 4.612,
+      "seconds": 15.465,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2374,8 +2544,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 17,
-      "chosen_horizon": 16,
-      "seconds": 4.136
+      "seconds": 2.011
     },
     "sfc_shared_refined": {
       "epr": 580,
@@ -2416,8 +2585,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 0,
       "telegate_packets": 72,
-      "chosen_horizon": 16,
-      "seconds": 5.534
+      "seconds": 2.128
     },
     "sfc_pytket_refined": {
       "epr": 700,
@@ -2439,6 +2607,25 @@
         700,
         733
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 537,
+      "swaps": 5608,
+      "depth": 8702,
+      "intercore_depth": 8683,
+      "teleports": 529,
+      "teleports_normal": 432,
+      "teleports_blocked": 97,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 8,
+      "seconds": 38.024,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 638,
+      "chosen_horizon": 8,
+      "search_epr": 537,
+      "best_gamma": 1.0
     }
   },
   {
@@ -2469,9 +2656,9 @@
       "telegate_packets": 77,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 11.408,
+      "seconds": 11.202,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 11.407,
+      "seconds_best_attempt": 11.201,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -2536,8 +2723,8 @@
       "telegates": 157,
       "telegate_packets": 39,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 16.452,
-      "seconds": 49.677,
+      "seconds_best_attempt": 15.321,
+      "seconds": 45.908,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2580,18 +2767,17 @@
       "entry_repair_eprs": 0
     },
     "sfc_pytket": {
-      "epr": 787,
-      "swaps": 4366,
-      "depth": 5625,
-      "intercore_depth": 5617,
-      "teleports": 512,
-      "teleports_normal": 494,
-      "teleports_blocked": 8,
-      "teleports_capacity_relief": 10,
-      "telegates": 213,
-      "telegate_packets": 62,
-      "chosen_horizon": 8,
-      "seconds": 15.335
+      "epr": 813,
+      "swaps": 4427,
+      "depth": 5971,
+      "intercore_depth": 5968,
+      "teleports": 438,
+      "teleports_normal": 416,
+      "teleports_blocked": 10,
+      "teleports_capacity_relief": 12,
+      "telegates": 306,
+      "telegate_packets": 69,
+      "seconds": 2.561
     },
     "sfc_pytket_refined": {
       "epr": 813,
@@ -2613,6 +2799,25 @@
         890,
         837
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 664,
+      "swaps": 3819,
+      "depth": 4629,
+      "intercore_depth": 4628,
+      "teleports": 478,
+      "teleports_normal": 467,
+      "teleports_blocked": 7,
+      "teleports_capacity_relief": 4,
+      "telegates": 140,
+      "telegate_packets": 46,
+      "seconds": 45.536,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 737,
+      "chosen_horizon": 16,
+      "search_epr": 664,
+      "best_gamma": 0.9
     }
   },
   {
@@ -2653,9 +2858,9 @@
       "telegate_packets": 42,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 5.744,
+      "seconds": 5.623,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 5.743,
+      "seconds_best_attempt": 5.622,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -2720,8 +2925,8 @@
       "telegates": 2,
       "telegate_packets": 96,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.929,
-      "seconds": 9.222,
+      "seconds_best_attempt": 2.678,
+      "seconds": 8.678,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2770,8 +2975,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 1,
       "telegate_packets": 38,
-      "chosen_horizon": 16,
-      "seconds": 2.54
+      "seconds": 0.336
     },
     "sfc_shared_refined": {
       "epr": 186,
@@ -2802,18 +3006,17 @@
       "entry_repair_eprs": 0
     },
     "sfc_pytket": {
-      "epr": 232,
-      "swaps": 1799,
-      "depth": 4411,
-      "intercore_depth": 4369,
-      "teleports": 149,
-      "teleports_normal": 91,
-      "teleports_blocked": 58,
-      "teleports_capacity_relief": 0,
-      "telegates": 1,
-      "telegate_packets": 82,
-      "chosen_horizon": 128,
-      "seconds": 2.754
+      "epr": 414,
+      "swaps": 2665,
+      "depth": 5175,
+      "intercore_depth": 5173,
+      "teleports": 185,
+      "teleports_normal": 129,
+      "teleports_blocked": 44,
+      "teleports_capacity_relief": 12,
+      "telegates": 7,
+      "telegate_packets": 222,
+      "seconds": 0.459
     },
     "sfc_pytket_refined": {
       "epr": 266,
@@ -2835,6 +3038,25 @@
         266,
         283
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 197,
+      "swaps": 1645,
+      "depth": 3835,
+      "intercore_depth": 3792,
+      "teleports": 165,
+      "teleports_normal": 121,
+      "teleports_blocked": 42,
+      "teleports_capacity_relief": 2,
+      "telegates": 0,
+      "telegate_packets": 32,
+      "seconds": 11.696,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 222,
+      "chosen_horizon": 16,
+      "search_epr": 197,
+      "best_gamma": 1.0
     }
   },
   {
@@ -2875,9 +3097,9 @@
       "telegate_packets": 162,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 14.069,
+      "seconds": 12.766,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 14.067,
+      "seconds_best_attempt": 12.765,
       "layout_seconds": 0.002,
       "n_candidates": 1
     },
@@ -2942,8 +3164,8 @@
       "telegates": 1,
       "telegate_packets": 44,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 12.522,
-      "seconds": 37.676,
+      "seconds_best_attempt": 11.277,
+      "seconds": 33.971,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2982,18 +3204,17 @@
       "entry_repair_eprs": 1
     },
     "sfc_shared": {
-      "epr": 598,
-      "swaps": 4265,
-      "depth": 6557,
-      "intercore_depth": 6517,
-      "teleports": 501,
-      "teleports_normal": 428,
-      "teleports_blocked": 73,
-      "teleports_capacity_relief": 0,
-      "telegates": 1,
-      "telegate_packets": 96,
-      "chosen_horizon": 8,
-      "seconds": 14.753
+      "epr": 926,
+      "swaps": 5479,
+      "depth": 8296,
+      "intercore_depth": 8273,
+      "teleports": 481,
+      "teleports_normal": 398,
+      "teleports_blocked": 78,
+      "teleports_capacity_relief": 5,
+      "telegates": 28,
+      "telegate_packets": 417,
+      "seconds": 2.559
     },
     "sfc_shared_refined": {
       "epr": 616,
@@ -3034,8 +3255,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 6,
       "telegate_packets": 253,
-      "chosen_horizon": 16,
-      "seconds": 12.602
+      "seconds": 2.06
     },
     "sfc_pytket_refined": {
       "epr": 664,
@@ -3057,6 +3277,25 @@
         766,
         664
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 576,
+      "swaps": 4143,
+      "depth": 5974,
+      "intercore_depth": 5944,
+      "teleports": 479,
+      "teleports_normal": 415,
+      "teleports_blocked": 64,
+      "teleports_capacity_relief": 0,
+      "telegates": 3,
+      "telegate_packets": 94,
+      "seconds": 42.793,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 775,
+      "chosen_horizon": 8,
+      "search_epr": 576,
+      "best_gamma": 0.95
     }
   },
   {
@@ -3097,9 +3336,9 @@
       "telegate_packets": 75,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 4.896,
+      "seconds": 4.761,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 4.891,
+      "seconds_best_attempt": 4.756,
       "layout_seconds": 0.005,
       "n_candidates": 1
     },
@@ -3164,8 +3403,8 @@
       "telegates": 260,
       "telegate_packets": 57,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 4.618,
-      "seconds": 16.081,
+      "seconds_best_attempt": 4.369,
+      "seconds": 14.842,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -3214,8 +3453,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 258,
       "telegate_packets": 21,
-      "chosen_horizon": 16,
-      "seconds": 4.231
+      "seconds": 1.595
     },
     "sfc_shared_refined": {
       "epr": 755,
@@ -3256,8 +3494,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 367,
       "telegate_packets": 36,
-      "chosen_horizon": 16,
-      "seconds": 5.152
+      "seconds": 1.253
     },
     "sfc_pytket_refined": {
       "epr": 967,
@@ -3279,6 +3516,25 @@
         967,
         1297
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 763,
+      "swaps": 8264,
+      "depth": 31977,
+      "intercore_depth": 31932,
+      "teleports": 590,
+      "teleports_normal": 524,
+      "teleports_blocked": 66,
+      "teleports_capacity_relief": 0,
+      "telegates": 156,
+      "telegate_packets": 17,
+      "seconds": 23.28,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 1076,
+      "chosen_horizon": 128,
+      "search_epr": 763,
+      "best_gamma": 0.9
     }
   },
   {
@@ -3309,9 +3565,9 @@
       "telegate_packets": 131,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 3.52,
+      "seconds": 3.21,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 3.519,
+      "seconds_best_attempt": 3.208,
       "layout_seconds": 0.002,
       "n_candidates": 1
     },
@@ -3376,8 +3632,8 @@
       "telegates": 64,
       "telegate_packets": 110,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 3.619,
-      "seconds": 13.409,
+      "seconds_best_attempt": 3.398,
+      "seconds": 12.343,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -3420,18 +3676,17 @@
       "entry_repair_eprs": 5
     },
     "sfc_pytket": {
-      "epr": 389,
-      "swaps": 2591,
-      "depth": 6576,
-      "intercore_depth": 6531,
-      "teleports": 224,
-      "teleports_normal": 122,
-      "teleports_blocked": 98,
-      "teleports_capacity_relief": 4,
-      "telegates": 57,
-      "telegate_packets": 108,
-      "chosen_horizon": 128,
-      "seconds": 3.702
+      "epr": 427,
+      "swaps": 2773,
+      "depth": 5987,
+      "intercore_depth": 5962,
+      "teleports": 251,
+      "teleports_normal": 181,
+      "teleports_blocked": 70,
+      "teleports_capacity_relief": 0,
+      "telegates": 13,
+      "telegate_packets": 163,
+      "seconds": 0.534
     },
     "sfc_pytket_refined": {
       "epr": 400,
@@ -3453,6 +3708,25 @@
         464,
         400
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 299,
+      "swaps": 2433,
+      "depth": 6220,
+      "intercore_depth": 6149,
+      "teleports": 166,
+      "teleports_normal": 98,
+      "teleports_blocked": 61,
+      "teleports_capacity_relief": 7,
+      "telegates": 2,
+      "telegate_packets": 131,
+      "seconds": 12.644,
+      "chosen_schedule": "selection",
+      "routes": 15,
+      "selection_epr": 299,
+      "chosen_horizon": 128,
+      "search_epr": 399,
+      "best_gamma": 0.9
     }
   },
   {
@@ -3493,9 +3767,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.026,
+      "seconds": 0.024,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.025,
+      "seconds_best_attempt": 0.024,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -3560,8 +3834,8 @@
       "telegates": 0,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.015,
-      "seconds": 0.046,
+      "seconds_best_attempt": 0.014,
+      "seconds": 0.043,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -3610,8 +3884,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.038
+      "seconds": 0.013
     },
     "sfc_shared_refined": {
       "epr": 12,
@@ -3652,8 +3925,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.019
+      "seconds": 0.006
     },
     "sfc_pytket_refined": {
       "epr": 7,
@@ -3675,6 +3947,25 @@
         7,
         7
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 7,
+      "swaps": 115,
+      "depth": 168,
+      "intercore_depth": 155,
+      "teleports": 7,
+      "teleports_normal": 7,
+      "teleports_blocked": 0,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 0,
+      "seconds": 0.12,
+      "chosen_schedule": "selection",
+      "routes": 15,
+      "selection_epr": 7,
+      "chosen_horizon": 16,
+      "search_epr": 7,
+      "best_gamma": 0.8
     }
   },
   {
@@ -3715,9 +4006,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.363,
+      "seconds": 0.343,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.363,
+      "seconds_best_attempt": 0.342,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -3782,8 +4073,8 @@
       "telegates": 3,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.164,
-      "seconds": 0.545,
+      "seconds_best_attempt": 0.155,
+      "seconds": 0.515,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -3832,8 +4123,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 7,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.896
+      "seconds": 0.307
     },
     "sfc_shared_refined": {
       "epr": 32,
@@ -3874,8 +4164,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 1,
       "telegate_packets": 0,
-      "chosen_horizon": 16,
-      "seconds": 0.059
+      "seconds": 0.019
     },
     "sfc_pytket_refined": {
       "epr": 10,
@@ -3897,6 +4186,25 @@
         10,
         10
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 24,
+      "swaps": 150,
+      "depth": 87,
+      "intercore_depth": 82,
+      "teleports": 20,
+      "teleports_normal": 20,
+      "teleports_blocked": 0,
+      "teleports_capacity_relief": 0,
+      "telegates": 4,
+      "telegate_packets": 0,
+      "seconds": 1.689,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 28,
+      "chosen_horizon": 16,
+      "search_epr": 24,
+      "best_gamma": 0.8
     }
   },
   {
@@ -3927,10 +4235,10 @@
       "telegate_packets": 209,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 6.191,
+      "seconds": 6.028,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 6.19,
-      "layout_seconds": 0.002,
+      "seconds_best_attempt": 6.027,
+      "layout_seconds": 0.001,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -3994,8 +4302,8 @@
       "telegates": 0,
       "telegate_packets": 150,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 3.518,
-      "seconds": 12.255,
+      "seconds_best_attempt": 3.312,
+      "seconds": 11.134,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4038,18 +4346,17 @@
       "entry_repair_eprs": 1
     },
     "sfc_pytket": {
-      "epr": 374,
-      "swaps": 2377,
-      "depth": 5845,
-      "intercore_depth": 5785,
-      "teleports": 208,
-      "teleports_normal": 114,
-      "teleports_blocked": 89,
-      "teleports_capacity_relief": 5,
-      "telegates": 3,
-      "telegate_packets": 163,
-      "chosen_horizon": 128,
-      "seconds": 3.9
+      "epr": 567,
+      "swaps": 3290,
+      "depth": 6671,
+      "intercore_depth": 6619,
+      "teleports": 244,
+      "teleports_normal": 175,
+      "teleports_blocked": 50,
+      "teleports_capacity_relief": 19,
+      "telegates": 4,
+      "telegate_packets": 319,
+      "seconds": 0.598
     },
     "sfc_pytket_refined": {
       "epr": 508,
@@ -4071,6 +4378,25 @@
         605,
         508
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 383,
+      "swaps": 2728,
+      "depth": 6011,
+      "intercore_depth": 6004,
+      "teleports": 179,
+      "teleports_normal": 120,
+      "teleports_blocked": 53,
+      "teleports_capacity_relief": 6,
+      "telegates": 4,
+      "telegate_packets": 200,
+      "seconds": 14.285,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 446,
+      "chosen_horizon": 16,
+      "search_epr": 383,
+      "best_gamma": 1.0
     }
   },
   {
@@ -4101,9 +4427,9 @@
       "telegate_packets": 161,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 11.159,
+      "seconds": 9.942,
       "chosen_horizon": 4,
-      "seconds_best_attempt": 11.154,
+      "seconds_best_attempt": 9.937,
       "layout_seconds": 0.005,
       "n_candidates": 1
     },
@@ -4168,8 +4494,8 @@
       "telegates": 5,
       "telegate_packets": 23,
       "chosen_horizon": 4,
-      "seconds_best_attempt": 10.66,
-      "seconds": 31.636,
+      "seconds_best_attempt": 9.078,
+      "seconds": 27.926,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4212,18 +4538,17 @@
       "entry_repair_eprs": 1
     },
     "sfc_pytket": {
-      "epr": 1408,
-      "swaps": 11162,
-      "depth": 18777,
-      "intercore_depth": 18762,
-      "teleports": 1060,
-      "teleports_normal": 831,
-      "teleports_blocked": 221,
-      "teleports_capacity_relief": 8,
-      "telegates": 18,
-      "telegate_packets": 330,
-      "chosen_horizon": 8,
-      "seconds": 11.505
+      "epr": 2193,
+      "swaps": 13259,
+      "depth": 22976,
+      "intercore_depth": 22970,
+      "teleports": 1158,
+      "teleports_normal": 891,
+      "teleports_blocked": 247,
+      "teleports_capacity_relief": 20,
+      "telegates": 70,
+      "telegate_packets": 965,
+      "seconds": 5.807
     },
     "sfc_pytket_refined": {
       "epr": 914,
@@ -4245,6 +4570,25 @@
         914,
         1241
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 938,
+      "swaps": 9774,
+      "depth": 13777,
+      "intercore_depth": 13772,
+      "teleports": 842,
+      "teleports_normal": 671,
+      "teleports_blocked": 170,
+      "teleports_capacity_relief": 1,
+      "telegates": 2,
+      "telegate_packets": 94,
+      "seconds": 75.724,
+      "chosen_schedule": "search",
+      "routes": 15,
+      "selection_epr": 1070,
+      "chosen_horizon": 4,
+      "search_epr": 938,
+      "best_gamma": 1.0
     }
   },
   {
@@ -4275,9 +4619,9 @@
       "telegate_packets": 572,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 226.609,
+      "seconds": 206.466,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 226.598,
+      "seconds_best_attempt": 206.456,
       "layout_seconds": 0.01,
       "n_candidates": 1
     },
@@ -4342,8 +4686,8 @@
       "telegates": 3475,
       "telegate_packets": 513,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 93.948,
-      "seconds": 274.549,
+      "seconds_best_attempt": 83.239,
+      "seconds": 249.413,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4396,8 +4740,7 @@
       "teleports_capacity_relief": 129,
       "telegates": 3639,
       "telegate_packets": 525,
-      "chosen_horizon": 16,
-      "seconds": 85.314
+      "seconds": 67.562
     },
     "sfc_pytket_refined": {
       "epr": 11105,
@@ -4419,6 +4762,25 @@
         11105,
         11225
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 10836,
+      "swaps": 60949,
+      "depth": 73857,
+      "intercore_depth": 73846,
+      "teleports": 6928,
+      "teleports_normal": 6599,
+      "teleports_blocked": 239,
+      "teleports_capacity_relief": 90,
+      "telegates": 3376,
+      "telegate_packets": 532,
+      "seconds": 1591.346,
+      "chosen_schedule": "search",
+      "routes": 12,
+      "selection_epr": 11040,
+      "chosen_horizon": 16,
+      "search_epr": 10836,
+      "best_gamma": 1.0
     }
   },
   {
@@ -4459,9 +4821,9 @@
       "telegate_packets": 122,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 3.534,
+      "seconds": 3.193,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 3.532,
+      "seconds_best_attempt": 3.191,
       "layout_seconds": 0.002,
       "n_candidates": 1
     },
@@ -4526,8 +4888,8 @@
       "telegates": 0,
       "telegate_packets": 118,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 5.578,
-      "seconds": 14.565,
+      "seconds_best_attempt": 5.038,
+      "seconds": 13.259,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4566,18 +4928,17 @@
       "entry_repair_eprs": 0
     },
     "sfc_shared": {
-      "epr": 436,
-      "swaps": 3087,
-      "depth": 6063,
-      "intercore_depth": 6026,
-      "teleports": 277,
-      "teleports_normal": 200,
-      "teleports_blocked": 65,
-      "teleports_capacity_relief": 12,
-      "telegates": 3,
-      "telegate_packets": 156,
-      "chosen_horizon": 8,
-      "seconds": 6.072
+      "epr": 451,
+      "swaps": 3036,
+      "depth": 6494,
+      "intercore_depth": 6488,
+      "teleports": 254,
+      "teleports_normal": 181,
+      "teleports_blocked": 72,
+      "teleports_capacity_relief": 1,
+      "telegates": 4,
+      "telegate_packets": 193,
+      "seconds": 0.659
     },
     "sfc_shared_refined": {
       "epr": 451,
@@ -4608,18 +4969,17 @@
       "entry_repair_eprs": 3
     },
     "sfc_pytket": {
-      "epr": 330,
-      "swaps": 2406,
-      "depth": 6208,
-      "intercore_depth": 6167,
-      "teleports": 204,
-      "teleports_normal": 111,
-      "teleports_blocked": 91,
-      "teleports_capacity_relief": 2,
-      "telegates": 3,
-      "telegate_packets": 123,
-      "chosen_horizon": 128,
-      "seconds": 3.889
+      "epr": 469,
+      "swaps": 3155,
+      "depth": 6449,
+      "intercore_depth": 6447,
+      "teleports": 250,
+      "teleports_normal": 178,
+      "teleports_blocked": 47,
+      "teleports_capacity_relief": 25,
+      "telegates": 6,
+      "telegate_packets": 213,
+      "seconds": 1.1
     },
     "sfc_pytket_refined": {
       "epr": 469,
@@ -4641,6 +5001,25 @@
         738,
         522
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 291,
+      "swaps": 2378,
+      "depth": 5902,
+      "intercore_depth": 5834,
+      "teleports": 169,
+      "teleports_normal": 98,
+      "teleports_blocked": 64,
+      "teleports_capacity_relief": 7,
+      "telegates": 0,
+      "telegate_packets": 122,
+      "seconds": 12.64,
+      "chosen_schedule": "selection",
+      "routes": 15,
+      "selection_epr": 291,
+      "chosen_horizon": 128,
+      "search_epr": 365,
+      "best_gamma": 0.95
     }
   },
   {
@@ -4671,9 +5050,9 @@
       "telegate_packets": 303,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 25.241,
+      "seconds": 23.707,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 25.238,
+      "seconds_best_attempt": 23.704,
       "layout_seconds": 0.003,
       "n_candidates": 1
     },
@@ -4738,8 +5117,8 @@
       "telegates": 29,
       "telegate_packets": 109,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 24.388,
-      "seconds": 71.965,
+      "seconds_best_attempt": 22.768,
+      "seconds": 67.218,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4782,18 +5161,17 @@
       "entry_repair_eprs": 0
     },
     "sfc_pytket": {
-      "epr": 1143,
-      "swaps": 7581,
-      "depth": 10282,
-      "intercore_depth": 10272,
-      "teleports": 909,
-      "teleports_normal": 796,
-      "teleports_blocked": 113,
-      "teleports_capacity_relief": 0,
-      "telegates": 12,
-      "telegate_packets": 222,
-      "chosen_horizon": 8,
-      "seconds": 27.66
+      "epr": 1420,
+      "swaps": 8613,
+      "depth": 11570,
+      "intercore_depth": 11561,
+      "teleports": 841,
+      "teleports_normal": 735,
+      "teleports_blocked": 98,
+      "teleports_capacity_relief": 8,
+      "telegates": 54,
+      "telegate_packets": 525,
+      "seconds": 7.783
     },
     "sfc_pytket_refined": {
       "epr": 1265,
@@ -4815,6 +5193,25 @@
         1265,
         1349
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 1122,
+      "swaps": 7370,
+      "depth": 10151,
+      "intercore_depth": 10146,
+      "teleports": 804,
+      "teleports_normal": 713,
+      "teleports_blocked": 89,
+      "teleports_capacity_relief": 2,
+      "telegates": 15,
+      "telegate_packets": 303,
+      "seconds": 65.708,
+      "chosen_schedule": "selection",
+      "routes": 11,
+      "selection_epr": 1122,
+      "chosen_horizon": 16,
+      "search_epr": 1122,
+      "best_gamma": 0.99
     }
   },
   {
@@ -4845,9 +5242,9 @@
       "telegate_packets": 198,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 10.258,
+      "seconds": 9.538,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 10.249,
+      "seconds_best_attempt": 9.53,
       "layout_seconds": 0.008,
       "n_candidates": 1
     },
@@ -4912,8 +5309,8 @@
       "telegates": 1007,
       "telegate_packets": 225,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 9.373,
-      "seconds": 28.694,
+      "seconds_best_attempt": 8.665,
+      "seconds": 27.037,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4956,18 +5353,17 @@
       "entry_repair_eprs": 5
     },
     "sfc_pytket": {
-      "epr": 2805,
-      "swaps": 16764,
-      "depth": 57282,
-      "intercore_depth": 57229,
-      "teleports": 1395,
-      "teleports_normal": 1000,
-      "teleports_blocked": 375,
-      "teleports_capacity_relief": 20,
-      "telegates": 1155,
-      "telegate_packets": 255,
-      "chosen_horizon": 128,
-      "seconds": 11.472
+      "epr": 3762,
+      "swaps": 20330,
+      "depth": 63084,
+      "intercore_depth": 63032,
+      "teleports": 2142,
+      "teleports_normal": 1761,
+      "teleports_blocked": 359,
+      "teleports_capacity_relief": 22,
+      "telegates": 1462,
+      "telegate_packets": 158,
+      "seconds": 4.609
     },
     "sfc_pytket_refined": {
       "epr": 3245,
@@ -4989,6 +5385,25 @@
         3245,
         3317
       ]
+    },
+    "sfc_selection_and_search": {
+      "epr": 2411,
+      "swaps": 15709,
+      "depth": 55486,
+      "intercore_depth": 55477,
+      "teleports": 1126,
+      "teleports_normal": 824,
+      "teleports_blocked": 291,
+      "teleports_capacity_relief": 11,
+      "telegates": 1087,
+      "telegate_packets": 198,
+      "seconds": 46.249,
+      "chosen_schedule": "selection",
+      "routes": 15,
+      "selection_epr": 2411,
+      "chosen_horizon": 128,
+      "search_epr": 2699,
+      "best_gamma": 0.95
     }
   }
 ]

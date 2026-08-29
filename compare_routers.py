@@ -1315,6 +1315,35 @@ def run_sfc_search(circuit: List[dr.Gate], hw: dr.Hardware,
     )
 
 
+def run_sfc_selection_and_search(circuit: List[dr.Gate], hw: dr.Hardware,
+                                 num_logical: int, *, horizons=None
+                                 ) -> Optional[dict]:
+    """PORTER+SR: the better of horizon selection and the best-of-gamma
+    layout search.  The two search orthogonal things -- one the lookahead
+    horizon at a fixed layout, the other the layout at a fixed horizon -- and
+    neither dominates, so the combination beats both."""
+    cfg = dr.RouterConfig(random_seed=0)
+    t0 = time.perf_counter()
+    try:
+        state, info = cdr.run_selection_and_search(
+            hw, cfg, circuit, num_logical, horizons=horizons,
+            passes=PORTER_REFINE_PASSES,
+            pass_guard=_compiler_time_limit,
+            pass_exceptions=(RuntimeError, ValueError, CompilerTimeout),
+        )
+    except (RuntimeError, ValueError, CompilerTimeout):
+        return None
+    if state is None:
+        return None
+    return _porter_state_record(
+        state, time.perf_counter() - t0,
+        chosen_schedule=info["chosen"], routes=info["routes"],
+        selection_epr=info["selection"]["epr"],
+        chosen_horizon=info["selection"]["chosen_horizon"],
+        search_epr=info["search"]["epr"], best_gamma=info["search"]["best_gamma"],
+    )
+
+
 def run_sfc_refined(circuit: List[dr.Gate], hw: dr.Hardware,
                     num_logical: int, *, horizons=None) -> Optional[dict]:
     """PORTER's own layout, routed with backward refinement."""

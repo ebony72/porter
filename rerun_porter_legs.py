@@ -54,7 +54,7 @@ OUT = _HERE / "paper" / "compare_results_selection.json"
 # their own (unselected) horizon -- see run_refinement_passes -- so
 # sfc_refined, sfc_search and every *_refined leg keep their published
 # numbers and are not recomputed here.
-PORTER_LEGS = ("sfc", "sfc_on_dse_layout")
+PORTER_LEGS = ("sfc", "sfc_on_dse_layout", "sfc_selection_and_search")
 
 
 def section_scaleup() -> None:
@@ -77,6 +77,8 @@ def section_scaleup() -> None:
         row["sfc"] = cr.run_sfc(circuit, hw, num_logical)
         row["sfc_on_dse_layout"] = cr.run_sfc_sabre_layout(
             circuit, hw, num_logical, dag, layouts)
+        row["sfc_selection_and_search"] = cr.run_sfc_selection_and_search(
+            circuit, hw, num_logical)
         g = lambda k: (row.get(k) or {}).get("epr")
         print(f"[{row['suite']}q {row['circuit']}] sfc={g('sfc')} "
               f"(L={(row.get('sfc') or {}).get('chosen_horizon')}) "
@@ -278,10 +280,14 @@ def main() -> None:
         row["sfc"] = cr.run_sfc(circuit, hw, num_logical)
         row["sfc_on_dse_layout"] = cr.run_sfc_sabre_layout(
             circuit, hw, num_logical, dag, layouts)
+        row["sfc_selection_and_search"] = cr.run_sfc_selection_and_search(
+            circuit, hw, num_logical)
         g = lambda k: (row.get(k) or {}).get("epr")
         print(f"[{key}] sfc={g('sfc')} (L={(row.get('sfc') or {}).get('chosen_horizon')}) "
               f"onDSE={g('sfc_on_dse_layout')} (L={(row.get('sfc_on_dse_layout') or {}).get('chosen_horizon')}) "
-              f"| dSE={g('dSE')} +R={g('sfc_refined')} (unchanged)  "
+              f"+SR={g('sfc_selection_and_search')} "
+              f"({(row.get('sfc_selection_and_search') or {}).get('chosen_schedule')}) "
+              f"| dSE={g('dSE')} +S={g('sfc_search')} (unchanged)  "
               f"[{time.perf_counter()-t0:.0f}s]", flush=True)
         OUT.write_text(json.dumps(rows, indent=2))
 

@@ -1055,6 +1055,77 @@ def route(
     return state, info
 
 
+def run_selection_and_search(
+    hw: porter.Hardware,
+    cfg: porter.RouterConfig,
+    circuit: List[porter.Gate],
+    num_logical: int,
+    *,
+    horizons: Optional[Tuple[int, ...]] = None,
+    passes: int = 5,
+    gammas: Tuple[float, ...] = DEFAULT_LAYOUT_GAMMAS,
+    pass_guard=None,
+    pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
+) -> Tuple[Optional[porter.RouterState], Dict[str, object]]:
+    """PORTER+SR: the better of horizon selection and the gamma layout search.
+
+    The two schedules search orthogonal things -- one varies the lookahead
+    horizon on a fixed layout, the other varies the layout at a fixed horizon
+    -- and measurement shows neither dominates: over the paper's 24 own-
+    protocol instances selection wins four and the search wins fourteen, so
+    taking the better of the two beats either alone.
+
+    Route accounting is honest about the overlap: the search's first phase
+    already routes the default gamma at ``cfg``'s own horizon, which is one of
+    the horizon candidates, so ``info["routes"]`` counts that route once.
+
+    ``info["start_layout"]`` is the winning schedule's own starting layout,
+    which is what an independent replay verifier must be given.
+    """
+    sel_state, sel_info = run_horizon_selection(
+        hw, cfg, circuit,
+        build_initial_layout(circuit, hw, num_logical,
+                             min_free_per_core=cfg.min_free_before_teleport),
+        horizons=horizons, pass_guard=pass_guard,
+        pass_exceptions=pass_exceptions)
+
+    search_state, search_info = run_layout_search(
+        hw, cfg, circuit, num_logical, gammas=gammas, passes=passes,
+        pass_guard=pass_guard, pass_exceptions=pass_exceptions)
+
+    sel_routes = len(sel_info.get("horizon_eprs", {})) + len(
+        sel_info.get("failed_horizons", {}))
+    info: Dict[str, object] = {
+        "selection": {"epr": None if sel_state is None else sel_state.stats.epr,
+                      "chosen_horizon": sel_info.get("chosen_horizon"),
+                      "horizon_eprs": sel_info.get("horizon_eprs", {})},
+        "search": {"epr": None if search_state is None else search_state.stats.epr,
+                   "best_gamma": search_info.get("best_gamma"),
+                   "routes": search_info.get("routes")},
+        # The gamma=0.99 route at cfg's horizon is common to both schedules.
+        "routes": sel_routes + int(search_info.get("routes") or 0) - 1,
+        "chosen": None,
+        "start_layout": None,
+    }
+
+    candidates = []
+    if sel_state is not None:
+        candidates.append(("selection", sel_state,
+                           build_initial_layout(
+                               circuit, hw, num_logical,
+                               min_free_per_core=cfg.min_free_before_teleport)))
+    if search_state is not None:
+        candidates.append(("search", search_state, search_info["start_layout"]))
+    if not candidates:
+        return None, info
+
+    # Ties go to selection: it is the cheaper schedule.
+    name, state, start = min(candidates, key=lambda c: c[1].stats.epr)
+    info["chosen"] = name
+    info["start_layout"] = start
+    return state, info
+
+
 def serialize_compiled_op(index: int, op: porter.CompiledOp) -> Dict[str, object]:
     return {
         "index": index,
