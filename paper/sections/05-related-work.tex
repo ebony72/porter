@@ -1,0 +1,58 @@
+%% 05-related-work.tex --- included by ../sfc.tex
+\section{Related Work}
+\label{sec:related}
+
+\textbf{\TeleSABRE{}}~\cite{russo2025telesabre} is the published state
+of the art for this cost model: it supports teledata and gate
+teleportation and builds on \SABRE{}'s extended-set scoring. The two
+differ chiefly in decision structure. \TeleSABRE{} scores inter-core
+candidates through a contracted-communication-graph Dijkstra energy
+that folds staging cost and lookahead into one value, and --- uniquely
+among the compilers here --- places those candidates in the \emph{same}
+pool as local SWAPs, taking the global minimum each iteration.
+\PORTER{} keeps local work strictly ahead of inter-core work, scores
+whole plans independently of preparation cost, generates preparation
+SWAPs only for the plan it commits to, and adds the packet primitive.
+Its capacity handling is also more proactive: alongside \TeleSABRE{}'s
+safety-valve cap it maintains an explicit blocked-plan set with a
+tail-relief search and a pre-emptive relief comparator.
+
+\textbf{\dSABRE{}}~\cite{lidsabre} is concurrent work on the same
+problem, and the honest description is that the two compilers are close
+relatives developed in parallel. Its router was substantially revised
+while this paper was in preparation --- a shared extended-set
+construction and a safe-mode capacity discipline --- lowering its EPR
+on every one of our own-protocol instances relative to its published
+tables, by up to $40\%$, and cutting its compile time by up to
+$97\times$. We therefore re-ran it from source throughout rather than
+quoting figures its current code does not reproduce, and our numbers
+match those it now publishes for the architectures it reports.
+
+Stating what the two share keeps either from being credited with the
+other's ideas: both rank moves by \SABRE{}'s
+front-plus-lookahead $\Delta$ score; both are strictly locality-first,
+scoring an inter-core candidate only once no front gate is intra-core;
+both promote capacity from a scoring penalty to a legality condition
+with the same floor of two free slots; and both manufacture capacity by
+relaying a free slot from a reservoir along a BFS path rather than
+evicting arbitrarily. Four differences remain, and they are what this paper
+evaluates: \PORTER{}'s action vocabulary is larger (\dSABRE{} ships
+teledata only); its unit of commitment is a whole plan rather than one
+hop; preparation cost enters as a tiebreaker rather than additively;
+and its initial layout is one deterministic construction rather than a
+seeded best-of-$N$ search. \dSABRE{}'s safe mode additionally carries a
+termination-with-success proof under stated architectural hypotheses,
+which \PORTER{} has no analogue of (Section~\ref{sec:sfc-progress}).
+
+\textbf{Other approaches.} Partition-first compilers assign qubits to
+cores by hypergraph or community
+partitioning~\cite{escofet2023hqa,pytketdqc2024,daei2020optimized} and
+route the residue; \texttt{pytket-dqc}~\cite{pytketdqc2024} is the
+mature representative, compared against in \appPytket{} under the
+caveat that its e-bit unit assumes long-lived entanglement and
+different communication memory. AutoComm~\cite{wu2022autocomm}
+identifies gate sequences that can share one entangled resource, which
+\PORTER{}'s packet applies inside a routing loop rather than as a
+pre-pass (Section~\ref{sec:primitives}).
+\SABRE{}~\cite{li2019tackling} supplies the
+scoring skeleton all three compilers inherit.

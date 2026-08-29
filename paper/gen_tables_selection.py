@@ -174,11 +174,20 @@ def tab_heavyhex():
                    f" & {f(g['dSE']):>5} & {f(g['porter']):>5} & {f(g['porter_refined']):>4} & "
                    f"{f(g['porter_on_dse']):>5} & \\textbf{{{f(g['porter_on_dse_refined'])}}} \\\\")
     m = next(r for r in rows if r["topology"] == "star" and r["circuit"] == "multiplier")
-    f = lambda v: "---" if v is None else str(v)
+    cells = [epr(m, k) for k in ("dSE", "porter", "porter_refined",
+                                 "porter_on_dse", "porter_on_dse_refined")]
+    # Bold the lowest EPR in the row, whichever column it lands in -- it has
+    # moved between columns as the protocol changed.
+    lo = min(v for v in cells[1:] if v is not None)
+    widths = (5, 5, 4, 5, 5)
+    def fm(v, w, boldable):
+        if boldable and v is not None and v == lo:
+            return f"\\textbf{{{v}}}"          # bold cells are not padded
+        return f"{('---' if v is None else v):>{w}}"
     out.append("\\midrule")
-    out.append(f"star Multiplier   & {f(epr(m,'dSE')):>5} & {f(epr(m,'porter')):>5} & "
-               f"{f(epr(m,'porter_refined')):>4} & {f(epr(m,'porter_on_dse')):>5} & "
-               f"\\textbf{{{f(epr(m,'porter_on_dse_refined'))}}} \\\\")
+    out.append("star Multiplier   & " +
+               " & ".join(fm(v, w, i > 0)
+                          for i, (v, w) in enumerate(zip(cells, widths))) + " \\\\")
     return "\n".join(out)
 
 
@@ -319,18 +328,41 @@ def splice(tex: str, label: str, block: str) -> str:
     return tex[:top] + "\n" + block + "\n" + tex[bot:]
 
 
+def _targets():
+    """{path: [labels]} for every file holding a generated table.
+
+    The main paper is a driver plus one file per section in sections/, so a
+    table's home file changes when sections are reorganised; find each label
+    rather than assuming a filename.  Scope matters: tab:shared and
+    tab:heavyhex name *different* tables in the main paper and in the
+    appendix, so the two sets are searched separately.  Every label must
+    resolve to exactly one file within its own scope.
+    """
+    main = sorted((_HERE / "sections").glob("*.tex")) + [_HERE / "sfc.tex"]
+    plan = {}
+    for labels, files, scope in ((TABLES, main, "main paper"),
+                                 (APP_TABLES, [_HERE / "sfc_appendix.tex"], "appendix")):
+        for label, fn in labels.items():
+            hits = [p for p in files if f"\\label{{{label}}}" in p.read_text()]
+            if len(hits) != 1:
+                sys.exit(f"{label}: found in {len(hits)} {scope} files "
+                         f"({[p.name for p in hits]}), expected exactly 1")
+            plan.setdefault(hits[0], []).append((label, fn))
+    return plan
+
+
 if __name__ == "__main__":
+    plan = _targets()
     n = 0
-    for fname, tabs in (("sfc.tex", TABLES), ("sfc_appendix.tex", APP_TABLES)):
-        path = _HERE / fname
+    for path, labels in plan.items():
         tex = path.read_text()
-        for label, fn in tabs.items():
+        for label, fn in labels:
             block = fn()
             if "--write" in sys.argv:
                 tex = splice(tex, label, block)
                 n += 1
             else:
-                print(f"\n%% ==== {fname}:{label} ====\n{block}")
+                print(f"\n%% ==== {path.name}:{label} ====\n{block}")
         if "--write" in sys.argv:
             path.write_text(tex)
     if "--write" in sys.argv:

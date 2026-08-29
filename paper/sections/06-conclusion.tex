@@ -1,0 +1,38 @@
+%% 06-conclusion.tex --- included by ../sfc.tex
+\section{Conclusion}
+\label{sec:conclusion}
+
+\PORTER{} is a DQC compiler built around a plan-committed remote stage,
+a two-tier capacity-relief mechanism, a deterministic seed-free initial
+layout and a per-circuit choice of lookahead horizon. Against
+\TeleSABRE{} it lowers geometric-mean EPR consumption by $59.6\%$,
+$41.6\%$ and $68.2\%$ at 25, 64 and 80 logical qubits and completes
+every instance in all three suites, including the seven \TeleSABRE{}
+cannot converge on. Against \dSABRE{}, concurrent work whose current
+router we re-ran rather than quoted, it is competitive: $1.07\times$
+its pooled EPR at $0.58\times$ its compile time, $1.05\times$ at
+$0.74\times$ with refinement, parity at $2.03\times$ with a
+$\gamma$-search, ahead on forty-one identical externally supplied
+layouts and on both heavy-hex core graphs once the layout is
+controlled, and ahead outright on a $100$--$360$-qubit series.
+
+Two of the four mechanism answers are negative, and we think they are
+the more useful half. Capacity relief earns its place outright ---
+without it four of six 80-qubit instances deadlock --- and the initial
+layout earns its below roughly a hundred physical qubits, where
+controlling it erases the difference between the two compilers. Above
+that scale the layout ceases to be the constraint and the lookahead
+horizon becomes it. Plan commitment does not lower
+EPR consumption: it makes the same number of routing moves as
+re-scoring the front each iteration and lands within $0.6\%$, so it is
+a compile-time optimisation worth $1.3$--$3\times$, not a quality
+mechanism. And the packet primitive is beaten at 80 qubits by removing
+gate teleportation entirely, by $32.8\%$ --- a negative answer to a
+question \dSABRE{} states as open.
+
+Three openings follow: a stronger allocator below a hundred physical
+qubits, a lookahead horizon that grows with the core count above it
+rather than being selected by trial, and a comparator that
+prefers teleportation where its latent value dominates, since the
+packet result reads as myopia in plan scoring rather than a verdict
+against amortisation itself.

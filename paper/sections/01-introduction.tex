@@ -1,0 +1,113 @@
+%% 01-introduction.tex --- included by ../sfc.tex
+\section{Introduction}
+\label{sec:intro}
+
+A distributed quantum computer (DQC) runs one circuit across several small
+quantum processing units --- \emph{cores} --- joined by links that
+distribute entanglement on demand~\cite{cuomo2020towards,escofet2024review}.
+What such a machine is short of is not gates but entanglement. Any two-qubit
+gate whose operands sit in different cores has to be bought with
+Einstein--Podolsky--Rosen (EPR) pairs, and on current hardware distributing
+a pair is far slower and far less reliable than any operation performed
+inside a core~\cite{stephenson2020high,daiss2021quantum}. How few pairs a
+compiler spends is therefore the figure of merit that matters.
+
+There is more than one way to spend a pair. A \emph{state} can be
+teleported (\TeleData{}), relocating a logical qubit so every later
+gate it meets in its new core is free~\cite{bennett1993teleporting}. A
+\emph{gate} can be teleported (\TeleGate{}) through a cat-entangler,
+executing one remote CX with neither operand
+moving~\cite{eisert2000optimal,yimsiriwattana2004generalized}. Or one
+cat-entangled resource can be held open across a run of remote CX gates
+sharing a control, so the run costs one pair instead of one each --- a
+\emph{packet}, in the spirit of AutoComm's gate-sequence
+amortisation~\cite{wu2022autocomm}. Which of the three is cheapest
+depends on the circuit structure where it is applied, not on the
+primitive, so none of them dominates.
+
+The choice must be made before its price is known. Each alternative
+becomes executable only after its own preparation --- the right operand
+beside the right communication port, that port free, the destination
+holding a spare slot --- and preparation is work the compiler will not
+perform unless it selects that alternative. Scoring an action together
+with the preparation it currently needs therefore ranks candidates by
+the layout the compiler happens to be sitting in rather than by the
+progress they buy, and staging a losing candidate still perturbs the
+layout, so effort is spent preparing actions never taken.
+
+\PORTER{} --- a \emph{Plan-Oriented Router for Teleportation-Enabled
+aRchitectures} --- keeps the two questions apart. Its unit of choice is
+a \emph{plan}: a complete specification of one inter-core action that
+fixes what the action is and what conditions it needs, but deliberately
+omits the SWAP sequence that would establish them. Whole plans are
+compared on the gate progress they buy; one is committed; only then are
+preparation SWAPs generated, for that plan alone. Around this loop
+\PORTER{} adds a two-tier
+capacity-relief mechanism that manufactures free slots when every
+candidate is capacity-blocked, and a deterministic, seed-free initial
+layout replacing the seeded best-of-$N$ search its predecessors run.
+
+\textbf{Results.} We evaluate on MQT-Bench~\cite{quetschlich2023mqtbench}
+suites at 25, 64 and 80 logical qubits, on a $100$--$360$-qubit
+scale-up series, and on two networks of IBM heavy-hex cores --- forty-eight
+circuit--architecture instances. Against
+\TeleSABRE{}~\cite{russo2025telesabre}, the published state of the art
+for this cost model, \PORTER{} is decisively better: it lowers
+geometric-mean EPR consumption by $59.6\%$, $41.6\%$ and $68.2\%$ on
+the three suites at the same three-attempt budget, and it completes every instance,
+including the seven --- among them an 80-qubit, $23{,}381$-CX circuit
+--- on which \TeleSABRE{} does not converge in three seeds.
+
+The second comparison is less one-sided and we report it in full.
+\dSABRE{}~\cite{lidsabre} is concurrent work on the same problem whose
+router was substantially revised while this paper was in preparation,
+so we re-ran it from source rather than quoting its tables. Against
+that version \PORTER{} is \emph{competitive rather than dominant}.
+Under each compiler's own protocol \PORTER{} costs $1.07\times$
+\dSABRE{}'s pooled geometric-mean EPR at $0.58\times$ its compile time;
+restoring a comparable pass budget reaches $1.05\times$ at
+$0.74\times$. Routed from identical externally supplied layouts at matched pass
+budgets \PORTER{} moves \emph{ahead} across forty-one instances
+($126.6$ against $134.2$), and the same control takes both heavy-hex
+core graphs. On the $100$--$360$-qubit series it \emph{leads} outright by
+$0.72\times$ --- a reversal traced in Section~\ref{sec:horizon} to a
+single mistuned constant, the lookahead horizon, which no one value
+serves across the benchmark. The two compilers share four
+load-bearing design decisions, set out in Section~\ref{sec:related} so
+that neither is credited with the other's.
+
+\textbf{What the mechanisms are worth.} Because the two compilers are
+close relatives, a head-to-head number says little about which design
+decision earns its place, so we ablate each of \PORTER{}'s in isolation
+and report the outcome as measured rather than as advertised. Two of
+the four answers are negative. Capacity relief is what makes a
+deterministic-greedy design complete at all --- without it four of six
+80-qubit instances deadlock --- and the initial layout is what
+separates the two compilers below roughly a hundred physical qubits.
+But plan commitment reaches the same EPR as re-scoring the whole front
+every iteration, within $0.6\%$ and on the same number of routing
+moves, so what it buys is $1.3$--$3\times$ less compile time rather
+than better routes. And the packet primitive, which exists to amortise
+a pair across a run of gates, is \emph{outperformed at 80 qubits by
+removing gate teleportation altogether}, by $32.8\%$.
+
+\textbf{Contributions.} (i)~\PORTER{} itself: a deterministic,
+seed-free DQC compiler built around the plan-first remote stage of
+Section~\ref{sec:sfc-plan-first}, the two-tier capacity relief of
+Section~\ref{sec:sfc-relief} and the temporal locality-greedy layout of
+Section~\ref{sec:sfc-layout}. (ii)~The observation that the
+teleport-lookahead horizon --- a parameter every \SABRE{}-descended
+router fixes by constant --- has no good constant, its best value
+spanning a factor of thirty-two across our benchmark, and is instead
+cheaply chosen per circuit by routing a small pruned candidate set
+(Section~\ref{sec:horizon}). (iii)~The evaluation above, in which every
+reported run is certified by an independent replay verifier that
+re-derives gate coverage, dependency order and physical legality from
+the emitted operation stream alone. (iv)~The ablation of
+Section~\ref{sec:ablation}, negative answers included.
+
+The \PORTER{} implementation, the replay verifier, the full cross-router
+comparison harness, and the raw per-circuit results are publicly available at
+\url{https://github.com/ebony72/porter}.
+
+%%────────────────────────────────────────────────────────────────────────────

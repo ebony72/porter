@@ -1,8 +1,8 @@
-"""Parse the LaTeX tables in sfc.tex and check them against the results JSONs.
+"""Parse the LaTeX tables of the paper and check them against the results JSONs.
 
 verify_paper_numbers.py encodes what the paper is *supposed* to say; this
-reads the rows LaTeX will actually typeset, so a typo made while editing the
-.tex cannot sail past. Covers the five data tables of the main paper:
+reads the rows LaTeX will actually typeset, so a typo made while editing a
+section file cannot sail past. Covers the five data tables of the main paper:
 tab:main, tab:shared, tab:scaleup, tab:heavyhex, tab:ablation.
 """
 import json
@@ -12,7 +12,10 @@ import sys
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
-TEX = (_HERE / "sfc.tex").read_text()
+# The main paper is a driver (sfc.tex) plus one file per section in sections/.
+# Concatenate them so a table is found wherever its section currently lives.
+_MAIN = [_HERE / "sfc.tex"] + sorted((_HERE / "sections").glob("*.tex"))
+TEX = "\n".join(p.read_text() for p in _MAIN)
 APP = (_HERE / "sfc_appendix.tex").read_text()
 # The tex tracks the results files the tables were generated from.  During a
 # protocol migration those are the `*_results_selection.json` variants; once
@@ -206,4 +209,4 @@ if fails:
     print(f"{len(fails)} TEX/DATA MISMATCHES:")
     print("\n".join(fails))
     sys.exit(1)
-print("sfc.tex tables agree with the results files")
+print("paper tables agree with the results files")

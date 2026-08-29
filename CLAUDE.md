@@ -639,6 +639,30 @@ device ("not a monotone difficulty ladder ... six 81-slot cores ... fewer
 EPR at 360q than 200q") and has been deleted: on the correct series
 dSABRE's own cost rises 200 -> 765 -> 1890 on QFT.
 
+## The main paper is split by section (2026-08-29)
+
+`paper/sfc.tex` is now a **driver only** --- preamble, title block, `\input`
+lines, bibliography, biography. The body lives in `paper/sections/`, one file
+per section (`00-abstract` .. `07-acknowledgments`); `sections/README.md`
+carries the workflow. The split is output-preserving: `pdftotext` of the
+rebuilt PDF is byte-identical to the pre-split one.
+
+- **Macros stay in the driver**, so a section file is NOT independently
+  compilable. Do not add a local `\newcommand` to a section.
+- **All five data tables are in `04-evaluation.tex`.** Both verifiers were
+  updated for this and must stay that way:
+  `verify_tex_tables.py` concatenates `sfc.tex` with every `sections/*.tex`,
+  and `gen_tables_selection.py` locates each table by `\label` instead of by
+  filename, so tables may move between sections freely.
+- `gen_tables_selection.py` is **idempotent** on current files --- running
+  `--write` and getting no diff is a valid check that the tables are current.
+  Two bugs were fixed to get there: the appendix generators were shadowing the
+  main paper's for the two labels that exist in *both* documents
+  (`tab:shared`, `tab:heavyhex` --- they name different tables, so the label
+  search is scoped per document), and the star-Multiplier row hardcoded bold
+  on the last column when the minimum had moved to `porter` (455, not 462).
+- Appendix `sfc_appendix.tex` is **not** split; it is still one file.
+
 ## Paper proofread + restructure (2026-08-29) --- the protocol migration left prose fossils
 
 Full audit of `sfc.tex` after horizon selection became the headline protocol.

@@ -1,0 +1,37 @@
+%% 00-abstract.tex --- included by ../sfc.tex
+\begin{abstract}
+A distributed quantum computer runs one circuit across several small
+cores joined by links that distribute entanglement on demand, and the
+compiler's figure of merit is how few Einstein--Podolsky--Rosen (EPR)
+pairs it spends on gates that straddle cores. We present \PORTER{}, a
+compiler for such machines. It unifies the three known inter-core
+primitives --- state teleportation, gate teleportation and multi-gate
+cat-entangler packets --- under one \emph{plan-committed} decision loop
+that chooses a complete inter-core action before generating the SWAPs
+that make it executable; adds a two-tier capacity-relief mechanism that
+routes qubits toward reservoir cores when every candidate is blocked;
+and builds its initial layout with a deterministic, seed-free
+\emph{temporal locality-greedy} heuristic in place of a seeded search.
+On MQT-Bench suites at 25, 64 and 80 logical qubits \PORTER{} lowers
+geometric-mean EPR consumption against published \TeleSABRE{} by
+$59.6\%$, $41.6\%$ and $68.2\%$ from three routing passes against
+\TeleSABRE{}'s three seeded attempts, and completes all twenty-four
+instances including seven on which \TeleSABRE{} does not converge. Against \dSABRE{}, a concurrent compiler revised during this
+work and therefore re-run rather than quoted, \PORTER{} is competitive:
+$1.07\times$ its pooled EPR at $0.58\times$ its compile time under each
+compiler's own protocol, \emph{ahead} of it wherever the initial layout
+is controlled --- on forty-one identical externally supplied layouts and
+on both heavy-hex core graphs --- and ahead outright on a
+$100$--$360$-qubit scale-up suite, where selecting the lookahead horizon
+per circuit turns a $1.45\times$ deficit into a $0.72\times$ lead. A
+controlled ablation then isolates what each design decision buys, and
+two of them do not buy EPR pairs --- which we report as measured. Every
+run is certified by an independent replay verifier; the
+implementation, verifier and harness are public.
+\end{abstract}
+
+\begin{IEEEkeywords}
+distributed quantum computing, quantum circuit compilation,
+multi-core quantum architectures, gate teleportation, cat-entangler packets,
+plan-committed routing, entanglement cost
+\end{IEEEkeywords}

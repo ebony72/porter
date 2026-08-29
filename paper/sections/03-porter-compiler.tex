@@ -1,0 +1,375 @@
+%% 03-porter-compiler.tex --- included by ../sfc.tex
+\section{The \PORTER{} Compiler}
+\label{sec:sfc}
+
+Given a circuit and an initial layout $\ell_0$ (which \PORTER{} builds
+itself, Section~\ref{sec:sfc-layout}), \PORTER{} repeats the following
+loop (Algorithm~\ref{alg:sfc}) until every gate has been emitted or a
+configurable iteration budget is exhausted. Algorithm~\ref{alg:sfc}
+charts one iteration; its shaded region is the plan-first remote stage
+that distinguishes \PORTER{} from compilers deciding at
+single-action granularity; \appExample{} walks through it on a concrete
+front where it changes the outcome.
+
+
+\begin{algorithm}[t]
+\caption{\PORTER{} \texttt{compile}$(C, \ell_0)$}
+\label{alg:sfc}
+\begin{algorithmic}[1]
+\STATE $\ell \leftarrow \ell_0$; initialise DAG active/frontier sets from $C$
+\WHILE{DAG has active gates}
+  \STATE $F \leftarrow$ DAG front (bounded by \texttt{dag\_front\_limit})
+  \STATE classify $F$ into singles, direct-local CX, local-CX-needing-SWAP,
+         adjacent-remote CX, non-adjacent-remote CX \hfill\textit{(Sec.~\ref{sec:sfc-classify})}
+  \IF{singles or direct-local CX present}
+    \STATE execute them all; remove from DAG; \textbf{continue}
+  \ENDIF
+  \IF{local-CX-needing-SWAP present}
+    \STATE generate candidate intra-core SWAPs, apply the best-scoring one
+           (Eq.~\ref{eq:sfc-local}); \textbf{continue} \hfill\textit{(Sec.~\ref{sec:sfc-intra})}
+  \ENDIF
+  \STATE generate normal remote plans $\mathcal{P}$ and blocked-teleport
+         plans $\mathcal{B}$ \hfill\textit{(Sec.~\ref{sec:sfc-scoring})}
+  \IF{$\mathcal{P}\neq\emptyset$}
+    \STATE $p^\ast \leftarrow$ best ready-or-preparable plan in $\mathcal{P}$
+    \IF{some $b\in\mathcal{B}$ has gain $\gg$ gain$(p^\ast)$}
+      \STATE $p^\ast \leftarrow$ best opportunistic capacity-relief plan for $b$
+             \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
+    \ENDIF
+  \ELSE
+    \STATE BFS from each blocked target core to its nearest reservoir;
+           $p^\ast \leftarrow$ best tail-relief plan \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
+  \ENDIF
+  \IF{$p^\ast$ is \texttt{None}} \STATE \textbf{report deadlock; abort} \ENDIF
+  \STATE apply $p^\ast$'s own preparation SWAPs until ready, then execute it
+\ENDWHILE
+\RETURN emitted operations, final layout, stats
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Initial Layout}
+\label{sec:sfc-layout}
+
+\PORTER{} builds its starting layout $\ell_0$ with one deterministic,
+seed-free heuristic --- no external partitioner, no best-of-$N$ search
+--- and respects the capacity invariant the routing loop depends on:
+every core keeps at least $f_\mathrm{min}{=}2$ free positions, so from
+the first iteration any core can serve as a \TeleData{} destination and
+as a relief reservoir.
+
+\textbf{Temporal locality-greedy.} Three deterministic steps.
+\emph{(i) Weighting}: each CX gate $g=(q_i,q_j)$ contributes
+$\gamma^{\ell(g)}$ to the interaction weight $w(q_i,q_j)$, where
+$\ell(g)$ is $g$'s as-soon-as-possible layer in the CX-only DAG and
+$\gamma{=}0.99$, so early interactions weigh more than late ones while
+repeated interactions accumulate. \emph{(ii) Core assignment}: logical
+qubits are visited in the order they first appear as a CX operand and
+each is placed in the core holding its heaviest already-placed
+neighbour when that core has headroom above $f_\mathrm{min}$, falling
+back to the core with the most remaining reserved capacity.
+\emph{(iii) Physical placement}: within each core, logicals are laid
+onto positions by descending interaction weight onto ascending
+intra-core centrality, so the most-connected qubits take the most
+central slots.
+
+The steps are complementary. The temporal discount front-loads the
+opening layers, co-locating the pairs that must interact soonest;
+accumulated multiplicity plus first-appearance order tracks
+chain-structured circuits, where only one disjoint pair is exposed per
+layer and a balanced-first-layer rule would scatter the chain across
+cores; and the centrality step keeps hub qubits cheap to reach. The
+construction costs microseconds and consumes no randomness, so
+\PORTER{} has no seed to report.
+
+\subsection{Backward Refinement}
+\label{sec:sfc-refine}
+
+\PORTER{}'s default protocol is one forward pass from $\ell_0$. We also
+report an optional refinement schedule, because
+Section~\ref{sec:shared_results} shows a fixed layout is not the whole
+difference between the two compilers: given the \emph{same} externally
+supplied layout, \dSABRE{}'s forward--backward--forward schedule
+extracts more from it than a single forward pass does.
+
+The schedule is \SABRE{}'s bidirectional layout
+refinement~\cite{li2019tackling} applied to whole routes. Let $R(C,\ell)$
+denote routing $C$ from $\ell$ and $\ell'$ the layout it ends on.
+Pass~1 computes $R(C,\ell_0)$; pass~2 computes
+$R(C^{\mathrm{rev}},\ell_1')$ on the reversed circuit and
+\emph{discards its route}, keeping only $\ell_2'$; pass~3 computes
+$R(C,\ell_2')$. Reversing $C$ reverses every dependency edge, so
+routing it from the forward pass's end state yields a layout adapted to
+the \emph{start} of the forward circuit. Odd pass counts above three
+repeat the cycle; $P{=}5$ throughout. We report the best forward pass
+by EPR, so refinement can never report worse than the single pass. It
+adds no randomness and its whole cost is routing passes --- $P$ calls
+where the default makes one, against \dSABRE{}'s nine.
+
+It recovers less here than it does for \dSABRE{}, for a structural
+reason: refinement consumes a post-routing layout, and routing destroys
+the free-slot reservation $\ell_0$ was built with, so intermediate
+passes often regress and only the best-pass rule keeps that harmless.
+Where it pays it pays well --- 64q~QNN $864 \to 537$, 64q~Multiplier
+$1{,}358 \to 763$.
+
+\subsection{Front Classification}
+\label{sec:sfc-classify}
+
+Every front gate is classified under the current layout $\ell$. 1Q
+gates are always directly executable; a CX $g=(q_i,q_j)$ with both
+operands in core $c$ is \emph{direct-local} if
+$\dL(c,\ell(q_i),\ell(q_j))=1$ and \emph{local-needing-SWAP}
+otherwise; a CX whose operands lie in different cores is
+\emph{adjacent-remote} if those cores are core-graph neighbours and
+\emph{non-adjacent-remote} otherwise. Directly executable gates drain
+first and completely, intra-core SWAPs are exhausted next, and
+remote-stage decisions are taken only once no front gate is
+intra-core. The front is size-capped at $96$ gates to bound
+per-iteration cost, a cap that never binds here since front gates are
+pairwise qubit-disjoint.
+
+\subsection{Intra-Core SWAP Scoring}
+\label{sec:sfc-intra}
+
+For a local-needing-SWAP gate set $F_\mathrm{loc}$, \PORTER{} builds
+candidate SWAP edges from the coupling-graph neighbours of every
+physical position touched by $F_\mathrm{loc}$, simulates each SWAP,
+and scores it with \SABRE{}'s front-plus-lookahead
+form~\cite{li2019tackling}:
+\begin{equation}
+  J(a) = \bar d_{\mathcal{F}}(a) + \lambda_\mathrm{loc}\,\bar d_{\mathcal{E}}(a),
+  \qquad \lambda_\mathrm{loc}=0.8,
+  \label{eq:sfc-local}
+\end{equation}
+where $\bar d_{\mathcal{F}}(a)$ is the mean, over the gates
+$(q_i,q_j)\in F_\mathrm{loc}$, of the intra-core distance
+$\dL\bigl(c,\ell_a(q_i),\ell_a(q_j)\bigr)$ under the post-SWAP layout
+$\ell_a$, and $\bar d_{\mathcal{E}}(a)$ is the same mean taken over an
+extended set $\mathcal{E}_\mathrm{loc}$ of up to
+$N_\mathrm{loc}{=}20$ local CX gates collected from the next
+$L_\mathrm{loc}{=}12$ DAG layers via a virtual frontier simulation
+(Section~\ref{sec:sfc-simstate}). Ties are broken first by the raw
+front-layer distance, then, if still tied, by a decision uniformly
+sampled from a constant-seeded random-number generator, with every
+such tie-break recorded in \texttt{RouterStats} for reproducibility
+auditing.
+
+\subsection{Plan-First Remote Stage}
+\label{sec:sfc-plan-first}
+
+\PORTER{} manipulates remote work as \emph{plans}. A plan is a
+complete, committable specification of one inter-core action: which
+primitive fires, which gate or same-control run it resolves, its
+direction, and consequently its \emph{readiness conditions} --- which
+logical endpoint must sit adjacent to which communication port, and
+which ports must be free. What it deliberately leaves unspecified is
+the SWAP sequence that establishes those conditions. Alternatives are
+compared at the level of \emph{what} remote work to do next, each
+scored as if its preconditions were met; only the committed plan is
+handed to the machinery that works out \emph{how}.
+
+Both baselines decide at a finer grain. \TeleSABRE{}'s pool holds
+staging SWAPs and remote operations together, so the choice is made
+implicitly, one micro-move at a time: every staging SWAP it selects is
+also a vote for whichever remote action that SWAP happens to serve,
+votes for competing actions interleave, and staging effort is routinely
+spent on actions never taken. \dSABRE{} does separate the stages, but
+its candidate is a single teleport hop rather than a plan, and its
+score adds that hop's staging and eviction cost directly to the
+progress it buys, so a hop cheap to stage now can outrank one that
+resolves more gates. \PORTER{} ranks by gain alone, demotes readiness
+cost to a tie-break, and refuses to reopen the choice until the
+selected plan is ready (\appExample{}); Section~\ref{sec:ablation}
+measures what that persistence is worth.
+
+When the front holds only remote CX gates, \PORTER{} generates two
+disjoint candidate sets. \textbf{Normal plans} $\mathcal{P}$: for every
+adjacent-remote CX, a \TeleGate{}; a \TeleGatePacket{} if a
+same-control run of $\ge 2$ remote CX gates can be collected by
+forward DAG simulation (Section~\ref{sec:sfc-packet}); and, for either
+endpoint, a \TeleData{} plan into the partner's core if that core has
+at least $f_\mathrm{min}{=}2$ free positions. For non-adjacent-remote
+CX gates, only distance-reducing \TeleData{} hops with sufficient
+destination capacity. \textbf{Blocked plans} $\mathcal{B}$: the same
+\TeleData{} candidates for destinations that currently fail the
+$f_\mathrm{min}$ test. These are never executed; they exist to detect
+when no normal plan exists because every destination is saturated, or
+when one is available but a blocked plan promises much more if capacity
+were relieved first.
+
+Every plan is scored (Section~\ref{sec:sfc-scoring}) \emph{before} any
+preparation SWAP for it exists. \PORTER{} then selects the best plan in
+$\mathcal{P}$ that is ready or admits an improving preparation SWAP;
+compares its gain against the best of $\mathcal{B}$ and, if the blocked
+plan leads by more than $m_\mathrm{assist}{=}5.0$, runs opportunistic
+capacity relief for that saturated core instead
+(Section~\ref{sec:sfc-relief}); and, if $\mathcal{P}$ is empty, runs
+the same breadth-first relief search directly on $\mathcal{B}$'s
+destinations, shortest hop count first. Once committed, it generates
+and applies \emph{only that plan's} preparation SWAPs until the plan is
+ready, no improving SWAP remains, or the full decision state --- plan
+identity, layout, RNG state --- repeats, which raises rather than
+looping.
+
+\textbf{Preparation SWAPs.}\label{sec:sfc-prep} A committed plan's
+readiness requirements are exactly two \emph{(core, neighbour-core,
+endpoint)} triples (source and destination side for \TeleData{};
+control and target side for \TeleGate{}/\TeleGatePacket{}, whose
+target-side routing is deferred to execution time,
+Section~\ref{sec:sfc-packet}). For each unmet requirement, candidate
+preparation SWAPs are restricted to edges incident to either the
+plan's logical endpoint or a nearest free physical position tied for
+minimum distance to the relevant communication port (only while that
+port remains occupied); each candidate is scored by the post-SWAP
+value of the same readiness-cost function used to rank blocked plans
+(Section~\ref{sec:sfc-scoring}), and at most one improving SWAP per
+core side is applied per pass.
+
+\subsection{Plan Scoring: Direct, Latent, and Lookahead Gain}
+\label{sec:sfc-scoring}
+
+Every plan scores $\mathrm{total} = \mathrm{direct} +
+\mathrm{lookahead}$, computed per plan kind but sharing one
+$\Delta$-form convention: for a CX gate $g=(q_i,q_j)$ and a candidate
+relocation, $\Delta(g) = \dC(\kappa(q_i),\kappa(q_j)) -
+\dC(\kappa'(q_i),\kappa'(q_j))$, the reduction in core-graph distance
+between $g$'s two cores.
+
+A \textbf{\TeleGate{}} contributes a constant direct gain of $1$ --- one
+remote CX resolved --- and no lookahead. A \textbf{\TeleGatePacket{}}
+contributes a direct gain equal to the number of remote CX gates in the
+collected packet; every gate in an accepted packet is current rather
+than speculative work, since the whole packet executes under one
+cat-entangler resource once started. A \textbf{\TeleData{}} plan
+decomposes into three tiers, all computed by simulating the DAG
+frontier under the hypothetical post-teleport core assignment:
+\emph{direct} --- front-layer CX gates already involving the moving
+qubit, plus the seed gate; \emph{latent-direct} --- CX gates on the
+moving qubit that surface while the simulator can still progress using
+only 1Q and now-local gates, which are current pressure rather than
+prediction because the candidate teleport fixes their core distance the
+moment they appear; and \emph{lookahead} --- gates on the moving qubit
+found in up to $L_\mathrm{tp}$ further simulated layers, a gate in layer
+$k$ entering with weight
+$w_k = \max(w_\mathrm{min}, w_0\gamma^{k-1})$, $w_0{=}0.9$,
+$\gamma{=}0.9$, $w_\mathrm{min}{=}0.5$. Thus
+\begin{align}
+  \mathrm{direct} &= \!\!\sum_{g\in\mathrm{direct}\cup\mathrm{latent}}\!\!\Delta(g),
+  &
+  \mathrm{lookahead} &= \!\!\sum_{(g,k)\in\mathrm{la}}\!\!w_k\,\Delta(g),
+  \label{eq:sfc-teleport}
+\end{align}
+with latent-direct gates entering at full weight alongside direct ones.
+A capacity-risk term $1/\max(1,f_\mathrm{dst}{-}1)$ is tracked
+alongside the score for tie-breaking, but never added to it.
+
+This is the point at which \PORTER{} differs most sharply from
+\dSABRE{}: preparation cost appears nowhere in $\mathrm{total}$. Plans
+are ranked on gain, and readiness cost enters only as the third
+tie-break in the selection key, after gain and plan kind. The horizon $L_\mathrm{tp}$ is counted in
+\emph{layers}, and the collection admits at most one gate on the moving
+qubit per layer, because a qubit has at most one zero-predecessor gate at
+any time. A gate cap $N_\mathrm{tp}$ therefore cannot bind whenever
+$N_\mathrm{tp}\ge L_\mathrm{tp}$, and the horizon is the single
+parameter that governs how far the estimate looks. No one value of
+$L_\mathrm{tp}$ serves every circuit --- Section~\ref{sec:horizon}
+shows the best value spans $4$ to $128$ across the benchmark --- so
+\PORTER{} selects it per circuit rather than fixing it.
+
+\subsection{Same-Control Packet Collection}
+\label{sec:sfc-packet}
+
+Same-control CX gates are chained by DAG dependency edges, so they
+never appear in the front together: a packet cannot be read off the
+front and must be collected by forward simulation.
+From a seed adjacent-remote CX $g=(q_c,q_t)$ with control core $c_c$
+and target core $c_t$, \PORTER{} simulates the DAG frontier forward for
+up to $120$ layers, greedily absorbing any front CX sharing control
+$q_c$ whose target is also in $c_t$ (up to $8$ such gates) and any
+front 1Q gate whose qubit is already in $c_t$, since those execute
+freely while the cat resource is live. Collection stops at the first
+unproductive layer or at the size cap. The window counts simulated \emph{layers}, not collected CXs, because
+same-control CXs are DAG-chained and surface one at a time; in practice
+it is a cost guard, not an active knob. Because the simulation admits gates from later
+generations than the bounded current front, a packet may contain gates
+a naively front-limited scan could not reach. The collected order is
+replayed exactly at commit time as one \texttt{cat\_entangler}
+(consuming the packet's single pair), one \texttt{cat\_cx} per member
+--- each target routed to its port by ordinary local SWAPs forbidden
+from touching the two live ports --- and a closing
+\texttt{cat\_disentangler}.
+
+\subsection{Capacity Relief}
+\label{sec:sfc-relief}
+
+\textbf{Tail-relief BFS.} When every remote plan is capacity-blocked,
+\PORTER{} runs a breadth-first search from each blocked destination core
+to the nearest \emph{reservoir} core --- one with at least $f_\mathrm{min}$
+free slots --- optionally chained beyond one hop
+(\texttt{capacity\_relief\_chain\_enabled}). Every logical qubit
+currently in the BFS path's penultimate core becomes a tail-relief
+\TeleData{} candidate into the reservoir, scored and selected by the
+same plan machinery, grouped and tried in ascending hop-count order.
+
+\textbf{Opportunistic relief.} Even when a normal plan is available,
+a severely blocked plan can still win if relieving its target core's
+capacity would unlock substantially more gain
+(Section~\ref{sec:sfc-plan-first}); this differs from tail-relief BFS
+in firing pre-emptively, before any plan is actually starved, whenever
+the margin $m_\mathrm{assist}$ is exceeded.
+
+\subsection{Progress and the Failure Model}
+\label{sec:sfc-progress}
+
+Deterministic greedy routing on a capacity-constrained machine can
+stall, and the mechanisms above are best read as one answer to that
+risk. \PORTER{} layers four defences.
+
+\emph{(i) Keep capacity from reaching zero.} A core with no free
+physical qubit is terminal under the port-based action model: it can
+never vacate an occupied communication port with local SWAPs, so no
+inter-core action can touch it and its qubits are stranded. \PORTER{}
+legalises the entry layout so no core starts full, and admits a
+\TeleData{} plan into core $c$ as a \emph{normal} plan only while
+$\mathrm{free}(c) \ge f_\mathrm{min}{=}2$. Ordinary routing therefore
+cannot drive a core into the terminal state; only an externally
+supplied layout can present one, which is why \appPytket{}'s
+pytket-dqc source is the only place the compiler reports
+\emph{infeasibility}.
+
+\emph{(ii) Detect starvation rather than thrash.} An empty plan set
+alongside a non-empty $\mathcal{B}$ is an explicit signal that the
+front is starved \emph{by capacity}, and it names the cores
+responsible. \emph{(iii) Manufacture capacity where it is missing.}
+Tail-relief BFS turns that signal into work
+(Section~\ref{sec:sfc-relief}). \emph{(iv) Bound every loop.} Plan
+sides whose preparation score is infinite are never selected; during
+preparation the compiler hashes its full decision state once per round
+and raises if it repeats; two budgets bound the loops from outside; and
+when no relief path reaches a reservoir \PORTER{} raises a diagnostic
+naming the saturated cores.
+
+We state the resulting guarantee precisely, because it is weaker than
+it may appear. \PORTER{} is \emph{safe} but not \emph{complete}: it
+never emits an invalid or partial circuit and always terminates, but
+termination may be by exception, and it has no analogue of
+\dSABRE{}'s termination-with-success proof
+(Section~\ref{sec:related}). Its completeness is empirical, and
+Section~\ref{sec:ablation} measures what buys it: with both relief
+tiers active none of the twenty-four instances deadlocks in any
+protocol; with both disabled, four of the six 80-qubit instances do.
+No instance in this evaluation is left unrouted, but that is a
+property of the protocol rather than of the router, and the exception
+is instructive: at a fixed lookahead horizon, Multiplier on the
+heavy-hex star of Section~\ref{sec:heavyhex} livelocks in the
+intra-core SWAP loop --- capacity never reaches zero, no plan is
+starved, the diagnostic never fires, and it is the iteration budget
+that ends the run. Routing a second horizon escapes it
+(Section~\ref{sec:horizon}), which is a way of not encountering the
+failure rather than of ruling it out. Supplying a comparable
+worst-case guarantee is the clearest piece of future work this design
+leaves open.
+
+A per-iteration cost analysis of the loop is given in \appComplexity{}.
+
+%%────────────────────────────────────────────────────────────────────────────
