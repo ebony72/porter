@@ -990,7 +990,8 @@ same one-EPR-pair unit. SWAP counts intra-core SWAPs only.
   candidate lookahead horizons (Section~\ref{sec:horizon}), and
   \PORTER{}+R spends five routes on the backward-refinement schedule of
   Section~\ref{sec:sfc-refine} instead --- closer to \dSABRE{}'s nine to
-  eighteen, though still short of them.
+  eighteen, though still short of them. Richer schedules that do reach
+  that budget, and pass \dSABRE{}, are in Table~\ref{tab:protocols}.
   $\Delta_\mathrm{TS}$ is the EPR change of whichever \PORTER{} column is
   stronger on that row, against \TeleSABRE{} (\%); negative is better.
   The bolded \PORTER{} column is that stronger one --- refinement leads at
@@ -1548,7 +1549,8 @@ and~\ref{sec:heavyhex}.)
   three (Section~\ref{sec:horizon}); \PORTER{}+R adds backward
   refinement (Section~\ref{sec:sfc-refine}) at a fixed horizon;
   \PORTER{}+S adds the best-of-$\gamma$ layout search of this section
-  on top of it. Both remain
+  on top of it; \PORTER{}+SR takes the better of horizon selection and
+  that search, netting the one route they share. All remain
   deterministic and seed-free.}
 \label{tab:protocols}
 \small
@@ -1560,7 +1562,8 @@ Protocol & routes & EPR & vs.\ \dSABRE{} & time (s) & vs.\ \dSABRE{} \\
 \dSABRE{}                 & 9--18 & 163.9 & $1.00$ & 2.26 & $1.00$ \\
 \PORTER{}                 &     3 & 174.9 & $1.07$ & 1.32 & $\mathbf{0.58}$ \\
 \PORTER{}+R               &     5 & 171.4 & $1.05$ & 1.67 & $0.74$ \\
-\PORTER{}+S               & 9--13 & \textbf{163.2} & $\mathbf{1.00}$ & 4.59 & $2.03$ \\
+\PORTER{}+S               & 9--13 & 163.2 & $1.00$ & 4.59 & $2.03$ \\
+\PORTER{}+SR              & 11--15 & \textbf{158.2} & $\mathbf{0.97}$ & 5.65 & $2.50$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -1576,15 +1579,31 @@ $\gamma$, pinned at $0.99$ elsewhere --- over $\{0.90,0.95,0.99,1.0\}$
 and keeps the best route by EPR. Both remain deterministic and
 seed-free, and the sweep is a search inside \PORTER{}'s own design
 rather than an external partitioner or a seed sweep.
-Table~\ref{tab:protocols} places the three points against \dSABRE{}
-pooled over all twenty-four own-protocol instances.
+A fourth point falls out of the first three. Selection and the
+$\gamma$-search look for different things --- the horizon at a fixed
+layout, against the layout at a fixed horizon --- and neither dominates:
+selection gives the better route on ten of the twenty-four instances and
+the search on fourteen. \PORTER{}+SR runs both and keeps the lower EPR,
+netting the one route they share. Table~\ref{tab:protocols} places the
+four points against \dSABRE{}, pooled over all twenty-four.
 
-No point dominates, and the three are not a ladder. The shipped
-protocol costs $1.07\times$ \dSABRE{}'s EPR at $0.58\times$ its compile
-time; refinement reaches $1.05\times$ at $0.74\times$; the layout
-search reaches parity ($163.2$ against $163.9$) at $2.03\times$,
-because \PORTER{} is dearer per routing pass and $\gamma$-search runs
-$12.4$ of them on average.
+The trade is time against EPR pairs, and it is monotone in both.
+\PORTER{} costs $1.07\times$ \dSABRE{}'s EPR at $0.58\times$ its compile
+time; refinement reaches $1.05\times$ at $0.74\times$; the layout search
+reaches parity ($163.2$ against $163.9$) at $2.03\times$; and
+\PORTER{}+SR passes it, at $0.97\times$ its EPR for $2.50\times$ its
+compile time. Nothing here is free, because \PORTER{} is dearer per
+routing pass and the richer schedules run more of them --- $12.4$ on
+average for the $\gamma$-search alone.
+
+That last point answers the question Table~\ref{tab:main} raises.
+\PORTER{}+SR leads \dSABRE{} on twelve of the twenty-four instances
+against nine behind, and by construction never loses to either schedule
+it is built from. The residual own-protocol gap is therefore a
+\emph{search-budget} gap, not a routing deficit: given a budget in
+\dSABRE{}'s range \PORTER{} passes it rather than merely drawing level.
+Where on the curve to sit depends on whether EPR pairs or compile
+seconds are scarce.
 
 Selecting the horizon has largely overtaken refinement as an
 \emph{operating point}. Over the twenty-four instances \PORTER{}+R is
@@ -1600,11 +1619,13 @@ alone, so it needs a \PORTER{} configuration whose extra effort goes
 into routing passes rather than into layouts, and \PORTER{}+S --- which
 searches over layouts --- cannot serve that role. \PORTER{}+S earns its
 place for the opposite reason: it never loses to \PORTER{}+R on any of
-the twenty-four instances (eleven wins, thirteen ties), and it is the
-only configuration that closes the own-protocol gap to \dSABRE{}
-entirely, which is the honest answer to whether the gap is a routing
-deficit or a search-budget one. Which point to prefer depends on
-whether EPR pairs or compile seconds are the scarce resource.
+the twenty-four instances (eleven wins, thirteen ties), and it is half
+of \PORTER{}+SR, the point that answers whether the own-protocol gap is
+a routing deficit or a search-budget one. Neither schedule is redundant:
+they are the two halves of that answer, and each is the only one that
+can play its own role --- \PORTER{}+R because the fixed-layout control
+must not search over layouts, \PORTER{}+S because selection alone does
+not reach \dSABRE{}.
 
 
 All times are \emph{complete} compile costs, following \dSABRE{}'s own
@@ -1624,7 +1645,7 @@ which is the price of the candidate that wins. Pooled over the whole
 suite the protocol still comes out ahead --- $0.58\times$ \dSABRE{}'s
 complete cost (Table~\ref{tab:protocols}), because three \PORTER{}
 routes remain cheaper than nine \dSABRE{} ones --- but on this
-nine-circuit 64-qubit subset the complete costs are $2.09$\,s against
+nine-circuit 64-qubit subset the complete costs are $1.98$\,s against
 $1.86$\,s, and \dSABRE{} is the cheaper of the two. Where \PORTER{}
 was uniformly faster per unit of work before selection, it is now
 faster only in aggregate.

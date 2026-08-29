@@ -249,7 +249,11 @@ def main() -> None:
     if "main" not in sections:
         return
     want = set(a for a in args if a in cr.SUITES) or set(cr.SUITES)
-    rows = json.loads(RESULTS.read_text())
+    # Read from OUT when it exists: other sections (shared, pytket) write
+    # their legs there, and re-reading the RELEASED file would silently
+    # revert them.  RESULTS is only the starting point for a fresh run.
+    src = OUT if OUT.exists() else RESULTS
+    rows = json.loads(src.read_text())
     done = {}
     if OUT.exists():
         done = {f"{r['suite']}_{r['circuit']}": r for r in json.loads(OUT.read_text())}

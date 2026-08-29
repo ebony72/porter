@@ -438,7 +438,7 @@ check("64q dSABRE routes per circuit", 9,
       3 * _r64[0]["dSE"].get("n_candidates", 1))
 check("64q complete-cost gmean dSE", 1.86,
       round(gmean([r["dSE"]["seconds"] for r in _r64]), 2))
-check("64q complete-cost gmean PORTER", 2.09,
+check("64q complete-cost gmean PORTER", 1.98,
       round(gmean([r["sfc"]["seconds"] for r in _r64]), 2))
 check("64q complete-cost advantage", 0.9,
       round(gmean([r["dSE"]["seconds"] for r in _r64])
