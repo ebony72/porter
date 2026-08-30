@@ -66,101 +66,68 @@ guard; a \emph{timeout} exceeds the wall-clock cap; and an
 \emph{infeasible input} is one the machine has no spare capacity for,
 refused before routing begins (Section~\ref{sec:sfc-progress}).
 
-\subsection{Implementation and Verification}
-\label{sec:perf}
-
-\PORTER{} is implemented in Python and released with the verifier and
-comparison harness. It takes no seed: heuristic ties resolve through a
-fixed chain of deterministic keys, any residual tie through a
-constant-initialised generator, and every residual tie-break is counted
-in the emitted statistics. In the released software environment, one route on a fixed circuit,
-hardware and revision therefore emits a byte-identical stream across
-repeated runs, and we certify behaviour preservation across refactorings
-by hashing it; we have not tested identity across Python versions or
-platforms. One
-caveat applies to horizon selection (Section~\ref{sec:horizon}): its
-speculative routes share a wall-clock budget, so on a loaded machine a
-candidate may be abandoned that would otherwise have won. Each route is
-exactly reproducible; the protocol is reproducible only up to that
-budget, and the horizon a run selected is recorded with its result.
-Compile time is kept low by incremental data structures --- chiefly a
-copy-on-write DAG frontier simulator\label{sec:sfc-simstate} whose
-snapshots cost $O(|\text{frontier}|)$ rather than $O(|\text{remaining
-circuit}|)$ --- together with cached distance tables, $O(1)$ free-slot
-accounting, and apply/restore SWAP scoring in place of layout cloning.
-
-Every reported \PORTER{} run is certified by a replay verifier written
-separately from the router. It shares no routing, scoring or layout code
-and calls nothing in the routing loop: from the emitted operation stream,
-the original circuit and the initial layout alone, it re-derives gate
-coverage, per-qubit dependency order, coupling-edge legality of every
-local operation, port rules for every teleport, telegate and packet, and
-the consistency of every reported statistic. The verifier is itself
-tested by fault injection --- ten classes of mutation applied to passing
-streams, every mutant rejected (\appVerification{}). Baseline routes are
-\emph{not} verified this way: \TeleSABRE{} and \dSABRE{} emit their own
-operation formats, and we report the EPR counts their harnesses produce,
-as their published evaluations do.
-
 \subsection{Setup}
 \label{sec:setup}
+\label{sec:perf}
+
+\textbf{Implementation.} \PORTER{} is implemented in Python and released
+with the comparison harness. It takes no seed: heuristic ties resolve
+through a fixed chain of deterministic keys and any residual tie through
+a constant-initialised generator, so one route on a fixed circuit and
+hardware emits a byte-identical stream across runs. Horizon selection is
+the exception, because its speculative routes share a wall-clock budget:
+on a loaded machine a candidate may be abandoned that would otherwise
+have won, so the protocol is reproducible only up to that budget, and the
+horizon each run selected is recorded with its result. Every reported
+\PORTER{} route is certified by a replay verifier written separately from
+the router, which re-derives gate coverage, dependency order and physical
+legality from the emitted stream alone and is itself tested by fault
+injection (\appVerification{}).
 
 \textbf{Architectures.} We use the two grid-of-grids topologies
-\dSABRE{}~\cite{lidsabre} evaluates on: architecture~A, a $2{\times}2$
-array of $3{\times}3$ cores (36 physical qubits, four links), and
-architecture~H, a $2{\times}3$ array of $4{\times}4$ cores (96
-physical, seven links). Sections~\ref{sec:scaleup}
-and~\ref{sec:heavyhex} add its $5{\times}5$-core scalability series and
-two networks of IBM 27-qubit heavy-hex tiles. All are read from the
-baselines' own device files, so every compiler sees identical physical
-qubit ids.
+\dSABRE{}~\cite{lidsabre} evaluates on --- architecture~A, a $2{\times}2$
+array of $3{\times}3$ cores (36 physical qubits), and architecture~H, a
+$2{\times}3$ array of $4{\times}4$ cores (96 physical) --- adding its
+$5{\times}5$-core scalability series in Section~\ref{sec:scaleup} and two
+networks of IBM 27-qubit heavy-hex tiles in Section~\ref{sec:heavyhex}.
+All are read from the baselines' own device files, so every compiler sees
+identical physical qubit ids.
 
 \textbf{Benchmarks.} We use the same
 MQT-Bench~\cite{quetschlich2023mqtbench} circuit files \dSABRE{}'s
-evaluation uses, confirmed by exact CX-count match: a 25-qubit suite
-(AE, GHZ, Graphstate, QFT, QNN, Random) on architecture~A, and a
-64-qubit suite adding QPEexact, QAOA and Multiplier on architecture~H,
-with QNN the deeper $8{,}126$-CX variant. We add an 80-qubit suite of
-the same nine families. Its AE and QNN instances are not produced by the
-stock generator and were reconstructed to match its construction: QNN is
-the $12{,}718$-CX ZZ-feature-map circuit rather than the 79-CX chain the
-current generator emits, whose interaction graph matches GHZ's.
-\appSuite{} gives both reconstructions, their validation and the CX
-counts; the scripts and files are released.
+evaluation uses, confirmed by exact CX-count match: a 25-qubit suite (AE,
+GHZ, Graphstate, QFT, QNN, Random) on architecture~A, and a 64-qubit
+suite adding QPEexact, QAOA and Multiplier on architecture~H. We add an
+80-qubit suite of the same nine families; its AE and QNN instances are
+not produced by the stock generator and were reconstructed to match its
+construction, QNN as the deep ZZ-feature-map circuit rather than the
+79-CX chain the current generator emits. \appSuite{} gives both
+reconstructions and their validation, and the scripts are released.
 
 \label{sec:baselines}
 \textbf{Baselines.} We compare against
-\TeleSABRE{}~\cite{russo2025telesabre} and \dSABRE{}~\cite{lidsabre},
-the latter in its default \texttt{dSABRE\_BurstExt} mode with its
-shipped configuration, which is \emph{safe mode}: capacity as a legality
-condition with a per-core reserve, BFS slack relay, and a guaranteed
-per-gate recovery transaction (Section~\ref{sec:related}). Every
-\dSABRE{} number here was generated from revision \texttt{cb5515b}
-(2026-08-21), and the harness that produced them is released with
-\PORTER{}.
+\TeleSABRE{}~\cite{russo2025telesabre} and \dSABRE{}~\cite{lidsabre}, the
+latter in its default configuration --- safe mode, which makes capacity a
+legality condition with a per-core reserve and recovers by relaying slack
+along a BFS path (Section~\ref{sec:related}).
 
-Three protocol decisions avoid disadvantaging \dSABRE{}. First, we run
-it under its own budget convention, letting its three recovery budgets
-derive from the architecture as its own drivers do; a binding iteration
-budget would cut its heuristic search short and hand the remainder to
-its guaranteed drain at a worse EPR count. Second, we do not charge it
-for pre-routing layout repair. In safe mode it brings an external layout
-up to its reserve before the clock starts, and those relay teleports
-land in its EPR counter although they adjust the starting layout rather
-than route anything; \PORTER{} performs the same repair as a free
-permutation, so we net it out for both. Third, we hand it both families
-of its layout candidates rather than picking one
+Three decisions avoid disadvantaging \dSABRE{}. We let its recovery
+budgets derive from the architecture as its own drivers do, since a
+binding iteration budget would cut its heuristic search short and hand
+the remainder to its guaranteed drain at a worse EPR count. We do not
+charge it for pre-routing layout repair, which lands in its EPR counter
+although it adjusts the starting layout rather than routing anything, and
+we net that out for both compilers. And we hand it both families of its
+layout candidates rather than picking one
 (Section~\ref{sec:protocols}).
 
 \TeleSABRE{}'s stock C binary crashes deterministically on
-architecture~A, in its Hungarian initial-layout pass rather than in
-routing: a hard-coded capacity threshold leaves some qubits unplaced and
-their sentinel index is then dereferenced. All \TeleSABRE{} numbers use
-a minimally patched binary that falls back to the least-loaded core. The
-patch changes placement only for qubits the stock binary leaves
-unplaced, and architecture-H results are unchanged by it; it is in our
-repository. Every compiler invocation is capped at $900$\,s wall-clock,
-and a call exceeding it is recorded as a failure to complete.
+architecture~A, in its initial-layout pass rather than in routing. All
+\TeleSABRE{} numbers use a minimally patched binary, released with ours,
+that falls back to the least-loaded core; it changes placement only for
+qubits the stock binary leaves unplaced, and architecture-H results are
+unchanged by it. Every compiler invocation is capped at $900$\,s
+wall-clock, and a call exceeding it counts as a failure to complete.
 
 \subsection{Initial-Layout Protocols}
 \label{sec:protocols}
