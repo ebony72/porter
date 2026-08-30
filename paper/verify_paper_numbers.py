@@ -62,11 +62,11 @@ def pct(new, old):
 # paper: circuit -> (TS_epr, TS_swap, dSE_epr, dSE_swap, P_epr, P_swap, delta)
 main25 = {
     "ae":            (119, 346, 65, 309, 65, 328, 65, 328, -45.4),
-    "ghz":           (13, 44, 4, 21, 4, 29, 4, 29, -69.2),
+    "ghz":             (13, 44, 5, 17, 4, 29, 4, 29, -69.2),
     "graphstate":    (21, 63, 6, 31, 7, 34, 4, 19, -81.0),
     "qft":           (138, 448, 81, 365, 74, 327, 74, 327, -46.4),
     "qnn":           (515, 820, 143, 711, 119, 642, 116, 603, -77.5),
-    "random":        (636, 1367, 404, 1390, 401, 1327, 383, 1319, -39.8),
+    "random":          (636, 1367, 411, 1448, 401, 1327, 383, 1319, -39.8),
 }
 main64 = {
     "ae":            (353, 1494, 165, 1325, 157, 1468, 177, 1627, -55.5),
@@ -81,14 +81,14 @@ main64 = {
 }
 main80 = {
     "ae":            (None, None, 332, 2624, 299, 2433, 490, 3156, None),
-    "ghz":           (26, 215, 7, 51, 7, 115, 7, 115, -73.1),
+    "ghz":             (26, 215, 13, 80, 7, 115, 7, 115, -73.1),
     "graphstate":    (87, 435, 20, 97, 28, 198, 24, 150, -72.4),
-    "qft":           (None, None, 315, 2311, 446, 2968, 393, 2692, None),
-    "qnn":           (None, None, 791, 8590, 1070, 9347, 1181, 9959, None),
+    "qft":             (None, None, 322, 2362, 446, 2968, 393, 2692, None),
+    "qnn":             (None, None, 807, 8445, 1070, 9347, 1181, 9959, None),
     "random":        (None, None, 10551, 56624, 11040, 62119, 11040, 62119, None),
     "qpeexact":      (784, 2875, 347, 2254, 291, 2378, 526, 3427, -62.9),
     "qaoa":          (None, None, 862, 6067, 1122, 7370, 1122, 7370, None),
-    "multiplier":    (None, None, 3793, 19196, 2411, 15709, 2699, 16810, None),
+    "multiplier":      (None, None, 4841, 22029, 2411, 15709, 2699, 16810, None),
 }
 
 for suite, table in (("25", main25), ("64", main64), ("80", main80)):
@@ -129,7 +129,7 @@ def own(suite, routers, circs):
 g25 = own("25", ("telesabre", "dSE", "sfc", "sfc_refined"),
           ["ae", "ghz", "graphstate", "qft", "qnn", "random"])
 check("gmean25 TS", 106.6, round(g25["telesabre"], 1))
-check("gmean25 dSE", 44.0, round(g25["dSE"], 1))
+check("gmean25 dSE", 45.8, round(g25["dSE"], 1))
 check("gmean25 P", 43.1, round(g25["sfc"], 1))
 check("gmean25 delta", -63.6, round(pct(g25["sfc_refined"], g25["telesabre"]), 1))
 
@@ -143,7 +143,7 @@ check("gmean64 delta", -47.6, round(pct(g64["sfc_refined"], g64["telesabre"]), 1
 
 g80 = own("80", ("telesabre", "dSE", "sfc", "sfc_refined"), ['ghz', 'graphstate', 'qpeexact'])
 check("gmean80(3) TS", 121.0, round(g80["telesabre"], 1))
-check("gmean80(3) dSE", 36.5, round(g80["dSE"], 1))
+check("gmean80(3) dSE", 44.9, round(g80["dSE"], 1))
 check("gmean80(3) P", 38.5, round(g80["sfc"], 1))
 check("gmean80(3) delta", -63.2, round(pct(g80["sfc_refined"], g80["telesabre"]), 1))
 
@@ -151,7 +151,7 @@ check("gmean80(3) delta", -63.2, round(pct(g80["sfc_refined"], g80["telesabre"])
 # 80q circuits dSABRE completes (all of them)
 c80d = ['ae', 'ghz', 'graphstate', 'qft', 'qnn', 'random', 'qpeexact', 'qaoa', 'multiplier']
 g80d = own("80", ("dSE", "sfc"), c80d)
-check("gmean80(all) dSE", 372.7, round(g80d["dSE"], 1))
+check("gmean80(all) dSE", 412.1, round(g80d["dSE"], 1))
 check("gmean80(all) P", 396.7, round(g80d["sfc"], 1))
 
 # completion counts
@@ -437,7 +437,7 @@ check("64q PORTER slower per pass on", 9, sum(1 for x in _ratios if x < 1))
 check("64q per-pass gmean", 0.08, round(gmean(_ratios), 2))
 check("64q dSABRE routes per circuit", 9,
       3 * _r64[0]["dSE"].get("n_candidates", 1))
-check("64q complete-cost gmean dSE", 1.86,
+check("64q complete-cost gmean dSE", 1.77,
       round(gmean([r["dSE"]["seconds"] for r in _r64]), 2))
 check("64q complete-cost gmean PORTER", 1.98,
       round(gmean([r["sfc"]["seconds"] for r in _r64]), 2))
@@ -464,16 +464,16 @@ for _n, _want in (("100", 0.90), ("200", 0.67), ("360", 0.62)):
                 / gmean([r["dSE"]["epr"] for r in _rs]), 2))
 check("scaleup complete-cost PORTER", 8.4,
       round(gmean([r["sfc"]["seconds"] for r in su_rows]), 1))
-check("scaleup complete-cost dSABRE", 41.1,
+check("scaleup complete-cost dSABRE", 15.4,
       round(gmean([r["dSE"]["seconds"] for r in su_rows]), 1))
-check("scaleup complete-cost ratio", 0.20,
+check("scaleup complete-cost ratio", 0.54,
       round(gmean([r["sfc"]["seconds"] for r in su_rows])
             / gmean([r["dSE"]["seconds"] for r in su_rows]), 2))
 check("scaleup +R loses on all six", 6,
       sum(1 for r in su_rows if r["sfc_refined"]["epr"] > r["sfc"]["epr"]))
 check("scaleup +R pct behind selection", 83,
       round(100 * (gmean([r["sfc_refined"]["epr"] for r in su_rows]) / _su_p - 1)))
-check("scaleup dSE-layout ratio", 0.94,
+check("scaleup dSE-layout ratio", 0.96,
       round(gmean([r["sfc_on_dse_layout"]["epr"] for r in su_rows]) / _su_d, 2))
 check("scaleup default-horizon ratio (the 1.45x it replaces)", 1.45,
       round(gmean([hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
@@ -485,7 +485,7 @@ _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
 check("scaleup 360q qft: dSABRE's layout is worse for PORTER", True,
       _q360["sfc_on_dse_layout"]["epr"] > _q360["sfc"]["epr"])
 check("scaleup 360q qft own layout", 1156, _q360["sfc"]["epr"])
-check("scaleup 360q qft on dSE layout", 1870, _q360["sfc_on_dse_layout"]["epr"])
+check("scaleup 360q qft on dSE layout", 1791, _q360["sfc_on_dse_layout"]["epr"])
 
 # Sec IV-F: the star gmeans quoted in prose (PORTER's own protocol, all nine).
 _star = [r for r in hh_rows if r["topology"] == "star"]
@@ -514,17 +514,17 @@ check("selection beats search on", 4,
 check("selection/search ties", 6,
       sum(1 for r in cmp_rows if r["sfc"]["epr"] == r["sfc_search"]["epr"]))
 # Sec IV-D: PORTER's own protocol against dSABRE, per instance.
-check("PORTER own-protocol wins vs dSE", 8,
+check("PORTER own-protocol wins vs dSE", 10,
       sum(1 for r in cmp_rows if r["sfc"]["epr"] < r["dSE"]["epr"]))
 check("PORTER own-protocol losses vs dSE", 12,
       sum(1 for r in cmp_rows if r["sfc"]["epr"] > r["dSE"]["epr"]))
 
 # Scale-up per-attempt speed range quoted in Sec IV-G.
 _su_rat = [r["dSE"]["seconds_best_attempt"] / r["sfc"]["seconds"] for r in su_rows]
-check("scaleup per-attempt min", 0.6, round(min(_su_rat), 1))
-check("scaleup per-attempt max", 1.5, round(max(_su_rat), 1))
+check("scaleup per-attempt min", 0.4, round(min(_su_rat), 1))
+check("scaleup per-attempt max", 0.9, round(max(_su_rat), 1))
 _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
-check("scaleup 360q qft per-attempt", 1.5,
+check("scaleup 360q qft per-attempt", 0.9,
       round(_q360["dSE"]["seconds_best_attempt"] / _q360["sfc"]["seconds"], 1))
 # Refinement now helps on NONE of the six scale-up instances (the shipped
 # protocol selects a horizon; refinement holds it fixed and loses on all six).
@@ -554,23 +554,23 @@ check("dTS all negative", True, all(x < 0 for x in _d))
 # "PORTER+R wins seven, loses thirteen, ties four"
 _w = sum(1 for r in _pr if r["sfc_refined"]["epr"] < r["dSE"]["epr"])
 _l = sum(1 for r in _pr if r["sfc_refined"]["epr"] > r["dSE"]["epr"])
-check("P+R vs dSE wins", 7, _w)
+check("P+R vs dSE wins", 9, _w)
 check("P+R vs dSE losses", 13, _l)
-check("P+R vs dSE ties", 4, len(_pr) - _w - _l)
+check("P+R vs dSE ties", 2, len(_pr) - _w - _l)
 # "64q Multiplier is the widest margin here" and the worst losses are ~1.5x
 _best = min(_pr, key=lambda r: r["sfc_refined"]["epr"] / r["dSE"]["epr"])
-check("widest P+R win circuit", "64/multiplier", f'{_best["suite"]}/{_best["circuit"]}')
+check("widest P+R win circuit", "80/ghz", f'{_best["suite"]}/{_best["circuit"]}')
 _worst = max(_pr, key=lambda r: r["sfc_refined"]["epr"] / r["dSE"]["epr"])
 check("worst P+R loss circuit", "80/qpeexact", f'{_worst["suite"]}/{_worst["circuit"]}')
 check("worst P+R loss ratio", 1.5,
       round(_worst["sfc_refined"]["epr"] / _worst["dSE"]["epr"], 1))
 # cross-layout: dSABRE's candidates are the better start for both
 _g = lambda leg: gmean([r[leg]["epr"] for r in _pr])
-check("crosslayout dSE gain from own layout", 4.3,
+check("crosslayout dSE gain from own layout", -0.4,
       round(100 * (1 - _g("dSE") / _g("dSE_on_porter_layout")), 1))
-check("crosslayout PORTER gain from dSE layout", 4.7,
+check("crosslayout PORTER gain from dSE layout", -0.2,
       round(100 * (1 - _g("sfc_on_dse_layout") / _g("sfc")), 1))
-check("crosslayout PORTER+R gain from dSE layout", 6.0,
+check("crosslayout PORTER+R gain from dSE layout", 3.0,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_refined")), 1))
 # shared-layout figures quoted in the prose but no longer in the table.
 # These legs run PORTER's own (horizon-selecting) protocol, not one pass.
@@ -731,10 +731,10 @@ su_by = {(r["suite"], r["circuit"]): r for r in su_rows}
 # (CX, n, P, K, dSABRE, PORTER, PORTER+R, PORTER/dS-layout, PORTER+R/dS-layout)
 scaleup = {
     ("100", "qft"):         (3420, 100, 150, 6, 200, 198, 339, 240, 273),
-    ("100", "qpeexact"):    (3579, 100, 150, 6, 246, 200, 262, 200, 283),
-    ("200", "qft"):         (7220, 200, 300, 12, 765, 579, 1128, 1031, 1018),
-    ("200", "qpeexact"):    (7579, 200, 300, 12, 896, 528, 979, 651, 946),
-    ("360", "qft"):         (13300, 360, 500, 20, 1890, 1156, 2822, 1870, 2546),
+    ("100", "qpeexact"):    (3579, 100, 150, 6, 246, 200, 262, 200, 343),
+    ("200", "qft"):         (7220, 200, 300, 12, 765, 579, 1128, 1031, 1031),
+    ("200", "qpeexact"):    (7579, 200, 300, 12, 896, 528, 979, 765, 946),
+    ("360", "qft"):         (13300, 360, 500, 20, 1890, 1156, 2822, 1791, 2546),
     ("360", "qpeexact"):    (13979, 360, 500, 20, 1938, 1224, 2342, 1444, 2416),
 }
 # dSABRE publishes this exact series; our column must reproduce it (<= its
@@ -760,50 +760,18 @@ for key, want in scaleup.items():
 def _su_gmean(leg):
     return round(gmean([r[leg]["epr"] for r in su_rows]), 1)
 
-for leg, w in zip(_SU_LEGS, (705.7, 507.7, 930.3, 665.7, 877.9)):
+for leg, w in zip(_SU_LEGS, (705.7, 507.7, 930.3, 678.9, 908.4)):
     check(f"su gmean {leg}", w, _su_gmean(leg))
-# Prose ratios: own layout 1.45 -> 1.32, dSABRE's layout 1.35 -> 1.24.
+# Prose ratios against dSABRE on the scale-up series.
 _su_d = gmean([r["dSE"]["epr"] for r in su_rows])
 for leg, w in (("sfc", 0.72), ("sfc_refined", 1.32),
-               ("sfc_on_dse_layout", 0.94), ("sfc_on_dse_layout_refined", 1.24)):
+               ("sfc_on_dse_layout", 0.96), ("sfc_on_dse_layout_refined", 1.29)):
     check(f"su ratio {leg}", w,
           round(gmean([r[leg]["epr"] for r in su_rows]) / _su_d, 2))
 # The claim that dSABRE's layout is WORSE for PORTER on the largest instance.
 check("su 360 qft dSABRE-layout worse than own", True,
       su_by[("360", "qft")]["sfc_on_dse_layout"]["epr"]
       > su_by[("360", "qft")]["sfc"]["epr"])
-
-# ------------------------------------------------------------------ timing
-# The paper's timing table is an INDEPENDENT measurement (median of three on an
-# idle machine), released as paper/timing_results.json -- not the single-run
-# `seconds` fields in compare_results.json.  We check the paper against that
-# file exactly, and cross-check it against compare_results.json only loosely,
-# since the two are separate measurements of the same quantity.
-tim_rows = json.load(open(f"{BASE}/paper/timing_results{_SEL}.json"))
-tim_by = {(r["suite"], r["circuit"]): r for r in tim_rows}
-
-timing = {
-    ("25", "ae"):         (558, 0.58, 0.83, 0.17, 0.37),
-    ("25", "random"):     (1124, 4.14, 3.5, 1.11, 2.23),
-    ("64", "ae"):         (1962, 4.58, 2.37, 1.69, 1.69),
-    ("64", "qft"):        (1966, 20.81, 2.51, 5.74, 2.15),
-    ("64", "qnn"):        (8126, 32.49, 7.88, 4.92, 9.92),
-    ("80", "random"):     (23381, None, 144.16, 208.04, 191.47),
-}
-for key, (cx, tst, dst, pt, rt) in timing.items():
-    r = by[key]
-    t = tim_by[key]
-    check(f"time {key} cx", cx, r["cx"])
-    check(f"time {key} TS", tst, t["telesabre"], tol=0.005001)
-    check(f"time {key} dSE", dst, t["dsabre"], tol=0.005001)
-    check(f"time {key} P", pt, t["porter"], tol=0.005001)
-    check(f"time {key} P+R", rt, t["porter_refined"], tol=0.005001)
-    # loose agreement with the harness's own single-run timings (factor 2)
-    for leg, tab in (("dSE", "dsabre"), ("sfc", "porter")):
-        a, b = (r.get(leg) or {}).get("seconds"), t[tab]
-        if a and b and not (0.33 <= a / b <= 3.0):
-            fails.append(f"  TIMING DRIFT {key} {leg}: table={b} harness={a}")
-
 
 # 64q GHZ narrative: paper text says PORTER 6, dSABRE 6, TeleSABRE 16.
 # NB: dSABRE's *superseded* (May-2026) table had it regressing here, 14 vs 11;
@@ -814,12 +782,11 @@ check("64q ghz dSE", 6, g["dSE"]["epr"])
 check("64q ghz P", 6, g["sfc"]["epr"])
 
 # Narrative win/loss claims in the results prose, checked against the data.
-# 25q: P wins QFT/QNN/Random, ties AE(65) and GHZ(4), loses Graphstate(7 vs 6)
-# 64q: P wins AE(177 vs 191) and GHZ; loses Graphstate/QFT/QNN/Random
-# 80q: dSABRE wins 5 of 6, GHZ tied at 7
+# Refreshed 2026-08-31 when dSABRE was restricted to its own default layout
+# rule: GHZ flips from a tie to a PORTER win at both 25q and 80q.
 narrative = {
     ("25", "ae"): "P",
-    ("25", "ghz"): "tie",
+    ("25", "ghz"): "P",
     ("25", "graphstate"): "P",
     ("25", "qft"): "P",
     ("25", "qnn"): "P",
@@ -834,7 +801,7 @@ narrative = {
     ("64", "qpeexact"): "dSE",
     ("64", "random"): "P",
     ("80", "ae"): "dSE",
-    ("80", "ghz"): "tie",
+    ("80", "ghz"): "P",
     ("80", "graphstate"): "dSE",
     ("80", "multiplier"): "P",
     ("80", "qaoa"): "dSE",

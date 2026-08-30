@@ -643,6 +643,60 @@ device ("not a monotone difficulty ladder ... six 81-slot cores ... fewer
 EPR at 360q than 200q") and has been deleted: on the correct series
 dSABRE's own cost rises 200 -> 765 -> 1890 on QFT.
 
+## dSABRE restricted to its OWN layout rule (2026-08-31) --- results re-run
+
+`compare_routers.dsabre_layout_candidates` used to hand dSABRE **two**
+families of initial layouts and take its best: its own
+`sabre_locked_boundary_layout` (adaptive per-core corner reservation) and
+`sabre_two_corner_layout`, the same rule with the count pinned to 2. **The
+second family is OURS, not dSABRE's** -- we added it when an older dSABRE
+reserved four corners chip-wide (all landing in core 0 under core-major
+numbering). The current `adaptive_corner_count` fixes that at source, so the
+extra family only meant benchmarking a configuration dSABRE does not ship.
+
+Now it gets its own rule alone: **3 layouts, 9 routes, uniformly** (was 3--6
+and 9--18; adaptive k=1 at 25/80q, k=2 at 64q, k=4 at 100/200q, so the two
+families coincided only at 64q).
+
+Re-run with `rerun_dsabre_default_layouts.py` (new). Only three legs depend
+on the candidate set -- `dSE`, `sfc_on_dse_layout`, `sfc_on_dse_layout_refined`
+-- and every other leg was verified bit-identical. **Heavy-hex never used the
+second family** (`compare_heavyhex.py` calls `sabre_locked_boundary_layout`
+directly), so it needed no re-run.
+
+| | before | after |
+|---|---|---|
+| dSABRE pooled (24) | 163.9 | **171.9** |
+| dSABRE 25q / 64q / 80q | 44.0 / 173.1 / 372.7 | 45.8 / **173.1** / 412.1 |
+| dSABRE complete time | 2.26 s | **1.38 s** (half the candidates) |
+| PORTER / dSABRE EPR | 1.07x | **1.02x** |
+| PORTER+R / dSABRE | 1.05x | **1.00x** |
+| PORTER / dSABRE time | 0.58x | **0.91x** |
+| scale-up dSABRE | 705.7 | **705.7 (unchanged)** |
+
+**The scale-up headline survives untouched** (0.72x): at 100/200/360q the
+adaptive rule was already winning, so dropping our variant cost dSABRE
+nothing there. Its scale-up *time* halved (41.1 s -> 15.4 s), so
+"0.20x complete cost" became **0.54x**.
+
+**Two readings flipped and were rewritten:**
+- **Cross-layout inverts for dSABRE.** V-B used to say "dSABRE's candidate
+  set is the better start for *both*". Now dSABRE does marginally better
+  from PORTER's layout (171.2 vs 171.9); the claim holds for PORTER only
+  (+3.0%).
+- **PORTER now wins 25q and 80q** on the TS-matched basis (43.1 vs 45.8;
+  38.5 vs 44.9) and loses only 64q. GHZ flips from tie to PORTER win at both
+  25q and 80q.
+
+**The standalone timing table was deleted.** `verify_paper_numbers`'s own
+TIMING DRIFT check fired: on 80q Random the table said dSABRE 249 s /
+PORTER 64 s while the harness said 74 s / 206 s -- a 3x disagreement in
+BOTH directions. It was a single-shot measurement, it mixed a fresh
+PORTER/dSABRE run with a stale TeleSABRE one, and `tab:main` already
+carries complete times for all four compilers from the same run as the EPR.
+Removed: V-F's five-circuit paragraph, appendix `tab:timing`, `app_timing`
+in the generator, and 32 lines of pins.
+
 ## Second review round (2026-08-29) --- two more real errors
 
 `additional_review_revised_PORTER.md` (vault) reviewed the revised paper and

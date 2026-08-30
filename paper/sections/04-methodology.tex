@@ -117,8 +117,8 @@ binding iteration budget would cut its heuristic search short and hand
 the remainder to its guaranteed drain at a worse EPR count. We do not
 charge it for pre-routing layout repair, which lands in its EPR counter
 although it adjusts the starting layout rather than routing anything, and
-we net that out for both compilers. And we hand it both families of its
-layout candidates rather than picking one
+we net that out for both compilers. And we take its layout rule exactly
+as it ships rather than substituting one of our own
 (Section~\ref{sec:protocols}).
 
 \TeleSABRE{}'s stock C binary crashes deterministically on
@@ -147,18 +147,15 @@ passes; both report the best EPR count. \PORTER{} instead builds one
 deterministic temporal locality-greedy layout
 (Section~\ref{sec:sfc-layout}) and routes it at each of the three
 candidate lookahead horizons of Section~\ref{sec:horizon}, keeping the
-best --- three routing passes over one layout, against nine to eighteen
-over three to six. It searches no layouts, so every number is reproducible from the circuit
+best --- three routing passes over one layout, against nine over three.
+It searches no layouts, so every number is reproducible from the circuit
 file alone.
 
-\dSABRE{}'s corner removal reserves low-degree physical qubits as
-communication slots by excluding them from the SabreLayout coupling map.
-It ships two variants of the rule and neither dominates on our
-architectures, so rather than choose we give \dSABRE{} both families and
-take its best: up to six candidate layouts instead of three. This can
-only strengthen the baseline relative to its own published protocol, and
-it is why our \dSABRE{} numbers sit at or below the figures it publishes
-for the architectures it reports.
+\dSABRE{}'s SabreLayout runs on a coupling map with low-degree physical
+qubits withheld in every core as communication slots, the count fixed by
+its own fill-adaptive rule. We use that rule as it ships, which is why
+our \dSABRE{} figures reproduce those it publishes for the architectures
+it reports.
 
 \textbf{Shared-layout comparison.} To separate layout quality from
 routing quality, both \dSABRE{} and \PORTER{} are then run from an
@@ -186,15 +183,20 @@ Section~\ref{sec:sfc-scoring} for which no tested constant is best across
 the corpus. In an offline sweep over $\{4,8,\dots,1024\}$ on every instance the best value
 spans the whole range: $80$-qubit QNN wants $4$, the $25$-qubit suite
 wants $16$, and every $100$-, $200$- and $360$-qubit instance wants
-$128$, beyond which EPR saturates. The gap between the shipped $16$ and
-the per-instance best is $17.2\%$ geometric-mean EPR.
+$128$, beyond which EPR saturates. The gap between \PORTER{}'s configured
+default of $L_\mathrm{tp}{=}16$ and the per-instance best is $17.2\%$
+geometric-mean EPR.
 
-Interaction density sets the direction. Write $\rho$ for the mean
-fraction of the other logical qubits each qubit shares a CX with. As
-$\rho\to1$ a long horizon reports the moving qubit as needed in every
-core at once, so the gain estimate degenerates into noise and short
-horizons win; when $\rho$ is small the signal is coherent and long
-horizons win. Across the benchmark $\rho$ ranks the best horizon at
+Interaction density sets the direction. For each logical qubit that
+appears in at least one CX, count the distinct partners it shares a CX
+with anywhere in the circuit; $\rho$ is the mean of that count over those
+qubits, divided by $n-1$. It is the mean fraction of the other logical
+qubits each qubit ever interacts with: $\rho\to1$ is all-to-all, every
+qubit meeting essentially every other, while a linear CX chain gives
+$\rho\approx2/(n-1)$. The two regimes behave differently. When $\rho$ is
+near $1$ a long horizon finds the moving qubit wanted in every core at
+once, so the gain estimate degenerates into noise and short horizons win;
+when $\rho$ is small the signal is coherent and long horizons win. Across the benchmark $\rho$ ranks the best horizon at
 Spearman $-0.765$, but it is not a usable predictor alone: in the band
 $0.42\le\rho\le0.53$, where most 64-qubit circuits sit, QAOA wants $8$
 and AE wants $128$, and a threshold rule on $\rho$ recovers only $8.0\%$
@@ -261,27 +263,22 @@ some instances, and only the best-pass rule keeps that from surfacing.
 per-layer discount $\gamma$ of Section~\ref{sec:sfc-layout}, fixed at
 $0.99$ elsewhere --- in two phases.
 
-\emph{Phase 1} builds a layout for each
+Phase~1 builds a layout for each
 $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ and routes it once at the
-configured horizon, without selection: five routes. The lowest-EPR layout
-wins.
-\emph{Phase 2} runs the $P{=}5$ refinement schedule above from two seed
-layouts --- phase 1's winner, and the $\gamma{=}0.99$ layout when that is
-not already the winner --- adding $P{-}1{=}4$ routes each. Refining the
-winner is not reliably best: on 64q~QNN, $\gamma{=}1.0$ wins phase 1 at
-$604$ and refines no further, while refining the $\gamma{=}0.99$ layout
-reaches $537$, so both are run.
-
-The total is therefore $5+4=9$ routes when $\gamma{=}0.99$ wins phase 1
-and $5+4+4=13$ otherwise, which is the $9$--$13$ of
-Table~\ref{tab:budgets}; a schedule that converges early can stop between
-the two. $\gamma{=}0.99$ is always a candidate, so \PORTER{}+S cannot
-return a higher EPR count than the configured single route.
+configured horizon --- five routes --- keeping the lowest-EPR layout.
+Phase~2 runs the $P{=}5$ refinement schedule above from two seeds, phase
+1's winner and the $\gamma{=}0.99$ layout when that is not already the
+winner, adding $P{-}1{=}4$ routes each; refining the phase-1 winner alone
+is not reliably best, so both are run. The total is $5+4=9$ routes when
+$\gamma{=}0.99$ wins and $5+4+4=13$ otherwise, the range
+Table~\ref{tab:budgets} reports. Since $\gamma{=}0.99$ always competes,
+\PORTER{}+S cannot return a higher EPR count than the configured single
+route.
 
 \PORTER{}+SR runs horizon selection and the $\gamma$-search and keeps the
-lower EPR of the two, netting the one route they share. The two look for
-different things --- the horizon at a fixed layout against the layout at a
-fixed horizon --- so neither subsumes the other.
+lower EPR, netting the one route they share. The two vary different
+things --- the horizon at a fixed layout against the layout at a fixed
+horizon --- so neither subsumes the other.
 
 \subsection{Comparison Protocols and Budgets}
 \label{sec:budgets}
@@ -296,9 +293,7 @@ throughout.
 \caption{Every configuration that appears in Section~\ref{sec:results}:
   layout source, layout count $\lvert\mathcal{L}\rvert$, routing passes
   per layout $P$, total routes $\lvert\mathcal{L}\rvert\!\cdot\!P$, and
-  the quantity minimised over them. Layout counts marked $^{a}$ are
-  $6$ at 25 and 80 qubits and $3$ at 64, where \dSABRE{}'s two corner
-  rules coincide. Lower EPR is better everywhere.}
+  the quantity minimised over them. Lower EPR is better everywhere.}
 \label{tab:budgets}
 \setlength{\tabcolsep}{3.5pt}
 \small
@@ -310,8 +305,7 @@ routes & selects on \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Own protocol} (RQ1, RQ4)} \\
 \TeleSABRE{}      & \TeleSABRE{} & Hungarian, seeds 0--2  & 3 & 1 & 3 & best EPR \\
-\dSABRE{}         & \dSABRE{}    & SabreLayout, seeds 0--2, & $6^{a}$ & 3 & $9$--$18$ & best EPR \\
-                  &              & \quad both corner rules &   &   &   &  \\
+\dSABRE{}         & \dSABRE{}    & SabreLayout, seeds 0--2 & 3 & 3 & 9 & best EPR \\
 \PORTER{}         & \PORTER{}    & temporal locality-greedy & 1 & 3 & 3 & best EPR \\
 \PORTER{}+R       & \PORTER{}    & temporal locality-greedy & 1 & 5 & 5 & best forward pass \\
 \PORTER{}+S       & \PORTER{}    & $\gamma\in\{0.90,0.95,0.99,1.0\}$ & 4 & 1--3 & $9$--$13$ & best EPR \\
@@ -324,7 +318,7 @@ routes & selects on \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Cross layout} (RQ2) --- each compiler on the other's own layout} \\
 \dSABRE{} on \PORTER{} & \dSABRE{} & \PORTER{}'s layout & 1 & 3 & 3 & best pass \\
-\PORTER{} on \dSABRE{} & \PORTER{} & \dSABRE{}'s candidates & $6^{a}$ & 3 & $9$--$18$ & best EPR \\
+\PORTER{} on \dSABRE{} & \PORTER{} & \dSABRE{}'s candidates & 3 & 3 & 9 & best EPR \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Ablation} (RQ3) --- one fixed layout, one fixed horizon} \\
 ablation legs     & \PORTER{}    & temporal locality-greedy & 1 & 1 & 1 & --- \\
@@ -333,49 +327,36 @@ ablation legs     & \PORTER{}    & temporal locality-greedy & 1 & 1 & 1 & --- \\
 }
 \end{table}
 
-Three notions of a matched budget are in play and none is universally
-fair, so we report against more than one. Equal \emph{route counts}
-(shared-layout \PORTER{} against shared-layout \dSABRE{}, three each)
-equalise how often the router runs. Equal \emph{layout budgets} put
-\PORTER{} on \dSABRE{}'s candidate set. Equal \emph{wall-clock} is not
-enforced anywhere; instead every table reports complete compile time so
-a reader can renormalise. \PORTER{} costs more per route than \dSABRE{}
-(Section~\ref{sec:frontier}), so equal route counts favour it on time
-and not on effort, and equal layout budgets do the reverse.
+Two notions of a matched budget are in play and neither is universally
+fair, so we report against both. Equal \emph{route counts} give each
+compiler the same number of router invocations from one identical layout
+--- three each, in the shared-layout rows. Equal \emph{candidate-layout
+sets} instead hand \PORTER{} the very layouts \dSABRE{} generated for
+itself, so both choose their best from the same three starting points;
+that equalises the search over layouts rather than the routing effort
+spent on each. Wall-clock is not equalised anywhere, but every table
+reports complete compile time so a reader can renormalise. \PORTER{}
+costs more per route than \dSABRE{} (Section~\ref{sec:frontier}), so
+equal route counts flatter it on time and not on effort.
 
 \subsection{Metrics and Aggregation}
 \label{sec:metrics}
 
-The primary metric is EPR pairs consumed. \TeleSABRE{} counts teledata
+The primary metric is EPR pairs consumed: \TeleSABRE{} counts teledata
 plus telegate operations, \dSABRE{} counts teledata, and \PORTER{} counts
-teleports plus telegates plus telegate packets, one pair per packet
-however many remote CX gates it amortises; all three count the same
-physical resource. Intra-core SWAP counts and compile time are secondary
-and are never traded against EPR by any selection rule.
-
-\textbf{Timing.} All compile times are wall-clock on one otherwise idle
-machine (Apple M2, macOS 26.5, CPython 3.13), measured once per
-configuration rather than as a median of repetitions, with no warm-up:
-each invocation is a fresh process, so no cache is carried between
-circuits. Two consequences follow. Times are indicative rather than
-precise, and should be read at the resolution the paper uses them --- as
-ratios between protocols, not as absolute costs. And because horizon
-selection guards its speculative routes by wall-clock
-(Section~\ref{sec:horizon}), machine load can in principle change which
-route it selects; the horizon each reported run chose is recorded with
-its result.
-
-Aggregates are unweighted geometric means over circuits,
-$\bigl(\prod_i x_i\bigr)^{1/m}$, so each circuit counts equally and a
-suite with large absolute counts does not dominate. Percentage changes
-are $100(b/a-1)$ against the stated baseline $a$; ratios are $b/a$. Both
-are computed from the geometric means, not averaged per circuit.
-
-Failures are never imputed. A configuration that does not complete an
-instance is marked and excluded from every geometric mean it appears in,
-along with that instance's other columns where the comparison is paired.
-A mean labelled $(n)$ is therefore over exactly the $n$ circuits all its
-columns completed. This separates quality from completion, but it also
-means a baseline that fails its hardest instances is scored only on the
-ones it survives, which flatters it. We report completion counts
-alongside every such mean.
+teleports plus telegates plus telegate packets, one pair per packet, all
+three the same physical resource. Intra-core SWAP counts and compile time
+are secondary and are never traded against EPR by any selection rule.
+Aggregates are unweighted geometric means over circuits, so each circuit
+counts equally; percentage changes are $100(b/a-1)$ against the stated
+baseline and ratios are $b/a$, both computed from those means rather than
+averaged per circuit. Failures are never imputed: a configuration that
+does not complete an instance is excluded from every mean it appears in,
+along with that instance's other columns where the comparison is paired,
+so a mean labelled $(n)$ is over exactly the $n$ circuits all its columns
+completed --- which flatters a baseline that fails its hardest instances,
+and is why completion counts accompany every such mean. Compile times are
+wall-clock on one otherwise idle machine (Apple M2, macOS~26.5,
+CPython~3.13), measured once per configuration with no warm-up, so they
+are indicative and should be read as ratios between protocols rather than
+as absolute costs.

@@ -804,7 +804,7 @@ and~\ref{main-sec:results} of the main paper: the full parameter set
 (Table~\ref{tab:params}), the cross-layout grid
 (Table~\ref{tab:crosslayout}), the per-circuit heavy-hex and shared-layout
 rows summarised there (Tables~\ref{tab:heavyhex} and~\ref{tab:shared}),
-compile times (Table~\ref{tab:timing}) and local SWAP counts
+and local SWAP counts
 (Table~\ref{tab:mainswaps}). EPR pairs are the figure of merit throughout
 --- a SWAP is a local operation costing no entanglement --- which is why
 SWAP counts are reported here rather than in the main text.
@@ -929,31 +929,7 @@ star  & multiplier  &   722 &   455 & $^{\ast}$ &   462 &   462 \\
 }
 \end{table}
 
-\begin{table}[h]
-\centering
-\caption{\emph{Complete} compile time (seconds, median of three repeats on
-  an idle machine): initial-layout generation plus every routing pass over
-  every candidate, for each router's whole protocol --- \dSABRE{}'s
-  best-of-six-layouts $\times$ three passes, \TeleSABRE{}'s three seeds,
-  \PORTER{}'s single pass and \PORTER{}+R's five. This is the cost a user
-  pays to obtain the corresponding EPR count, not the winning attempt alone.
-  Released as \texttt{timing\_results.json}. $^{\ast}$Did not complete.}
-\label{tab:timing}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}l r rrrr@{}}
-\toprule
-Circuit & CX & \TeleSABRE & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
-\midrule
-ae (25q)     &   558 &   0.58 &   0.83 &   0.17 &   0.37 \\
-random (25q) &  1124 &   4.14 &   3.50 &   1.11 &   2.23 \\
-ae (64q)     &  1962 &   4.58 &   2.37 &   1.69 &   1.69 \\
-qft (64q)    &  1966 &  20.81 &   2.51 &   5.74 &   2.15 \\
-qnn (64q)    &  8126 &  32.49 &   7.88 &   4.92 &   9.92 \\
-random (80q) & 23381 & $^{\ast}$ & 144.16 & 208.04 & 191.47 \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+
 
 \begin{table}[h]
 \centering
@@ -1032,12 +1008,12 @@ Table~\ref{main-tab:main} of the main paper.
 Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\mathrm{TS}$ \\
 \midrule
 25q & ae          &        119 &    65 &    65 &    65 &   $-45.4$ \\
-25q & ghz         &         13 &     4 &     4 &     4 &   $-69.2$ \\
+25q & ghz         &         13 &     5 &     4 &     4 &   $-69.2$ \\
 25q & graphstate  &         21 &     6 &     7 &     4 &   $-81.0$ \\
 25q & qft         &        138 &    81 &    74 &    74 &   $-46.4$ \\
 25q & qnn         &        515 &   143 &   119 &   116 &   $-77.5$ \\
-25q & random      &        636 &   404 &   401 &   383 &   $-39.8$ \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & 44.0 & 43.1 & \textbf{38.8} & $\mathbf{-63.6}$ \\
+25q & random      &        636 &   411 &   401 &   383 &   $-39.8$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & 45.8 & 43.1 & \textbf{38.8} & $\mathbf{-63.6}$ \\
 \midrule
 64q & ae          &        353 &   165 &   157 &   177 &   $-55.5$ \\
 64q & ghz         &         16 &     6 &     6 &     6 &   $-62.5$ \\
@@ -1051,15 +1027,15 @@ Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\
 \multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 284.5 & 144.6 & 166.2 & \textbf{149.2} & $\mathbf{-47.6}$ \\
 \midrule
 80q & ae          &  $^{\ast}$ &   332 &   299 &   490 &       --- \\
-80q & ghz         &         26 &     7 &     7 &     7 &   $-73.1$ \\
+80q & ghz         &         26 &    13 &     7 &     7 &   $-73.1$ \\
 80q & graphstate  &         87 &    20 &    28 &    24 &   $-72.4$ \\
-80q & qft         &  $^{\ast}$ &   315 &   446 &   393 &       --- \\
-80q & qnn         &  $^{\ast}$ &   791 &  1070 &  1181 &       --- \\
+80q & qft         &  $^{\ast}$ &   322 &   446 &   393 &       --- \\
+80q & qnn         &  $^{\ast}$ &   807 &  1070 &  1181 &       --- \\
 80q & random      &  $^{\ast}$ & 10551 & 11040 & 11040 &       --- \\
 80q & qpeexact    &        784 &   347 &   291 &   526 &   $-62.9$ \\
 80q & qaoa        &  $^{\ast}$ &   862 &  1122 &  1122 &       --- \\
-80q & multiplier  &  $^{\ast}$ &  3793 &  2411 &  2699 &       --- \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (3)} & 121.0 & 36.5 & \textbf{38.5} & 44.5 & $\mathbf{-68.2}$ \\
+80q & multiplier  &  $^{\ast}$ &  4841 &  2411 &  2699 &       --- \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (3)} & 121.0 & 44.9 & \textbf{38.5} & 44.5 & $\mathbf{-68.2}$ \\
 \bottomrule
 \end{tabular}%
 }

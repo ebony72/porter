@@ -514,32 +514,32 @@ def _dsabre_native_architecture(arch: DistributedArchitecture):
 
 
 def dsabre_layout_candidates(qc, dag, arch: DistributedArchitecture, seed: int = 0) -> List[Dict]:
-    """dSABRE's own-protocol initial-layout candidates.
+    """dSABRE's own-protocol initial-layout candidates: its own rule, only.
 
-    Two families, both generated on dSABRE's own architecture object where one
-    exists (see `_dsabre_native_architecture`):
+    `sabre_locked_boundary_layout` runs SabreLayout at seeds {s, s+1, s+2} on
+    the architecture graph with the `adaptive_corner_count` least-useful
+    minimum-degree vertices reserved in every core (k=1 at 25/80q, k=2 at 64q,
+    k=4 at 100/200q on our architectures).  Three candidate layouts, hence nine
+    routing passes per circuit under dSABRE's forward-backward-forward
+    schedule.
 
-    * `sabre_locked_boundary_layout` -- its current rule, reserving per core the
-      `adaptive_corner_count` least-useful minimum-degree vertices (k=4 at
-      100/200q, k=2 at 64q, k=1 at 25/80q on our architectures);
-    * the fixed-two-per-core variant, which is the same rule with k pinned to 2.
-
-    Neither dominates: the adaptive rule wins 80q Graphstate (20 vs 22 EPR) and
-    100q QPEexact (200 vs 262), the fixed-two rule wins 80q AE (306 vs 340),
-    80q QFT (322 vs 340), 100q QFT (234 vs 252) and 25q Random (404 vs 411).
-    Rather than pick, dSABRE is handed both and takes its best -- six candidate
-    layouts, hence eighteen routing passes per circuit against PORTER's one (or
-    five with refinement).  This can only strengthen the baseline relative to
-    its own published protocol, and it reproduces dSABRE's published 64q
-    numbers.
+    Until 2026-08-30 this also handed dSABRE a second family --
+    `sabre_two_corner_layout`, the same rule with k pinned to 2 -- and took the
+    best of both.  That variant is OURS, not dSABRE's: we added it when an
+    older dSABRE reserved four corners chip-wide, which under core-major
+    numbering put all four in core 0 and left every other core unreserved.  The
+    current `adaptive_corner_count` fixes that at source, so the extra family
+    is redundant, and mixing it in meant benchmarking a configuration dSABRE
+    does not ship.  Dropping it costs dSABRE a little EPR on the instances the
+    fixed-two rule happened to win, so it moves the comparison in PORTER's
+    favour; we take dSABRE exactly as shipped instead.
     """
     gen_arch = _dsabre_native_architecture(arch) or arch
     cands = []
-    for fn in (sabre_locked_boundary_layout, sabre_two_corner_layout):
-        try:
-            cands += list(fn(qc, dag, gen_arch, seed=seed))
-        except Exception:
-            continue  # a rule can fail to place on a tight chip; keep the rest
+    try:
+        cands += list(sabre_locked_boundary_layout(qc, dag, gen_arch, seed=seed))
+    except Exception:
+        pass  # a rule can fail to place on a tight chip
     seen, out = set(), []
     for lay in cands:
         key = tuple(sorted((qc.find_bit(q).index, ph) for q, ph in lay.items()))

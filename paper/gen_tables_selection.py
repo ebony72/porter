@@ -325,7 +325,7 @@ def app_timing():
 
 
 APP_TABLES = {"tab:heavyhex": app_heavyhex, "tab:shared": app_shared,
-              "tab:timing": app_timing, **APP_MAIN}
+              **APP_MAIN}
 
 
 def splice(tex: str, label: str, block: str) -> str:
