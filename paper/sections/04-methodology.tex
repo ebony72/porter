@@ -57,9 +57,14 @@ For the machine and the router we use: \emph{core}, \emph{communication
 port}, and \emph{reservoir} (a core holding at least $f_\mathrm{min}$ free
 positions); a front CX is \emph{local}, \emph{adjacent-remote} or
 \emph{non-adjacent-remote}; a plan is \emph{normal} or \emph{blocked}, and
-\emph{ready}, \emph{preparable} or neither; and a run that does not
-complete does so by \emph{deadlock}, \emph{livelock}, \emph{timeout} or
-\emph{infeasible input} (Section~\ref{sec:sfc-progress}).
+\emph{ready}, \emph{preparable} or neither. A run that does not complete
+does so in one of four ways, distinguished throughout: a capacity
+\emph{deadlock} leaves no legal plan and no relief path, and raises a
+diagnostic; a \emph{livelock} makes local progress indefinitely while
+retired gates and EPR count stand still, and is stopped by the iteration
+guard; a \emph{timeout} exceeds the wall-clock cap; and an
+\emph{infeasible input} is an external layout that already fills a core,
+reported rather than routed (Section~\ref{sec:sfc-progress}).
 
 \subsection{Implementation and Verification}
 \label{sec:perf}

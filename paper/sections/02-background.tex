@@ -46,23 +46,12 @@ This is the model \TeleSABRE{}~\cite{russo2025telesabre} and
 \dSABRE{}~\cite{lidsabre} use, which is what makes the three compilers
 comparable in a single unit.
 
-\textbf{Excluded.} The model abstracts away everything about how a pair is
-produced and consumed: entanglement-generation latency and fidelity,
-purification, link contention and concurrency between links, classical
-communication and measurement latency, decoherence during a reserved
-cat resource, and gate error rates. Communication ports are ordinary
-physical qubits that are occupied for the duration of an action and free
-otherwise, and no core is assumed to have dedicated communication memory.
-Every CX is treated as directed, with direction reversal assumed compiled
-away by the single-qubit basis.
-
-\textbf{What this scopes.} EPR consumption is the primary metric
-\emph{under this model}. On hardware where link contention or
-entanglement fidelity dominates, a compiler minimising pair count need not
-minimise runtime or error, and a policy that serialises many actions
-across one link may be worse than its pair count suggests. We do not
-evaluate that regime. Section~\ref{sec:threats} restates the consequences
-for the conclusions drawn here.
+Communication ports are ordinary physical qubits, occupied for the
+duration of an action and free otherwise; no core is assumed to have
+dedicated communication memory. What the model leaves out --- link
+contention, entanglement latency and fidelity, purification, classical
+communication cost --- and what that means for the conclusions drawn here
+is set out in Section~\ref{sec:threats}.
 
 \subsection{Communication Primitives}
 \label{sec:primitives}

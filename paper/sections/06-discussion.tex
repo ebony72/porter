@@ -54,10 +54,10 @@ not. Every instance in this evaluation completes under the selected-horizon
 protocol, but that is a property of the protocol and the benchmark rather
 than of the router: at a fixed horizon, heavy-hex star Multiplier
 livelocks, and the extra candidate is a way of not meeting the failure
-rather than of excluding it. Two of the four failure modes were observed
+rather than of excluding it. Two of the four failure modes of Section~\ref{sec:terms} were observed
 here --- livelock at a fixed horizon, and infeasibility on an external
-pytket-dqc layout that fills a core --- while capacity deadlock was
-observed only with relief disabled. \dSABRE{}'s safe mode carries a
+layout that fills a core --- while capacity deadlock appeared only with
+relief disabled. \dSABRE{}'s safe mode carries a
 termination-with-success proof under stated architectural hypotheses, and
 supplying a comparable guarantee is the clearest piece of theory this
 design leaves open.
