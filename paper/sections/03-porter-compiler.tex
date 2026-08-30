@@ -296,33 +296,35 @@ bind whenever $N_\mathrm{tp}\ge L_\mathrm{tp}$ and $L_\mathrm{tp}$ alone
 governs the depth. It is the one parameter \PORTER{} does not fix by
 constant; Section~\ref{sec:horizon} chooses it per circuit.
 
-That leaves $\mathrm{total}$, and the rest of this subsection computes
-it: one per-gate quantity, summed differently by each primitive.
+That leaves $\mathrm{total}$, which the rest of this subsection computes,
+taking the three primitives in turn.
 
-\textbf{Gate progress.} Write $\kappa$ for the map sending a logical
-qubit to the core holding it under the current layout, and $\kappa'$ for
-the same map after the plan --- identical to $\kappa$ except that a
-\TeleData{}'s moving qubit now sits in $c_\mathrm{dst}$. For a CX
-$g=(q_i,q_j)$,
-\begin{equation}
-  \Delta(g) = \dC\bigl(\kappa(q_i),\kappa(q_j)\bigr)
-            - \dC\bigl(\kappa'(q_i),\kappa'(q_j)\bigr)
-\end{equation}
-is the core-graph distance the plan removes from $g$. A \TeleData{} moves
-one qubit one hop, so $\Delta(g)\in\{1,0,-1\}$: it is $1$ whenever the hop
-brings $g$'s operands one core closer, whether or not that makes them
-local; $0$ for a gate the hop does not touch; and $-1$ for one it pushes
-apart.
-
-Each primitive turns $\Delta$ into gate progress in its own way. A
+Two of them are counts of work the action performs outright. A
 \textbf{\TeleGate{}} scores $1$: the one straddling gate it executes,
 with nothing left over. A \textbf{\TeleGatePacket{}} scores the number of
 straddling gates in its collected run, also with nothing left over, since
 collection returns a committed executable sequence and every member of it
 executes once the cat resource is live (Section~\ref{sec:sfc-packet}).
 
-A \textbf{\TeleData{}} executes no gate, so its whole score estimates the
-gates its moving qubit $q$ will meet. Three sets of CX gates on $q$
+A \textbf{\TeleData{}} executes no gate at all. Its score has to estimate
+the gates its moving qubit $q$ will meet once relocated, which needs a
+measure of how much a move brings a gate closer to being executable.
+
+\textbf{Gate progress.} Write $\kappa$ for the map sending a logical
+qubit to the core holding it under the current layout, and $\kappa'$ for
+the same map after the move --- identical to $\kappa$ except that $q$ now
+sits in $c_\mathrm{dst}$. For a CX $g=(q_i,q_j)$,
+\begin{equation}
+  \Delta(g) = \dC\bigl(\kappa(q_i),\kappa(q_j)\bigr)
+            - \dC\bigl(\kappa'(q_i),\kappa'(q_j)\bigr)
+\end{equation}
+is the core-graph distance the move removes from $g$. A \TeleData{} moves
+one qubit one hop, so $\Delta(g)\in\{1,0,-1\}$: it is $1$ whenever the hop
+brings $g$'s operands one core closer, whether or not that makes them
+local; $0$ for a gate the hop does not touch; and $-1$ for one it pushes
+apart.
+
+Three sets of CX gates on $q$
 contribute, obtained by simulating the DAG frontier forward under
 $\kappa'$:
 \begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
