@@ -6,7 +6,7 @@
 stage: it scores a complete inter-core action on the gate progress it
 buys, before any preparation SWAP for it exists, and commits before
 preparing. Around that it places a capacity discipline with two relief
-tiers, a seed-free initial layout, and a per-circuit choice of
+tiers, a deterministic initial layout, and a per-circuit choice of
 teleport-lookahead horizon.
 
 Three conclusions are supported. First, on the evaluated MQT-Bench suites
@@ -14,14 +14,13 @@ Three conclusions are supported. First, on the evaluated MQT-Bench suites
 \TeleSABRE{} --- $59.6\%$, $41.6\%$ and $68.2\%$ less in geometric mean at
 25, 64 and 80 logical qubits, at three routes each --- and
 completes every instance in all three suites, including the seven on
-which \TeleSABRE{} does not converge. Second, against \dSABRE{}, \PORTER{} is competitive rather than
-dominant, and which compiler leads depends on both the initial layout and
-the routing budget. Under each compiler's own protocol \PORTER{} uses
-$7\%$ more pooled EPR at $0.58\times$ the compile time. From an identical
-externally supplied layout at three routes each, \dSABRE{} has the lower
-pooled count; adding \PORTER{}'s five-route refinement schedule reverses
-that, on those layouts and on both heavy-hex core graphs. On the
-$100$--$360$-qubit scale-up series \PORTER{} leads outright. Third, the
+which \TeleSABRE{} does not converge. Second, against \dSABRE{}, \PORTER{} is competitive at the sizes both
+target --- $1.07\times$ its pooled EPR at $0.58\times$ its compile time
+under each compiler's own protocol --- and its advantage grows with the
+machine, reaching $0.72\times$ its EPR pairs on the $100$--$360$-qubit
+scale-up series. At the smaller sizes which compiler leads depends on the
+initial layout and the routing budget, and
+Section~\ref{sec:shared_results} reports both directions. Third, the
 ablations attribute these results rather than leaving them to the system
 as a whole: capacity relief is what lets a deterministic-greedy design
 complete in practice; the initial layout dominates the difference between

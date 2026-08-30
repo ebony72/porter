@@ -13,22 +13,17 @@ fires, which gates it resolves, and which readiness conditions it needs
 then prepares it. \PORTER{} supports all three known inter-core
 primitives, including cat-entangler packets that amortise one pair over a
 run of remote gates sharing a control, and adds capacity-aware relief, a
-deterministic seed-free initial layout, and a per-circuit choice of
+deterministic initial layout, and a per-circuit choice of
 teleport-lookahead horizon. On MQT-Bench suites at 25, 64 and 80 logical
 qubits \PORTER{} uses $59.6\%$, $41.6\%$ and $68.2\%$ fewer EPR pairs in
 geometric mean than published \TeleSABRE{} at three routes each, and
 completes all twenty-four instances where \TeleSABRE{} completes
-seventeen. Against \dSABRE{}, the outcome depends on both the initial
-layout and the routing budget, and we report every point: under each
-compiler's own protocol \PORTER{} uses $7\%$ more pooled EPR at
-$0.58\times$ the compile time; from an identical layout at three routes
-each \dSABRE{} has the lower pooled count, and adding \PORTER{}'s
-five-route refinement schedule reverses that; and on a $100$--$360$-qubit
-scale-up series \PORTER{} leads outright.
-Controlled ablations attribute these results to individual mechanisms and
-report two negative findings that bound them. Every \PORTER{} route is
-certified by a separately implemented replay verifier; the
-implementation, verifier, harness and raw results are public.
+seventeen. Against \dSABRE{} it is competitive at the sizes both target
+--- $1.07\times$ its pooled EPR at $0.58\times$ its compile time under
+each compiler's own protocol --- and pulls ahead as the machine grows,
+using $0.72\times$ its EPR pairs on a $100$--$360$-qubit scale-up series.
+Controlled ablations measure what each mechanism contributes.
+The implementation, harness and raw results are public.
 \end{abstract}
 
 \begin{IEEEkeywords}

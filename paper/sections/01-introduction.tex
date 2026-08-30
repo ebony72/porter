@@ -38,8 +38,8 @@ conditions it needs, omitting the SWAP sequence that would establish
 them. Plans are compared on the gate progress they buy, one is committed,
 and only then are preparation SWAPs generated for it. Around this loop
 \PORTER{} adds two-tier capacity relief, which manufactures free slots
-when every candidate is blocked, and a deterministic seed-free initial
-layout in place of the seeded best-of-$N$ search its predecessors run.
+when every candidate is blocked, and a deterministic initial layout in
+place of the seeded best-of-$N$ search its predecessors run.
 
 \textbf{Results.} We evaluate on MQT-Bench~\cite{quetschlich2023mqtbench}
 suites at 25, 64 and 80 logical qubits, on a $100$--$360$-qubit scale-up
@@ -53,12 +53,13 @@ three routes each, and it completes all twenty-four, including the seven
 --- among them an 80-qubit, $23{,}381$-CX circuit --- on which
 \TeleSABRE{} does not converge.
 
-Against \dSABRE{}~\cite{lidsabre} the picture is mixed and Section~V
-reports every point of it. Under each compiler's own protocol \PORTER{}
-costs $1.07\times$ its pooled geometric-mean EPR at $0.58\times$ its
-compile time, and which compiler leads elsewhere turns on the initial
-layout, the routing budget and the scale. The two compilers are close
-relatives and share four design decisions, set out in
+Against \dSABRE{}~\cite{lidsabre} \PORTER{} is competitive at the sizes
+both target --- $1.07\times$ its pooled geometric-mean EPR at
+$0.58\times$ its compile time under each compiler's own protocol --- and
+pulls ahead as the machine grows, reaching $0.72\times$ its EPR pairs on
+the $100$--$360$-qubit series. Section~\ref{sec:results} reports every
+operating point, including those \PORTER{} loses. The two compilers are
+close relatives and share four design decisions, set out in
 Section~\ref{sec:related} so neither is credited with the other's.
 
 \textbf{What the mechanisms are worth.} A head-to-head number says little
@@ -92,8 +93,8 @@ what it excludes.
   (Section~\ref{sec:sfc-plan-first}), a capacity discipline that treats
   free slots as a legality condition and manufactures them by a two-tier
   relief search (Section~\ref{sec:sfc-relief}), and a deterministic
-  seed-free initial layout replacing the seeded best-of-$N$ search its
-  predecessors run (Section~\ref{sec:sfc-layout}).
+  initial layout replacing the seeded best-of-$N$ search its predecessors
+  run (Section~\ref{sec:sfc-layout}).
 \item \emph{The lookahead horizon has no good constant.} Every
   \SABRE{}-descended router fixes it by constant, but no tested constant is best across our
   benchmark: the best value spans a factor of thirty-two. Choosing it per
