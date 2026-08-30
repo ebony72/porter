@@ -286,9 +286,15 @@ otherwise identical plans the one leaving more room wins. It is computed
 alongside the score and never added to it.
 
 \textbf{$\mathrm{lookahead}$}, negated, is the discounted part of
-$\mathrm{total}$; among plans tied on everything above, the one whose
-value reaches further into the circuit is preferred. A stable plan
-identifier resolves anything still tied.
+$\mathrm{total}$: among plans tied on everything above, the one whose
+value reaches further into the circuit is preferred, and a stable plan
+identifier resolves anything still tied. How far it reaches is set by the
+horizon $L_\mathrm{tp}$, counted in DAG layers. Since a qubit has at most
+one zero-predecessor gate at a time, at most one of its gates can appear
+per layer, so a companion cap $N_\mathrm{tp}$ on the gate count cannot
+bind whenever $N_\mathrm{tp}\ge L_\mathrm{tp}$ and $L_\mathrm{tp}$ alone
+governs the depth. It is the one parameter \PORTER{} does not fix by
+constant; Section~\ref{sec:horizon} chooses it per circuit.
 
 \textbf{Gate progress.} Write $\kappa$ for the map sending a logical
 qubit to the core holding it under the current layout, and $\kappa'$ for
@@ -305,22 +311,21 @@ brings $g$'s operands one core closer, whether or not that makes them
 local; $0$ for a gate the hop does not touch; and $-1$ for one it pushes
 apart.
 
-Each primitive contributes $\mathrm{total} = \mathrm{direct} +
-\mathrm{lookahead}$ in its own way. A \textbf{\TeleGate{}} scores a direct
-$1$ --- the one straddling gate it executes --- and no lookahead. A
-\textbf{\TeleGatePacket{}} scores the number of straddling gates in its
-collected run, with no lookahead either: collection returns a committed
-executable sequence, and once the cat resource is live every member of it
-executes (Section~\ref{sec:sfc-packet}).
+Each primitive turns $\Delta$ into gate progress in its own way. A
+\textbf{\TeleGate{}} scores $1$: the one straddling gate it executes,
+with nothing left over. A \textbf{\TeleGatePacket{}} scores the number of
+straddling gates in its collected run, also with nothing left over, since
+collection returns a committed executable sequence and every member of it
+executes once the cat resource is live (Section~\ref{sec:sfc-packet}).
 
 A \textbf{\TeleData{}} executes no gate, so its whole score estimates the
 gates its moving qubit $q$ will meet. Three sets of CX gates on $q$
 contribute, obtained by simulating the DAG frontier forward under
 $\kappa'$:
 \begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-\item $D(\pln{p})$, the front CX on $q$. Because $q$ has at most one
-  zero-predecessor gate at a time, this is the plan's seed gate and
-  nothing else, so $\lvert D(\pln{p})\rvert = 1$.
+\item $D(\pln{p})$, the front CX on $q$ --- by the same one-gate-per-qubit
+  fact, the plan's seed gate and nothing else, so
+  $\lvert D(\pln{p})\rvert = 1$.
 \item $L(\pln{p})$, the CX gates on $q$ reached by \emph{local closure}.
   The simulator repeatedly retires every front gate executable under
   $\kappa'$ --- one-qubit gates, and CX gates whose operands $\kappa'$
@@ -336,22 +341,16 @@ $\kappa'$:
   $w_k = \max(w_\mathrm{min}, w_0\gamma^{k-1})$ with $w_0{=}0.9$,
   $\gamma{=}0.9$, $w_\mathrm{min}{=}0.5$. These are prediction.
 \end{itemize}
-Then
+Only here does the score split, into a certain part and a discounted one:
+$\mathrm{total} = \mathrm{direct} + \mathrm{lookahead}$, where
 \begin{align}
   \mathrm{direct}(\pln{p})    &= \!\!\!\!\sum_{g\in D(\pln{p})\cup L(\pln{p})}\!\!\!\!\Delta(g),
     \\[-2pt]
-  \mathrm{lookahead}(\pln{p}) &= \sum_{k\ge1}\ \sum_{g\in A_k(\pln{p})} w_k\,\Delta(g),
+  \mathrm{lookahead}(\pln{p}) &= \sum_{k\ge1}\ \sum_{g\in A_k(\pln{p})} w_k\,\Delta(g).
     \nonumber
 \end{align}
-so $L(\pln{p})$ enters at full weight alongside $D(\pln{p})$.
-
-The horizon $L_\mathrm{tp}$ counts \emph{layers}, and at most one gate on
-$q$ can appear per layer, since $q$ has at most one zero-predecessor gate
-at a time. A gate cap $N_\mathrm{tp}$ therefore cannot bind whenever
-$N_\mathrm{tp}\ge L_\mathrm{tp}$, so $L_\mathrm{tp}$ alone governs how far
-the estimate looks. It is the one parameter \PORTER{} does not fix by
-constant; choosing it is a protocol question, deferred to
-Section~\ref{sec:horizon}.
+So $L(\pln{p})$ enters at full weight alongside $D(\pln{p})$, and only
+$A_k(\pln{p})$ is discounted.
 
 \subsection{Same-Control Packet Collection}
 \label{sec:sfc-packet}
