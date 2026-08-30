@@ -263,7 +263,7 @@ comparison; the five components after it only break ties. Preparation
 cost is not part of it, so a plan that happens to be cheap to prepare
 cannot displace one that buys more progress --- the property that
 separates this scorer from \dSABRE{}'s, where staging cost is additive
-(Section~\ref{sec:related}). We define $\mathrm{total}$ below.
+(Section~\ref{sec:related}).
 
 \textbf{$\mathrm{ready}$} is the predicate of
 Section~\ref{sec:sfc-plan-first}: the plan can fire under the current
@@ -295,6 +295,9 @@ per layer, so a companion cap $N_\mathrm{tp}$ on the gate count cannot
 bind whenever $N_\mathrm{tp}\ge L_\mathrm{tp}$ and $L_\mathrm{tp}$ alone
 governs the depth. It is the one parameter \PORTER{} does not fix by
 constant; Section~\ref{sec:horizon} chooses it per circuit.
+
+That leaves $\mathrm{total}$, and the rest of this subsection computes
+it: one per-gate quantity, summed differently by each primitive.
 
 \textbf{Gate progress.} Write $\kappa$ for the map sending a logical
 qubit to the core holding it under the current layout, and $\kappa'$ for
