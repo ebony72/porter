@@ -14,22 +14,25 @@ therefore the metric we minimise (Section~\ref{sec:scope}).
 A pair can be spent three ways. Teleporting a \emph{state} (\TeleData{})
 relocates a logical qubit, making every later gate it meets in its new
 core local~\cite{bennett1993teleporting}. Teleporting a \emph{gate}
-(\TeleGate{}) executes one remote CX through a cat-entangler with neither
+(\TeleGate{}) executes one straddling controlled gate through a
+cat-entangler, with neither
 operand moving~\cite{eisert2000optimal,yimsiriwattana2004generalized}.
-Holding one cat-entangled resource open across a run of remote CX gates
-sharing a control costs one pair for the whole run --- a \emph{packet},
-following AutoComm's gate-sequence
-amortisation~\cite{wu2022autocomm}. Which is cheapest depends on the
+Holding that cat-entangled resource open across a run of straddling gates
+that share a control costs one pair for the whole run --- a
+\emph{packet}, following AutoComm's gate-sequence
+amortisation~\cite{wu2022autocomm}. The last two work for any controlled
+two-qubit gate; our benchmarks use CX throughout
+(Section~\ref{sec:qcircuits}). Which primitive is cheapest depends on the
 circuit structure where it is applied, so none dominates.
 
 The choice must be made before its price is known. Each alternative
 becomes executable only after its own preparation: the right operand
 beside the right communication port, that port free, the destination
-holding a spare slot. A compiler performs that work only for the
-alternative it selects. Scoring an action together with the preparation
-it currently needs therefore ranks candidates by the layout the compiler
-happens to occupy rather than by the progress they buy, and staging a
-losing candidate still perturbs the layout.
+holding a spare slot. A compiler performs that work only for the alternative it selects.
+Scoring each action together with the preparation it currently needs
+therefore confuses two things. It ranks candidates by the layout the
+compiler happens to occupy, not by the progress they buy. And staging a
+candidate that then loses still perturbs the layout.
 
 \PORTER{} --- a \emph{Plan-Oriented Router for Teleportation-Enabled
 aRchitectures} --- separates the two questions. Its unit of choice is a
@@ -38,8 +41,8 @@ conditions it needs, omitting the SWAP sequence that would establish
 them. Plans are compared on the gate progress they buy, one is committed,
 and only then are preparation SWAPs generated for it. Around this loop
 \PORTER{} adds two-tier capacity relief, which manufactures free slots
-when every candidate is blocked, and a deterministic initial layout in
-place of the seeded best-of-$N$ search its predecessors run.
+when every candidate is blocked, and a single deterministic initial
+layout in place of the best-of-$N$ search its predecessors run.
 
 \textbf{Results.} We evaluate on MQT-Bench~\cite{quetschlich2023mqtbench}
 suites at 25, 64 and 80 logical qubits, on a $100$--$360$-qubit scale-up
@@ -53,29 +56,18 @@ three routes each, and it completes all twenty-four, including the seven
 --- among them an 80-qubit, $23{,}381$-CX circuit --- on which
 \TeleSABRE{} does not converge.
 
-Against \dSABRE{}~\cite{lidsabre} \PORTER{} is competitive at the sizes
-both target --- $1.07\times$ its pooled geometric-mean EPR at
-$0.58\times$ its compile time under each compiler's own protocol --- and
-pulls ahead as the machine grows, reaching $0.72\times$ its EPR pairs on
-the $100$--$360$-qubit series. Section~\ref{sec:results} reports every
-operating point, including those \PORTER{} loses. The two compilers are
-close relatives and share four design decisions, set out in
-Section~\ref{sec:related} so neither is credited with the other's.
-
-\textbf{What the mechanisms are worth.} A head-to-head number says little
-about which design decision earns its place, so we ablate each in
-isolation. Capacity relief is what lets a deterministic-greedy design
-complete in practice; the initial layout dominates at the smaller sizes
-evaluated and the lookahead horizon at the larger ones. Two answers are
-negative: plan \emph{commitment} --- the rule that a selected plan is not
-reopened until ready --- reaches the same EPR as re-scoring the front
-every iteration, so it buys compile time rather than better routes, and
-the packet primitive is beaten at 80 qubits by removing gate
-teleportation altogether. Neither result is a verdict on the design it
-tests, and Section~\ref{sec:discussion} says why: the first ablates the
-commitment rule and not the plan abstraction beneath it, which no
-experiment here removes, and the second reflects an interaction between
-action vocabulary and plan scorer.
+The second comparison is with \dSABRE{}~\cite{lidsabre}, concurrent work
+on the same problem and the closest point of reference we have.
+\PORTER{} is competitive with it at the sizes both target, spending
+$1.07\times$ its pooled geometric-mean EPR for $0.58\times$ its compile
+time under each compiler's own protocol, and it pulls ahead as the machine grows: on the
+$100$--$360$-qubit series it uses $0.72\times$ \dSABRE{}'s EPR pairs and
+wins every instance. Reaching parity with a concurrent compiler from a
+different design, and then improving on it where the core count rises, is
+the result we take from this comparison; Section~\ref{sec:results} gives
+every operating point behind it. The two are close relatives and share
+four design decisions, set out in Section~\ref{sec:related} so neither is
+credited with the other's.
 
 \textbf{Problem.} Given a circuit DAG on $n$ logical qubits, a machine of
 $K$ cores with intra-core coupling graphs, inter-core links and designated
@@ -93,18 +85,22 @@ what it excludes.
   (Section~\ref{sec:sfc-plan-first}), a capacity discipline that treats
   free slots as a legality condition and manufactures them by a two-tier
   relief search (Section~\ref{sec:sfc-relief}), and a deterministic
-  initial layout replacing the seeded best-of-$N$ search its predecessors
-  run (Section~\ref{sec:sfc-layout}).
-\item \emph{The lookahead horizon has no good constant.} Every
-  \SABRE{}-descended router fixes it by constant, but no tested constant is best across our
-  benchmark: the best value spans a factor of thirty-two. Choosing it per
-  circuit by routing a small pruned candidate set is what carries
+  initial layout replacing the best-of-$N$ search its predecessors run
+  (Section~\ref{sec:sfc-layout}).
+\item \emph{Per-circuit selection of the lookahead horizon.} Every
+  \SABRE{}-descended router fixes this parameter by constant, and no
+  tested constant is best across our benchmark --- the best value spans a
+  factor of thirty-two. \PORTER{} instead measures how dense the
+  circuit's interaction graph is, uses that to prune a three-value
+  candidate set, routes each and keeps the lowest-EPR result. The
+  configured horizon always competes and wins ties, so the selection
+  cannot return a worse route than routing once. It is what carries
   \PORTER{} past \dSABRE{} on the scale-up series
   (Section~\ref{sec:horizon}).
 \item \emph{A controlled study over forty-eight instances}, under
   native, shared-layout and cross-layout protocols, with ablations that
-  attribute the result to individual mechanisms and report two negative
-  findings (Sections~\ref{sec:results}--\ref{sec:discussion}). Every
+  measure what each mechanism contributes --- including two negative
+  findings, which Section~\ref{sec:discussion} interprets. Every
   route is certified by a separately implemented replay verifier, and
   the harness reproducing every table is released.
 \end{enumerate}
