@@ -936,6 +936,33 @@ out if any leg does not cover all 24), and `--released` is **no longer a
 self-test** --- the released `*_results.json` are one protocol behind, so
 it prints single-pass numbers by design.
 
+**Two questions answered in the text (2026-08-31).** (i) *Why not
+TeleSABRE's layout as a grid row*: it converges on 17 of 24 and emits a
+layout only where it converges, so a row would rest on a
+seventeen-instance basis missing 64q Random and six of nine 80q circuits
+--- the scale where the compilers differ most. V-B says so before the
+first finding; the missing set's identity is pinned. (ii) *Why PORTER+R
+can be worse than PORTER*: **+R is not PORTER plus more effort.**
+`run_refinement_passes` defaults `selection=False`, so all five passes
+run at the configured `L_tp`, while PORTER spends its three routes on
+three candidate horizons. Each schedule is safe only against the route
+it *contains* (PORTER because the configured horizon competes and wins
+ties; +R because the best forward pass is kept), and neither contains
+the other's, so neither bounds it. Where the horizon binds, the
+fixed-horizon penalty exceeds refinement's gain (80q, scale-up, star
+Multiplier); where it does not, refinement's gain is small and can
+vanish, because passes after the first start from a post-routing layout
+that has lost the free-slot reservation. IV-E states the fixed horizon,
+V-F the consequence.
+
+**Residual error found while writing that**: `tab:budgets` still listed
+**four** gammas and $|\mathcal{L}|{=}4$ for PORTER+S. The second review
+caught this in the prose (2026-08-29) and the prose was fixed; the table
+row was not. `DEFAULT_LAYOUT_GAMMAS` is five. Now corrected and pinned
+against the live constant, along with `run_refinement_passes`'
+`selection` default. The caption's "routes $=|\mathcal{L}|\cdot P$" was
+also false for +S/+SR and now says so.
+
 **Section V compressed 20%** (3,488 -> 2,806 prose words; V-A -20%,
 V-B **-47%**, V-C -18%, V-D -7%, V-E -10%, V-F -9%), paper still 15 pages.
 Cut: the GHZ chain-circuit aside, the per-suite gamma-search figures in

@@ -201,6 +201,12 @@ check("refinement gain on pytket layout", -0.0,
 _ts = [r for r in cmp_rows if (r.get("telesabre") or {}).get("epr")]
 _h = lambda leg: gmean([r[leg]["epr"] for r in _ts])
 check("TS layout instances", 17, len(_ts))
+_missing = sorted(f'{r["suite"]}/{r["circuit"].replace("_OLD_DEEP", "")}'
+                  for r in cmp_rows if not (r.get("telesabre") or {}).get("epr"))
+check("TS supplies no layout for", 7, len(_missing))
+check("TS gap is 64q Random plus six 80q", True,
+      _missing.count("64/random") == 1
+      and sum(1 for m in _missing if m.startswith("80/")) == 6)
 check("TS layout routed by dSABRE", 100.9, round(_h("dSE_shared"), 1))
 check("pytket layout routed by dSABRE, same 17", 71.1, round(_h("dSE_pytket"), 1))
 check("refinement gain on TS layout", 20.2,
@@ -370,6 +376,17 @@ for _attr, _want, _lbl in (
         ("extended_packet_window", 120, "packet window"),
         ("max_prep_iterations_per_plan", 10000, "prep cap")):
     check(f"secIII param {_lbl}", _want, getattr(_cfg, _attr))
+# tab:budgets: PORTER+S searches FIVE gammas (an earlier draft said four,
+# omitting 0.80 -- the value that wins phase 1 most often).
+check("layout-search gammas", "0.80,0.90,0.95,0.99,1.00",
+      ",".join(f"{g:.2f}" for g in _cdr.DEFAULT_LAYOUT_GAMMAS))
+check("layout-search gamma count", 5, len(_cdr.DEFAULT_LAYOUT_GAMMAS))
+# IV-E and V-F: PORTER+R holds the lookahead horizon fixed at the configured
+# value.  That is why it does not contain PORTER's route and cannot bound it.
+import inspect as _inspect
+check("refinement does not select a horizon", False,
+      _inspect.signature(_cdr.run_refinement_passes)
+      .parameters["selection"].default)
 # Architectures as described in Setup.
 for _name, _cores, _per, _links in (("A", 4, 9, 4), ("H", 6, 16, 7)):
     _, _hw = _cdr.hardware_for_name(_name)

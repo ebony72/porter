@@ -68,7 +68,8 @@ routes against \TeleSABRE{}'s three seeded runs, and every circuit
 adds to this at 25 and 64 qubits ($63.6\%$ and $47.6\%$) but not at 80,
 where the selected route is already stronger ($68.2\%$ against
 $63.2\%$) --- the first place where choosing the horizon beats spending
-four more routes. \PORTER{} and \dSABRE{} complete all twenty-four
+four more routes on the layout, which Section~\ref{sec:frontier}
+explains. \PORTER{} and \dSABRE{} complete all twenty-four
 instances; \TeleSABRE{} completes seventeen, failing on 64q~Random and
 six of the nine 80-qubit circuits.
 
@@ -114,6 +115,15 @@ Initial layout & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+The three sources in Table~\ref{tab:shared} are those that place all
+twenty-four circuits. \TeleSABRE{} is not among them: it converges on
+seventeen instances (Section~\ref{sec:rq1}) and emits an initial layout
+only where it converges, so a row for it would rest on a different,
+seventeen-instance basis missing 64q~Random and six of the nine
+80-qubit circuits --- the scale at which the compilers differ most, and
+the ones whose layouts are hardest to build. We therefore use it below
+as a fourth, partial source rather than as a row of the grid.
 
 \textbf{The routing loops are equivalent within noise; the layouts are
 not.} Read across any row of Table~\ref{tab:shared}: from the same
@@ -500,13 +510,27 @@ own-protocol gap. We stop short of calling that gap a search-budget gap:
 the added schedules change the initial layout as well as the route, and
 the comparison equalises route counts rather than wall-clock time.
 
-Selecting the horizon has largely overtaken refinement as an operating
-point: \PORTER{}+R is ahead by only $2.0\%$ in geometric mean for four
-extra routes, is $12.0\%$ behind the selected route at 80 qubits and
-$83\%$ behind on the scale-up series, and is the configuration that
-fails star~Multiplier. We report it because the fixed-layout comparison
-of Section~\ref{sec:shared_results} needs a schedule that spends its
-extra effort on routes rather than layouts, which \PORTER{}+S cannot be.
+\PORTER{}+R spends more routes than \PORTER{} and can still be the
+worse of the two, which is worth stating plainly: it is not \PORTER{}
+plus more effort. The two vary different things --- \PORTER{} spends
+three routes on three candidate horizons at one layout, \PORTER{}+R
+five on refining the layout at the configured horizon
+(Section~\ref{sec:sfc-refine}) --- and each is safe only against the
+route it contains: \PORTER{} because the configured horizon competes and
+wins ties, \PORTER{}+R because the best forward pass is kept. Neither
+contains the other's route, so neither bounds it. Where the horizon
+binds, the penalty for holding it fixed exceeds what refinement
+recovers: \PORTER{}+R is $12.0\%$ behind the selected route at 80
+qubits and $83\%$ behind on the scale-up series, and it is the
+configuration that fails star~Multiplier. Where the horizon does not
+bind, refinement's own gain is small and can vanish, because every pass
+after the first starts from a post-routing layout that has lost the
+free-slot reservation \PORTER{}'s capacity machinery was given: on
+\texttt{pytket-dqc}'s partition it recovers nothing
+(Table~\ref{tab:shared}). Pooled, \PORTER{}+R is ahead by $2.0\%$ for
+four extra routes. We report it because the fixed-layout comparison of
+Section~\ref{sec:shared_results} needs a schedule that spends its extra
+effort on routes rather than layouts, which \PORTER{}+S cannot be.
 
 All times are \emph{complete} compile costs --- layout generation plus
 every route over every candidate, not the winning route alone --- and

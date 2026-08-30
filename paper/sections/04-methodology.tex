@@ -249,6 +249,15 @@ selected, \PORTER{}+R can never report a higher EPR count than the pass~1
 route it contains --- at the cost of $P$ routes where one would do. It
 adds no randomness.
 
+\PORTER{}+R does not select a lookahead horizon: every pass runs at the
+configured $L_\mathrm{tp}$, so the schedule spends its extra routes on
+the layout where \PORTER{} spends its three on the horizon. Selecting
+inside refinement composes badly --- a horizon that converges on
+$\ell_0$ can oscillate on the post-routing layouts later passes start
+from --- and it would multiply the pass count by the number of
+candidates to re-decide a property of the circuit that refinement does
+not change.
+
 One property of the schedule matters for reading its results. Refinement
 consumes a post-routing layout, and routing destroys the per-core free-slot
 reservation $\ell_0$ was built with (Section~\ref{sec:sfc-layout}), so an
@@ -292,8 +301,11 @@ throughout.
 \centering
 \caption{Every configuration that appears in Section~\ref{sec:results}:
   layout source, layout count $\lvert\mathcal{L}\rvert$, routing passes
-  per layout $P$, total routes $\lvert\mathcal{L}\rvert\!\cdot\!P$, and
-  the quantity minimised over them. Lower EPR is better everywhere.}
+  per layout $P$, total routes, and the quantity minimised over them.
+  Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$ except for \PORTER{}+S
+  and \PORTER{}+SR, which spend one pass on every candidate layout and
+  the full refinement schedule on one or two of them. Lower EPR is
+  better everywhere.}
 \label{tab:budgets}
 \setlength{\tabcolsep}{3.5pt}
 \small
@@ -308,8 +320,8 @@ routes & selects on \\
 \dSABRE{}         & \dSABRE{}    & SabreLayout, seeds 0--2 & 3 & 3 & 9 & best EPR \\
 \PORTER{}         & \PORTER{}    & temporal locality-greedy & 1 & 3 & 3 & best EPR \\
 \PORTER{}+R       & \PORTER{}    & temporal locality-greedy & 1 & 5 & 5 & best forward pass \\
-\PORTER{}+S       & \PORTER{}    & $\gamma\in\{0.90,0.95,0.99,1.0\}$ & 4 & 1--3 & $9$--$13$ & best EPR \\
-\PORTER{}+SR      & \PORTER{}    & the above two, pooled & 4 & --- & $11$--$15$ & best EPR \\
+\PORTER{}+S       & \PORTER{}    & $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ & 5 & 1 or 5 & $9$--$13$ & best EPR \\
+\PORTER{}+SR      & \PORTER{}    & the above two, pooled & 5 & --- & $11$--$15$ & best EPR \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Shared layout} (RQ2) --- both compilers routed from one external layout} \\
 \dSABRE{} shared  & \dSABRE{}    & \TeleSABRE{}'s or pytket-dqc's & 1 & 3 & 3 & best pass \\
