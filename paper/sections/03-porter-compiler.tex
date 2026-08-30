@@ -363,37 +363,27 @@ now is worth more than taking the best currently legal action.
 \label{sec:sfc-progress}
 
 Deterministic greedy routing on a capacity-constrained machine can
-stall. \PORTER{} layers four defences against that.
-
-\emph{(i) Keep capacity from reaching zero.} A core with no free physical
-qubit is terminal: it cannot vacate an occupied communication port by
-local SWAPs, so no inter-core action can reach it. \PORTER{} legalises
-the entry layout so no core starts full, and admits a \TeleData{} into
-core $c$ as a normal plan only while $\mathrm{free}(c) \ge
-f_\mathrm{min}$, leaving at least one free position behind. Routing
-therefore cannot drive a core into the terminal state; only an external
-layout that already fills one can present it, and that \PORTER{} reports
-as infeasible rather than routing.
-
-\emph{(ii) Detect starvation rather than thrash.} An empty $\mathcal{P}$
-alongside a non-empty $\mathcal{B}$ signals that the front is starved by
-capacity, and names the cores responsible. \emph{(iii) Manufacture
-capacity.} Tail relief turns that signal into work
-(Section~\ref{sec:sfc-relief}). \emph{(iv) Bound every loop.} Plan sides
-with infinite preparation cost are never selected; the compiler hashes
-its decision state once per preparation round and raises if it repeats;
-and two budgets bound the loops from outside.
-
-These defences give two of the three guarantees a router might offer.
-\emph{Correctness}: a returned operation stream realises every gate and
-violates no coupling or port rule. \emph{Termination}: every run ends,
-in success or by raising a diagnostic or tripping a guard.
-\emph{Completion}: that a run ends in success. \PORTER{} provides the
-first two by construction. It does \emph{not} provide the third, and has
-no analogue of \dSABRE{}'s termination-with-success proof under stated
-architectural hypotheses (Section~\ref{sec:related}). Its completion
-record is empirical, and Section~\ref{sec:results} reports it.
-
-A per-iteration cost analysis of the loop is given in \appComplexity{}.
+stall, and \PORTER{} layers four defences against that. It keeps capacity
+away from zero: a core with no free physical qubit is terminal, since it
+cannot vacate an occupied port by local SWAPs, so \PORTER{} legalises the
+entry layout and admits a \TeleData{} into $c$ only while
+$\mathrm{free}(c)\ge f_\mathrm{min}$ --- routing therefore cannot create
+a terminal core, and an external layout that already contains one is
+reported as infeasible. It detects starvation rather than thrashing, an
+empty $\mathcal{P}$ beside a non-empty $\mathcal{B}$ naming the cores
+responsible; it manufactures capacity, tail relief turning that signal
+into work (Section~\ref{sec:sfc-relief}); and it bounds every loop, never
+selecting a plan side of infinite preparation cost, hashing its decision
+state once per preparation round and raising if it repeats, and capping
+the loops with two budgets. Together these give two of the three
+guarantees a router might offer. \emph{Correctness}: a returned operation
+stream realises every gate and violates no coupling or port rule.
+\emph{Termination}: every run ends, in success or by raising a diagnostic
+or tripping a guard. \emph{Completion}: that a run ends in success.
+\PORTER{} provides the first two by construction but not the third, and
+has no analogue of \dSABRE{}'s termination-with-success proof under
+stated architectural hypotheses (Section~\ref{sec:related}); its
+completion record is empirical, and Section~\ref{sec:results} reports it.
+A per-iteration cost analysis of the loop is in \appComplexity{}.
 
 %%────────────────────────────────────────────────────────────────────────────
