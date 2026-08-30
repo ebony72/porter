@@ -6,10 +6,10 @@ Given a circuit and an initial layout $\ell_0$ (which \PORTER{} builds
 itself, Section~\ref{sec:sfc-layout}), \PORTER{} repeats the following
 loop (Algorithm~\ref{alg:sfc}) until every gate has been emitted or a
 configurable iteration budget is exhausted. Algorithm~\ref{alg:sfc}
-charts one iteration; its shaded region is the plan-first remote stage
-that distinguishes \PORTER{} from compilers deciding at
-single-action granularity; \appExample{} walks through it on a concrete
-front where it changes the outcome.
+charts one iteration; lines 11--19 are the plan-first remote stage that
+distinguishes \PORTER{} from compilers deciding at single-action
+granularity, and \appExample{} walks through them on a concrete front
+where they change the outcome.
 
 
 \begin{algorithm}[t]
@@ -28,17 +28,21 @@ front where it changes the outcome.
     \STATE generate candidate intra-core SWAPs, apply the best-scoring one
            (Eq.~\ref{eq:sfc-local}); \textbf{continue} \hfill\textit{(Sec.~\ref{sec:sfc-intra})}
   \ENDIF
-  \STATE generate normal remote plans $\mathcal{P}$ and blocked-teleport
-         plans $\mathcal{B}$ \hfill\textit{(Sec.~\ref{sec:sfc-scoring})}
-  \IF{$\mathcal{P}\neq\emptyset$}
-    \STATE $p^\ast \leftarrow$ best ready-or-preparable plan in $\mathcal{P}$
-    \IF{some $b\in\mathcal{B}$ has gain $\gg$ gain$(p^\ast)$}
-      \STATE $p^\ast \leftarrow$ best opportunistic capacity-relief plan for $b$
-             \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
-    \ENDIF
-  \ELSE
-    \STATE BFS from each blocked target core to its nearest reservoir;
-           $p^\ast \leftarrow$ best tail-relief plan \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
+  \STATE generate normal plans $\mathcal{P}$, blocked plans $\mathcal{B}$
+         \hfill\textit{(Sec.~\ref{sec:sfc-plan-first})}
+  \STATE score every plan in $\mathcal{P}\cup\mathcal{B}$
+         \hfill\textit{(Sec.~\ref{sec:sfc-scoring})}
+  \STATE $p^\ast \leftarrow$ first plan of $\mathcal{P}$, in selection-key
+         order, that is ready or admits an improving preparation SWAP
+  \IF{$p^\ast$ is \texttt{None}}
+    \STATE $p^\ast \leftarrow$ best tail-relief plan seeded from $\mathcal{B}$
+           \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
+  \ELSIF{$\mathcal{B}\neq\emptyset$ and
+         $\max_{b\in\mathcal{B}}\mathrm{total}(b)-\mathrm{total}(p^\ast)
+          > m_\mathrm{assist}$}
+    \STATE $b^\ast \leftarrow \arg\max_{b\in\mathcal{B}}\mathrm{total}(b)$
+    \STATE $p^\ast \leftarrow$ best relief plan for $b^\ast$'s blocked core
+           \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
   \ENDIF
   \IF{$p^\ast$ is \texttt{None}} \STATE \textbf{report deadlock; abort} \ENDIF
   \STATE apply $p^\ast$'s own preparation SWAPs until ready, then execute it
@@ -197,19 +201,27 @@ $\mathcal{B}$ names the cores that are saturated and says how much gain
 is being forgone there, which is what the relief tiers of
 Section~\ref{sec:sfc-relief} act on.
 
-\textbf{Selection.} Every plan is scored
+\textbf{Selection.} Every plan in both sets is scored
 (Section~\ref{sec:sfc-scoring}) \emph{before} any preparation SWAP for it
-exists. \PORTER{} sorts $\mathcal{P}$ by the key below and takes the best
-plan that is either ready or admits an improving preparation SWAP. It
-then overrides that choice in two cases, both driven by $\mathcal{B}$: if
-the best blocked plan out-scores it by more than
-$m_\mathrm{assist}{=}5.0$, \PORTER{} instead relieves that saturated core;
-and if $\mathcal{P}$ is empty, it relieves the blocked destinations in
-ascending hop order. In both cases what is committed is a relief
-\TeleData{} generated for the purpose, not the blocked plan itself.
-Having committed, \PORTER{} applies only that plan's preparation SWAPs
-until it is ready, no improving SWAP remains, or the decision state ---
-plan, layout, RNG --- repeats, which raises rather than loops.
+exists. \PORTER{} sorts $\mathcal{P}$ by the key below and walks it in
+order, taking the first plan that is either ready or admits an improving
+preparation SWAP. A higher-scoring plan that is neither is skipped, not
+waited for. Two things can then override that choice, and both are driven
+by the single \emph{highest-scoring} member of $\mathcal{B}$, which we
+write $b^\ast = \arg\max_{b\in\mathcal{B}} \mathrm{total}(b)$; the rest of
+$\mathcal{B}$ enters no comparison.
+
+If a plan $p^\ast$ was found and $\mathrm{total}(b^\ast) -
+\mathrm{total}(p^\ast) > m_\mathrm{assist}{=}5.0$, \PORTER{} abandons
+$p^\ast$ and relieves the core that blocks $b^\ast$ instead. If no plan in
+$\mathcal{P}$ was ready or preparable --- which includes the case
+$\mathcal{P}=\emptyset$, but is not limited to it --- it relieves
+$\mathcal{B}$'s blocked destinations in ascending hop order. In both cases
+what is committed is a relief \TeleData{} generated for the purpose, never
+$b^\ast$ itself. Having committed, \PORTER{} applies only that plan's
+preparation SWAPs until it is ready, no improving SWAP remains, or the
+decision state --- plan, layout, RNG --- repeats, which raises rather than
+loops.
 
 \textbf{Preparation SWAPs.}\label{sec:sfc-prep} A committed plan has
 exactly two readiness requirements, one per side: source and destination
