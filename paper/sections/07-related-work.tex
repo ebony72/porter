@@ -34,9 +34,23 @@ evaluates: \PORTER{}'s action vocabulary is larger (\dSABRE{} ships
 teledata only); its unit of commitment is a whole plan rather than one
 hop; preparation cost enters as a tiebreaker rather than additively;
 and its initial layout is one deterministic construction rather than a
-seeded best-of-$N$ search. \dSABRE{}'s safe mode additionally carries a completion guarantee that
-\PORTER{} does not match (Sections~\ref{sec:sfc-progress}
-and~\ref{sec:discussion}).
+best-of-$N$ search.
+
+The fifth difference is not a design choice but a gap, and it runs
+\dSABRE{}'s way. Three guarantees are worth separating here.
+\emph{Correctness}: a returned operation stream realises every gate of
+the input circuit and violates no coupling or port rule.
+\emph{Termination}: every run ends, in success or by raising a diagnostic
+or tripping a guard. \emph{Completion}: that a run ends in success.
+\PORTER{} provides the first two by construction
+(Section~\ref{sec:sfc-progress}) and the third only empirically.
+\dSABRE{}'s safe mode provides all three: it carries a
+termination-with-success proof under stated architectural hypotheses ---
+a connected core graph, connected intra-core couplings, and enough spare
+physical capacity per core. \PORTER{} has no analogue, and supplying one
+is the clearest piece of theory this design leaves open. What we can say
+is measured rather than proved, and Section~\ref{sec:results} reports it:
+no instance in this evaluation is left unrouted.
 
 \begin{table}[t]
 \centering

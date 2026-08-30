@@ -375,15 +375,11 @@ responsible; it manufactures capacity, tail relief turning that signal
 into work (Section~\ref{sec:sfc-relief}); and it bounds every loop, never
 selecting a plan side of infinite preparation cost, hashing its decision
 state once per preparation round and raising if it repeats, and capping
-the loops with two budgets. Together these give two of the three
-guarantees a router might offer. \emph{Correctness}: a returned operation
-stream realises every gate and violates no coupling or port rule.
-\emph{Termination}: every run ends, in success or by raising a diagnostic
-or tripping a guard. \emph{Completion}: that a run ends in success.
-\PORTER{} provides the first two by construction but not the third, and
-has no analogue of \dSABRE{}'s termination-with-success proof under
-stated architectural hypotheses (Section~\ref{sec:related}); its
-completion record is empirical, and Section~\ref{sec:results} reports it.
-A per-iteration cost analysis of the loop is in \appComplexity{}.
+the loops with two budgets. Together these make every returned route
+correct and every run terminating, but they do not guarantee that a run
+terminates in success; Section~\ref{sec:related} states the three
+guarantees precisely and places \PORTER{} against \dSABRE{}, which does
+carry such a guarantee. A per-iteration cost analysis of the loop is in
+\appComplexity{}.
 
 %%────────────────────────────────────────────────────────────────────────────
