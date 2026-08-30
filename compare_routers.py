@@ -1,5 +1,5 @@
 """Head-to-head comparison of PORTER against TeleSABRE
-(compiled C binary) and dSABRE_BurstExt ("dSE", the project's default/
+(compiled C binary) and dSABRE_BFSExt ("dSE", the project's default/
 production router, from ../dsabre/code) on the same circuits and the same
 physical topology.
 
@@ -70,7 +70,7 @@ from qiskit.transpiler import PassManager
 
 from architecture import DistributedArchitecture, build_h_grid_architecture
 from config import HardwareConfig
-from dsabre_ext import dSABRE_BurstExt
+from dsabre_ext import dSABRE_BFSExt
 from layout import run_sabre_passes, sabre_locked_boundary_layout
 
 from pytket.qasm import circuit_from_qasm_str
@@ -554,7 +554,7 @@ def dsabre_layout_candidates(qc, dag, arch: DistributedArchitecture, seed: int =
 # dSABRE runner
 # ---------------------------------------------------------------------------
 
-class dSE(dSABRE_BurstExt):
+class dSE(dSABRE_BFSExt):
     """dSABRE's production router, with pre-routing layout repair accounted
     separately.
 

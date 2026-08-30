@@ -50,7 +50,7 @@ import porter as dr
 
 from architecture import build_heavy_hex_architecture
 from config import HardwareConfig
-from dsabre_ext import dSABRE_BurstExt
+from dsabre_ext import dSABRE_BFSExt
 from layout import sabre_locked_boundary_layout, run_sabre_passes
 
 CIRCUIT_DIR = cr.TELESABRE_DIR / "circuits" / "qasm_64"
@@ -126,7 +126,7 @@ def run_topology(topo: str, circuits: list[str] | None = None) -> list[dict]:
           f"core_graph={sorted(arch.core_graph.edges())} capacities={caps}",
           flush=True)
 
-    router = dSABRE_BurstExt(arch, HW)
+    router = dSABRE_BFSExt(arch, HW)
     records = []
     for cname in (circuits or CIRCUITS):
         qf = CIRCUIT_DIR / (QNN_FILE if cname == "qnn" else cname + SUFFIX)

@@ -1015,7 +1015,12 @@ benchmark" is scoped to the three MQT-Bench suites.
 
 ## Keeping the dSABRE baseline current
 
-`../dsabre/` is actively revised (TCAD-2026-0901). Its code lives in
+`../dsabre/` is actively revised (TCAD-2026-0901). **Its router class was
+renamed `dSABRE_BurstExt` -> `dSABRE_BFSExt` on 2026-08-07**; `dsabre_ext.py`
+keeps `dSABRE_BurstExt` as a back-compatible alias to the same object, so the
+old name still resolves. Our harness now imports the current name. Checked
+2026-08-30: dSABRE HEAD is `cb5515b`, the revision our results were generated
+from, with no commits since -- the baseline is current. Its code lives in
 `code/` (moved from `paper/` in Aug 2026) and `bench_pytket_large.py` in
 `code/investigations/` — both are on `compare_routers.py`'s `sys.path`.
 Re-run `compare_routers.py` after any dSABRE change. The Aug-2026 rewrite
