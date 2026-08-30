@@ -63,8 +63,8 @@ does so in one of four ways, distinguished throughout: a capacity
 diagnostic; a \emph{livelock} makes local progress indefinitely while
 retired gates and EPR count stand still, and is stopped by the iteration
 guard; a \emph{timeout} exceeds the wall-clock cap; and an
-\emph{infeasible input} is an external layout that already fills a core,
-reported rather than routed (Section~\ref{sec:sfc-progress}).
+\emph{infeasible input} is one the machine has no spare capacity for,
+refused before routing begins (Section~\ref{sec:sfc-progress}).
 
 \subsection{Implementation and Verification}
 \label{sec:perf}

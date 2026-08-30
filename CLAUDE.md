@@ -515,15 +515,19 @@ The load-bearing differences:
   always terminates and never emits an invalid circuit, but termination may
   be by exception. Its completeness is empirical (both relief tiers on ⇒ no
   benchmark deadlocks). State this asymmetry honestly.
-  Known infeasible input class: an *external* initial layout that fills a
-  core to 100% capacity (pytket-dqc does this on qnn-25). A full core can
-  never clear its occupied communication ports with local SWAPs, so no
-  teleport/telegate can touch it and its qubits are stranded. Remote-plan
-  sides with infinite preparation score (`_remote_prep_side_score`) are
-  treated as unpreparable — never selected, never prepared — and the router
-  raises its deadlock error naming the full cores. PORTER's own layouts
-  reserve `f_min` free slots per core, so this only arises with external
-  layouts.
+  **CORRECTED 2026-08-30: there is no unpreparable-plan case, and the
+  pytket full-core infeasibility no longer occurs.** `repair_full_cores`
+  defaults **True** and `compile()` always runs `_repair_full_cores`, which
+  evicts from any full core into the one with most room; it raises only if
+  *no* core has spare capacity at all (the circuit does not fit the machine
+  with any headroom). Combined with the `free(dst) >= f_min` admission rule,
+  no core is ever full, so `_nearest_free_distance_to_port` never returns
+  inf and `_remote_prep_side_score` is always finite. Instrumented over
+  ~83k side evaluations on 5 circuits: **0 infinite sides, 0 unpreparable
+  plans**, min free/core = 1. The infinite-cost guard is defensive code
+  that never fires. And PORTER routes **all 15 pytket-dqc layouts**,
+  qnn-25 included (127 EPR) — the old "stranded qubits" note predates the
+  entry repair. Do not describe infeasibility as a full-core condition.
 
 ## Timing convention: COMPLETE protocol, not one attempt
 

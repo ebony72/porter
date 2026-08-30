@@ -416,13 +416,15 @@ stall, and \PORTER{} layers four defences against that. It keeps capacity
 away from zero: a core with no free physical qubit is terminal, since it
 cannot vacate an occupied port by local SWAPs, so \PORTER{} legalises the
 entry layout and admits a \TeleData{} into $c$ only while
-$\mathrm{free}(c)\ge f_\mathrm{min}$ --- routing therefore cannot create
-a terminal core, and an external layout that already contains one is
-reported as infeasible. It detects starvation rather than thrashing, an
-empty $\mathcal{P}$ beside a non-empty $\mathcal{B}$ naming the cores
-responsible; it manufactures capacity, tail relief turning that signal
-into work (Section~\ref{sec:sfc-relief}); and it bounds every loop, never
-selecting a plan side of infinite preparation cost, hashing its decision
+$\mathrm{free}(c)\ge f_\mathrm{min}$, which leaves one free position
+behind. Routing therefore cannot create a terminal core, and a supplied
+layout containing one is legalised first, by evicting a qubit into the
+core with the most room; the only input \PORTER{} refuses is one no core
+has spare capacity to receive such an eviction from. It detects starvation
+rather than thrashing, an empty $\mathcal{P}$ beside a non-empty
+$\mathcal{B}$ naming the cores responsible; it manufactures capacity, tail
+relief turning that signal into work (Section~\ref{sec:sfc-relief}); and
+it bounds every loop, hashing its decision
 state once per preparation round and raising if it repeats, and capping
 the loops with two budgets. Together these make every returned route
 correct and every run terminating, but they do not guarantee that a run
