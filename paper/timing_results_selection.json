@@ -59,9 +59,10 @@
   "circuit": "random",
   "cx": 23381,
   "telesabre": null,
-  "dsabre": 249.24,
-  "porter": 64.47,
-  "porter_refined": 325.68,
-  "convention": "complete protocol: layout generation + all routing passes"
+  "dsabre": 109.05,
+  "porter": 205.12,
+  "porter_refined": 194.67,
+  "convention": "complete protocol: layout generation + all routing passes",
+  "timing_session": "porter/porter_refined/dsabre re-measured together; telesabre from the original run"
  }
 ]

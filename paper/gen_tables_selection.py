@@ -10,8 +10,11 @@ row blocks the current tables use and splices them in between `\\midrule` and
     python paper/gen_tables_selection.py --write    # splice into sfc.tex
 
 Reads the `*_results_selection.json` files by default; pass --released to read
-the currently released `*_results.json` instead, which must reproduce the
-tables as they stand and is therefore a self-test of this generator.
+the currently released `*_results.json` instead.  Since the paper migrated to
+the horizon-selecting protocol the released files are one protocol behind, so
+--released no longer reproduces the tables as they stand: it prints the
+single-pass numbers, which is useful for seeing what selection changed and is
+NOT a self-test.
 """
 from __future__ import annotations
 
@@ -85,30 +88,39 @@ def tab_main():
     return "\n".join(out)
 
 
+# Row label, then the (dSABRE, PORTER, PORTER+R) legs routed from that layout.
+_GRID = (
+    (r"\dSABRE{}'s \texttt{SabreLayout}",
+     ("dSE", "sfc_on_dse_layout", "sfc_on_dse_layout_refined")),
+    (r"\PORTER{}'s temporal locality-greedy",
+     ("dSE_on_porter_layout", "sfc", "sfc_refined")),
+    (r"\texttt{pytket-dqc}'s partition",
+     ("dSE_pytket", "sfc_pytket", "sfc_pytket_refined")),
+)
+
+
 def tab_shared():
+    """tab:shared in the main paper: layout source (rows) against routing
+    loop (columns), geometric-mean EPR over all 24 instances.  Every leg
+    must cover the whole suite -- the table's claim is that no instance is
+    excluded -- so a missing value is an error, not a dash."""
     rows = load("compare")
-    out, allm = [], {k: [] for k in ("telesabre", "dSE_shared", "sfc_shared_refined")}
-    for suite in ("25", "64", "80"):
-        m = {k: [] for k in allm}
-        for r in rows:
-            if r["suite"] != suite:
-                continue
-            ts, ds = epr(r, "telesabre"), epr(r, "dSE_shared")
-            sr = epr(r, "sfc_shared_refined") or epr(r, "sfc_shared")
-            if None in (ts, ds, sr):
-                continue
-            for k, v in zip(m, (ts, ds, sr)):
-                m[k].append(v); allm[k].append(v)
-        g = {k: gmean(v) for k, v in m.items()}
-        out.append(f"{suite}q ({len(m['telesabre'])}) & {g['telesabre']:.1f} & "
-                   f"{g['dSE_shared']:.1f} & ${100*(g['dSE_shared']-g['telesabre'])/g['telesabre']:.1f}$ & "
-                   f"\\textbf{{{g['sfc_shared_refined']:.1f}}} & "
-                   f"$\\mathbf{{{100*(g['sfc_shared_refined']-g['telesabre'])/g['telesabre']:.1f}}}$ \\\\")
-    g = {k: gmean(v) for k, v in allm.items()}
-    out.append(f"\\textbf{{all}} ({len(allm['telesabre'])}) & {g['telesabre']:.1f} & "
-               f"{g['dSE_shared']:.1f} & ${100*(g['dSE_shared']-g['telesabre'])/g['telesabre']:.1f}$ & "
-               f"\\textbf{{{g['sfc_shared_refined']:.1f}}} & "
-               f"$\\mathbf{{{100*(g['sfc_shared_refined']-g['telesabre'])/g['telesabre']:.1f}}}$ \\\\")
+    cells = []
+    for label, legs in _GRID:
+        vals = []
+        for leg in legs:
+            xs = [epr(r, leg) for r in rows]
+            if len(xs) != 24 or not all(xs):
+                sys.exit(f"tab:shared: leg {leg} covers {sum(1 for x in xs if x)}"
+                         f" of {len(xs)} instances, expected 24")
+            vals.append(gmean(xs))
+        cells.append((label, vals))
+    best = [min(c[1][j] for c in cells) for j in range(3)]
+    out = []
+    for label, vals in cells:
+        f = lambda j: (f"\\textbf{{{vals[j]:.1f}}}" if abs(vals[j] - best[j]) < 5e-2
+                       else f"{vals[j]:.1f}")
+        out.append(f"{label:<36} & {f(0)} & {f(1)} & {f(2)} \\\\")
     return "\n".join(out)
 
 

@@ -117,54 +117,20 @@ for cols in gmean_rows(seg):
             round(gmean([BY[k][leg]["epr"] for k in conv]), 1))
 
 # -------------------------------------------------------------- tab:shared
-# The main paper carries per-suite gmeans; the per-circuit rows live in the
-# appendix, and both are checked.
-seg, rows = rows_of("tab:shared", r"^(\d\dq|\\textbf\{all\})\s*\(")
-chk("shared summary row count", 4, len(rows))
-ts_all = [r for r in CMP if (r.get("telesabre") or {}).get("epr")]
-for cols in rows:
-    lab = cols[0]
-    n = int(re.search(r"\((\d+)\)", lab).group(1))
-    suite = None if "all" in lab else lab.split("q")[0]
-    sub = [r for r in ts_all if suite is None or r["suite"] == suite]
-    chk(f"shared summary n {lab}", n, len(sub))
-    G = lambda leg: round(gmean([r[leg]["epr"] for r in sub]), 1)
-    chk(f"shared summary {lab} TS", num(cols[1]), G("telesabre"))
-    chk(f"shared summary {lab} dSE", num(cols[2]), G("dSE_shared"))
-    chk(f"shared summary {lab} P+R", num(cols[4]), G("sfc_shared_refined"))
-
-seg, rows = rows_of("tab:shared-full", r"^\d\dq\s*&", APP) if "tab:shared-full" in APP \
-    else rows_of("tab:shared", r"^\d\dq\s*&", APP)
-chk("shared per-circuit row count", 17, len(rows))
-for cols in rows:
-    key = (cols[0].replace("q", ""), cols[1])
-    r = BY[key]
-    chk(f"shared {key} TS", cell(cols[2]), r["telesabre"]["epr"])
-    chk(f"shared {key} dSE", cell(cols[4]), r["dSE_shared"]["epr"])
-    chk(f"shared {key} P", cell(cols[7]), r["sfc_shared"]["epr"])
-    chk(f"shared {key} P+R", cell(cols[8]), r["sfc_shared_refined"]["epr"])
-
-# --------------------------------------------- tab:main (suite-level summary)
-# Hand-maintained in the main paper, so every cell is checked against the data.
-seg, rows = rows_of("tab:main", r"^\d\dq \(\d\)\s*&")
-chk("main summary row count", 3, len(rows))
-_LEGS = ("telesabre", "dSE", "sfc", "sfc_refined")
-for suite, cols in zip(("25", "64", "80"), rows):
-    all_r = [r for r in CMP if r["suite"] == suite]
-    # EPR gmeans are over the circuits ALL FOUR compilers complete.
-    paired = [r for r in all_r if all((r.get(k) or {}).get("epr") for k in _LEGS)]
-    for j, leg in enumerate(_LEGS):
-        chk(f"main summary {suite} {leg} epr", num(cols[1 + 2 * j]),
-            round(gmean([r[leg]["epr"] for r in paired]), 1))
-        chk(f"main summary {suite} {leg} time", num(cols[2 + 2 * j]),
-            round(gmean_raw([r[leg]["seconds"] for r in
-                             (paired if leg == "telesabre" else all_r)]), 2))
-_done = [l for l in seg.splitlines() if l.strip().startswith("done")]
-chk("main summary has a completion row", 1, len(_done))
-for leg, want in zip(_LEGS, re.findall(r"(\d+) / (\d+)", _done[0])):
-    chk(f"main summary {leg} completed",
-        sum(1 for r in CMP if (r.get(leg) or {}).get("epr")), int(want[0]))
-    chk(f"main summary {leg} total", len(CMP), int(want[1]))
+# The layout-by-router grid: three layout sources x three routers, every cell
+# a geometric mean over ALL 24 instances (no source excludes any circuit).
+_ROWS = {
+    r"\dSABRE{}'s":  ("dSE", "sfc_on_dse_layout", "sfc_on_dse_layout_refined"),
+    r"\PORTER{}'s":  ("dSE_on_porter_layout", "sfc", "sfc_refined"),
+    r"\texttt{pytket-dqc}'s": ("dSE_pytket", "sfc_pytket", "sfc_pytket_refined"),
+}
+seg, rows = rows_of("tab:shared", r"^(\\dSABRE|\\PORTER|\\texttt\{pytket)")
+chk("layout-grid row count", 3, len(rows))
+for cols, legs in zip(rows, _ROWS.values()):
+    for j_, leg in enumerate(legs):
+        vals = [r[leg]["epr"] for r in CMP]
+        chk(f"layout grid {leg}", num(cols[1 + j_]), round(gmean(vals), 1))
+        chk(f"layout grid {leg} n", 24, len(vals))
 
 # ------------------------------------------------------------- tab:scaleup
 SU_ORDER = [("100", "qft"), ("100", "qpeexact"), ("200", "qft"),

@@ -162,92 +162,51 @@ check("completions TS", 17, ts_done)
 check("completions dSE", 24, dse_done)
 check("completions P", 24, p_done)
 
-# ------------------------------------------------------------------ shared table
-shared = {
-    ("25", "ae"):            (66, 310, -44.5, 78, 321, -34.5),
-    ("25", "ghz"):           (9, 29, -30.8, 10, 38, -23.1),
-    ("25", "graphstate"):    (6, 30, -71.4, 14, 52, -33.3),
-    ("25", "qft"):           (81, 362, -41.3, 100, 430, -27.5),
-    ("25", "qnn"):           (145, 685, -71.8, 136, 686, -73.6),
-    ("25", "random"):        (419, 1442, -34.1, 397, 1372, -37.6),
-    ("64", "ae"):            (215, 1672, -39.1, 151, 1510, -57.2),
-    ("64", "ghz"):           (10, 121, -37.5, 10, 120, -37.5),
-    ("64", "graphstate"):    (26, 149, -58.1, 46, 256, -25.8),
-    ("64", "qft"):           (223, 1646, -28.5, 290, 1918, -7.1),
-    ("64", "qnn"):           (648, 5707, -27.1, 580, 5866, -34.8),
-    ("64", "qpeexact"):      (193, 1574, -33.2, 186, 1652, -35.6),
-    ("64", "qaoa"):          (673, 4244, -29.6, 598, 4265, -37.4),
-    ("64", "multiplier"):    (1564, 9489, -2.3, 873, 8854, -45.5),
-    ("80", "ghz"):           (25, 196, -3.8, 19, 175, -26.9),
-    ("80", "graphstate"):    (40, 233, -54.0, 64, 360, -26.4),
-    ("80", "qpeexact"):      (408, 2732, -48.0, 436, 3087, -44.4),
+# ------------------------------------------------- layout-by-router grid (V-B)
+# The shared-layout experiment now routes every compiler from all three layout
+# sources over ALL 24 instances (TeleSABRE's layout is no longer a row: it
+# covers only 17 and is much the weakest of the three -- see below).
+_GRID = {
+    "dSABRE":  ("dSE", "sfc_on_dse_layout", "sfc_on_dse_layout_refined"),
+    "PORTER":  ("dSE_on_porter_layout", "sfc", "sfc_refined"),
+    "pytket":  ("dSE_pytket", "sfc_pytket", "sfc_pytket_refined"),
 }
-for (suite, circ), (de, ds, dd, pe, ps, pd) in shared.items():
-    r = by[(suite, circ)]
-    ts = r["telesabre"]["epr"]
-    dS, sf = r["dSE_shared"], r["sfc_shared"]
-    check(f"shared {suite} {circ} dSE epr", de, dS["epr"])
-    check(f"shared {suite} {circ} dSE swap", ds, dS["swaps"])
-    check(f"shared {suite} {circ} dSE dTS", dd, round(pct(dS["epr"], ts), 1))
-    check(f"shared {suite} {circ} P epr", pe, sf["epr"])
-    check(f"shared {suite} {circ} P swap", ps, sf["swaps"])
-    check(f"shared {suite} {circ} P dTS", pd, round(pct(sf["epr"], ts), 1))
-
-def shared_gmeans(keys):
-    ts = gmean([by[k]["telesabre"]["epr"] for k in keys])
-    dS = gmean([by[k]["dSE_shared"]["epr"] for k in keys])
-    # the table's PORTER Delta column is the REFINED leg
-    sf = gmean([(by[k].get("sfc_shared_refined") or by[k]["sfc_shared"])["epr"]
-                for k in keys])
-    return ts, dS, sf
-
-k25 = [('25', 'ae'), ('25', 'ghz'), ('25', 'graphstate'), ('25', 'qft'), ('25', 'qnn'), ('25', 'random')]
-k64 = [('64', 'ae'), ('64', 'ghz'), ('64', 'graphstate'), ('64', 'qft'), ('64', 'qnn'), ('64', 'qpeexact'), ('64', 'qaoa'), ('64', 'multiplier')]
-k80 = [('80', 'ghz'), ('80', 'graphstate'), ('80', 'qpeexact')]
-for label, keys, exp in (
-    ("sh25", k25, (106.6, 51.0, -52.2, 47.7, -55.2)),
-    ("sh64", k64, (284.5, 189.2, -33.5, 157.2, -44.7)),
-    ("sh80", k80, (121.0, 74.2, -38.7, 55.7, -53.9)),
-    ("shALL", k25 + k64 + k80, (173.0, 100.9, -41.7, 86.0, -50.3)),
-):
-    ts, dS, sf = shared_gmeans(keys)
-    check(f"{label} TS gmean", exp[0], round(ts, 1))
-    check(f"{label} dSE gmean", exp[1], round(dS, 1))
-    check(f"{label} dSE delta", exp[2], round(pct(dS, ts), 1))
-    check(f"{label} P gmean", exp[3], round(sf, 1))
-    check(f"{label} P delta", exp[4], round(pct(sf, ts), 1))
-
-# Pooled fixed-layout claim, quoted in BOTH the main paper (Sec. IV-E) and
-# the appendix's pytket-grid paragraph -- keep the two in step.
-pool = []
-for r in cmp_rows:
-    if r.get("dSE_shared") and r.get("sfc_shared"):
-        pool.append((r["dSE_shared"]["epr"], r["sfc_shared"]["epr"]))
-    if r.get("dSE_pytket") and r.get("sfc_pytket"):
-        pool.append((r["dSE_pytket"]["epr"], r["sfc_pytket"]["epr"]))
-p_w = sum(1 for d, p in pool if p < d)
-d_w = sum(1 for d, p in pool if d < p)
-tie = sum(1 for d, p in pool if d == p)
-check("pooled instances", 41, len(pool))
-check("pooled P wins", 16, p_w)
-check("pooled dSE wins", 20, d_w)
-check("pooled ties", 5, tie)
-check("pooled gmean P", 139.0, round(gmean([p for _, p in pool]), 1))
-check("pooled gmean dSE", 134.2, round(gmean([d for d, _ in pool]), 1))
-
-# Same pool with PORTER's refinement schedule (matches dSABRE's pass count).
-pool_r = []
-for r in cmp_rows:
-    for a_, b_ in (("dSE_shared", "sfc_shared_refined"),
-                   ("dSE_pytket", "sfc_pytket_refined")):
-        x, y = (r.get(a_) or {}).get("epr"), (r.get(b_) or {}).get("epr")
-        if x and y:
-            pool_r.append((x, y))
-check("pooled+R instances", 41, len(pool_r))
-check("pooled+R P wins", 20, sum(1 for x, y in pool_r if y < x))
-check("pooled+R dSE wins", 15, sum(1 for x, y in pool_r if x < y))
-check("pooled+R ties", 6, sum(1 for x, y in pool_r if x == y))
-check("pooled+R gmean P", 126.6, round(gmean([y for _, y in pool_r]), 1))
+_g = lambda leg: gmean([r[leg]["epr"] for r in cmp_rows])
+for src, (d, p, pr) in _GRID.items():
+    for leg in (d, p, pr):
+        check(f"grid {src} {leg} covers all 24", 24,
+              sum(1 for r in cmp_rows if (r.get(leg) or {}).get("epr")))
+# "the routing loops land within 2% of one another on every row, dSABRE ahead"
+for src, (d, p, _) in _GRID.items():
+    ratio = _g(p) / _g(d)
+    check(f"grid {src}: dSABRE ahead", True, ratio > 1.0)
+    check(f"grid {src}: within 2%", True, ratio < 1.022)
+# "wins twelve to eight on the pytket row"
+check("pytket-row dSABRE wins", 12,
+      sum(1 for r in cmp_rows if r["dSE_pytket"]["epr"] < r["sfc_pytket"]["epr"]))
+check("pytket-row PORTER wins", 8,
+      sum(1 for r in cmp_rows if r["sfc_pytket"]["epr"] < r["dSE_pytket"]["epr"]))
+# "pytket's partition is the best start for both routers"
+check("pytket best for dSABRE", 4.5,
+      round(100 * (1 - _g("dSE_pytket") / _g("dSE")), 1))
+check("pytket best for PORTER", 4.8,
+      round(100 * (1 - _g("sfc_pytket") / _g("sfc")), 1))
+# "refinement gains 3.0% on dSABRE's layout and nothing on pytket's"
+check("refinement gain on dSE layout", 5.1,
+      round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_on_dse_layout")), 1))
+check("refinement gain on pytket layout", -0.0,
+      round(100 * (1 - _g("sfc_pytket_refined") / _g("sfc_pytket")), 1))
+# TeleSABRE's layout, on the 17 instances it covers: weakest source, and the
+# one on which refinement appears to pay.
+_ts = [r for r in cmp_rows if (r.get("telesabre") or {}).get("epr")]
+_h = lambda leg: gmean([r[leg]["epr"] for r in _ts])
+check("TS layout instances", 17, len(_ts))
+check("TS layout routed by dSABRE", 100.9, round(_h("dSE_shared"), 1))
+check("pytket layout routed by dSABRE, same 17", 71.1, round(_h("dSE_pytket"), 1))
+check("refinement gain on TS layout", 20.2,
+      round(100 * (1 - _h("sfc_shared_refined") / _h("sfc_shared")), 1))
+check("TS-layout PORTER+R beats dSABRE", True,
+      _h("sfc_shared_refined") < _h("dSE_shared"))
 
 # ------------------------------------------------------------------ action mix
 actionmix = {
@@ -564,13 +523,14 @@ _worst = max(_pr, key=lambda r: r["sfc_refined"]["epr"] / r["dSE"]["epr"])
 check("worst P+R loss circuit", "80/qpeexact", f'{_worst["suite"]}/{_worst["circuit"]}')
 check("worst P+R loss ratio", 1.5,
       round(_worst["sfc_refined"]["epr"] / _worst["dSE"]["epr"], 1))
-# cross-layout: dSABRE's candidates are the better start for both
+# grid, row against row: neither router gains from its own layout source
+# (Table tab:shared; the old standalone cross-layout table is gone).
 _g = lambda leg: gmean([r[leg]["epr"] for r in _pr])
-check("crosslayout dSE gain from own layout", -0.4,
+check("grid dSE gain from own layout", -0.4,
       round(100 * (1 - _g("dSE") / _g("dSE_on_porter_layout")), 1))
-check("crosslayout PORTER gain from dSE layout", -0.2,
+check("grid PORTER gain from dSE layout", -0.2,
       round(100 * (1 - _g("sfc_on_dse_layout") / _g("sfc")), 1))
-check("crosslayout PORTER+R gain from dSE layout", 3.0,
+check("grid PORTER+R gain from dSE layout", 3.0,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_refined")), 1))
 # shared-layout figures quoted in the prose but no longer in the table.
 # These legs run PORTER's own (horizon-selecting) protocol, not one pass.

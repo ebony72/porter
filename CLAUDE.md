@@ -887,6 +887,62 @@ disambiguated by the `main-` prefix. **Compile `sfc.tex` first** or the
 appendix's cross-references render as `??`. Its own `\app*` letters (A--I)
 are still hardcoded in `sfc.tex`.
 
+## V-B rebuilt as a layout x router grid; Section V compressed (2026-08-31)
+
+**`tab:shared` in the main paper is no longer the \TeleSABRE{}-shared
+table.** It is a 3x3 grid --- three initial-layout sources (dSABRE's
+`SabreLayout`, PORTER's temporal locality-greedy, pytket-dqc's partition)
+against three routing configurations (dSABRE, PORTER, PORTER+R) --- with
+**every cell over all 24 instances**, no exclusions, because all three
+layout sources place all 24 circuits. What it says:
+
+| initial layout | dSABRE | PORTER | PORTER+R |
+|---|---|---|---|
+| dSABRE's `SabreLayout` | 171.9 | 175.2 | **166.3** |
+| PORTER's temporal locality-greedy | 171.2 | 174.9 | 171.4 |
+| pytket-dqc's partition | **164.1** | **166.4** | 166.5 |
+
+- Across a row the two routing loops are within 2%, dSABRE ahead on all
+  three. **This is the controlled test and PORTER loses it.**
+- Down a column pytket's partition is the best start for *both* routers
+  (4.5% better for dSABRE, 4.8% for PORTER), so the layout spread exceeds
+  the routing spread and the initial layout is the weaker component of
+  both compilers.
+- **Dropping \TeleSABRE{}'s layout as the frame removes a PORTER-favourable
+  result**: on it PORTER+R overtakes dSABRE outright (86.0 vs 100.9),
+  which happens on *no* other layout source. The mechanism is that
+  TeleSABRE's layout is much the worst start (dSABRE 100.9 on it vs 71.1
+  on pytket's, same 17 instances) and refinement gains 20.2% from it
+  against ~0% from pytket's. Refinement repairs a bad layout; it adds
+  nothing to a good one. V-B keeps this as one sentence rather than the
+  headline, and `verify_paper_numbers.py` pins all four figures.
+
+**`tab:crosslayout` was deleted from the appendix.** Its cells were
+pre-selection *and* pre-default-layout (PORTER own-layout 194.6 = the old
+single pass; dSABRE 163.9 = the old best-of-six candidate set), so it
+contradicted the new grid inside the same paper. `verify_tex_tables.py`
+never parsed it and `verify_paper_numbers.py`'s three `crosslayout ...`
+pins were computed live, so both passed while the table was wrong ---
+they are renamed `grid ...` now. The appendix's per-circuit
+TeleSABRE-shared table stays (V-B still cites it), with "single-shot"
+struck from its caption: those legs run each compiler's own route budget.
+
+**Run `gen_tables_selection.py --write` BEFORE the verifiers, never
+after.** Its `tab_shared` generator still emitted the old
+TeleSABRE-shared summary block and spliced six data rows into the grid's
+four-column tabular, *after* both verifiers had passed on the correct
+file. `tab_shared` now generates the grid (bold = column minimum, errors
+out if any leg does not cover all 24), and `--released` is **no longer a
+self-test** --- the released `*_results.json` are one protocol behind, so
+it prints single-pass numbers by design.
+
+**Section V compressed 20%** (3,488 -> 2,806 prose words; V-A -20%,
+V-B **-47%**, V-C -18%, V-D -7%, V-E -10%, V-F -9%), paper still 15 pages.
+Cut: the GHZ chain-circuit aside, the per-suite gamma-search figures in
+V-A (V-F carries them), the restatement of column definitions already in
+`tab:ablation`'s caption, and the dSABRE-reproduces-its-published-numbers
+sentence in V-E (its caption says it).
+
 ## The main paper is split by section (2026-08-29)
 
 `paper/sfc.tex` is now a **driver only** --- preamble, title block, `\input`

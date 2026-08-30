@@ -54,142 +54,90 @@ done    & \multicolumn{2}{c}{17 / 24} & \multicolumn{2}{c}{24 / 24}
 
 
 Table~\ref{tab:main} summarises the three suites; \appTables{} gives the
-per-circuit EPR and SWAP counts. Baseline counts are taken from each
+per-circuit EPR and SWAP counts. Baseline counts come from each
 baseline's own harness and are not covered by \PORTER{}'s
-replay-verification guarantee (Section~\ref{sec:perf}). Against
-\TeleSABRE{} the ordering is consistent across the suite. From one
-deterministic layout \PORTER{} lowers geometric-mean EPR by
-$59.6\%$, $41.6\%$ and $68.2\%$ at 25, 64 and 80 qubits, spending three
-routes against \TeleSABRE{}'s three seeded runs. Every circuit
-\TeleSABRE{} completes improves, from $-16.0\%$ to $-81.0\%$.
-Refinement adds to this at 25 and 64 qubits ($63.6\%$ and $47.6\%$) but
-not at 80, where the selected route is already stronger ($68.2\%$
-against $63.2\%$) --- the first place where choosing the horizon beats
-spending four more routes. \PORTER{} and \dSABRE{} complete all
-twenty-four instances; \TeleSABRE{} completes seventeen, failing on
-64q~Random and six of the nine 80-qubit circuits, including the
-$23{,}381$-CX Random.
+replay-verification guarantee (Section~\ref{sec:perf}); on the eight
+64-qubit circuits \TeleSABRE{} completes, ours reproduces the counts
+\dSABRE{} publishes for it~\cite{lidsabre} exactly.
 
-Two details are worth recording. On all eight 64-qubit circuits
-\TeleSABRE{} completes, our harness reproduces the EPR and SWAP counts
-\dSABRE{} publishes for it~\cite{lidsabre} exactly, so the two
-evaluations share a baseline measurement rather than only a baseline
-tool. And GHZ, the chain circuit that defeats locally-greedy
-schedulers, costs \TeleSABRE{} 16 pairs on 63 CX gates but \PORTER{} and
-\dSABRE{} 6 each: \PORTER{}'s first-appearance visit order puts
-successive chain neighbours in one core before routing begins.
+Against \TeleSABRE{} the ordering is consistent across the suite: from
+one deterministic layout \PORTER{} lowers geometric-mean EPR by
+$59.6\%$, $41.6\%$ and $68.2\%$ at 25, 64 and 80 qubits, spending three
+routes against \TeleSABRE{}'s three seeded runs, and every circuit
+\TeleSABRE{} completes improves, from $-16.0\%$ to $-81.0\%$. Refinement
+adds to this at 25 and 64 qubits ($63.6\%$ and $47.6\%$) but not at 80,
+where the selected route is already stronger ($68.2\%$ against
+$63.2\%$) --- the first place where choosing the horizon beats spending
+four more routes. \PORTER{} and \dSABRE{} complete all twenty-four
+instances; \TeleSABRE{} completes seventeen, failing on 64q~Random and
+six of the nine 80-qubit circuits.
 
 Against \dSABRE{} the answer varies by suite. At its own three-route
 protocol \PORTER{} takes the geometric mean at 25 qubits ($43.1$ against
-$45.8$) and at 80 ($38.5$ against $44.9$), and trails at 64 ($166.2$
+$45.8$) and at 80 ($38.5$ against $44.9$) and trails at 64 ($166.2$
 against $144.6$; all three on the \TeleSABRE{}-matched basis), winning
-ten instances, losing twelve and tying two. Pooled over all twenty-four
-it is within $2\%$, $174.9$ against $171.9$. Refinement comes within
-$3.2\%$ at 64 and reaches parity pooled ($171.4$ against $171.9$); the
-$\gamma$-search takes the 64-qubit suite outright ($172.7$ against
-$173.1$ over all nine) and the 80-qubit suite as well ($404.3$ against
-$412.1$). \PORTER{}'s largest saving is 80q~Multiplier, $2{,}699$ against $4{,}841$
-with refinement; its worst loss is $1.5\times$, on 80q~QPEexact ($526$
+ten instances, losing twelve and tying two; pooled over all twenty-four
+it is within $2\%$, $174.9$ against $171.9$. Refinement reaches parity
+pooled ($171.4$), and the $\gamma$-search takes both the 64- and
+80-qubit suites outright (Section~\ref{sec:frontier}). \PORTER{}'s
+largest saving is 80q~Multiplier, $2{,}699$ against $4{,}841$ with
+refinement; its worst loss is $1.5\times$, on 80q~QPEexact ($526$
 against $347$).
 
 \subsection{RQ2: Routing Quality With the Layout Controlled}
 \label{sec:shared_results}
 
 \emph{Question:} with the initial layout held identical, does either
-routing loop use fewer EPR pairs? \emph{Held fixed:} the initial layout,
-supplied externally. We report two comparisons: an \emph{equal-route}
-one, three routes each, which is the controlled test; and a
-\emph{refinement-schedule} one, \dSABRE{}'s three passes against
-\PORTER{}+R's five, which is not budget-matched and does not isolate the
-router. \emph{Metric:} geometric-mean EPR and win/loss counts.
-
-
-The own-protocol comparison mixes two effects: the quality of each
-compiler's initial layout and the quality of its routing loop.
-Table~\ref{tab:shared} removes the first --- both \dSABRE{} and
-\PORTER{} route from the one identical layout \TeleSABRE{}
-built for itself --- leaving a pure routing comparison.
+routing loop use fewer EPR pairs? \emph{Held fixed:} the layout, taken in
+turn from each of the three sources available. \emph{Metric:}
+geometric-mean EPR over all twenty-four instances.
 
 \begin{table}[t]
 \centering
-\caption{Shared-layout comparison: \dSABRE{} and \PORTER{} both routed
-  from the identical layout \TeleSABRE{} built for itself, so the only
-  difference left is the routing loop. \PORTER{}+R is \PORTER{} with
-  backward refinement, five routes against \dSABRE{}'s three. Geometric-mean EPR
-  over the circuits \TeleSABRE{} completes and therefore provides a
-  layout for --- all six at 25q, eight of nine at 64q, three of nine at
-  80q. $\Delta_\mathrm{TS}$ columns are each compiler's change against
-  \TeleSABRE{}'s own-protocol result. Per-circuit rows are in
-  \appTables{}.}
+\caption{Layout against router: geometric-mean EPR over all twenty-four
+  instances for every combination of initial layout and routing loop. Rows
+  are the three layout sources, columns the routers; \PORTER{} spends three
+  routes per layout and \dSABRE{} three, while \PORTER{}+R spends five.
+  Every cell is over the full suite --- no instance is excluded, because
+  all three layout sources place all twenty-four circuits. Lower is
+  better; the best entry in each column is bold.}
 \label{tab:shared}
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{5pt}
 \small
-\begin{tabular}{@{}l r rr rr@{}}
+\begin{tabular}{@{}l rrr@{}}
 \toprule
- & & \multicolumn{2}{c}{\dSABRE{}} & \multicolumn{2}{c}{\PORTER{}} \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}
-Suite & \TeleSABRE{} & EPR & $\Delta_\mathrm{TS}$ & $+$R & $\Delta_\mathrm{TS}$ \\
+Initial layout & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
 \midrule
-25q (6) & 106.6 & 51.0 & $-52.2$ & \textbf{47.7} & $\mathbf{-55.2}$ \\
-64q (8) & 284.5 & 189.2 & $-33.5$ & \textbf{157.2} & $\mathbf{-44.7}$ \\
-80q (3) & 121.0 & 74.2 & $-38.7$ & \textbf{55.7} & $\mathbf{-53.9}$ \\
-\textbf{all} (17) & 173.0 & 100.9 & $-41.7$ & \textbf{86.0} & $\mathbf{-50.3}$ \\
+\dSABRE{}'s \texttt{SabreLayout}     & 171.9 & 175.2 & \textbf{166.3} \\
+\PORTER{}'s temporal locality-greedy & 171.2 & 174.9 & 171.4 \\
+\texttt{pytket-dqc}'s partition      & \textbf{164.1} & \textbf{166.4} & 166.5 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\textbf{The routing loops are equivalent within noise; the layouts are
+not.} Read across any row of Table~\ref{tab:shared}: from the same
+starting layout at three routes each, the two land within $2\%$ of one
+another everywhere, \dSABRE{} ahead in all three rows and winning twelve
+of the twenty-four instances to eight on the \texttt{pytket-dqc} row.
+This is the controlled test and \PORTER{} loses it. Read down the
+columns, though, and \texttt{pytket-dqc}'s hypergraph partition is the
+best start for \emph{both} routers --- $4.5\%$ better than \dSABRE{}'s
+own layout is for \dSABRE{}, $4.8\%$ better than \PORTER{}'s own is for
+\PORTER{}. The spread between layout sources exceeds the spread between
+routing loops, so the initial layout is the weaker component of both
+compilers rather than an advantage to either.
 
-\textbf{Equal route count.} At three routes each, \dSABRE{} leads at 25
-and 80 qubits and \PORTER{} at 64 ($-52.2\%$ against $-41.5\%$,
-$-38.7\%$ against $-33.1\%$, $-33.5\%$ against $-36.5\%$), pooling to
-$100.9$ against $107.7$ over seventeen instances. This is the controlled
-test, and \PORTER{} loses it: the two routers are close, but with the
-layout fixed and the route count equal \dSABRE{} has the lower pooled
-count. Spending those three routes on lookahead horizons is not what
-closes the gap.
-
-\textbf{Refinement schedules.} Spending five routes on the
-forward--backward--forward schedule does close it: \PORTER{}+R reaches
-$86.0$ against \dSABRE{}'s $100.9$ and leads at every scale. This is not
-a budget-matched comparison --- it is five \PORTER{} routes against three
-\dSABRE{} ones --- so it does not isolate the router. What it shows is
-that the additional routing effort, and not the commitment rule, is what
-reverses the ordering here; Section~\ref{sec:ablation} confirms that from
-the other side, since removing commitment moves EPR by $0.6\%$ in
-\PORTER{}'s favour. (Table~\ref{tab:shared} reports the refined column;
-the equal-route one is in \appTables{}.)
-
-\textbf{Pooled fixed-layout grid.} A second source of externally
-supplied layouts --- \texttt{pytket-dqc}'s hypergraph placements,
-routed by both compilers on the 25q and 64q suites (\appPytket{};
-\appOptin{} offers that partition to \PORTER{} as an extra layout
-candidate instead) --- pools with Table~\ref{tab:shared} to give
-forty-one instances on which \dSABRE{} and \PORTER{} routed the
-\emph{identical} layout. At three routes each, \dSABRE{} wins twenty to
-sixteen with five ties, pooled geometric mean $134.2$ against $139.0$.
-With \PORTER{}+R's five routes against \dSABRE{}'s three, \PORTER{} wins
-twenty to fifteen with six ties, $126.6$ against $134.2$. The two
-routers are therefore close on a fixed layout, and which one leads is
-decided by how many routes each is allowed rather than by the routing
-loop itself.
-
-\textbf{Each compiler on the other's layout.} Closing the remaining
-cell --- routing each system from its own and from its counterpart's
-layout (\appTables{}) --- shows the four combinations lying within $3\%$
-of one another. On \dSABRE{}'s layout, \dSABRE{} reaches $171.9$ and
-\PORTER{}+R $166.3$; on \PORTER{}'s, $171.2$ and $171.4$. \dSABRE{}'s
-candidate set is the better start for \PORTER{} ($3.0\%$) but not for
-\dSABRE{} itself, which does marginally better from \PORTER{}'s layout
-($0.4\%$). The best cell is \PORTER{}+R on \dSABRE{}'s layout, and no
-layout is uniformly preferable.
-
-At these sizes, then, the two routing stages are worth about the same
-given the same start, and what separates them end-to-end is that
-\dSABRE{} searches three candidate layouts where \PORTER{} builds one ---
-a deliberate trade that Section~\ref{sec:frontier} prices. It does not
-hold at every size: from $150$ physical qubits upward the same control
-becomes counter-productive and a different parameter binds
-(Section~\ref{sec:scaleup}).
+\textbf{What refinement recovers depends on the layout it starts from.}
+\PORTER{}+R gains $5.1\%$ over \PORTER{} on \dSABRE{}'s layout
+($175.2 \to 166.3$) and nothing on \texttt{pytket-dqc}'s
+($166.4 \to 166.5$). \TeleSABRE{}'s own layout, much the weakest source
+we tried --- it costs \dSABRE{} $100.9$ where \texttt{pytket-dqc}'s
+costs it $71.1$, on the seventeen instances \TeleSABRE{} completes ---
+makes the pattern plain: there refinement gains $20.2\%$ and carries
+\PORTER{}+R past \dSABRE{} outright. Backward refinement repairs a poor
+starting layout and adds little to a good one, so a control run on a
+weak layout alone would overstate it.
 
 \subsection{RQ3: Mechanism Ablation}
 \label{sec:ablation}
@@ -249,90 +197,76 @@ Suite & Circuit & Full & No pk & No rel. & Hop-wise & \TeleData{} & pk & tg \\
 }
 \end{table}
 
-Table~\ref{tab:ablation} attributes \PORTER{}'s EPR consumption to its
-mechanisms by disabling each in isolation, holding the initial layout
-and every other parameter fixed; the per-action counts behind these
-rows are tabulated in \appMix{} (the six omitted rows --- GHZ and
-Graphstate at every scale --- form no packets, never trigger relief and
-issue no telegates, so all configurations coincide there). Two columns
-go further than a per-primitive ablation: ``Hop-wise'' replaces
-\PORTER{}'s unit of commitment with \dSABRE{}'s while holding scoring,
-plan set and relief tiers fixed, and ``\TeleData{}'' removes the
-\TeleGate{} family outright, leaving state teleportation as the sole
-inter-core action.
+Table~\ref{tab:ablation} disables each mechanism in isolation, holding
+the initial layout and every other parameter fixed; \appMix{} tabulates
+the per-action counts behind these rows. The six omitted rows --- GHZ
+and Graphstate at every scale --- form no packets, never trigger relief
+and issue no telegates, so all configurations coincide there.
 
 \textbf{Packets.} Disabling \TeleGatePacket{} makes every
 shared-control remote CX run pay per gate, and the cost tracks the
 packet count: $+42\%$ EPR on 64q~QFT (262 $\to$ 372, 45 packets),
-$+40\%$ on 80q~AE (490 $\to$ 688, 264 packets), $+19\%$ on 64q~AE,
-against a $+7\%$ overall gmean; the lone counter-move (80q~QFT,
-$446 \to 435$) shows packet formation is a heuristic commitment that
-can displace a slightly better teleport plan. Read alone, this column
-is a clean win for the primitive. The next one overturns that reading.
+$+40\%$ on 80q~AE (490 $\to$ 688, 264 packets), against a $+7\%$ overall
+gmean; the lone counter-move (80q~QFT, $446 \to 435$) shows packet
+formation is a heuristic commitment that can displace a slightly better
+teleport plan. Read alone this column is a clean win for the primitive;
+the next overturns that reading.
 
-\textbf{\TeleData{} only.} This column is two configurations and must be
-read as such. \emph{Strict removal} --- deleting the \TeleGate{} family
-and changing nothing else --- is the one-factor ablation, and it fails:
-ten of the twelve rows do not complete. The \TeleGate{} is the only
-remote action needing no free destination slot, so it is always a legal
-plan for an adjacent-remote CX; without it, a front whose remote CXs are
-all core-adjacent and whose destinations sit at or below
-$f_\mathrm{min}$ has an empty plan set, while the tail-relief BFS is
-offered only the non-adjacent blocked candidates. The \TeleGate{} is
-thus essential to successful \emph{completion} here under the unchanged
-relief policy --- not to termination, which the guards of
-Section~\ref{sec:sfc-progress} provide either way.
+\textbf{\TeleData{} only.} This column is two configurations.
+\emph{Strict removal} --- deleting the \TeleGate{} family and changing
+nothing else --- is the one-factor ablation, and it fails: ten of the
+twelve rows do not complete. The \TeleGate{} is the only remote action
+needing no free destination slot, so it is the fallback plan for an
+adjacent-remote CX; without it a front of core-adjacent remote CXs whose
+destinations all sit at or below $f_\mathrm{min}$ has an empty plan set,
+and the tail-relief BFS is offered only non-adjacent candidates. The
+\TeleGate{} is thus essential to
+\emph{completion} here under the unchanged relief policy --- not to
+termination, which the guards of Section~\ref{sec:sfc-progress} provide
+either way.
 
-\emph{The vocabulary variant} adds one mechanism the full configuration
-never needs: adjacent-blocked candidates are fed into the same relief
-BFS. Every entry marked $^{\ddagger}$ uses it. It recovers all but the
-two Random rows, which livelock --- and those two are the most
-telegate-heavy in the suite ($228$ and $3{,}538$ single telegates). As a
-control, adding the same tier to the full configuration leaves every row
-EPR-identical, so the comparison below is a difference of vocabulary
-rather than of relief. It is not, however, a strict ablation.
-
-On that basis the variant is cheaper than the full action set,
-increasingly so with scale: $+2\%$ at 25q, mixed at 64q, $-33\%$ at 80q,
-and $8.5\%$ below Full over the sixteen instances it completes. The
-circuits it wins are the packet-heaviest, so the ordering there is
+\emph{The vocabulary variant}, marked $^{\ddagger}$, additionally feeds
+adjacent-blocked candidates to that BFS, which the full configuration
+never needs; it recovers all but the two Random rows, the most
+telegate-heavy in the suite. Adding the same tier to the full
+configuration leaves every row EPR-identical, so what follows is a
+difference of vocabulary and not of relief --- but not a strict
+ablation. On that basis a teleport-only vocabulary is the cheaper one,
+increasingly so with scale ($+2\%$ at 25q, mixed at 64q, $-33\%$ at
+80q; $8.5\%$ below Full over the sixteen instances it completes), and
+the circuits it wins are the packet-heaviest, giving
 $\text{\TeleData{} only} < \text{Full} < \text{No packets}$: packets
-beat the single telegates they degrade into, but a pure teleportation
-policy beats both. Section~\ref{sec:discussion} argues this is a
+beat the single telegates they degrade into, but pure teleportation
+beats both. Section~\ref{sec:discussion} argues this is a
 currency mismatch in the plan comparator rather than a verdict on
-packets. It also answers a question \dSABRE{} leaves open. Its
-teledata-only vocabulary was chosen by measurement --- an ungrouped
-telegate serves one gate where teledata amortises many --- with grouping
-untested. Grouping does close that per-EPR gap, and still does not
+packets. It also answers a question \dSABRE{} leaves open: its
+teledata-only vocabulary was chosen by measurement, with grouping
+untested. Grouping does close the per-EPR gap, and still does not
 justify spending pairs that teleporting would have spent better.
 
 \textbf{Plan commitment.} Replacing the commitment rule with
-\dSABRE{}'s --- returning to the top of the loop after one round of
-preparation SWAPs, re-classifying the front and re-scoring every plan
-before the next move --- leaves EPR unchanged: $413.3$ against $411.7$
-over the twelve rows here, and $148.8$ against $148.0$ over the
-twenty-one instances we ran it on, with eight circuits better without
-commitment, five worse, eight tied, and all twenty-one completing either
-way. The two make the same number of routing moves ($128{,}222$ against
-$128{,}565$ iterations), which is the key number: commitment does not
-change what the compiler decides, only what each decision costs. It buys
-$1.31\times$ compile time in geometric mean and $3.07\times$ on
-80q~Random. Section~\ref{sec:discussion} notes what this does and does
-not say about the plan abstraction beneath it.
+\dSABRE{}'s --- re-scoring every plan after each round of preparation
+SWAPs --- leaves EPR unchanged: $413.3$ against $411.7$ over the twelve
+rows here, and $148.8$ against $148.0$ over the twenty-one instances we
+ran it on, all completing either way. The two make the same number of
+routing moves ($128{,}222$ against $128{,}565$ iterations): commitment
+does not change what the compiler decides, only what each decision
+costs, buying $1.31\times$ compile time in geometric mean and
+$3.07\times$ on 80q~Random. Section~\ref{sec:discussion} notes what this
+does and does not say about the plan abstraction beneath it.
 
 \textbf{Capacity relief.} Disabling both tiers costs completion, not
 just EPR pairs: 80q~AE, QFT, QNN and Random all fail, because with every
 destination below $f_\mathrm{min}$ and no way to drain qubits toward
 reservoirs the loop has no legal remote plan left. Where routing does
 complete, dense circuits pay heavily ($+89\%$ on 25q~QFT, $+78\%$ on
-25q~QNN, $+85\%$ on 64q~AE). Two instances are cheaper \emph{without}
-relief --- 64q~QNN ($864 \to 600$) and marginally 25q~Random ($401 \to
-395$) --- showing the opportunistic tier can overpay where congestion
-would have cleared itself. Relief is thus the one mechanism here whose
-removal costs completion: with both tiers on, no instance in this
-evaluation reached the deadlock path of
-Section~\ref{sec:sfc-progress}; with both off, four did. That is a
-statement about these instances, not a guarantee. The initial layout,
+25q~QNN, $+85\%$ on 64q~AE), though two are cheaper \emph{without} it
+--- 64q~QNN ($864 \to 600$) and marginally 25q~Random --- so the
+opportunistic tier can overpay where congestion would have cleared
+itself. With both tiers on no instance in this evaluation reached the
+deadlock path of Section~\ref{sec:sfc-progress}; with both off four did.
+That is a statement about these instances, not a guarantee. The initial
+layout,
 which this table holds fixed, is assessed in
 Sections~\ref{sec:shared_results} and~\ref{sec:heavyhex}.
 
@@ -391,10 +325,9 @@ Every result so far is at 108 physical qubits or fewer.
 Table~\ref{tab:scaleup} takes the two circuit families that exist at
 100, 200 and 360 logical qubits onto \dSABRE{}'s scalability series:
 $5{\times}5$ cores throughout, core count $6 \to 12 \to 20$, so
-occupancy stays roughly constant while the core graph grows. It is a
-monotone ladder in the quantity that matters --- inter-core traffic
-scales with core count, and \dSABRE{}'s own cost rises $200 \to 765 \to
-1{,}890$ on QFT.
+occupancy stays roughly constant while the core graph grows and
+inter-core traffic with it --- \dSABRE{}'s own cost rises $200 \to 765
+\to 1{,}890$ on QFT.
 
 \PORTER{} uses fewer EPR pairs than \dSABRE{} on all six instances, by a
 widening margin: $0.90\times$ at 100 logical qubits, $0.67\times$ at
@@ -404,23 +337,22 @@ $15.4$\,s), routing three times where \dSABRE{} routes nine.
 
 \textbf{Of the interventions we tested, only the horizon explains the
 reversal.} Both mechanisms that close \PORTER{}'s gap at the smaller
-sizes are inert or harmful here. Backward refinement loses on all six
-instances, by $83\%$. Handing \PORTER{} \dSABRE{}'s own
-\texttt{SabreLayout} candidates --- the control that reaches parity at 25
-and 64 qubits and wins on both heavy-hex core graphs --- makes it
-\emph{worse}, $0.96\times$ against $0.72\times$, and worst on the largest
-instance, where \dSABRE{}'s layout costs $1{,}791$ pairs against $1{,}156$
-from \PORTER{}'s own. Every instance in this series selects
+sizes are inert or harmful here: backward refinement loses on all six
+instances, by $83\%$, and handing \PORTER{} \dSABRE{}'s own
+\texttt{SabreLayout} candidates --- the control that reaches parity at
+25 and 64 qubits and wins on both heavy-hex core graphs --- makes it
+\emph{worse} ($0.96\times$ against $0.72\times$), worst on the largest
+instance, where \dSABRE{}'s layout costs $1{,}791$ pairs against
+$1{,}156$ from \PORTER{}'s own. Every instance in this series selects
 $L_\mathrm{tp}{=}128$, and at the configured $16$ \PORTER{} trails
-\dSABRE{} by $1.45\times$ (Section~\ref{sec:horizon}). We do not claim no
-other mechanism matters, only that among those we varied the horizon is
-the one that accounts for the change.
+\dSABRE{} by $1.45\times$ (Section~\ref{sec:horizon}). Among the
+mechanisms we varied, that is the one that accounts for the change.
 
-This separates two deficits the smaller suites conflate. At $36$ to $108$
-physical qubits the initial layout limits \PORTER{}: control it, match the
-route count, and the difference largely disappears. At $150$, $300$ and
-$500$ physical qubits it does not, and the horizon does. Selecting it per
-circuit is a workaround, not a fix; a $K$-aware horizon remains open.
+This separates two deficits the smaller suites conflate. At $36$ to
+$108$ physical qubits the initial layout limits \PORTER{}: control it,
+match the route count, and the difference largely disappears. At $150$
+and above it does not, and the horizon does. Selecting it per circuit is
+a workaround, not a fix; a $K$-aware horizon remains open.
 
 \subsection{RQ4: Heavy-Hex Cores and Non-Grid Core Graphs}
 \label{sec:heavyhex}
@@ -462,65 +394,59 @@ star Multiplier   &   722 & \textbf{455} &  --- &   462 &   462 \\
 \end{table}
 
 
-Every result so far uses square cores wired in a grid. To test how much
-of \PORTER{}'s behaviour depends on that we adopt \dSABRE{}'s non-grid
-experiment~\cite{lidsabre}: the same nine-circuit 64-qubit suite on four
-IBM 27-qubit heavy-hex tiles. Two things change at once. The \emph{core}
-becomes irregular --- degrees over $\{1,2,3\}$, six degree-1 leaves,
-diameter 12 against a $4{\times}4$ grid's 6 --- and the \emph{core
-graph} is either a ring, where every core has degree 2, or a star, where
-core~0 is a hub. \PORTER{}'s hardware object is derived from the
-architecture \dSABRE{}'s own builder produces, and a topology assertion
-checks that both compilers see identical qubit ids, intra-core edges and
-port endpoints before anything is routed. \dSABRE{} routes on its native
-object and reproduces its published numbers on all eighteen instances.
+To test how much of \PORTER{}'s behaviour depends on square cores wired
+in a grid we adopt \dSABRE{}'s non-grid experiment~\cite{lidsabre}: the
+same nine-circuit 64-qubit suite on four IBM 27-qubit heavy-hex tiles.
+Two things change at once --- the \emph{core} becomes irregular (degrees
+over $\{1,2,3\}$, six degree-1 leaves, diameter 12 against a
+$4{\times}4$ grid's 6) and the \emph{core graph} is either a ring, every
+core of degree 2, or a star with core~0 a hub. \PORTER{}'s hardware
+object is derived from the architecture \dSABRE{}'s own builder
+produces, and a topology assertion checks that both compilers see
+identical qubit ids, edges and port endpoints before anything is routed.
 Neither compiler is specialised for a heavy-hex tile.
 
-\textbf{The core graph matters more than the core shape.}
-Table~\ref{tab:heavyhex} shows that replacing square-grid cores with
-these heavy-hex tiles costs \PORTER{} nothing on the ring: on the ring \PORTER{}+R leads \dSABRE{}
-($82.3$ against $85.2$), winning six of nine and tying GHZ --- better
-relative standing than on the grid suite. Doubling the intra-core
-diameter and replacing degree-4 interiors with degree-1 leaves disturbs
-neither compiler. The star does. Under its own protocol \PORTER{} trails
-there, $122.3$ against $101.1$, winning two of nine; \PORTER{}+R, which
-cannot route Multiplier at all, trails by $13.6\%$ on the eight it
-completes.
+\textbf{The core graph matters more than the core shape.} On the ring
+(Table~\ref{tab:heavyhex}) \PORTER{}+R leads \dSABRE{}, $82.3$ against
+$85.2$, winning six of nine and tying GHZ --- better relative standing
+than on the grid suite. Doubling the intra-core diameter and replacing
+degree-4 interiors with degree-1 leaves disturbs neither compiler. The
+star does: under its own protocol \PORTER{} trails there, $122.3$
+against $101.1$, winning two of nine, and \PORTER{}+R, which cannot
+route Multiplier at all, trails by $13.6\%$ on the eight it completes.
 
 \textbf{Star Multiplier is a livelock the horizon escapes.} At a fixed
-$L_\mathrm{tp}{=}16$ this instance does not terminate, and it fails as a
+$L_\mathrm{tp}{=}16$ this instance does not terminate. It fails as a
 local-SWAP livelock rather than the capacity deadlock of
-Section~\ref{sec:sfc-progress}: retired gates freeze at $3{,}226$ of
+Section~\ref{sec:sfc-progress} --- retired gates freeze at $3{,}226$ of
 $13{,}040$ and the EPR count at $538$ while intra-core SWAPs accumulate
-at one per iteration, so the iteration guard rather than the progress
-argument stops it. The failure is configuration-dependent rather than a property of the
-circuit alone: the same circuit, architecture, layout and router complete
-at $L_\mathrm{tp}{=}128$, at $455$ pairs against \dSABRE{}'s $722$, and
-livelock at $L_\mathrm{tp}{=}16$. Since
-horizon selection routes that candidate as a matter of course,
-\PORTER{} has no unrouted instance anywhere in this evaluation ---
-whereas \PORTER{}+R, which holds the horizon fixed, still fails it.
+one per iteration, so the iteration guard stops it --- and the failure
+is configuration-dependent: the same circuit, architecture, layout and
+router complete at $L_\mathrm{tp}{=}128$, at $455$ pairs against
+\dSABRE{}'s $722$. Since
+horizon selection routes that candidate as a matter of course, \PORTER{}
+has no unrouted instance anywhere in this evaluation --- whereas
+\PORTER{}+R, which holds the horizon fixed, still fails it.
 
 \textbf{The initial layout is the dominant observed source of the star
-gap.} Given
-\dSABRE{}'s layout, \PORTER{} completes all nine star circuits,
-including Multiplier at $462$ pairs against \dSABRE{}'s $722$. With the
-budget matched, that control reverses the result on \emph{both} core
-graphs ($-4.4\%$ ring, $-7.5\%$ star), the larger margin on the topology
-\PORTER{} loses under its own protocol. The cause is in the layout:
-\PORTER{} reserves $f_\mathrm{min}$ in every core, treating cores as
-interchangeable. They are on a grid and a ring, where every core has the
-same degree. They are not on a star, where Multiplier opens with free
-counts $(2,2,13,27)$ --- the hub every route must cross pinned at the
-floor while a whole core sits empty. Raising the reservation uniformly
-does not repair it (we tried $f_\mathrm{min}{\in}\{4,6\}$); what the
-star needs is a reservation scaled by a core's position in the core
-graph, which we have not implemented.
+gap.} Given \dSABRE{}'s layout, \PORTER{} completes all nine star
+circuits, including Multiplier at $462$ pairs against \dSABRE{}'s $722$,
+and with the budget matched that control reverses the result on
+\emph{both} core graphs ($-4.4\%$ ring, $-7.5\%$ star) --- the larger
+margin on the topology \PORTER{} loses under its own protocol. The cause
+is in the layout: \PORTER{} reserves $f_\mathrm{min}$ in every core,
+treating cores as interchangeable, which they are on a grid and a ring
+and are not on a star, where Multiplier opens with free counts
+$(2,2,13,27)$ --- the hub every route must cross
+pinned at the floor while a whole core sits empty. Raising the
+reservation uniformly does not repair it (we tried
+$f_\mathrm{min}{\in}\{4,6\}$); a reservation scaled by a core's position
+in the core graph is untried.
 
 Taken with Section~\ref{sec:scaleup}, this bounds the layout reading
-rather than extending it. Up to $108$ physical qubits --- across two
-core shapes and three core graphs --- the initial layout separates the
-two compilers and controlling it erases the difference. Above $150$ the
+rather than extending it: up to $108$ physical qubits, across two core
+shapes and three core graphs, the initial layout separates the two
+compilers and controlling it erases the difference; above $150$ the
 horizon takes over.
 
 \subsection{The EPR/Time Operating Frontier}
@@ -559,43 +485,37 @@ Table~\ref{tab:protocols} places \PORTER{}'s four operating points
 twenty-four instances. Selection and the $\gamma$-search look for
 different things --- the horizon at a fixed layout against the layout at
 a fixed horizon --- and neither dominates: the search gives the better
-route on fourteen instances, selection on four, and they tie on six.
+route on fourteen instances, selection on four, and they tie on six, so
 \PORTER{}+SR runs both.
 
 The trade is time against EPR pairs and it is monotone in both.
 \PORTER{} costs $1.02\times$ \dSABRE{}'s EPR at $0.91\times$ its compile
 time; refinement draws level on EPR ($171.4$ against $171.9$) at
 $1.21\times$ the time; the layout search reaches $0.95\times$ at
-$3.33\times$; \PORTER{}+SR $0.92\times$ at $4.11\times$. \PORTER{}+SR
-leads \dSABRE{} on fourteen instances against nine behind, and by
-construction never loses to either schedule it is built from.
-Increasing \PORTER{}'s deterministic search budget therefore closes and
-reverses the own-protocol gap. We stop short of calling that gap a
-search-budget gap: the added schedules change the initial layout as well
-as the route, and the comparison equalises route counts rather than
-wall-clock time. Where to sit on the curve depends on whether EPR pairs
-or compile seconds are scarce.
+$3.33\times$, and \PORTER{}+SR $0.92\times$ at $4.11\times$, leading
+\dSABRE{} on fourteen instances against nine behind and by construction
+never losing to either schedule it is built from. Increasing \PORTER{}'s
+deterministic search budget therefore closes and reverses the
+own-protocol gap. We stop short of calling that gap a search-budget gap:
+the added schedules change the initial layout as well as the route, and
+the comparison equalises route counts rather than wall-clock time.
 
 Selecting the horizon has largely overtaken refinement as an operating
-point. \PORTER{}+R is ahead by only $2.0\%$ in geometric mean for four
-extra routes, and it is $12.0\%$ behind the selected route at 80 qubits,
-$83\%$ behind on the scale-up series, and the configuration that fails
-star~Multiplier. We report it because the fixed-layout comparison of
-Section~\ref{sec:shared_results} needs a schedule that spends its extra
-effort on routes rather than layouts, which \PORTER{}+S cannot be.
+point: \PORTER{}+R is ahead by only $2.0\%$ in geometric mean for four
+extra routes, is $12.0\%$ behind the selected route at 80 qubits and
+$83\%$ behind on the scale-up series, and is the configuration that
+fails star~Multiplier. We report it because the fixed-layout comparison
+of Section~\ref{sec:shared_results} needs a schedule that spends its
+extra effort on routes rather than layouts, which \PORTER{}+S cannot be.
 
-All times are \emph{complete} compile costs: layout generation plus
-every route over every candidate, not the winning route alone. That is
-nine routes for \dSABRE{}, three for \PORTER{}, five for \PORTER{}+R,
-and all three seeds for \TeleSABRE{}. \PORTER{}'s advantage is in the
-count of routes, not their price. It is the dearer of the two per route
-on all nine 64-qubit circuits, taking $3.6\times$ as long in geometric
-mean: enumerating whole plans, collecting packets by forward simulation
-and running a two-tier capacity search all cost more per iteration than
-scoring a flat list of hops, and a deep horizon costs more still. On that
-subset the complete costs are $1.98$\,s against $1.77$\,s, so \dSABRE{}
-is cheaper; pooled over all twenty-four \PORTER{} is slightly ahead at
-$0.91\times$.
-
-The cheap operating point is still \PORTER{}, and at $1.02\times$
-\dSABRE{}'s EPR it gives up little to be so.
+All times are \emph{complete} compile costs --- layout generation plus
+every route over every candidate, not the winning route alone --- and
+\PORTER{}'s advantage there is in the count of routes, not their price.
+It is the dearer of the two per route on all nine 64-qubit circuits,
+taking $3.6\times$ as long in geometric mean: enumerating whole plans,
+collecting packets by forward simulation and running a two-tier capacity
+search all cost more per iteration than scoring a flat list of hops, and
+a deep horizon costs more still. On that subset \dSABRE{} is cheaper end
+to end ($1.77$\,s against $1.98$\,s); pooled over all twenty-four
+\PORTER{} is slightly ahead at $0.91\times$, and at $1.02\times$
+\dSABRE{}'s EPR the cheap operating point remains \PORTER{}'s.

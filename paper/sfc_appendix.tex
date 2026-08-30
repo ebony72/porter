@@ -801,8 +801,7 @@ directly, and the answer is not the one the design assumed.
 
 The tables below support claims made in Sections~\ref{main-sec:sfc}
 and~\ref{main-sec:results} of the main paper: the full parameter set
-(Table~\ref{tab:params}), the cross-layout grid
-(Table~\ref{tab:crosslayout}), the per-circuit heavy-hex and shared-layout
+(Table~\ref{tab:params}), the per-circuit heavy-hex and shared-layout
 rows summarised there (Tables~\ref{tab:heavyhex} and~\ref{tab:shared}),
 and local SWAP counts
 (Table~\ref{tab:mainswaps}). EPR pairs are the figure of merit throughout
@@ -845,35 +844,6 @@ $N_\mathrm{tp}\ge L_\mathrm{tp}$; over $3\,830$--$11\,395$ scoring
 calls per circuit it was never reached, and changing it leaves the emitted
 circuit bit-for-bit identical.
 \end{minipage}
-\end{table}
-
-\begin{table}[h]
-\centering
-\caption{Cross-layout comparison: geometric-mean EPR with each router routing
-  both its own and the other's initial layout. Columns are routers, and
-  within each router the left figure is its own layout and the right the
-  other's. \dSABRE{}'s layout is the best-of-six candidate set of
-  Section~\ref{main-sec:protocols}; \PORTER{}'s is its single deterministic
-  temporal locality-greedy layout.}
-\label{tab:crosslayout}
-\setlength{\tabcolsep}{4pt}
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}l rr rr rr@{}}
-\toprule
- & \multicolumn{2}{c}{\dSABRE{} router} & \multicolumn{2}{c}{\PORTER{} router}
- & \multicolumn{2}{c}{\PORTER{}+R router} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-Suite & own lay. & \PORTER{} lay. & own lay. & \dSABRE{} lay. & own lay. & \dSABRE{} lay. \\
-\midrule
-25q (6) & 44.0 & 41.7 & 43.1 & 40.7 & 38.8 & 36.1 \\
-64q (9) & 173.1 & 184.2 & 213.3 & 209.4 & 178.2 & 180.2 \\
-80q (9) & 372.7 & 408.2 & 484.9 & 403.0 & 444.1 & 390.8 \\
-\midrule
-\textbf{all (24)} & \textbf{163.9} & 171.2 & 194.6 & 177.8 & 171.4 & \textbf{161.1} \\
-\bottomrule
-\end{tabular}%
-}
 \end{table}
 
 \begin{table}[h]
@@ -934,8 +904,8 @@ star  & multiplier  &   722 &   455 & $^{\ast}$ &   462 &   462 \\
 \begin{table}[h]
 \centering
 \caption{Shared-layout comparison, all suites: \dSABRE{} and
-  \PORTER{} are both routed, single-shot, from \TeleSABRE{}'s own initial
-  layout (Section~\ref{main-sec:protocols}). $\Delta_\mathrm{TS}$ columns give
+  \PORTER{} are both routed from \TeleSABRE{}'s own initial layout, each
+  at its own route budget (Section~\ref{main-sec:protocols}). $\Delta_\mathrm{TS}$ columns give
   each router's EPR change relative to \TeleSABRE{}'s own-protocol
   result; negative is better. Rows exist only where \TeleSABRE{}
   converges and thus provides a layout to share: all six circuits at
