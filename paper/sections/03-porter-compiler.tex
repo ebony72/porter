@@ -32,20 +32,20 @@ where they change the outcome.
          \hfill\textit{(Sec.~\ref{sec:sfc-plan-first})}
   \STATE score every plan in $\mathcal{P}\cup\mathcal{B}$
          \hfill\textit{(Sec.~\ref{sec:sfc-scoring})}
-  \STATE $p^\ast \leftarrow$ first plan of $\mathcal{P}$, in selection-key
+  \STATE $\pln{p}^{\ast} \leftarrow$ first plan of $\mathcal{P}$, in selection-key
          order, that is ready or admits an improving preparation SWAP
-  \IF{$p^\ast$ is \texttt{None}}
-    \STATE $p^\ast \leftarrow$ best tail-relief plan seeded from $\mathcal{B}$
+  \IF{$\pln{p}^{\ast}$ is \texttt{None}}
+    \STATE $\pln{p}^{\ast} \leftarrow$ best tail-relief plan seeded from $\mathcal{B}$
            \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
   \ELSIF{$\mathcal{B}\neq\emptyset$ and
-         $\max_{b\in\mathcal{B}}\mathrm{total}(b)-\mathrm{total}(p^\ast)
+         $\max_{\pln{b}\in\mathcal{B}}\mathrm{total}(\pln{b})-\mathrm{total}(\pln{p}^{\ast})
           > m_\mathrm{assist}$}
-    \STATE $b^\ast \leftarrow \arg\max_{b\in\mathcal{B}}\mathrm{total}(b)$
-    \STATE $p^\ast \leftarrow$ best relief plan for $b^\ast$'s blocked core
+    \STATE $\pln{b}^{\ast} \leftarrow \arg\max_{\pln{b}\in\mathcal{B}}\mathrm{total}(\pln{b})$
+    \STATE $\pln{p}^{\ast} \leftarrow$ best relief plan for $\pln{b}^{\ast}$'s blocked core
            \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
   \ENDIF
-  \IF{$p^\ast$ is \texttt{None}} \STATE \textbf{report deadlock; abort} \ENDIF
-  \STATE apply $p^\ast$'s own preparation SWAPs until ready, then execute it
+  \IF{$\pln{p}^{\ast}$ is \texttt{None}} \STATE \textbf{report deadlock; abort} \ENDIF
+  \STATE apply $\pln{p}^{\ast}$'s own preparation SWAPs until ready, then execute it
 \ENDWHILE
 \RETURN emitted operations, final layout, stats
 \end{algorithmic}
@@ -155,14 +155,14 @@ handed to the machinery that works out \emph{how}.
 
 Formally, a plan is a tuple
 \[
-  p \;=\; \bigl(\pi,\; G(p),\; \mathrm{dir},\; c_\mathrm{src},\;
-                c_\mathrm{dst},\; \Pi(p),\; \mathrm{ready}(p,\ell)\bigr),
+  \pln{p} \;=\; \bigl(\pi,\; G(\pln{p}),\; \mathrm{dir},\; c_\mathrm{src},\;
+                c_\mathrm{dst},\; \Pi(\pln{p}),\; \mathrm{ready}(\pln{p},\ell)\bigr),
 \]
 with $\pi\in\{\TeleData{},\TeleGate{},\TeleGatePacket{}\}$ the primitive,
 $\mathrm{dir}$ its orientation, $c_\mathrm{src}$ and $c_\mathrm{dst}$ the
-cores involved, $\Pi(p)$ the communication ports it reserves, and
-$\mathrm{ready}(p,\ell)$ the predicate that holds when $p$ can fire.
-$G(p)$ is the set of gates the action \emph{discharges}: for a
+cores involved, $\Pi(\pln{p})$ the communication ports it reserves, and
+$\mathrm{ready}(\pln{p},\ell)$ the predicate that holds when $\pln{p}$ can
+fire. $G(\pln{p})$ is the set of gates the action \emph{discharges}: for a
 \TeleGate{}, the single front CX it executes; for a \TeleGatePacket{},
 the run of same-control gates collected in
 Section~\ref{sec:sfc-packet}; for a \TeleData{}, the empty set, since
@@ -171,10 +171,10 @@ gates the relocation makes local, which the scorer estimates
 (Section~\ref{sec:sfc-scoring}).
 
 Three quantities are kept distinct: the plan's \emph{utility}, evaluated
-under the hypothesis that $\mathrm{ready}(p,\ell)$ holds whether or not
-it does; its \emph{readiness cost}, the local work still needed, used
+under the hypothesis that $\mathrm{ready}(\pln{p},\ell)$ holds whether or
+not it does; its \emph{readiness cost}, the local work still needed, used
 only to break ties; and the \emph{preparation policy} that chooses those
-local SWAPs after $p$ is committed. Two design decisions follow:
+local SWAPs after $\pln{p}$ is committed. Two design decisions follow:
 utility never includes readiness cost, and once a plan is committed
 \PORTER{} works only on that plan --- it generates no other plan and
 scores no alternative --- until the plan fires or is abandoned because no
@@ -201,27 +201,32 @@ $\mathcal{B}$ names the cores that are saturated and says how much gain
 is being forgone there, which is what the relief tiers of
 Section~\ref{sec:sfc-relief} act on.
 
-\textbf{Selection.} Every plan in both sets is scored
-(Section~\ref{sec:sfc-scoring}) \emph{before} any preparation SWAP for it
-exists. \PORTER{} sorts $\mathcal{P}$ by the key below and walks it in
-order, taking the first plan that is either ready or admits an improving
-preparation SWAP. A higher-scoring plan that is neither is skipped, not
-waited for. Two things can then override that choice, and both are driven
-by the single \emph{highest-scoring} member of $\mathcal{B}$, which we
-write $b^\ast = \arg\max_{b\in\mathcal{B}} \mathrm{total}(b)$; the rest of
-$\mathcal{B}$ enters no comparison.
+\textbf{Selection.} Every plan in both sets is scored before any
+preparation SWAP for it exists; Section~\ref{sec:sfc-scoring} gives the
+score and the ordering key~\eqref{eq:sfc-key} it induces. \PORTER{} then walks $\mathcal{P}$ in that
+order and commits to the first plan it can actually work on. A plan
+qualifies if it is \emph{ready} --- its endpoints already sit beside the
+ports it needs and those ports are free, so it can fire immediately --- or
+if it is \emph{preparable}: not ready, but some local SWAP moves the
+layout strictly closer to readiness. A higher-scoring plan that is neither
+is skipped rather than waited for, and such plans do occur. A side whose
+core is completely full is the standard case: no local SWAP can change a
+core's free-slot count or clear a port that nothing can reach, so no
+amount of preparation will ever make that plan fire.
 
-If a plan $p^\ast$ was found and $\mathrm{total}(b^\ast) -
-\mathrm{total}(p^\ast) > m_\mathrm{assist}{=}5.0$, \PORTER{} abandons
-$p^\ast$ and relieves the core that blocks $b^\ast$ instead. If no plan in
-$\mathcal{P}$ was ready or preparable --- which includes the case
-$\mathcal{P}=\emptyset$, but is not limited to it --- it relieves
-$\mathcal{B}$'s blocked destinations in ascending hop order. In both cases
-what is committed is a relief \TeleData{} generated for the purpose, never
-$b^\ast$ itself. Having committed, \PORTER{} applies only that plan's
-preparation SWAPs until it is ready, no improving SWAP remains, or the
-decision state --- plan, layout, RNG --- repeats, which raises rather than
-loops.
+Two things can override the choice, and both are driven by the single
+best-scoring member of $\mathcal{B}$ alone --- call it $\pln{b}^{\ast}$;
+the rest of $\mathcal{B}$ enters no comparison. If a plan was selected but
+$\pln{b}^{\ast}$ out-scores it by more than $m_\mathrm{assist}{=}5.0$,
+\PORTER{} drops the selected plan and relieves the core blocking
+$\pln{b}^{\ast}$ instead. If nothing in $\mathcal{P}$ was ready or
+preparable --- which includes $\mathcal{P}=\emptyset$ but is not limited
+to it --- it relieves $\mathcal{B}$'s blocked destinations in ascending
+hop order. In both cases what is committed is a relief \TeleData{}
+generated for the purpose, never $\pln{b}^{\ast}$ itself. Having
+committed, \PORTER{} applies only that plan's preparation SWAPs until it
+is ready, no improving SWAP remains, or the decision state --- plan,
+layout, RNG --- repeats, which raises rather than loops.
 
 \textbf{Preparation SWAPs.}\label{sec:sfc-prep} A committed plan has
 exactly two readiness requirements, one per side: source and destination
@@ -234,86 +239,118 @@ while that port stays occupied. Each is scored by the post-SWAP
 readiness cost, and at most one improving SWAP per side is applied per
 pass.
 
-\subsection{Plan Scoring: Direct, Latent, and Lookahead Gain}
+\subsection{Plan Scoring and the Selection Key}
 \label{sec:sfc-scoring}
 
-Every plan $p$ scores $\mathrm{total}(p) = \mathrm{direct}(p) +
-\mathrm{lookahead}(p)$. All kinds share one convention. Write $\kappa$
-for the map sending a logical qubit to the core holding it under the
-current layout, and $\kappa'$ for the same map under the layout the plan
-would produce --- identical to $\kappa$ except that a \TeleData{}'s
-moving qubit now sits in $c_\mathrm{dst}$. For a CX $g=(q_i,q_j)$,
-\[
+Every candidate is scored before any preparation SWAP for it exists, and
+the scored plans are ordered by one lexicographic key, smallest first:
+\begin{equation}
+  \mathrm{key}(\pln{p}) = \bigl(
+     -\mathrm{total},\,
+      \neg\mathrm{ready},\,
+      \mathrm{prep},\,
+      \mathrm{rank},\,
+      \mathrm{cap},\,
+     -\mathrm{lookahead}\bigr),
+  \label{eq:sfc-key}
+\end{equation}
+each component evaluated at $\pln{p}$. The order of the components is the
+design, so we take them in turn.
+
+\textbf{$\mathrm{total}$} is the estimated gate progress the plan buys,
+negated so that more progress sorts first. It decides almost every
+comparison; the five components after it only break ties. Preparation
+cost is not part of it, so a plan that happens to be cheap to prepare
+cannot displace one that buys more progress --- the property that
+separates this scorer from \dSABRE{}'s, where staging cost is additive
+(Section~\ref{sec:related}). We define $\mathrm{total}$ below.
+
+\textbf{$\mathrm{ready}$} is the predicate of
+Section~\ref{sec:sfc-plan-first}: the plan can fire under the current
+layout with no further local work. Ready plans sort ahead of equally
+valuable unready ones.
+
+\textbf{$\mathrm{prep}$} is the readiness cost --- how far the current
+layout is from satisfying $\mathrm{ready}$, measured as intra-core
+distance from each endpoint to the port it must reach. It ranks third,
+below progress and readiness.
+
+\textbf{$\mathrm{rank}$} orders the primitives, preferring \TeleData{}
+$(0)$ to \TeleGatePacket{} $(1)$ to \TeleGate{} $(2)$: when two plans are
+equal in value, readiness and preparation cost, the one that also
+improves the layout is kept.
+
+\textbf{$\mathrm{cap}(\pln{p}) = 1/\max(1,f_\mathrm{dst}-1)$} grows as
+the destination core approaches the capacity floor, so between two
+otherwise identical plans the one leaving more room wins. It is computed
+alongside the score and never added to it.
+
+\textbf{$\mathrm{lookahead}$}, negated, is the discounted part of
+$\mathrm{total}$; among plans tied on everything above, the one whose
+value reaches further into the circuit is preferred. A stable plan
+identifier resolves anything still tied.
+
+\textbf{Gate progress.} Write $\kappa$ for the map sending a logical
+qubit to the core holding it under the current layout, and $\kappa'$ for
+the same map after the plan --- identical to $\kappa$ except that a
+\TeleData{}'s moving qubit now sits in $c_\mathrm{dst}$. For a CX
+$g=(q_i,q_j)$,
+\begin{equation}
   \Delta(g) = \dC\bigl(\kappa(q_i),\kappa(q_j)\bigr)
             - \dC\bigl(\kappa'(q_i),\kappa'(q_j)\bigr)
-\]
-is the core-graph distance the plan removes from $g$: $1$ for a gate the
-move makes local, $0$ for one it does not touch, negative for one it
-pushes apart.
+\end{equation}
+is the core-graph distance the plan removes from $g$. A \TeleData{} moves
+one qubit one hop, so $\Delta(g)\in\{1,0,-1\}$: it is $1$ whenever the hop
+brings $g$'s operands one core closer, whether or not that makes them
+local; $0$ for a gate the hop does not touch; and $-1$ for one it pushes
+apart.
 
-A \textbf{\TeleGate{}} scores a constant direct gain of $1$, one remote
-CX resolved, with no lookahead. A \textbf{\TeleGatePacket{}} scores the number of remote CX gates in the
-collected packet. These are not discounted lookahead: collection returns
-a committed executable sequence, and once the cat resource is live every
-member executes under it, each target reached by local SWAPs that are
-forbidden from touching the two reserved ports
-(Section~\ref{sec:sfc-packet}). A \textbf{\TeleData{}} plan executes no gate, so its whole score is an
-estimate of the gates its moving qubit $q$ will meet. Three sets of CX
-gates on $q$ contribute, found by simulating the DAG frontier forward
-under $\kappa'$:
+Each primitive contributes $\mathrm{total} = \mathrm{direct} +
+\mathrm{lookahead}$ in its own way. A \textbf{\TeleGate{}} scores a direct
+$1$ --- the one straddling gate it executes --- and no lookahead. A
+\textbf{\TeleGatePacket{}} scores the number of straddling gates in its
+collected run, with no lookahead either: collection returns a committed
+executable sequence, and once the cat resource is live every member of it
+executes (Section~\ref{sec:sfc-packet}).
+
+A \textbf{\TeleData{}} executes no gate, so its whole score estimates the
+gates its moving qubit $q$ will meet. Three sets of CX gates on $q$
+contribute, obtained by simulating the DAG frontier forward under
+$\kappa'$:
 \begin{itemize}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
-\item $D(p)$, the front CX on $q$. Because $q$ has at most one
+\item $D(\pln{p})$, the front CX on $q$. Because $q$ has at most one
   zero-predecessor gate at a time, this is the plan's seed gate and
-  nothing else, so $\lvert D(p)\rvert = 1$.
-\item $L(p)$, the CX gates on $q$ exposed by \emph{local closure}: the
-  simulator repeatedly retires every front gate that is executable under
-  $\kappa'$ --- one-qubit gates, and CX gates whose operands
-  $\kappa'$ places in one core --- and every CX on $q$ that surfaces
-  while it can do so joins $L(p)$. Closure stops at the first simulated
-  front with nothing locally executable. These are current pressure
-  rather than prediction: no gate outside $\kappa'$'s reach was needed to
-  expose them, and the teleport fixes their core distance the moment they
-  appear.
-\item $A_k(p)$, the CX gates on $q$ found by continuing past that
+  nothing else, so $\lvert D(\pln{p})\rvert = 1$.
+\item $L(\pln{p})$, the CX gates on $q$ reached by \emph{local closure}.
+  The simulator repeatedly retires every front gate executable under
+  $\kappa'$ --- one-qubit gates, and CX gates whose operands $\kappa'$
+  places in one core --- which advances the front and exposes gates that
+  were previously blocked behind them. Every CX on $q$ appearing in any
+  front along the way joins $L(\pln{p})$, and closure stops at the first
+  front with nothing locally executable. These count as current pressure
+  rather than prediction: reaching them required no gate outside
+  $\kappa'$'s reach, and the teleport fixes their core distance as soon as
+  they appear.
+\item $A_k(\pln{p})$, the CX gates on $q$ found by continuing past that
   stopping front, in simulated layer $k \le L_\mathrm{tp}$, discounted by
   $w_k = \max(w_\mathrm{min}, w_0\gamma^{k-1})$ with $w_0{=}0.9$,
   $\gamma{=}0.9$, $w_\mathrm{min}{=}0.5$. These are prediction.
 \end{itemize}
 Then
 \begin{align}
-  \mathrm{direct}(p)    &= \!\!\!\sum_{g\in D(p)\cup L(p)}\!\!\!\Delta(g),
-    \label{eq:sfc-teleport}\\[-2pt]
-  \mathrm{lookahead}(p) &= \sum_{k\ge1}\ \sum_{g\in A_k(p)} w_k\,\Delta(g),
+  \mathrm{direct}(\pln{p})    &= \!\!\!\!\sum_{g\in D(\pln{p})\cup L(\pln{p})}\!\!\!\!\Delta(g),
+    \\[-2pt]
+  \mathrm{lookahead}(\pln{p}) &= \sum_{k\ge1}\ \sum_{g\in A_k(\pln{p})} w_k\,\Delta(g),
     \nonumber
 \end{align}
-so $L(p)$ enters at full weight alongside $D(p)$. Alongside the score
-\PORTER{} also computes $\mathrm{cap}(p) =
-1/\max(1,f_\mathrm{dst}-1)$, which grows as the destination approaches
-the capacity floor. It is never added to $\mathrm{total}$; it is carried
-separately and used only to break ties, so that between two plans of
-equal estimated value the one leaving more room wins.
+so $L(\pln{p})$ enters at full weight alongside $D(\pln{p})$.
 
-Preparation cost appears nowhere in $\mathrm{total}$. Plans are ordered
-by the lexicographic key
-\[
-  \bigl(-\mathrm{total},\ \neg\mathrm{ready},\ \mathrm{prep},\
-        \mathrm{rank}(\pi),\ \mathrm{cap},\ -\mathrm{lookahead}\bigr),
-\]
-smallest first, so gain decides first, readiness second, and preparation
-cost third; a stable plan identifier resolves anything still tied. The
-kind rank prefers \TeleData{} $(0)$ to a packet $(1)$ to a single
-\TeleGate{} $(2)$, keeping the layout-changing action when estimated
-value, readiness and preparation cost are all equal. Because preparation
-cost sits below gain, a plan that is cheap to prepare cannot displace one
-that buys more progress --- which is the property that distinguishes this
-scorer from \dSABRE{}'s, where staging cost is additive
-(Section~\ref{sec:related}). The horizon $L_\mathrm{tp}$ counts \emph{layers}, and at
-most one gate on the moving qubit can appear per layer, since a qubit
-has at most one zero-predecessor gate at a time. A gate cap
-$N_\mathrm{tp}$ therefore cannot bind whenever
-$N_\mathrm{tp}\ge L_\mathrm{tp}$, so $L_\mathrm{tp}$ alone governs how
-far the estimate looks. It is the one parameter \PORTER{} does not fix
-by constant; choosing it is a protocol question, deferred to
+The horizon $L_\mathrm{tp}$ counts \emph{layers}, and at most one gate on
+$q$ can appear per layer, since $q$ has at most one zero-predecessor gate
+at a time. A gate cap $N_\mathrm{tp}$ therefore cannot bind whenever
+$N_\mathrm{tp}\ge L_\mathrm{tp}$, so $L_\mathrm{tp}$ alone governs how far
+the estimate looks. It is the one parameter \PORTER{} does not fix by
+constant; choosing it is a protocol question, deferred to
 Section~\ref{sec:horizon}.
 
 \subsection{Same-Control Packet Collection}
