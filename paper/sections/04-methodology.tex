@@ -249,14 +249,17 @@ selected, \PORTER{}+R can never report a higher EPR count than the pass~1
 route it contains --- at the cost of $P$ routes where one would do. It
 adds no randomness.
 
-\PORTER{}+R does not select a lookahead horizon: every pass runs at the
-configured $L_\mathrm{tp}$, so the schedule spends its extra routes on
-the layout where \PORTER{} spends its three on the horizon. Selecting
-inside refinement composes badly --- a horizon that converges on
-$\ell_0$ can oscillate on the post-routing layouts later passes start
-from --- and it would multiply the pass count by the number of
+\PORTER{}+R refines from the \emph{selected} route: pass 1 is horizon
+selection, and the horizon it chooses is held for the remaining $P-1$
+passes. Choosing once rather than per pass keeps the pass count linear
+--- re-selecting every pass would multiply it by the number of
 candidates to re-decide a property of the circuit that refinement does
-not change.
+not change --- and starting from the selected route is what makes
+\PORTER{}+R contain \PORTER{}, so the best-pass rule bounds it below.
+Total routes are $\lvert\mathcal{H}\rvert + P - 1 = 7$. The cost is
+wall-clock rather than passes: a deep selected horizon makes a later
+pass dear, and on one instance a pass is stopped by the per-pass guard
+instead of converging.
 
 One property of the schedule matters for reading its results. Refinement
 consumes a post-routing layout, and routing destroys the per-core free-slot
@@ -279,15 +282,17 @@ Phase~2 runs the $P{=}5$ refinement schedule above from two seeds, phase
 1's winner and the $\gamma{=}0.99$ layout when that is not already the
 winner, adding $P{-}1{=}4$ routes each; refining the phase-1 winner alone
 is not reliably best, so both are run. The total is $5+4=9$ routes when
-$\gamma{=}0.99$ wins and $5+4+4=13$ otherwise, the range
-Table~\ref{tab:budgets} reports. Since $\gamma{=}0.99$ always competes,
-\PORTER{}+S cannot return a higher EPR count than the configured single
-route.
+$\gamma{=}0.99$ wins and $5+4+4=13$ otherwise, plus the
+$\lvert\mathcal{H}\rvert-1$ extra probes each seed's selection spends:
+$10$ to $17$ routes, the range Table~\ref{tab:budgets} reports. Since
+$\gamma{=}0.99$ always competes and is refined from its selected route,
+\PORTER{}+S cannot return a higher EPR count than \PORTER{} does.
 
-\PORTER{}+SR runs horizon selection and the $\gamma$-search and keeps the
-lower EPR, netting the one route they share. The two vary different
-things --- the horizon at a fixed layout against the layout at a fixed
-horizon --- so neither subsumes the other.
+We previously also reported \PORTER{}+SR, the better of horizon
+selection and the $\gamma$-search. It is now redundant: phase 2 refines
+from the $\gamma{=}0.99$ layout among its seeds, which is the layout
+\PORTER{} builds by default, so the search contains the selected route.
+Section~\ref{sec:frontier} confirms the two never differ.
 
 \subsection{Comparison Protocols and Budgets}
 \label{sec:budgets}
@@ -302,10 +307,12 @@ throughout.
 \caption{Every configuration that appears in Section~\ref{sec:results}:
   layout source, layout count $\lvert\mathcal{L}\rvert$, routing passes
   per layout $P$, total routes, and the quantity minimised over them.
-  Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$ except for \PORTER{}+S
-  and \PORTER{}+SR, which spend one pass on every candidate layout and
-  the full refinement schedule on one or two of them. Lower EPR is
-  better everywhere.}
+  Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$ except where a
+  schedule selects a horizon, which adds
+  $\lvert\mathcal{H}\rvert{-}1$ probes per seed, and for \PORTER{}+S,
+  which spends one pass on every candidate layout and the full
+  refinement schedule on one or two of them. Lower EPR is better
+  everywhere.}
 \label{tab:budgets}
 \setlength{\tabcolsep}{3.5pt}
 \small
@@ -319,14 +326,13 @@ routes & selects on \\
 \TeleSABRE{}      & \TeleSABRE{} & Hungarian, seeds 0--2  & 3 & 1 & 3 & best EPR \\
 \dSABRE{}         & \dSABRE{}    & SabreLayout, seeds 0--2 & 3 & 3 & 9 & best EPR \\
 \PORTER{}         & \PORTER{}    & temporal locality-greedy & 1 & 3 & 3 & best EPR \\
-\PORTER{}+R       & \PORTER{}    & temporal locality-greedy & 1 & 5 & 5 & best forward pass \\
-\PORTER{}+S       & \PORTER{}    & $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ & 5 & 1 or 5 & $9$--$13$ & best EPR \\
-\PORTER{}+SR      & \PORTER{}    & the above two, pooled & 5 & --- & $11$--$15$ & best EPR \\
+\PORTER{}+R       & \PORTER{}    & temporal locality-greedy & 1 & 5 & 7 & best forward pass \\
+\PORTER{}+S       & \PORTER{}    & $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ & 5 & 1 or 5 & $10$--$17$ & best EPR \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Shared layout} (RQ2) --- both compilers routed from one external layout} \\
 \dSABRE{} shared  & \dSABRE{}    & \TeleSABRE{}'s or pytket-dqc's & 1 & 3 & 3 & best pass \\
 \PORTER{} shared  & \PORTER{}    & the identical layout & 1 & 3 & 3 & best EPR \\
-\PORTER{}+R shared& \PORTER{}    & the identical layout & 1 & 5 & 5 & best forward pass \\
+\PORTER{}+R shared& \PORTER{}    & the identical layout & 1 & 5 & 7 & best forward pass \\
 \midrule
 \multicolumn{7}{@{}l}{\emph{Cross layout} (RQ2) --- each compiler on the other's own layout} \\
 \dSABRE{} on \PORTER{} & \dSABRE{} & \PORTER{}'s layout & 1 & 3 & 3 & best pass \\

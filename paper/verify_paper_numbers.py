@@ -61,34 +61,34 @@ def pct(new, old):
 # ------------------------------------------------------------------ main25/64/80
 # paper: circuit -> (TS_epr, TS_swap, dSE_epr, dSE_swap, P_epr, P_swap, delta)
 main25 = {
-    "ae":            (119, 346, 65, 309, 65, 328, 65, 328, -45.4),
-    "ghz":             (13, 44, 5, 17, 4, 29, 4, 29, -69.2),
-    "graphstate":    (21, 63, 6, 31, 7, 34, 4, 19, -81.0),
-    "qft":           (138, 448, 81, 365, 74, 327, 74, 327, -46.4),
-    "qnn":           (515, 820, 143, 711, 119, 642, 116, 603, -77.5),
-    "random":          (636, 1367, 411, 1448, 401, 1327, 383, 1319, -39.8),
+    "ae":             (119, 346, 65, 309, 65, 328, 65, 328, -45.4),
+    "ghz":            (13, 44, 5, 17, 4, 29, 4, 29, -69.2),
+    "graphstate":     (21, 63, 6, 31, 7, 34, 4, 19, -81.0),
+    "qft":            (138, 448, 81, 365, 74, 327, 74, 327, -46.4),
+    "qnn":            (515, 820, 143, 711, 119, 642, 116, 603, -77.5),
+    "random":         (636, 1367, 411, 1448, 401, 1327, 383, 1319, -39.8),
 }
 main64 = {
-    "ae":            (353, 1494, 165, 1325, 157, 1468, 177, 1627, -55.5),
-    "ghz":           (16, 132, 6, 39, 6, 86, 6, 86, -62.5),
-    "graphstate":    (62, 281, 15, 88, 20, 131, 16, 103, -74.2),
-    "qft":           (312, 1711, 179, 1480, 262, 1846, 262, 1846, -16.0),
-    "qnn":           (889, 5471, 538, 5260, 638, 5901, 537, 5608, -39.6),
-    "random":        (None, None, 732, 3603, 737, 4048, 737, 4048, None),
-    "qpeexact":      (289, 1706, 187, 1576, 222, 1729, 222, 1729, -23.2),
-    "qaoa":          (956, 4189, 555, 3734, 775, 4784, 607, 4256, -36.5),
-    "multiplier":    (1601, 9654, 1285, 8969, 1076, 8649, 763, 8264, -52.3),
+    "ae":             (353, 1494, 165, 1325, 157, 1468, 157, 1468, -55.5),
+    "ghz":            (16, 132, 6, 39, 6, 86, 6, 86, -62.5),
+    "graphstate":     (62, 281, 15, 88, 20, 131, 16, 103, -74.2),
+    "qft":            (312, 1711, 179, 1480, 262, 1846, 262, 1846, -16.0),
+    "qnn":            (889, 5471, 538, 5260, 638, 5901, 638, 5901, -28.2),
+    "random":         (None, None, 732, 3603, 737, 4048, 737, 4048, None),
+    "qpeexact":       (289, 1706, 187, 1576, 222, 1729, 222, 1729, -23.2),
+    "qaoa":           (956, 4189, 555, 3734, 775, 4784, 586, 4066, -38.7),
+    "multiplier":     (1601, 9654, 1285, 8969, 1076, 8649, 1076, 8649, -32.8),
 }
 main80 = {
-    "ae":            (None, None, 332, 2624, 299, 2433, 490, 3156, None),
-    "ghz":             (26, 215, 13, 80, 7, 115, 7, 115, -73.1),
-    "graphstate":    (87, 435, 20, 97, 28, 198, 24, 150, -72.4),
-    "qft":             (None, None, 322, 2362, 446, 2968, 393, 2692, None),
-    "qnn":             (None, None, 807, 8445, 1070, 9347, 1181, 9959, None),
-    "random":        (None, None, 10551, 56624, 11040, 62119, 11040, 62119, None),
-    "qpeexact":      (784, 2875, 347, 2254, 291, 2378, 526, 3427, -62.9),
-    "qaoa":          (None, None, 862, 6067, 1122, 7370, 1122, 7370, None),
-    "multiplier":      (None, None, 4841, 22029, 2411, 15709, 2699, 16810, None),
+    "ae":             (None, None, 332, 2624, 299, 2433, 299, 2433, None),
+    "ghz":            (26, 215, 13, 80, 7, 115, 7, 115, -73.1),
+    "graphstate":     (87, 435, 20, 97, 28, 198, 24, 150, -72.4),
+    "qft":            (None, None, 322, 2362, 446, 2968, 393, 2692, None),
+    "qnn":            (None, None, 807, 8445, 1070, 9347, 918, 8782, None),
+    "random":         (None, None, 10551, 56624, 11040, 62119, 11040, 62119, None),
+    "qpeexact":       (784, 2875, 347, 2254, 291, 2378, 291, 2378, -62.9),
+    "qaoa":           (None, None, 862, 6067, 1122, 7370, 1122, 7370, None),
+    "multiplier":     (None, None, 4841, 22029, 2411, 15709, 2132, 14895, None),
 }
 
 for suite, table in (("25", main25), ("64", main64), ("80", main80)):
@@ -139,13 +139,13 @@ g64 = own("64", ("telesabre", "dSE", "sfc", "sfc_refined"), c64)
 check("gmean64 TS", 284.5, round(g64["telesabre"], 1))
 check("gmean64 dSE", 144.6, round(g64["dSE"], 1))
 check("gmean64 P", 166.2, round(g64["sfc"], 1))
-check("gmean64 delta", -47.6, round(pct(g64["sfc_refined"], g64["telesabre"]), 1))
+check("gmean64 delta", -45.1, round(pct(g64["sfc_refined"], g64["telesabre"]), 1))
 
 g80 = own("80", ("telesabre", "dSE", "sfc", "sfc_refined"), ['ghz', 'graphstate', 'qpeexact'])
 check("gmean80(3) TS", 121.0, round(g80["telesabre"], 1))
 check("gmean80(3) dSE", 44.9, round(g80["dSE"], 1))
 check("gmean80(3) P", 38.5, round(g80["sfc"], 1))
-check("gmean80(3) delta", -63.2, round(pct(g80["sfc_refined"], g80["telesabre"]), 1))
+check("gmean80(3) delta", -69.8, round(pct(g80["sfc_refined"], g80["telesabre"]), 1))
 
 # 80q five-circuit basis dSABRE completes (user's question)
 # 80q circuits dSABRE completes (all of them)
@@ -192,9 +192,9 @@ check("pytket best for dSABRE", 4.5,
 check("pytket best for PORTER", 4.8,
       round(100 * (1 - _g("sfc_pytket") / _g("sfc")), 1))
 # "refinement gains 3.0% on dSABRE's layout and nothing on pytket's"
-check("refinement gain on dSE layout", 5.1,
+check("refinement gain on dSE layout", 9.5,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_on_dse_layout")), 1))
-check("refinement gain on pytket layout", -0.0,
+check("refinement gain on pytket layout", 6.8,
       round(100 * (1 - _g("sfc_pytket_refined") / _g("sfc_pytket")), 1))
 # TeleSABRE's layout, on the 17 instances it covers: weakest source, and the
 # one on which refinement appears to pay.
@@ -209,7 +209,7 @@ check("TS gap is 64q Random plus six 80q", True,
       and sum(1 for m in _missing if m.startswith("80/")) == 6)
 check("TS layout routed by dSABRE", 100.9, round(_h("dSE_shared"), 1))
 check("pytket layout routed by dSABRE, same 17", 71.1, round(_h("dSE_pytket"), 1))
-check("refinement gain on TS layout", 20.2,
+check("refinement gain on TS layout", 20.1,
       round(100 * (1 - _h("sfc_shared_refined") / _h("sfc_shared")), 1))
 check("TS-layout PORTER+R beats dSABRE", True,
       _h("sfc_shared_refined") < _h("dSE_shared"))
@@ -381,23 +381,18 @@ for _attr, _want, _lbl in (
 check("layout-search gammas", "0.80,0.90,0.95,0.99,1.00",
       ",".join(f"{g:.2f}" for g in _cdr.DEFAULT_LAYOUT_GAMMAS))
 check("layout-search gamma count", 5, len(_cdr.DEFAULT_LAYOUT_GAMMAS))
-# IV-E and V-F: PORTER+R holds the lookahead horizon fixed at the configured
-# value.  That is why it does not contain PORTER's route and cannot bound it.
+# IV-E and V-F: PORTER+R and PORTER+S both refine from the SELECTED route,
+# which is what makes each contain the schedule below it.
 import inspect as _inspect
-check("refinement does not select a horizon", False,
-      _inspect.signature(_cdr.run_refinement_passes)
-      .parameters["selection"].default)
+for _fn in ("run_refinement_passes", "run_layout_search"):
+    check(f"{_fn} selects a horizon", True,
+          _inspect.signature(getattr(_cdr, _fn)).parameters["selection"].default)
 # Architectures as described in Setup.
 for _name, _cores, _per, _links in (("A", 4, 9, 4), ("H", 6, 16, 7)):
     _, _hw = _cdr.hardware_for_name(_name)
     check(f"arch {_name} cores", _cores, len(_hw.cores))
     check(f"arch {_name} per-core", _per, len(_hw.cores[0].physical_qubits))
     check(f"arch {_name} links", _links, len(_hw.core_edges))
-# The two refinement examples quoted in Section III-C.
-for _c, _a, _b in (("qnn", 638, 537), ("multiplier", 1076, 763)):
-    _r = by[("64", _c)]
-    check(f"secIII refine {_c} one-pass", _a, _r["sfc"]["epr"])
-    check(f"secIII refine {_c} refined", _b, _r["sfc_refined"]["epr"])
 
 # ------------------------------------------------ timing / scale-up prose
 # Per-routing-pass comparison on the 64q suite. dSABRE runs three passes per
@@ -482,13 +477,15 @@ check("64q per-route gmean (3 routes)", 0.27, round(gmean(_ratios3), 2))
 check("64q PORTER dearer per route on all nine", 9,
       sum(1 for x in _ratios3 if x < 1))
 
-# Sec IV-J: selection vs the gamma-search, per instance.
-check("search beats selection on", 14,
-      sum(1 for r in cmp_rows if r["sfc_search"]["epr"] < r["sfc"]["epr"]))
-check("selection beats search on", 4,
-      sum(1 for r in cmp_rows if r["sfc"]["epr"] < r["sfc_search"]["epr"]))
-check("selection/search ties", 6,
-      sum(1 for r in cmp_rows if r["sfc"]["epr"] == r["sfc_search"]["epr"]))
+# V-F: each schedule contains the one below it, so none can be worse.
+check("PORTER+R never worse than PORTER", 0,
+      sum(1 for r in cmp_rows if r["sfc_refined"]["epr"] > r["sfc"]["epr"]))
+check("PORTER+S never worse than PORTER", 0,
+      sum(1 for r in cmp_rows if r["sfc_search"]["epr"] > r["sfc"]["epr"]))
+# V-F: PORTER+SR is retired -- it cannot differ from PORTER+S.
+check("PORTER+SR identical to PORTER+S", 0,
+      sum(1 for r in cmp_rows
+          if r["sfc_selection_and_search"]["epr"] != r["sfc_search"]["epr"]))
 # Sec IV-D: PORTER's own protocol against dSABRE, per instance.
 check("PORTER own-protocol wins vs dSE", 10,
       sum(1 for r in cmp_rows if r["sfc"]["epr"] < r["dSE"]["epr"]))
@@ -530,14 +527,14 @@ check("dTS all negative", True, all(x < 0 for x in _d))
 # "PORTER+R wins seven, loses thirteen, ties four"
 _w = sum(1 for r in _pr if r["sfc_refined"]["epr"] < r["dSE"]["epr"])
 _l = sum(1 for r in _pr if r["sfc_refined"]["epr"] > r["dSE"]["epr"])
-check("P+R vs dSE wins", 9, _w)
-check("P+R vs dSE losses", 13, _l)
+check("P+R vs dSE wins", 11, _w)
+check("P+R vs dSE losses", 11, _l)
 check("P+R vs dSE ties", 2, len(_pr) - _w - _l)
 # "64q Multiplier is the widest margin here" and the worst losses are ~1.5x
 _best = min(_pr, key=lambda r: r["sfc_refined"]["epr"] / r["dSE"]["epr"])
-check("widest P+R win circuit", "80/ghz", f'{_best["suite"]}/{_best["circuit"]}')
+check("widest P+R win circuit", "80/multiplier", f'{_best["suite"]}/{_best["circuit"]}')
 _worst = max(_pr, key=lambda r: r["sfc_refined"]["epr"] / r["dSE"]["epr"])
-check("worst P+R loss circuit", "80/qpeexact", f'{_worst["suite"]}/{_worst["circuit"]}')
+check("worst P+R loss circuit", "64/qft", f'{_worst["suite"]}/{_worst["circuit"]}')
 check("worst P+R loss ratio", 1.5,
       round(_worst["sfc_refined"]["epr"] / _worst["dSE"]["epr"], 1))
 # grid, row against row: neither router gains from its own layout source
@@ -547,7 +544,7 @@ check("grid dSE gain from own layout", -0.4,
       round(100 * (1 - _g("dSE") / _g("dSE_on_porter_layout")), 1))
 check("grid PORTER gain from dSE layout", -0.2,
       round(100 * (1 - _g("sfc_on_dse_layout") / _g("sfc")), 1))
-check("grid PORTER+R gain from dSE layout", 3.0,
+check("grid PORTER+R gain from dSE layout", 2.7,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_refined")), 1))
 # shared-layout figures quoted in the prose but no longer in the table.
 # These legs run PORTER's own (horizon-selecting) protocol, not one pass.
@@ -614,24 +611,24 @@ hh_by = {(r["topology"], r["circuit"]): r for r in hh_rows}
 # The dSABRE column must also equal what dsabre/code/results/results_heavyhex*
 # publishes -- that equality is the check that both routers see the same device.
 heavyhex = {
-    ("ring", "ae"):             (86, 69, 88, 61, 85),
-    ("ring", "ghz"):            (2, 2, 2, 2, 2),
-    ("ring", "graphstate"):     (12, 12, 10, 13, 12),
-    ("ring", "qft"):            (110, 109, 103, 110, 97),
-    ("ring", "qnn"):            (249, 240, 240, 269, 246),
-    ("ring", "random"):         (465, 465, 452, 419, 419),
-    ("ring", "qpeexact"):       (80, 105, 90, 93, 84),
-    ("ring", "qaoa"):           (249, 244, 247, 244, 246),
-    ("ring", "multiplier"):     (451, 506, 397, 416, 373),
-    ("star", "ae"):             (118, 149, 144, 104, 114),
-    ("star", "ghz"):            (3, 3, 3, 4, 3),
-    ("star", "graphstate"):     (10, 16, 14, 11, 9),
-    ("star", "qft"):            (125, 117, 124, 108, 120),
-    ("star", "qnn"):            (241, 449, 314, 321, 314),
-    ("star", "random"):         (475, 547, 452, 478, 463),
-    ("star", "qpeexact"):       (120, 162, 162, 102, 90),
-    ("star", "qaoa"):           (251, 405, 245, 245, 244),
-    ("star", "multiplier"):     (722, 455, None, 462, 462),
+    ("ring", "ae"):             (86, 69, 61),
+    ("ring", "ghz"):            (2, 2, 2),
+    ("ring", "graphstate"):     (12, 12, 13),
+    ("ring", "qft"):            (110, 109, 110),
+    ("ring", "qnn"):            (249, 240, 269),
+    ("ring", "random"):         (465, 465, 419),
+    ("ring", "qpeexact"):       (80, 105, 93),
+    ("ring", "qaoa"):           (249, 244, 244),
+    ("ring", "multiplier"):     (451, 506, 416),
+    ("star", "ae"):             (118, 149, 104),
+    ("star", "ghz"):            (3, 3, 4),
+    ("star", "graphstate"):     (10, 16, 11),
+    ("star", "qft"):            (125, 117, 108),
+    ("star", "qnn"):            (241, 449, 321),
+    ("star", "random"):         (475, 547, 478),
+    ("star", "qpeexact"):       (120, 162, 102),
+    ("star", "qaoa"):           (251, 405, 245),
+    ("star", "multiplier"):     (722, 455, 462),
 }
 # dSABRE's published figures for these two architectures.
 hh_published = {
@@ -640,8 +637,9 @@ hh_published = {
     "star": {"ae": 118, "ghz": 3, "graphstate": 10, "qft": 125, "qnn": 241,
              "random": 475, "qpeexact": 120, "qaoa": 251, "multiplier": 722},
 }
-_HH_LEGS = ("dSE", "porter", "porter_refined", "porter_on_dse",
-            "porter_on_dse_refined")
+# Tables V/VI and the appendix carry no PORTER+R column: refinement is
+# measured on the main suite alone, so no heavy-hex +R value is pinned.
+_HH_LEGS = ("dSE", "porter", "porter_on_dse")
 for key, want in heavyhex.items():
     r = hh_by[key]
     for leg, w in zip(_HH_LEGS, want):
@@ -659,46 +657,36 @@ def _hh_gmean(topo, leg, circs):
 _HH9 = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
         "qpeexact", "qaoa", "multiplier"]
 _HH8 = [c for c in _HH9 if c != "multiplier"]
-for topo, circs, exp in (
-    ("ring", _HH9, (85.2, 86.1, 82.3, 82.9, 81.4)),
-    ("star", _HH8, (79.1, 103.8, 89.8, 81.2, 76.6)),
-):
+for topo, exp in (("ring", (85.2, 86.1, 82.9)), ("star", (101.1, 122.3, 98.5))):
     for leg, w in zip(_HH_LEGS, exp):
-        check(f"hh gmean {topo}({len(circs)}) {leg}", w, _hh_gmean(topo, leg, circs))
-check("hh gmean star(9) dSE", 101.1, _hh_gmean("star", "dSE", _HH9))
-check("hh gmean star(9) porter_on_dse", 98.5,
-      _hh_gmean("star", "porter_on_dse", _HH9))
-check("hh gmean star(9) porter_on_dse_refined", 93.5,
-      _hh_gmean("star", "porter_on_dse_refined", _HH9))
-# Prose: the fixed-layout control with matched passes reverses BOTH topologies.
-check("hh ring fixed-layout P+R delta pct", -4.4,
-      round(100 * (_hh_gmean_raw("ring", "porter_on_dse_refined", _HH9)
+        check(f"hh gmean {topo}(9) {leg}", w, _hh_gmean(topo, leg, _HH9))
+# V-E: the two compilers are within 1% on the ring and PORTER trails 21% on
+# the star, under each one's own layout and own protocol.
+check("hh ring own-layout delta pct", 1.1,
+      round(100 * (_hh_gmean_raw("ring", "porter", _HH9)
                    / _hh_gmean_raw("ring", "dSE", _HH9) - 1), 1))
-check("hh star fixed-layout P+R delta pct", -7.5,
-      round(100 * (_hh_gmean_raw("star", "porter_on_dse_refined", _HH9)
+check("hh star own-layout delta pct", 21.0,
+      round(100 * (_hh_gmean_raw("star", "porter", _HH9)
                    / _hh_gmean_raw("star", "dSE", _HH9) - 1), 1))
-# Prose claims: ring PORTER+R -3.4% and 6W/2L/1T; star PORTER+R +13.6% and 3W/4L/1T.
-check("hh ring P+R delta pct", -3.4,
-      round(100 * (_hh_gmean_raw("ring", "porter_refined", _HH9)
-                   / _hh_gmean_raw("ring", "dSE", _HH9) - 1), 1))
-check("hh star P+R delta pct", 13.6,
-      round(100 * (_hh_gmean_raw("star", "porter_refined", _HH8)
-                   / _hh_gmean_raw("star", "dSE", _HH8) - 1), 1))
-for topo, circs, rec in (("ring", _HH9, (6, 2, 1)), ("star", _HH8, (3, 4, 1))):
-    w = sum(1 for c in circs
-            if hh_by[(topo, c)]["porter_refined"]["epr"] < hh_by[(topo, c)]["dSE"]["epr"])
-    l = sum(1 for c in circs
-            if hh_by[(topo, c)]["porter_refined"]["epr"] > hh_by[(topo, c)]["dSE"]["epr"])
-    t = len(circs) - w - l
-    for lbl, want_, got_ in zip(("wins", "losses", "ties"), rec, (w, l, t)):
-        check(f"hh {topo} P+R {lbl}", want_, got_)
-# The paper contrasts the ring lead with PORTER+R's 3.2% deficit on the
-# 4x4-grid 64q suite (TeleSABRE-matched basis) -- keep the two in step.
-check("hh grid-64q P+R deficit pct", 3.2,
-      round(100 * (g64["sfc_refined"] / g64["dSE"] - 1), 1))
+# V-E: routed from dSABRE's own candidates PORTER overtakes it on BOTH graphs.
+for topo in ("ring", "star"):
+    check(f"hh {topo} fixed-layout PORTER beats dSABRE", True,
+          _hh_gmean_raw(topo, "porter_on_dse", _HH9)
+          < _hh_gmean_raw(topo, "dSE", _HH9))
 # Star Multiplier: PORTER's own layout fails, dSABRE's layout gives 462 vs 722.
-check("hh star multiplier porter fails", False,
-      (hh_by[("star", "multiplier")].get("porter") or {}).get("epr") is None)
+check("hh star multiplier porter completes", True,
+      (hh_by[("star", "multiplier")].get("porter") or {}).get("epr") is not None)
+# V-E: star Multiplier is PORTER's widest margin on these architectures.
+_hh_ratio = {k: r["porter"]["epr"] / r["dSE"]["epr"] for k, r in hh_by.items()
+             if (r.get("porter") or {}).get("epr")}
+check("hh widest PORTER margin", "star/multiplier",
+      "/".join(min(_hh_ratio, key=_hh_ratio.get)))
+check("hh star multiplier reduction", -37,
+      round(100 * (_hh_ratio[("star", "multiplier")] - 1)))
+check("hh ring PORTER wins", 4,
+      sum(1 for c in _HH9 if hh_by[("ring", c)]["porter"]["epr"] < hh_by[("ring", c)]["dSE"]["epr"]))
+check("hh star PORTER wins", 2,
+      sum(1 for c in _HH9 if hh_by[("star", c)]["porter"]["epr"] < hh_by[("star", c)]["dSE"]["epr"]))
 check("hh star multiplier reduction pct", -36,
       round(100 * (hh_by[("star", "multiplier")]["porter_on_dse"]["epr"]
                    / hh_by[("star", "multiplier")]["dSE"]["epr"] - 1)))
@@ -768,23 +756,23 @@ narrative = {
     ("25", "qft"): "P",
     ("25", "qnn"): "P",
     ("25", "random"): "P",
-    ("64", "ae"): "dSE",
+    ("64", "ae"): "P",
     ("64", "ghz"): "tie",
     ("64", "graphstate"): "dSE",
     ("64", "multiplier"): "P",
     ("64", "qaoa"): "dSE",
     ("64", "qft"): "dSE",
-    ("64", "qnn"): "P",
+    ("64", "qnn"): "dSE",
     ("64", "qpeexact"): "dSE",
     ("64", "random"): "P",
-    ("80", "ae"): "dSE",
+    ("80", "ae"): "P",
     ("80", "ghz"): "P",
     ("80", "graphstate"): "dSE",
     ("80", "multiplier"): "P",
     ("80", "qaoa"): "dSE",
     ("80", "qft"): "dSE",
     ("80", "qnn"): "dSE",
-    ("80", "qpeexact"): "dSE",
+    ("80", "qpeexact"): "P",
     ("80", "random"): "dSE",
 }
 for key, want in narrative.items():

@@ -887,6 +887,81 @@ disambiguated by the `main-` prefix. **Compile `sfc.tex` first** or the
 appendix's cross-references render as `??`. Its own `\app*` letters (A--I)
 are still hardcoded in `sfc.tex`.
 
+## Refinement stacks on horizon selection (2026-08-31) --- +R and +S now bound PORTER
+
+`run_refinement_passes` and `run_layout_search` both default
+**`selection=True`**. The horizon is chosen once, on the first forward pass,
+and held for the rest of the schedule, so **pass 1 IS PORTER's own selected
+route** and the best-forward-pass rule makes the schedule incapable of
+reporting more EPR than PORTER. At a fixed horizon it could and did.
+
+| protocol | routes | EPR (24) | vs dSE | time | vs dSE |
+|---|---|---|---|---|---|
+| dSABRE | 9 | 171.9 | 1.00 | 1.38 s | 1.00 |
+| PORTER | 3 | 174.9 | 1.02 | 1.25 s | **0.91** |
+| PORTER+R | **7** | **163.0** | **0.95** | 3.22 s | 2.34 |
+| PORTER+S | 10--17 | **159.1** | **0.93** | 9.01 s | 6.55 |
+
+- **0 of 24 worse than PORTER** for both +R and +S (was 2 losses for +R).
+  80q carries it: QPEexact 526->291, AE 490->299, Multiplier 2699->2132.
+- **PORTER+SR is retired.** `run_layout_search` phase 2 always refines the
+  gamma=0.99 seed, which IS `build_initial_layout`'s default, so the search
+  now contains the selected route. **Identical to +S on all 24**, at 19% more
+  time. Row deleted from `tab:protocols`.
+- **Two 64q cells got worse**: QNN 537->638, Multiplier 763->1076, where the
+  selected horizon (8 and 128) leaves refinement nothing to recover. Not a
+  uniform improvement --- say so.
+- **Cost is wall-clock, not routes**: refined legs ran **5.6x** their former
+  time (25q 1.26x, 64q 1.98x, **80q 4.78x**) because a deep selected horizon
+  can make a later pass oscillate until the 900 s per-pass guard fires. One
+  80q instance runs four passes of five for that reason.
+
+**A V-B finding was overturned.** "Refinement repairs a poor starting layout
+and adds little to a good one" rested on +R gaining 5.1% on dSABRE's layout
+and **nothing** on pytket's. With the horizon free to move it gains 9.5% /
+6.8% / 6.8% across the three sources --- the old reading was an artefact of
+the fixed horizon, and V-B now says that explicitly.
+
+**Tables V and VI are own-layout, own-protocol only** (author's call):
+the PORTER+R and PORTER-on-dSABRE-layout columns are gone from `tab:scaleup`
+and `tab:heavyhex`, and **+R/+S are measured on the main suite alone**. The
+appendix heavy-hex table keeps `porter_on_dse` (the fixed-layout control V-E
+cites) but also drops +R. **No scale-up refined leg is run at all** ---
+`rerun_refined_legs.py`'s `section_scaleup` is a documented no-op, which is
+what saved ~6 h.
+
+Consequences to remember: heavy-hex under own layout is **86.1 vs 85.2 ring
+(parity) and 122.3 vs 101.1 star** --- the old "+R leads dSABRE on the ring"
+result is no longer shown. V-D's "backward refinement loses on all six
+scale-up instances" was **deleted, not restated**: it was measured under the
+superseded fixed-horizon +R and we are not re-running it.
+
+**The plan-commitment ablation is gone from the paper** (author's call): the
+Hop-wise column, the V-C paragraph, the Discussion's separability paragraph,
+the Conclusion's second negative result, and the Intro's mechanism-map entry.
+The title still reads "A Plan-Committed Router", so **III-B now motivates the
+rule structurally** (a preparation SWAP is meaningless except relative to its
+plan; committing makes preparation and action one unit and gives the
+abandonment test something to fire on) and states plainly that no experiment
+isolates it. `plan_commitment_results.json` is no longer read by any verifier.
+
+**Two wording defects fixed**: V-A's "at its own three-route protocol" never
+said what the three routes were (the candidate horizons); and "the TeleGate
+is the only remote action needing no free destination slot" conflated the
+port with a data slot --- telegate and teleport both need the two
+communication qubits free, and what is special is that the cat copy lives on
+the target-side communication qubit, so only teleport carries the
+`free(dst) >= f_min` test (verified: `_generate_remote_plans` emits the
+telegate plan with no `free_count` check at all).
+
+**Trap hit twice this session.** (1) `verify_tex_tables.gmean` clamps
+`max(x,1)`, which silently inflates sub-second **times** --- use `gmean_raw`
+for timing; I recomputed tab:main's `t` column wrong before catching it.
+(2) A background waiter written as `while pgrep -f rerun_refined_legs.py;
+do sleep; done` **matches its own command line** and loops forever --- the
++S/+SR run sat idle ~2 h. Match on something the waiter itself does not
+contain.
+
 ## V-B rebuilt as a layout x router grid; Section V compressed (2026-08-31)
 
 **`tab:shared` in the main paper is no longer the \TeleSABRE{}-shared
