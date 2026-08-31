@@ -125,95 +125,73 @@ def tab_shared():
 
 
 def tab_scaleup():
+    """tab:scaleup (Table V): each compiler under its OWN initial layout and
+    own protocol.  The PORTER+R and PORTER-on-dSABRE-layout columns were
+    removed on 2026-08-31 -- PORTER+R / +S / +SR are measured on the main
+    suite only (tab:main), and the fixed-layout control moved to the prose."""
     rows = load("scaleup")
     ARCH = {"100": (150, 6), "200": (300, 12), "360": (500, 20)}
-    out, cols = [], {k: [] for k in ("dSE", "sfc", "sfc_refined",
-                                     "sfc_on_dse_layout", "sfc_on_dse_layout_refined")}
+    out, cols = [], {k: [] for k in ("dSE", "sfc")}
     for r in rows:
         n = r["suite"]; P, K = ARCH[n]
         cx = f"{r['cx']:,}".replace(",", "{,}")
-        vals = [epr(r, k) for k in cols]
-        for k, v in zip(cols, vals):
-            cols[k].append(v)
+        for k in cols:
+            cols[k].append(epr(r, k))
         # Complete protocol cost for both, matching the paper's declared
         # timing metric -- NOT seconds_best_attempt, which is one dSABRE
         # route and is not comparable with PORTER's three-route protocol.
         td = (r.get("dSE") or {}).get("seconds")
         tp = (r.get("sfc") or {}).get("seconds")
         out.append(f"{r['circuit'].upper().replace('QPEEXACT','QPEexact'):<8} & {cx:>9} & "
-                   f"{n:>3} & {P:>3} & {K:>2} & {vals[0]:>4} & {td:>5.1f} & "
-                   f"{vals[1]:>4} & {tp:>5.1f} & {vals[2]:>4} & {vals[3]:>4} & {vals[4]:>4} \\\\")
+                   f"{n:>3} & {P:>3} & {K:>2} & {epr(r, 'dSE'):>4} & {td:>5.1f} & "
+                   f"\\textbf{{{epr(r, 'sfc')}}} & {tp:>5.1f} \\\\")
     g = {k: gmean(v) for k, v in cols.items()}
-    out.append("\\midrule")
-    # dSABRE's gmean is bolded as the baseline; among PORTER's four variants
-    # only the best is bolded, as in the released table.
-    porter_keys = ["sfc", "sfc_refined", "sfc_on_dse_layout",
-                   "sfc_on_dse_layout_refined"]
-    best = min(porter_keys, key=lambda k: g[k])
-    cells = " & ".join(
-        (f"\\textbf{{{g[k]:.1f}}}" if k == best else f"{g[k]:.1f}")
-        for k in porter_keys)
-    # gmean of complete protocol time, alongside each EPR gmean.
     tds = gmean([(r.get("dSE") or {}).get("seconds") for r in rows])
     tps = gmean([(r.get("sfc") or {}).get("seconds") for r in rows])
-    first, rest = cells.split(" & ", 1)
-    out.append(f"\\textbf{{gmean}} (6) & & & & & \\textbf{{{g['dSE']:.1f}}} & "
-               f"\\textbf{{{tds:.1f}}} & {first} & \\textbf{{{tps:.1f}}} & {rest} \\\\")
+    out.append("\\midrule")
+    out.append(f"\\textbf{{gmean}} (6) & & & & & {g['dSE']:.1f} & {tds:.1f} & "
+               f"\\textbf{{{g['sfc']:.1f}}} & \\textbf{{{tps:.1f}}} \\\\")
     return "\n".join(out)
 
 
 def tab_heavyhex():
+    """tab:heavyhex (Table VI): own layout, own protocol, both compilers.
+    The PORTER+R and PORTER-on-dSABRE-layout columns were removed on
+    2026-08-31; the per-circuit rows and the fixed-layout control live in the
+    appendix."""
     rows = load("heavyhex")
-    def sel(topo, need_all):
-        rs = [r for r in rows if r["topology"] == topo]
-        if not need_all:
-            rs = [r for r in rs if epr(r, "porter")]
-        return rs
     out = []
-    # The released table carried a "star (8)" row because PORTER could not
-    # complete star/Multiplier under its own layout.  Horizon selection
-    # completes it, so that row is emitted only while it still differs from
-    # the full-suite row.
-    variants = [("ring", True), ("star", True)]
-    star_all = [r for r in rows if r["topology"] == "star"]
-    if any(epr(r, "porter") is None for r in star_all):
-        variants.append(("star", False))
-    for topo, need_all in variants:
-        rs = sel(topo, need_all)
-        # A gmean over a column with a missing entry would silently be taken
-        # over fewer circuits than the row claims, so such a column is "---".
+    for topo in ("ring", "star"):
+        rs = [r for r in rows if r["topology"] == topo]
         def col(k):
             vs = [epr(r, k) for r in rs]
             return None if any(v is None for v in vs) else gmean(vs)
-        g = {k: col(k) for k in
-             ("dSE", "porter", "porter_refined", "porter_on_dse", "porter_on_dse_refined")}
+        g = {k: col(k) for k in ("dSE", "porter")}
         f = lambda v: "---" if v is None else f"{v:.1f}"
-        out.append(f"{topo} ({len(rs)})".ljust(17) +
-                   f" & {f(g['dSE']):>5} & {f(g['porter']):>5} & {f(g['porter_refined']):>4} & "
-                   f"{f(g['porter_on_dse']):>5} & \\textbf{{{f(g['porter_on_dse_refined'])}}} \\\\")
+        lo = min(v for v in g.values() if v is not None)
+        c = lambda k: (f"\\textbf{{{f(g[k])}}}" if g[k] == lo else f"{f(g[k]):>5}")
+        out.append(f"{topo} ({len(rs)})".ljust(17) + f" & {c('dSE')} & {c('porter')} \\\\")
     m = next(r for r in rows if r["topology"] == "star" and r["circuit"] == "multiplier")
-    cells = [epr(m, k) for k in ("dSE", "porter", "porter_refined",
-                                 "porter_on_dse", "porter_on_dse_refined")]
-    # Bold the lowest EPR in the row, whichever column it lands in -- it has
-    # moved between columns as the protocol changed.
-    lo = min(v for v in cells[1:] if v is not None)
-    widths = (5, 5, 4, 5, 5)
-    def fm(v, w, boldable):
-        if boldable and v is not None and v == lo:
-            return f"\\textbf{{{v}}}"          # bold cells are not padded
-        return f"{('---' if v is None else v):>{w}}"
+    cells = [epr(m, k) for k in ("dSE", "porter")]
+    lo = min(v for v in cells if v is not None)
     out.append("\\midrule")
-    out.append("star Multiplier   & " +
-               " & ".join(fm(v, w, i > 0)
-                          for i, (v, w) in enumerate(zip(cells, widths))) + " \\\\")
+    out.append("star Multiplier   & " + " & ".join(
+        (f"\\textbf{{{v}}}" if v == lo else f"{('---' if v is None else v):>5}")
+        for v in cells) + " \\\\")
     return "\n".join(out)
 
 
 def app_heavyhex():
-    """Per-circuit heavy-hex rows in the appendix."""
+    r"""Per-circuit heavy-hex rows in the appendix.
+
+    Columns: \dSABRE{}, \PORTER{} under its own layout, and \PORTER{} on
+    \dSABRE{}'s own SabreLayout candidates -- the fixed-layout control the
+    main table no longer carries.  No PORTER+R column: refinement is measured
+    on the main suite only (tab:main)."""
     rows = load("heavyhex")
     order = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
              "qpeexact", "qaoa", "multiplier"]
+    keys = ("dSE", "porter", "porter_on_dse")
     out = []
     for ti, topo in enumerate(("ring", "star")):
         if ti:
@@ -221,28 +199,19 @@ def app_heavyhex():
         by = {r["circuit"]: r for r in rows if r["topology"] == topo}
         for c in order:
             r = by[c]
-            v = [epr(r, k) for k in ("dSE", "porter", "porter_refined",
-                                     "porter_on_dse", "porter_on_dse_refined")]
             f = lambda x: "$^{\\ast}$" if x is None else str(x)
-            out.append(f"{topo:<5} & {c:<11} & {f(v[0]):>5} & {f(v[1]):>5} & "
-                       f"{f(v[2]):>5} & {f(v[3]):>5} & {f(v[4]):>5} \\\\")
-        # gmean rows: over all nine, plus over the subset PORTER+R completes
-        # while that subset is still smaller.
-        keys = ("dSE", "porter", "porter_refined", "porter_on_dse",
-                "porter_on_dse_refined")
-        subsets = [[by[c] for c in order]]
-        partial = [by[c] for c in order if epr(by[c], "porter_refined")]
-        if len(partial) < len(order):
-            subsets.append(partial)
-        for rs in subsets:
-            def colg(k):
-                vs = [epr(r, k) for r in rs]
-                return None if any(v is None for v in vs) else gmean(vs)
-            g = [colg(k) for k in keys]
-            fg = lambda x: "---" if x is None else f"{x:.1f}"
-            out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\quad\\textbf{{gmean}} "
-                       f"({len(rs)})}} & {fg(g[0])} & {fg(g[1])} & {fg(g[2])} & "
-                       f"{fg(g[3])} & \\textbf{{{fg(g[4])}}} \\\\")
+            out.append(f"{topo:<5} & {c:<11} & " +
+                       " & ".join(f"{f(epr(r, k)):>5}" for k in keys) + " \\\\")
+        rs = [by[c] for c in order]
+        def colg(k):
+            vs = [epr(r, k) for r in rs]
+            return None if any(v is None for v in vs) else gmean(vs)
+        g = [colg(k) for k in keys]
+        lo = min(v for v in g if v is not None)
+        fg = lambda x: "---" if x is None else (
+            f"\\textbf{{{x:.1f}}}" if x == lo else f"{x:.1f}")
+        out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\quad\\textbf{{gmean}} "
+                   f"({len(rs)})}} & " + " & ".join(fg(x) for x in g) + " \\\\")
     return "\n".join(out)
 
 

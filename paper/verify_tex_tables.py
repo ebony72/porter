@@ -143,12 +143,11 @@ for key, cols in zip(SU_ORDER, rows):
     chk(f"scaleup {key} P", cell(cols[3]), r["physical"])
     chk(f"scaleup {key} K", cell(cols[4]), r["cores"])
     chk(f"scaleup {key} dSE", cell(cols[5]), r["dSE"]["epr"])
-    # cols: 0 circ 1 cx 2 n 3 P 4 K 5 dSE-EPR 6 dSE-t 7 sfc-EPR 8 sfc-t
-    #       9 sfc+R 10 on-dse 11 on-dse+R
+    # cols: 0 circ 1 cx 2 n 3 P 4 K 5 dSE-EPR 6 dSE-t 7 sfc-EPR 8 sfc-t.
+    # The PORTER+R and PORTER-on-dSABRE-layout columns were removed on
+    # 2026-08-31: refinement is measured on the main suite only.
     chk(f"scaleup {key} sfc", cell(cols[7]), r["sfc"]["epr"])
-    for j, leg in enumerate(("sfc_refined", "sfc_on_dse_layout",
-                             "sfc_on_dse_layout_refined")):
-        chk(f"scaleup {key} {leg}", cell(cols[9 + j]), r[leg]["epr"])
+    chk(f"scaleup {key} column count", 9, len(cols))
     # the two time columns must be the COMPLETE protocol cost, not one route
     for idx, leg in ((6, "dSE"), (8, "sfc")):
         chk(f"scaleup {key} {leg} time", float(cols[idx]),
@@ -166,16 +165,17 @@ _star_incomplete = any(
     for r in json.load(open(_res("heavyhex"))) if r["topology"] == "star")
 # The regex also matches the "star Multiplier" callout row, hence the +1.
 chk("heavyhex summary row count", 4 if _star_incomplete else 3, len(rows))
-HH_LEGS = ("dSE", "porter", "porter_refined", "porter_on_dse",
-           "porter_on_dse_refined")
+# Own layout, own protocol only since 2026-08-31; the fixed-layout control
+# and the per-circuit rows are in the appendix, and no PORTER+R column
+# appears in either -- refinement is measured on the main suite alone.
+HH_LEGS = ("dSE", "porter")
 for cols in rows:
     lab = cols[0].strip()
     if "Multiplier" in lab:
         r = HH[("star", "multiplier")]
         chk("heavyhex star mult dSE", cell(cols[1]), r["dSE"]["epr"])
-        chk("heavyhex star mult P/dS", cell(cols[4]), r["porter_on_dse"]["epr"])
-        chk("heavyhex star mult P+R/dS", cell(cols[5]),
-            r["porter_on_dse_refined"]["epr"])
+        chk("heavyhex star mult porter", cell(cols[2]), r["porter"]["epr"])
+        chk("heavyhex star mult column count", 3, len(cols))
         continue
     topo = lab.split()[0]
     n = int(re.search(r"\((\d+)\)", lab).group(1))
@@ -188,10 +188,12 @@ for cols in rows:
 
 seg, rows = rows_of("tab:heavyhex", r"^(ring|star)\s*&", APP)
 chk("heavyhex per-circuit row count", 18, len(rows))
+APP_HH_LEGS = ("dSE", "porter", "porter_on_dse")
 for cols in rows:
     key = (cols[0], cols[1])
     r = HH[key]
-    for j, leg in enumerate(HH_LEGS):
+    chk(f"heavyhex {key} column count", 5, len(cols))
+    for j, leg in enumerate(APP_HH_LEGS):
         chk(f"heavyhex {key} {leg}", cell(cols[2 + j]), (r.get(leg) or {}).get("epr"))
 
 # ------------------------------------------------------------ tab:ablation

@@ -541,17 +541,27 @@ def run_layout_search(
     passes: int = 1,
     refine_from: str = "both",
     horizons: Optional[Tuple[int, ...]] = None,
-    selection: bool = False,
+    selection: bool = True,
     pass_guard=None,
     pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
 ) -> Tuple[Optional[porter.RouterState], Dict[str, object]]:
     """Best-of-gamma initial-layout search, optionally with backward refinement.
 
-    Phase 1 routes one forward pass from each gamma's layout and keeps the best
-    by EPR -- `len(gammas)` routing passes. Phase 2, when ``passes > 1``, runs
-    the refinement schedule of `run_refinement_passes` from the WINNING gamma's
-    layout, adding ``passes - 1`` more. So the default protocol costs
-    ``len(gammas) + passes - 1`` = 9 routes against dSABRE's 18.
+    Phase 1 routes one forward pass from each gamma's layout at ``cfg``'s own
+    horizon and keeps the best by EPR -- `len(gammas)` routing passes.
+    Phase 2, when ``passes > 1``, runs `run_refinement_passes` from the
+    winning gamma's layout and from the gamma=0.99 layout.
+
+    Phase 2 selects a lookahead horizon (``selection=True`` since
+    2026-08-31), which has a structural consequence worth knowing: the
+    gamma=0.99 layout IS `build_initial_layout`'s default, so it is always
+    among the seeds, and refining it under selection routes PORTER's own
+    selected route as its pass 1.  PORTER+S therefore cannot report more EPR
+    than PORTER -- and PORTER+SR, which takes the better of selection and
+    this search, can no longer differ from it.
+
+    Routes: ``len(gammas)`` for phase 1 plus, per seed, ``passes - 1``
+    refinement passes and ``len(horizons) - 1`` extra selection probes.
 
     The two levers are independent and compose: gamma changes which layout the
     router starts from, refinement changes how much routing is spent improving
@@ -622,8 +632,8 @@ def run_layout_search(
     # Phase 1 ranks the gammas at cfg's own horizon rather than under
     # selection: making it select per gamma would cost len(gammas) x
     # len(horizons) routes for a ranking, and the horizon is a property of the
-    # circuit rather than of the layout.  Selection is applied once, in phase
-    # 2, by run_refinement_passes.
+    # circuit rather than of the layout.  Selection is applied once per seed,
+    # in phase 2, by run_refinement_passes.
     info["refinement"] = []
     for gm, seed_layout in seeds:
         refined, rinfo = run_refinement_passes(
@@ -662,22 +672,30 @@ def run_refinement_passes(
     *,
     passes: int = 3,
     horizons: Optional[Tuple[int, ...]] = None,
-    selection: bool = False,
+    selection: bool = True,
     pass_guard=None,
     pass_exceptions: Tuple[type, ...] = (RuntimeError, ValueError),
 ) -> Tuple[Optional[porter.RouterState], Dict[str, object]]:
     """Forward -> backward -> forward routing, returning the better forward pass.
 
-    Refinement deliberately does NOT select a lookahead horizon
-    (``selection=False`` by default), so it stays the independent lever it was
-    measured as and its published numbers stand unchanged.  Selection and
-    refinement also compose badly: a horizon that converges on the INITIAL
-    layout can oscillate on the refined layouts later passes start from, and
-    each such pass then burns the caller's whole per-pass time guard (900 s in
-    `compare_routers`) -- on 64q AE that cost ~20 minutes for one instance.
-    Pass ``selection=True`` to opt in; the horizon is then chosen once, on the
-    first forward pass, and held fixed, with ``info["horizon_routes"]``
+    Refinement runs ON TOP of horizon selection (``selection=True`` since
+    2026-08-31): the horizon is chosen once, on the first forward pass, and
+    held fixed for the rest of the schedule, with ``info["horizon_routes"]``
     recording the extra routes so callers can report the complete protocol.
+    That makes pass 1 exactly PORTER's own selected route, so -- since the
+    best forward pass by EPR is returned -- PORTER+R can never report more
+    EPR than PORTER.  At a fixed horizon it could and did: 80q AE 490 against
+    PORTER's 299, 80q QPEexact 526 against 291.  Over the 24 main instances
+    stacking moves the geometric mean from 171.4 to 163.0 (`bench_refine_
+    on_selection.py`), 0 of 24 worse than PORTER and 9 strictly better.
+
+    It costs wall-clock, not routes it can skip: the gmean per instance goes
+    1.67 s -> 3.21 s, and a deep selected horizon can make a later pass
+    oscillate until the caller's per-pass guard fires (900 s in
+    `compare_routers`; 80q QPEexact runs four passes of five for that
+    reason).  Pass ``selection=False`` to recover the fixed-horizon schedule
+    -- which is what ``run_layout_search`` does, so PORTER+S stays the
+    complementary lever (the layout at a fixed horizon) it is measured as.
 
     ``passes`` counts routing passes: 1 reproduces the default single-pass
     protocol exactly, 3 is one full refinement cycle, and odd values above 3
