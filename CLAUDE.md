@@ -912,6 +912,22 @@ rejected because it costs two findings --- the data:
   80q alone would make relief look weak. V-C now leads with that inversion.
 - Both trends are pinned, including that the TeleData one is monotone.
 
+**Every summary line averages ALL circuits of its group** (2026-08-31, second
+pass). The first compact version stacked two reductions --- drop GHZ/Graphstate
+as no-ops, then require a circuit to complete in *all four* EPR columns ---
+giving "25q, gmean over 4" and "64q over 6". Both were defensible and the
+combination was **wrong**, because the prose quoted a different basis: table
+said relief +42.2% at 25q, text said +26.4%. Dropping no-op rows is not
+neutral either --- it *inflates* every effect (25q relief +26.4% -> +42.2%).
+
+The rule now: **a line carries one Full value, so columns share a line only
+when they complete on the same circuits**; where they do not, the comparison
+gets its own line and `$n$` states the basis. That yields 1 line for 25q,
+2 for 64q, 3 for 80q and 3 pooled, and **every ratio in the table equals the
+one its prose claim uses**. No circuit is ever excluded for being
+uninformative; the 80q per-circuit rows still omit GHZ/Graphstate for space,
+but those two are inside the 80q summary lines.
+
 `tab:ablation` is **generated** by `gen_tables_selection.py` now, not
 hand-maintained. Two defects the generator fixed: the `$^\ddagger$` marker
 (needs the extra relief tier) had been applied to 25q QFT and QNN, which

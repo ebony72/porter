@@ -384,6 +384,12 @@ for r in abl_rows:
     if all(v is not None for v in e):
         full_v.append(e[0]); nopk_v.append(e[1]); norel_v.append(e[2])
 check("abl basis count", 19, len(full_v))
+# V-C / tab:ablation: every summary line averages all circuits of its group
+# that the compared columns complete -- no circuit is excluded for being
+# uninformative, so the per-suite figures the text quotes are the table's.
+for _s, _n in (("25", 6), ("64", 9), ("80", 9)):
+    check(f"abl {_s}q suite size", _n,
+          sum(1 for r in abl_rows if r["suite"] == _s))
 check("abl gmean full", 122.2, round(gmean(full_v), 1))
 check("abl gmean nopk", 130.1, round(gmean(nopk_v), 1))
 check("abl gmean norelief", 146.9, round(gmean(norel_v), 1))

@@ -145,6 +145,9 @@ def tab_ablation():
         return (d.get(k) or {}).get("epr")
     def cnt(k, f):
         return (T[k].get("full") or {}).get(f, 0) or 0
+    def all_of(suite):
+        return [(suite, c) for c in order if (suite, c) in A]
+
     def shown(suite):
         return [(suite, c) for c in order if (suite, c) in A
                 and not (ep(A[(suite, c)], "full") == ep(A[(suite, c)], "no_packets")
@@ -155,16 +158,37 @@ def tab_ablation():
         return (ep(A[k], "full"), ep(A[k], "no_packets"), ep(A[k], "no_relief"),
                 ep(T[k], "teledata_only_relief"))
     out = []
-    # 25q and 64q: one paired summary line each.
+
+    # A summary line can only carry one Full value, so columns may share a
+    # line only when they complete on exactly the same circuits.  Group the
+    # three comparisons by their completing set and emit one line per group:
+    # that keeps every ratio in the table on the basis its prose claim uses,
+    # and no circuit is ever dropped for being uninformative.
+    def basis(ks, i):
+        return tuple(k for k in ks if cols_of(k)[i] is not None
+                     and cols_of(k)[0] is not None)
+
+    def summary(label, ks, n_all):
+        groups = {}
+        for i in (1, 2, 3):
+            groups.setdefault(basis(ks, i), []).append(i)
+        lines = []
+        for b, idx in groups.items():
+            v = {0: gmean([cols_of(k)[0] for k in b])}
+            v.update({i: gmean([cols_of(k)[i] for k in b]) for i in idx})
+            lo = min(v.values())
+            cells = ["" if i not in v else
+                     (f"\\textbf{{{v[i]:.1f}}}" if abs(v[i] - lo) < 5e-2 else f"{v[i]:.1f}")
+                     for i in range(4)]
+            tag = "" if len(b) == n_all else f" of {n_all}"
+            lines.append(f"\\multicolumn{{2}}{{@{{}}l}}{{{label}, $n{{=}}{len(b)}${tag}}} & "
+                         + " & ".join(cells) + " & & \\\\")
+        return lines
+
     for suite in ("25", "64"):
-        ks = [k for k in shown(suite) if all(v is not None for v in cols_of(k))]
-        v = [gmean([cols_of(k)[i] for k in ks]) for i in range(4)]
-        lo = min(v)
-        f = lambda x: (f"\\textbf{{{x:.1f}}}" if abs(x - lo) < 5e-2 else f"{x:.1f}")
-        out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{{suite}q, gmean over {len(ks)}}} & "
-                   + " & ".join(f(x) for x in v) + " & & \\\\")
+        ks = all_of(suite)
+        out += summary(f"{suite}q", ks, len(ks))
     out.append("\\midrule")
-    # 80q: per circuit.
     for k in shown("80"):
         a, t = A[k], T[k]
         td = ep(t, "teledata_only_relief")
@@ -175,19 +199,11 @@ def tab_ablation():
         out.append(f"80q & {k[1]:<11} & {ep(a,'full'):>5} & {g(ep(a,'no_packets')):>5} & "
                    f"{g(ep(a,'no_relief')):>5} & {tdc} & {cnt(k,'packets'):>4} & "
                    f"{cnt(k,'telegates'):>4} \\\\")
+    ks80 = all_of("80")
+    out += summary("80q", ks80, len(ks80))
     out.append("\\midrule")
-    # Pooled paired gmeans over all three suites, one per comparison.
-    allk = [k for s_ in ("25", "64", "80") for k in shown(s_)]
-    p3 = [k for k in allk if all(ep(A[k], c) for c in ("full", "no_packets", "no_relief"))]
-    p2 = [k for k in allk if ep(A[k], "full") and ep(T[k], "teledata_only_relief")]
-    gm = lambda ks, d, c: gmean([ep(d[k], c) for k in ks])
-    out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{all}}, paired $n{{=}}{len(p3)}$}} & "
-               f"{gm(p3,A,'full'):.1f} & {gm(p3,A,'no_packets'):.1f} & "
-               f"{gm(p3,A,'no_relief'):.1f} & & & \\\\")
-    td_g, full_g = gm(p2, T, "teledata_only_relief"), gm(p2, A, "full")
-    lo = ("\\textbf{%.1f}" % td_g) if td_g < full_g else ("%.1f" % td_g)
-    out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{all}}, paired $n{{=}}{len(p2)}$}} & "
-               f"{full_g:.1f} & & & {lo} & & \\\\")
+    allk = [k for s_ in ("25", "64", "80") for k in all_of(s_)]
+    out += summary("\\textbf{all}", allk, len(allk))
     return "\n".join(out)
 
 

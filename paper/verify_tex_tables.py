@@ -236,40 +236,40 @@ for cols in rows:
     chk(f"ablation {key} tg", cell(cols[7]), (t.get("full") or {}).get("telegates"))
 
 
-# The 25q and 64q summary lines: paired gmeans over the circuits all four EPR
-# columns complete, on the same shown-row basis the 80q rows use.
+# Summary lines of tab:ablation.  Each carries one Full value plus whichever
+# comparison columns share its basis, and $n$ states that basis; a line is
+# checked against a gmean over EVERY circuit of the group that the compared
+# columns complete.  The line count is pinned so a relabelled table fails
+# rather than matching nothing.
 _ORD = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
         "qpeexact", "qaoa", "multiplier"]
-def _abl_shown(suite):
-    out = []
-    for c in _ORD:
-        k = (suite, c)
-        if k not in ABL:
+def _abl_cols(k):
+    a_, t_ = ABL[k]["out"], TD[k]["out"]
+    ep = lambda d, x: (d.get(x) or {}).get("epr")
+    return (ep(a_, "full"), ep(a_, "no_packets"), ep(a_, "no_relief"),
+            ep(t_, "teledata_only_relief"))
+_, _sum_lines = rows_of("tab:ablation", r"^\\multicolumn\{2\}")
+chk("ablation summary line count", 9, len(_sum_lines))
+for cols in _sum_lines:
+    lab = cols[0]
+    m = re.search(r"\{(?:\\textbf\{)?(all|\d\d)q?\}?, \$n\{=\}(\d+)\$", lab)
+    chk(f"ablation summary label parses: {lab[:40]}", True, m is not None)
+    if not m:
+        continue
+    grp, n = m.group(1), int(m.group(2))
+    ks = [(s_, c) for s_ in (("25", "64", "80") if grp == "all" else (grp,))
+          for c in _ORD if (s_, c) in ABL]
+    for j in (1, 2, 3):
+        got = num(cols[1 + j])
+        if got is None:
             continue
-        a_, t_ = ABL[k]["out"], TD[k]["out"]
-        ep = lambda d, x: (d.get(x) or {}).get("epr")
-        n_pk = (t_.get("full") or {}).get("packets", 0) or 0
-        n_tg = (t_.get("full") or {}).get("telegates", 0) or 0
-        if (ep(a_, "full") == ep(a_, "no_packets") == ep(a_, "no_relief")
-                and n_pk == 0 and n_tg == 0):
-            continue
-        out.append(k)
-    return out
-_, _suite_lines = rows_of("tab:ablation", r"^\\multicolumn\{2\}.*\dq, gmean")
-for cols in _suite_lines:
-    suite = re.search(r"(\d\d)q", cols[0]).group(1)
-    ks = []
-    for k in _abl_shown(suite):
-        v = [(ABL[k]["out"].get(x) or {}).get("epr")
-             for x in ("full", "no_packets", "no_relief")]
-        v.append((TD[k]["out"].get("teledata_only_relief") or {}).get("epr"))
-        if all(x is not None for x in v):
-            ks.append((k, v))
-    chk(f"ablation {suite}q line basis", int(re.search(r"over (\d+)", cols[0]).group(1)),
-        len(ks))
-    for j in range(4):
-        chk(f"ablation {suite}q line col{j}", num(cols[1 + j]),
-            round(gmean([v[j] for _, v in ks]), 1))
+        basis = [k for k in ks if _abl_cols(k)[j] is not None
+                 and _abl_cols(k)[0] is not None]
+        chk(f"ablation summary {grp} col{j} basis", n, len(basis))
+        chk(f"ablation summary {grp} col{j}", got,
+            round(gmean([_abl_cols(k)[j] for k in basis]), 1))
+        chk(f"ablation summary {grp} col{j} full", num(cols[1]),
+            round(gmean([_abl_cols(k)[0] for k in basis]), 1))
 
 if fails:
     print(f"{len(fails)} TEX/DATA MISMATCHES:")
