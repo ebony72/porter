@@ -887,6 +887,69 @@ disambiguated by the `main-` prefix. **Compile `sfc.tex` first** or the
 appendix's cross-references render as `??`. Its own `\app*` letters (A--I)
 are still hardcoded in `sfc.tex`.
 
+## Ablation basis widened, then compacted (2026-08-31)
+
+**The basis was the six circuits common to all three suites** --- because the
+25q suite has only six --- which made the 64q and 80q ablation rows a subset
+of the main comparison for no reason. `ablation_mechanisms.py` and
+`bench_teledata_ablation_basis.py` now take `CIRCUITS_BY_SUITE`, so 64q and
+80q run all nine: **24 instances**, 18 non-trivial.
+
+**The table shows 80q per circuit and 25q/64q as one line each** (author's
+call: "for ablation purpose we don't need all circuits"). Pure 80q-only was
+rejected because it costs two findings --- the data:
+
+| | packets | relief | TeleData |
+|---|---|---|---|
+| 25q | +2.4% | +26.4% (0 fail) | +1.3% |
+| 64q | +7.9% | +24.0% (0 fail) | -1.6% |
+| 80q | +10.9% | **+4.0%** (5 fail) | **-21.4%** |
+
+- The TeleData result is a **monotone scale trend**, not a level; 80q alone
+  leaves only the endpoint and the weaker claim.
+- **Relief inverts with scale**: below 80q it is a large EPR saving with no
+  failures; at 80q it barely saves EPR and is what makes 5 of 9 routable.
+  80q alone would make relief look weak. V-C now leads with that inversion.
+- Both trends are pinned, including that the TeleData one is monotone.
+
+`tab:ablation` is **generated** by `gen_tables_selection.py` now, not
+hand-maintained. Two defects the generator fixed: the `$^\ddagger$` marker
+(needs the extra relief tier) had been applied to 25q QFT and QNN, which
+complete under *strict* removal --- `verify_tex_tables.py` now pins the
+marker cell by cell; and the relief-failure count is **five**, not four
+(80q QPEexact joins AE/QFT/QNN/Random).
+
+Numbers that moved with the wider basis: packets +7% -> **+7.6%** over 24;
+relief **+20.2%** over the 19 that complete; TeleData **-7.9%** over 21.
+Three circuits are cheaper *without* packets (64q/80q Multiplier, 80q QFT)
+and three without relief.
+
+## Table II carries five compilers in two blocks (2026-08-31)
+
+`tab:main` gained a **PORTER+S** pair and split, because its two comparisons
+need different bases:
+
+- **(a)** circuits *all five* configurations complete --- 6/8/3. The only
+  basis \TeleSABRE{} can be compared on.
+- **(b)** *every* circuit, TeleSABRE dashed --- 6/9/9 plus a pooled all-24
+  row. **This is the basis used against dSABRE**; V-A no longer says "on the
+  TeleSABRE-matched basis" there. PORTER is 0.94x at 25q, 0.96x at 80q,
+  1.13x at 64q --- and 64q is also the suite the extra search nearly closes
+  (+R 1.07x, +S 1.02x).
+
+`verify_tex_tables.py` distinguishes the blocks **by the dashed TeleSABRE
+cell**, not by row count: at 25q the matched set and the full suite coincide,
+so the dash is the only reliable marker.
+
+**`tab:shared` (Table III) gets no +S column, and must not.** That table holds
+the initial layout fixed and **+S's mechanism *is* choosing the layout**, so a
+cell would destroy the control --- which is also why no `sfc_pytket_search`
+leg exists. Its own-layout figure (159.1) is stated in the caption instead,
+and it is *not* below every cell: PORTER+R on pytket's partition is 155.2.
+
+**Table V's PORTER column is three horizon routes**, same protocol as Table
+II, and all six instances select L=128; the caption says so now.
+
 ## Refinement stacks on horizon selection (2026-08-31) --- +R and +S now bound PORTER
 
 `run_refinement_passes` and `run_layout_search` both default

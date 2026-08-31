@@ -197,14 +197,17 @@ other parameter; exactly one mechanism is disabled per column.
   (\texttt{max\_packet\_size}=1), ``No rel.'' disables
   both relief tiers, ``\TeleData{}'' removes the \TeleGate{} family;
   ``pk'' and ``tg'' are the packet and single-telegate counts of the full
-  configuration. The basis is \emph{every} circuit in each suite; the six
-  omitted rows --- GHZ and Graphstate at every scale --- form no packets,
-  trigger no relief and issue no telegates, so all configurations
-  coincide there. Each gmean row is over the instances \emph{all its
-  filled columns} complete, and only those columns are filled: $n{=}13$
-  pairs Full against No pk and No rel., $n{=}15$ pairs Full against
-  \TeleData{}. Rows are therefore comparable across a row and not down a
-  column. $^{\dagger}$Fails to complete (deadlock
+  configuration. Every circuit of all three suites is ablated, but only
+  the 80-qubit suite --- where the mechanisms bite hardest --- is shown
+  per circuit; 25q and 64q are one line each, since what they contribute
+  is the trend across scale rather than individual rows. GHZ and
+  Graphstate are omitted at every scale: they form no packets, trigger no
+  relief and issue no telegates, so all configurations coincide. A suite
+  line averages the circuits all four EPR columns complete, and each
+  final \textbf{all} row averages the instances \emph{its own} filled
+  columns complete --- $n{=}13$ pairs Full against No pk and No rel.,
+  $n{=}15$ pairs Full against \TeleData{}. Figures are therefore
+  comparable across a row and not down a column. $^{\dagger}$Fails to complete (deadlock
   or iteration-guard trip). $^{\ddagger}$Completes only with the additional
   relief tier described in the text, which the \TeleGate{} otherwise
   makes unnecessary. The first gmean row is over the fourteen instances the
@@ -218,18 +221,8 @@ other parameter; exactly one mechanism is disabled per column.
 \toprule
 Suite & Circuit & Full & No pk & No rel. & \TeleData{} & pk & tg \\
 \midrule
-25q & ae          &    65 &    71 &    80 & 68$^{\ddagger}$ &    8 &    0 \\
-25q & qft         &    74 &    74 &   140 & 74 &    0 &    0 \\
-25q & qnn         &   119 &   122 &   212 & 119 &    0 &    0 \\
-25q & random      &   401 &   412 &   395 & 413$^{\ddagger}$ &   43 &   93 \\
-\midrule
-64q & ae          &   177 &   211 &   327 & 198$^{\ddagger}$ &   32 &    0 \\
-64q & qft         &   262 &   372 &   382 & \textbf{216}$^{\ddagger}$ &   45 &    1 \\
-64q & qnn         &   864 &   931 &   600 & \textbf{694}$^{\ddagger}$ &  240 &    5 \\
-64q & random      &   737 &   843 &   789 & $^{\dagger}$ &   77 &  228 \\
-64q & qpeexact    &   222 &   232 &   397 & 275$^{\ddagger}$ &   42 &    3 \\
-64q & qaoa        &   854 &   898 &  1215 & \textbf{669}$^{\ddagger}$ &  331 &   16 \\
-64q & multiplier  &  1358 &  1171 &  1844 & 1667$^{\ddagger}$ &   34 &  384 \\
+\multicolumn{2}{@{}l}{25q, gmean over 4} & \textbf{123.1} & 127.5 & 175.0 & 125.4 & & \\
+\multicolumn{2}{@{}l}{64q, gmean over 6} & 466.6 & 511.1 & 636.8 & \textbf{456.9} & & \\
 \midrule
 80q & ae          &   490 &   688 & $^{\dagger}$ & \textbf{354}$^{\ddagger}$ &  264 &   15 \\
 80q & qft         &   446 &   435 & $^{\dagger}$ & \textbf{307}$^{\ddagger}$ &  209 &    2 \\
@@ -239,8 +232,8 @@ Suite & Circuit & Full & No pk & No rel. & \TeleData{} & pk & tg \\
 80q & qaoa        &  1122 &  1650 &  1505 & \textbf{1086}$^{\ddagger}$ &  303 &   15 \\
 80q & multiplier  &  3501 &  3437 &  3055 & $^{\dagger}$ &  192 & 1531 \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{gmean}, paired $n{=}13$} & 400.7 & 439.0 & 524.4 & & & \\
-\multicolumn{2}{@{}l}{\textbf{gmean}, paired $n{=}15$} & 378.2 & & & \textbf{336.8} & & \\
+\multicolumn{2}{@{}l}{\textbf{all}, paired $n{=}13$} & 400.7 & 439.0 & 524.4 & & & \\
+\multicolumn{2}{@{}l}{\textbf{all}, paired $n{=}15$} & 378.2 & & & \textbf{336.8} & & \\
 \bottomrule
 \end{tabular}%
 }
@@ -249,7 +242,8 @@ Suite & Circuit & Full & No pk & No rel. & \TeleData{} & pk & tg \\
 Table~\ref{tab:ablation} disables each mechanism in isolation, holding
 the initial layout and every other parameter fixed, over every circuit
 of all three suites; \appMix{} tabulates the per-action counts behind
-these rows. Each configuration routes one forward pass at the configured
+them. Reading the three lines of each column down the table gives the
+scale trend, which for two of the mechanisms is the result. Each configuration routes one forward pass at the configured
 horizon, so the Full column is not the selected route of
 Table~\ref{tab:main} but the single pass every column shares.
 
@@ -291,8 +285,9 @@ telegate-heavy in the suite. Adding the same tier to the full
 configuration leaves every row EPR-identical, so what follows is a
 difference of vocabulary and not of relief --- but not a strict
 ablation. On that basis a teleport-only vocabulary is the cheaper one,
-increasingly so with scale ($+1.3\%$ at 25q, $-1.6\%$ at 64q, $-21.4\%$
-at 80q; $7.9\%$ below Full over the twenty-one instances it completes),
+and monotonically so with scale --- $+1.3\%$ at 25 qubits, $-1.6\%$ at
+64 and $-21.4\%$ at 80, for $7.9\%$ below Full over the twenty-one
+instances it completes ---
 and the circuits it wins are the packet-heaviest, giving
 $\text{\TeleData{} only} < \text{Full} < \text{No packets}$: packets
 beat the single telegates they degrade into, but pure teleportation
@@ -309,13 +304,17 @@ Random --- all fail, because with every destination below
 $f_\mathrm{min}$ and no way to drain qubits toward reservoirs the loop
 has no legal remote plan left. Where routing does complete, dense
 circuits pay heavily ($+89\%$ on 25q~QFT, $+85\%$ on 64q~AE, $+79\%$ on
-64q~QPEexact), for $+20.2\%$ over the nineteen that complete; three are
-cheaper \emph{without} it --- 64q~QNN ($864 \to 600$), 80q~Multiplier
-($3501 \to 3055$) and marginally 25q~Random --- so the opportunistic
-tier can overpay where congestion would have cleared itself. With both
-tiers on no instance in this evaluation reached the
-deadlock path of Section~\ref{sec:sfc-progress}; with both off four did.
-That is a statement about these instances, not a guarantee. The initial
+64q~QPEexact): $+26.4\%$ at 25 qubits and $+24.0\%$ at 64, but only
+$+4.0\%$ at 80. The mechanism changes character with scale. Below 80
+qubits it saves EPR pairs and nothing fails without it; at 80 it saves
+few pairs and is instead what makes five of the nine circuits routable
+at all. Three instances are cheaper \emph{without} it --- 64q~QNN
+($864 \to 600$), 80q~Multiplier ($3501 \to 3055$) and marginally
+25q~Random --- so the opportunistic tier can overpay where congestion
+would have cleared itself. With both tiers on no instance in this
+evaluation reached the deadlock path of
+Section~\ref{sec:sfc-progress}; with both off five did. That is a
+statement about these instances, not a guarantee. The initial
 layout,
 which this table holds fixed, is assessed in
 Sections~\ref{sec:shared_results} and~\ref{sec:heavyhex}.

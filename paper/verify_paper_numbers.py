@@ -351,6 +351,29 @@ check("abl relief pct", 20.2,
       round(100 * (gmean([r["out"]["no_relief"]["epr"] for r in _ar])
                    / gmean([r["out"]["full"]["epr"] for r in _ar]) - 1), 1))
 check("abl relief failures", 5, len(abl_rows) - len(_ar))
+# V-C: relief changes character with scale -- large EPR saving and no failures
+# below 80 qubits, small saving but five failures at 80.
+for _s, _want in (("25", 26.4), ("64", 24.0), ("80", 4.0)):
+    _k = [r for r in abl_rows
+          if r["suite"] == _s and (r["out"].get("no_relief") or {}).get("epr")]
+    check(f"abl relief {_s}q pct", _want,
+          round(100 * (gmean([r["out"]["no_relief"]["epr"] for r in _k])
+                       / gmean([r["out"]["full"]["epr"] for r in _k]) - 1), 1))
+    check(f"abl relief {_s}q failures", 0 if _s != "80" else 5,
+          sum(1 for r in abl_rows if r["suite"] == _s
+              and not (r["out"].get("no_relief") or {}).get("epr")))
+# V-C: the TeleData-only advantage grows monotonically with scale.
+_tdp = []
+for _s, _want in (("25", 1.3), ("64", -1.6), ("80", -21.4)):
+    _k = [r for r in td_rows if r["suite"] == _s
+          and (r["out"].get("teledata_only_relief") or {}).get("epr")]
+    _got = round(100 * (gmean([r["out"]["teledata_only_relief"]["epr"] for r in _k])
+                        / gmean([abl_by[(r["suite"], r["circuit"])]["out"]["full"]["epr"]
+                                 for r in _k]) - 1), 1)
+    check(f"td {_s}q pct", _want, _got)
+    _tdp.append(_got)
+check("td advantage is monotone in scale", True,
+      _tdp[0] > _tdp[1] > _tdp[2])
 check("td strict removal completes", 8,
       sum(1 for r in td_rows if (r["out"].get("teledata_only") or {}).get("epr")))
 

@@ -125,13 +125,15 @@ def tab_shared():
 
 
 def tab_ablation():
-    """tab:ablation (Table IV): one mechanism disabled at a time.
+    r"""tab:ablation (Table IV): one mechanism disabled at a time.
 
-    Since 2026-08-31 the basis is every circuit in each suite, not the six
-    common to all three -- the 25q suite has only six, but 64q and 80q have
-    nine, and restricting them to six made the ablation a subset of the main
-    comparison for no reason.  Rows where every configuration coincides (no
-    packets formed, no relief triggered, no telegates issued) are omitted.
+    The basis is every circuit of all three suites, but only 80q --- the
+    scale at which the mechanisms bite hardest --- is shown per circuit;
+    25q and 64q are one summary line each, because what they contribute is
+    the trend across scale, not individual rows.  Rows where every
+    configuration coincides (no packets, no relief triggered, no telegates)
+    are omitted.  A suite line is the geometric mean over the circuits all
+    four EPR columns complete, so the line is comparable across itself.
     """
     A = {(r["suite"], r["circuit"]): r["out"]
          for r in json.loads((_HERE.parent / "ablation_results.json").read_text())}
@@ -139,41 +141,53 @@ def tab_ablation():
          for r in json.loads((_HERE / "teledata_ablation_basis.json").read_text())}
     order = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
              "qpeexact", "qaoa", "multiplier"]
-    keys = [(s, c) for s in ("25", "64", "80") for c in order if (s, c) in A]
     def ep(d, k):
         return (d.get(k) or {}).get("epr")
-    def cnt(k, field):
-        return (T[k].get("full") or {}).get(field, 0) or 0
-    show = [k for k in keys
-            if not (ep(A[k], "full") == ep(A[k], "no_packets") == ep(A[k], "no_relief")
-                    and cnt(k, "packets") == 0 and cnt(k, "telegates") == 0)]
-    out, prev = [], None
-    for k in show:
-        if prev and k[0] != prev:
-            out.append("\\midrule")
-        prev = k[0]
+    def cnt(k, f):
+        return (T[k].get("full") or {}).get(f, 0) or 0
+    def shown(suite):
+        return [(suite, c) for c in order if (suite, c) in A
+                and not (ep(A[(suite, c)], "full") == ep(A[(suite, c)], "no_packets")
+                         == ep(A[(suite, c)], "no_relief")
+                         and cnt((suite, c), "packets") == 0
+                         and cnt((suite, c), "telegates") == 0)]
+    def cols_of(k):
+        return (ep(A[k], "full"), ep(A[k], "no_packets"), ep(A[k], "no_relief"),
+                ep(T[k], "teledata_only_relief"))
+    out = []
+    # 25q and 64q: one paired summary line each.
+    for suite in ("25", "64"):
+        ks = [k for k in shown(suite) if all(v is not None for v in cols_of(k))]
+        v = [gmean([cols_of(k)[i] for k in ks]) for i in range(4)]
+        lo = min(v)
+        f = lambda x: (f"\\textbf{{{x:.1f}}}" if abs(x - lo) < 5e-2 else f"{x:.1f}")
+        out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{{suite}q, gmean over {len(ks)}}} & "
+                   + " & ".join(f(x) for x in v) + " & & \\\\")
+    out.append("\\midrule")
+    # 80q: per circuit.
+    for k in shown("80"):
         a, t = A[k], T[k]
         td = ep(t, "teledata_only_relief")
-        f = lambda v: "$^{\\dagger}$" if v is None else str(v)
-        # The double dagger marks a cell that needed the extra relief tier:
-        # strict removal of the TeleGate family failed there.
         mark = "" if ep(t, "teledata_only") is not None else "$^{\\ddagger}$"
-        tdc = "$^{\\dagger}$" if td is None else (
-            f"\\textbf{{{td}}}{mark}" if td < ep(a, "full") else f"{td}{mark}")
-        out.append(f"{k[0]}q & {k[1]:<11} & {ep(a,'full'):>5} & "
-                   f"{f(ep(a,'no_packets')):>5} & {f(ep(a,'no_relief')):>5} & "
-                   f"{tdc} & {cnt(k,'packets'):>4} & {cnt(k,'telegates'):>4} \\\\")
+        g = lambda v: "$^{\\dagger}$" if v is None else str(v)
+        tdc = ("$^{\\dagger}$" if td is None else
+               (f"\\textbf{{{td}}}{mark}" if td < ep(a, "full") else f"{td}{mark}"))
+        out.append(f"80q & {k[1]:<11} & {ep(a,'full'):>5} & {g(ep(a,'no_packets')):>5} & "
+                   f"{g(ep(a,'no_relief')):>5} & {tdc} & {cnt(k,'packets'):>4} & "
+                   f"{cnt(k,'telegates'):>4} \\\\")
     out.append("\\midrule")
-    p3 = [k for k in show if all(ep(A[k], c) for c in ("full", "no_packets", "no_relief"))]
-    p2 = [k for k in show if ep(A[k], "full") and ep(T[k], "teledata_only_relief")]
+    # Pooled paired gmeans over all three suites, one per comparison.
+    allk = [k for s_ in ("25", "64", "80") for k in shown(s_)]
+    p3 = [k for k in allk if all(ep(A[k], c) for c in ("full", "no_packets", "no_relief"))]
+    p2 = [k for k in allk if ep(A[k], "full") and ep(T[k], "teledata_only_relief")]
     gm = lambda ks, d, c: gmean([ep(d[k], c) for k in ks])
-    out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{gmean}}, paired "
-               f"$n{{=}}{len(p3)}$}} & {gm(p3,A,'full'):.1f} & "
-               f"{gm(p3,A,'no_packets'):.1f} & {gm(p3,A,'no_relief'):.1f} & & & \\\\")
+    out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{all}}, paired $n{{=}}{len(p3)}$}} & "
+               f"{gm(p3,A,'full'):.1f} & {gm(p3,A,'no_packets'):.1f} & "
+               f"{gm(p3,A,'no_relief'):.1f} & & & \\\\")
     td_g, full_g = gm(p2, T, "teledata_only_relief"), gm(p2, A, "full")
-    lo = "\\textbf{%.1f}" % td_g if td_g < full_g else "%.1f" % td_g
-    out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{gmean}}, paired "
-               f"$n{{=}}{len(p2)}$}} & {full_g:.1f} & & & {lo} & & \\\\")
+    lo = ("\\textbf{%.1f}" % td_g) if td_g < full_g else ("%.1f" % td_g)
+    out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{all}}, paired $n{{=}}{len(p2)}$}} & "
+               f"{full_g:.1f} & & & {lo} & & \\\\")
     return "\n".join(out)
 
 
