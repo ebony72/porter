@@ -302,7 +302,7 @@ the results, where its initial layouts come from, how many routing passes
 it spends, and what it selects on. We use the names in its first column
 throughout.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Every configuration that appears in Section~\ref{sec:results}:
   layout source, layout count $\lvert\mathcal{L}\rvert$, routing passes
@@ -314,36 +314,34 @@ throughout.
   refinement schedule on one or two of them. Lower EPR is better
   everywhere.}
 \label{tab:budgets}
-\setlength{\tabcolsep}{3.5pt}
+\setlength{\tabcolsep}{6pt}
 \small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}l l l r r r l@{}}
+\begin{tabular}{@{}l l r r r l@{}}
 \toprule
-Name & Compiler & Layout source & $\lvert\mathcal{L}\rvert$ & $P$ &
+Name & Layout source & $\lvert\mathcal{L}\rvert$ & $P$ &
 routes & selects on \\
 \midrule
-\multicolumn{7}{@{}l}{\emph{Own protocol} (RQ1, RQ4)} \\
-\TeleSABRE{}      & \TeleSABRE{} & Hungarian, seeds 0--2  & 3 & 1 & 3 & best EPR \\
-\dSABRE{}         & \dSABRE{}    & SabreLayout, seeds 0--2 & 3 & 3 & 9 & best EPR \\
-\PORTER{}         & \PORTER{}    & temporal locality-greedy & 1 & 3 & 3 & best EPR \\
-\PORTER{}+R       & \PORTER{}    & temporal locality-greedy & 1 & 5 & 7 & best forward pass \\
-\PORTER{}+S       & \PORTER{}    & $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ & 5 & 1 or 5 & $10$--$17$ & best EPR \\
+\multicolumn{6}{@{}l}{\emph{Own protocol} (RQ1, RQ4)} \\
+\TeleSABRE{}      & Hungarian, seeds 0--2 & 3 & 1 & 3 & best EPR \\
+\dSABRE{}         & SabreLayout, seeds 0--2 & 3 & 3 & 9 & best EPR \\
+\PORTER{}         & temporal locality-greedy & 1 & 3 & 3 & best EPR \\
+\PORTER{}+R       & temporal locality-greedy & 1 & 5 & 7 & best forward pass \\
+\PORTER{}+S       & $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ & 5 & 1 or 5 & $10$--$17$ & best EPR \\
 \midrule
-\multicolumn{7}{@{}l}{\emph{Shared layout} (RQ2) --- both compilers routed from one external layout} \\
-\dSABRE{} shared  & \dSABRE{}    & \TeleSABRE{}'s or pytket-dqc's & 1 & 3 & 3 & best pass \\
-\PORTER{} shared  & \PORTER{}    & the identical layout & 1 & 3 & 3 & best EPR \\
-\PORTER{}+R shared& \PORTER{}    & the identical layout & 1 & 5 & 7 & best forward pass \\
+\multicolumn{6}{@{}l}{\emph{Shared layout} (RQ2) --- both compilers routed from one external layout} \\
+\dSABRE{} shared  & \TeleSABRE{}'s or pytket-dqc's & 1 & 3 & 3 & best pass \\
+\PORTER{} shared  & the identical layout & 1 & 3 & 3 & best EPR \\
+\PORTER{}+R shared& the identical layout & 1 & 5 & 7 & best forward pass \\
 \midrule
-\multicolumn{7}{@{}l}{\emph{Cross layout} (RQ2) --- each compiler on the other's own layout} \\
-\dSABRE{} on \PORTER{} & \dSABRE{} & \PORTER{}'s layout & 1 & 3 & 3 & best pass \\
-\PORTER{} on \dSABRE{} & \PORTER{} & \dSABRE{}'s candidates & 3 & 3 & 9 & best EPR \\
+\multicolumn{6}{@{}l}{\emph{Cross layout} (RQ2) --- each compiler on the other's own layout} \\
+\dSABRE{} on \PORTER{} & \PORTER{}'s layout & 1 & 3 & 3 & best pass \\
+\PORTER{} on \dSABRE{} & \dSABRE{}'s candidates & 3 & 3 & 9 & best EPR \\
 \midrule
-\multicolumn{7}{@{}l}{\emph{Ablation} (RQ3) --- one fixed layout, one fixed horizon} \\
-ablation legs     & \PORTER{}    & temporal locality-greedy & 1 & 1 & 1 & --- \\
+\multicolumn{6}{@{}l}{\emph{Ablation} (RQ3) --- one fixed layout, one fixed horizon} \\
+\PORTER{} ablation & temporal locality-greedy & 1 & 1 & 1 & --- \\
 \bottomrule
-\end{tabular}%
-}
-\end{table}
+\end{tabular}
+\end{table*}
 
 Two notions of a matched budget are in play and neither is universally
 fair, so we report against both. Equal \emph{route counts} give each
