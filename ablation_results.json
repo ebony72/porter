@@ -252,6 +252,69 @@
   }
  },
  {
+  "suite": "64",
+  "circuit": "qpeexact",
+  "out": {
+   "full": {
+    "epr": 222,
+    "packets": 42,
+    "telegates": 3
+   },
+   "no_packets": {
+    "epr": 232,
+    "packets": 0,
+    "telegates": 34
+   },
+   "no_relief": {
+    "epr": 397,
+    "packets": 274,
+    "telegates": 12
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qaoa",
+  "out": {
+   "full": {
+    "epr": 854,
+    "packets": 331,
+    "telegates": 16
+   },
+   "no_packets": {
+    "epr": 898,
+    "packets": 0,
+    "telegates": 356
+   },
+   "no_relief": {
+    "epr": 1215,
+    "packets": 793,
+    "telegates": 50
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "multiplier",
+  "out": {
+   "full": {
+    "epr": 1358,
+    "packets": 34,
+    "telegates": 384
+   },
+   "no_packets": {
+    "epr": 1171,
+    "packets": 0,
+    "telegates": 350
+   },
+   "no_relief": {
+    "epr": 1844,
+    "packets": 208,
+    "telegates": 1018
+   }
+  }
+ },
+ {
   "suite": "80",
   "circuit": "ae",
   "out": {
@@ -366,6 +429,67 @@
    },
    "no_relief": {
     "error": "No legal action available.\nCurrent DAG front: ['3695:cx q56,"
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "qpeexact",
+  "out": {
+   "full": {
+    "epr": 526,
+    "packets": 239,
+    "telegates": 16
+   },
+   "no_packets": {
+    "epr": 620,
+    "packets": 0,
+    "telegates": 353
+   },
+   "no_relief": {
+    "error": "No legal action available.\nCurrent DAG front: ['3211:cx q34,"
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "qaoa",
+  "out": {
+   "full": {
+    "epr": 1122,
+    "packets": 303,
+    "telegates": 15
+   },
+   "no_packets": {
+    "epr": 1650,
+    "packets": 0,
+    "telegates": 780
+   },
+   "no_relief": {
+    "epr": 1505,
+    "packets": 589,
+    "telegates": 219
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "multiplier",
+  "out": {
+   "full": {
+    "epr": 3501,
+    "packets": 192,
+    "telegates": 1531
+   },
+   "no_packets": {
+    "epr": 3437,
+    "packets": 0,
+    "telegates": 1604
+   },
+   "no_relief": {
+    "epr": 3055,
+    "packets": 226,
+    "telegates": 1538
    }
   }
  }

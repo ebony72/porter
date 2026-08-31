@@ -104,14 +104,32 @@ for cols in rows:
     best = min(r["sfc"]["epr"], r["sfc_refined"]["epr"])
     chk(f"main {key} dTS", num(cols[6]),
         round(100 * (best - ts) / ts, 1) if ts else None)
-for cols in gmean_rows(seg):
-    n = int(re.search(r"\((\d+)\)", cols[0]).group(1))
-    suite = {6: "25", 8: "64", 3: "80"}[n]
-    conv = [k for k in BY if k[0] == suite and (BY[k].get("telesabre") or {}).get("epr")]
-    chk(f"main gmean n {suite}", n, len(conv))
-    for j, leg in enumerate(("telesabre", "dSE", "sfc", "sfc_refined")):
-        chk(f"main gmean {suite} {leg}", num(cols[1 + j]),
-            round(gmean([BY[k][leg]["epr"] for k in conv]), 1))
+# tab:main in the main paper has two blocks: (a) suites over the circuits all
+# five configurations complete, (b) suites and a pooled row over EVERY circuit
+# with TeleSABRE dashed.  Both are checked, and the row counts are pinned so a
+# reshaped table fails rather than passing on fewer rows.
+_MAIN_LEGS = ("telesabre", "dSE", "sfc", "sfc_refined", "sfc_search")
+seg_m, rows_m = rows_of("tab:main", r"^(\d\dq|all)\s*\(")
+chk("tab:main summary row count", 7, len(rows_m))
+for cols in rows_m:
+    lab = cols[0].strip()
+    n = int(re.search(r"\((\d+)\)", lab).group(1))
+    suite = lab.split("q")[0] if lab.startswith(("25", "64", "80")) else None
+    pool = [k for k in BY if suite is None or k[0] == suite]
+    matched = [k for k in pool
+               if all((BY[k].get(l) or {}).get("epr") for l in _MAIN_LEGS)]
+    # A dashed TeleSABRE cell marks block (b), which averages the whole suite;
+    # block (a) averages only the circuits all five configurations complete.
+    # (At 25q the two sets coincide, so the dash is the only reliable marker.)
+    in_b = num(cols[1]) is None
+    basis = pool if in_b else matched
+    chk(f"tab:main basis {lab}", n, len(basis))
+    for j, leg in enumerate(_MAIN_LEGS):
+        got = num(cols[1 + 2 * j])
+        if leg == "telesabre" and in_b:
+            continue
+        chk(f"tab:main {lab} {leg}", got,
+            round(gmean([BY[k][leg]["epr"] for k in basis]), 1))
 
 # -------------------------------------------------------------- tab:shared
 # The layout-by-router grid: three layout sources x three routers, every cell
@@ -195,7 +213,7 @@ for cols in rows:
 
 # ------------------------------------------------------------ tab:ablation
 seg, rows = rows_of("tab:ablation", r"^\d\dq\s*&")
-chk("ablation row count", 12, len(rows))
+chk("ablation row count", 18, len(rows))
 for cols in rows:
     key = (cols[0].replace("q", ""), cols[1])
     a, t = ABL[key]["out"], TD[key]["out"]
@@ -206,6 +224,10 @@ for cols in rows:
     chk(f"ablation {key} norel", cell(cols[4]), (a.get("no_relief") or {}).get("epr"))
     chk(f"ablation {key} teledata", cell(cols[5]),
         (t.get("teledata_only_relief") or {}).get("epr"))
+    # The double dagger must mark exactly the cells where strict removal failed.
+    chk(f"ablation {key} relief-tier marker", "ddagger" in cols[5],
+        (t.get("teledata_only") or {}).get("epr") is None
+        and (t.get("teledata_only_relief") or {}).get("epr") is not None)
     chk(f"ablation {key} pk", cell(cols[6]), (t.get("full") or {}).get("packets"))
     chk(f"ablation {key} tg", cell(cols[7]), (t.get("full") or {}).get("telegates"))
 

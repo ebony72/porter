@@ -11,7 +11,7 @@
     "packets": 8,
     "local_swaps": 328,
     "depth": 1095,
-    "seconds": 0.071
+    "seconds": 0.073
    },
    "full_relief": {
     "epr": 65,
@@ -110,7 +110,7 @@
     "packets": 0,
     "local_swaps": 34,
     "depth": 58,
-    "seconds": 0.005
+    "seconds": 0.004
    },
    "teledata_only_relief": {
     "epr": 7,
@@ -135,7 +135,7 @@
     "packets": 0,
     "local_swaps": 327,
     "depth": 1000,
-    "seconds": 0.068
+    "seconds": 0.067
    },
    "full_relief": {
     "epr": 74,
@@ -144,7 +144,7 @@
     "packets": 0,
     "local_swaps": 327,
     "depth": 1000,
-    "seconds": 0.066
+    "seconds": 0.067
    },
    "teledata_only": {
     "epr": 74,
@@ -153,7 +153,7 @@
     "packets": 0,
     "local_swaps": 327,
     "depth": 1000,
-    "seconds": 0.062
+    "seconds": 0.063
    },
    "teledata_only_relief": {
     "epr": 74,
@@ -162,7 +162,7 @@
     "packets": 0,
     "local_swaps": 327,
     "depth": 1000,
-    "seconds": 0.062
+    "seconds": 0.064
    }
   }
  },
@@ -178,7 +178,7 @@
     "packets": 0,
     "local_swaps": 642,
     "depth": 1700,
-    "seconds": 0.151
+    "seconds": 0.153
    },
    "full_relief": {
     "epr": 119,
@@ -187,7 +187,7 @@
     "packets": 0,
     "local_swaps": 642,
     "depth": 1700,
-    "seconds": 0.151
+    "seconds": 0.155
    },
    "teledata_only": {
     "epr": 119,
@@ -196,7 +196,7 @@
     "packets": 0,
     "local_swaps": 629,
     "depth": 1707,
-    "seconds": 0.141
+    "seconds": 0.144
    },
    "teledata_only_relief": {
     "epr": 119,
@@ -205,7 +205,7 @@
     "packets": 0,
     "local_swaps": 629,
     "depth": 1707,
-    "seconds": 0.141
+    "seconds": 0.144
    }
   }
  },
@@ -221,7 +221,7 @@
     "packets": 43,
     "local_swaps": 1327,
     "depth": 3410,
-    "seconds": 0.402
+    "seconds": 0.406
    },
    "full_relief": {
     "epr": 401,
@@ -230,11 +230,11 @@
     "packets": 43,
     "local_swaps": 1327,
     "depth": 3410,
-    "seconds": 0.412
+    "seconds": 0.415
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1907:cx q0,q5', '1909:cx q1,q15']\nFree slots by core: {0: 4, 1: 5, 2: 1,",
-    "seconds": 0.221
+    "seconds": 0.278
    },
    "teledata_only_relief": {
     "epr": 413,
@@ -243,7 +243,7 @@
     "packets": 0,
     "local_swaps": 1415,
     "depth": 3584,
-    "seconds": 0.396
+    "seconds": 0.399
    }
   }
  },
@@ -259,7 +259,7 @@
     "packets": 32,
     "local_swaps": 1627,
     "depth": 4202,
-    "seconds": 0.264
+    "seconds": 0.268
    },
    "full_relief": {
     "epr": 177,
@@ -268,11 +268,11 @@
     "packets": 32,
     "local_swaps": 1627,
     "depth": 4202,
-    "seconds": 0.266
+    "seconds": 0.268
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2505:cx q29,q43']\nFree slots by core: {0: 3, 1: 1, 2: 14, 3: 11, 4: 1, 5",
-    "seconds": 0.117
+    "seconds": 0.12
    },
    "teledata_only_relief": {
     "epr": 198,
@@ -281,7 +281,7 @@
     "packets": 0,
     "local_swaps": 1609,
     "depth": 4262,
-    "seconds": 0.318
+    "seconds": 0.34
    }
   }
  },
@@ -340,7 +340,7 @@
     "packets": 0,
     "local_swaps": 131,
     "depth": 105,
-    "seconds": 0.049
+    "seconds": 0.05
    },
    "full_relief": {
     "epr": 20,
@@ -349,7 +349,7 @@
     "packets": 0,
     "local_swaps": 131,
     "depth": 105,
-    "seconds": 0.049
+    "seconds": 0.05
    },
    "teledata_only": {
     "epr": 20,
@@ -383,7 +383,7 @@
     "packets": 45,
     "local_swaps": 1846,
     "depth": 3722,
-    "seconds": 0.397
+    "seconds": 0.409
    },
    "full_relief": {
     "epr": 262,
@@ -392,11 +392,11 @@
     "packets": 45,
     "local_swaps": 1846,
     "depth": 3722,
-    "seconds": 0.4
+    "seconds": 0.408
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1361:cx q49,q35', '1423:cx q50,q34']\nFree slots by core: {0: 1, 1: 1, 2:",
-    "seconds": 0.064
+    "seconds": 0.066
    },
    "teledata_only_relief": {
     "epr": 216,
@@ -405,7 +405,7 @@
     "packets": 0,
     "local_swaps": 1698,
     "depth": 3938,
-    "seconds": 0.312
+    "seconds": 0.32
    }
   }
  },
@@ -421,7 +421,7 @@
     "packets": 240,
     "local_swaps": 6595,
     "depth": 11889,
-    "seconds": 2.122
+    "seconds": 2.157
    },
    "full_relief": {
     "epr": 864,
@@ -430,11 +430,11 @@
     "packets": 240,
     "local_swaps": 6595,
     "depth": 11889,
-    "seconds": 2.096
+    "seconds": 2.153
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['11711:cx q56,q59', '12062:cx q50,q61']\nFree slots by core: {0: 1, 1: 1, ",
-    "seconds": 1.849
+    "seconds": 1.903
    },
    "teledata_only_relief": {
     "epr": 694,
@@ -443,7 +443,7 @@
     "packets": 0,
     "local_swaps": 5962,
     "depth": 9523,
-    "seconds": 1.899
+    "seconds": 1.919
    }
   }
  },
@@ -459,7 +459,7 @@
     "packets": 77,
     "local_swaps": 4048,
     "depth": 5623,
-    "seconds": 1.838
+    "seconds": 1.852
    },
    "full_relief": {
     "epr": 737,
@@ -468,15 +468,129 @@
     "packets": 77,
     "local_swaps": 4048,
     "depth": 5623,
-    "seconds": 1.86
+    "seconds": 1.829
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['843:cx q19,q3']\nFree slots by core: {0: 6, 1: 1, 2: 1, 3: 9, 4: 2, 5: 13",
-    "seconds": 0.655
+    "seconds": 0.514
    },
    "teledata_only_relief": {
     "error": "RuntimeError: Router exceeded max_iterations; possible oscillation or deadlock",
-    "seconds": 291.367
+    "seconds": 286.659
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qpeexact",
+  "ref_epr": 222,
+  "out": {
+   "full": {
+    "epr": 222,
+    "teleports": 177,
+    "telegates": 3,
+    "packets": 42,
+    "local_swaps": 1729,
+    "depth": 4070,
+    "seconds": 0.362
+   },
+   "full_relief": {
+    "epr": 222,
+    "teleports": 177,
+    "telegates": 3,
+    "packets": 42,
+    "local_swaps": 1729,
+    "depth": 4070,
+    "seconds": 0.362
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1734:cx q36,q44', '1867:cx q34,q49', '2009:cx q32,q51']\nFree slots by co",
+    "seconds": 0.109
+   },
+   "teledata_only_relief": {
+    "epr": 275,
+    "teleports": 275,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 1911,
+    "depth": 4380,
+    "seconds": 0.45
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "qaoa",
+  "ref_epr": 854,
+  "out": {
+   "full": {
+    "epr": 854,
+    "teleports": 507,
+    "telegates": 16,
+    "packets": 331,
+    "local_swaps": 5394,
+    "depth": 8060,
+    "seconds": 2.136
+   },
+   "full_relief": {
+    "epr": 854,
+    "teleports": 507,
+    "telegates": 16,
+    "packets": 331,
+    "local_swaps": 5394,
+    "depth": 8060,
+    "seconds": 2.141
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['5662:cx q40,q55', '5757:cx q42,q56', '6099:cx q29,q60', '6208:cx q35,q61",
+    "seconds": 1.397
+   },
+   "teledata_only_relief": {
+    "epr": 669,
+    "teleports": 669,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 4560,
+    "depth": 6484,
+    "seconds": 1.469
+   }
+  }
+ },
+ {
+  "suite": "64",
+  "circuit": "multiplier",
+  "ref_epr": 1358,
+  "out": {
+   "full": {
+    "epr": 1358,
+    "teleports": 940,
+    "telegates": 384,
+    "packets": 34,
+    "local_swaps": 9878,
+    "depth": 34703,
+    "seconds": 1.17
+   },
+   "full_relief": {
+    "epr": 1358,
+    "teleports": 940,
+    "telegates": 384,
+    "packets": 34,
+    "local_swaps": 9878,
+    "depth": 34703,
+    "seconds": 1.233
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['450:cx q2,q22']\nFree slots by core: {0: 1, 1: 1, 2: 4, 3: 2, 4: 8, 5: 16",
+    "seconds": 0.069
+   },
+   "teledata_only_relief": {
+    "epr": 1667,
+    "teleports": 1667,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 11132,
+    "depth": 36802,
+    "seconds": 1.389
    }
   }
  },
@@ -492,7 +606,7 @@
     "packets": 264,
     "local_swaps": 3156,
     "depth": 6757,
-    "seconds": 0.596
+    "seconds": 0.637
    },
    "full_relief": {
     "epr": 490,
@@ -501,11 +615,11 @@
     "packets": 264,
     "local_swaps": 3156,
     "depth": 6757,
-    "seconds": 0.596
+    "seconds": 0.594
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2917:cx q23,q38', '3059:cx q21,q40']\nFree slots by core: {0: 2, 1: 1, 2:",
-    "seconds": 0.166
+    "seconds": 0.155
    },
    "teledata_only_relief": {
     "epr": 354,
@@ -514,7 +628,7 @@
     "packets": 0,
     "local_swaps": 2831,
     "depth": 5422,
-    "seconds": 0.53
+    "seconds": 0.525
    }
   }
  },
@@ -573,7 +687,7 @@
     "packets": 0,
     "local_swaps": 198,
     "depth": 134,
-    "seconds": 0.114
+    "seconds": 0.112
    },
    "full_relief": {
     "epr": 28,
@@ -582,7 +696,7 @@
     "packets": 0,
     "local_swaps": 198,
     "depth": 134,
-    "seconds": 0.114
+    "seconds": 0.112
    },
    "teledata_only": {
     "epr": 28,
@@ -591,7 +705,7 @@
     "packets": 0,
     "local_swaps": 198,
     "depth": 134,
-    "seconds": 0.106
+    "seconds": 0.105
    },
    "teledata_only_relief": {
     "epr": 28,
@@ -600,7 +714,7 @@
     "packets": 0,
     "local_swaps": 198,
     "depth": 134,
-    "seconds": 0.106
+    "seconds": 0.105
    }
   }
  },
@@ -616,7 +730,7 @@
     "packets": 209,
     "local_swaps": 2968,
     "depth": 6321,
-    "seconds": 0.506
+    "seconds": 0.507
    },
    "full_relief": {
     "epr": 446,
@@ -625,11 +739,11 @@
     "packets": 209,
     "local_swaps": 2968,
     "depth": 6321,
-    "seconds": 0.504
+    "seconds": 0.503
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2409:cx q46,q39', '2517:cx q56,q37']\nFree slots by core: {0: 1, 1: 2, 2:",
-    "seconds": 0.159
+    "seconds": 0.156
    },
    "teledata_only_relief": {
     "epr": 307,
@@ -638,7 +752,7 @@
     "packets": 0,
     "local_swaps": 2569,
     "depth": 5545,
-    "seconds": 0.454
+    "seconds": 0.44
    }
   }
  },
@@ -654,7 +768,7 @@
     "packets": 448,
     "local_swaps": 10920,
     "depth": 20006,
-    "seconds": 4.774
+    "seconds": 4.736
    },
    "full_relief": {
     "epr": 1517,
@@ -663,11 +777,11 @@
     "packets": 448,
     "local_swaps": 10920,
     "depth": 20006,
-    "seconds": 4.788
+    "seconds": 4.759
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1770:cx q28,q33', '2061:cx q20,q36', '2712:cx q0,q42']\nFree slots by cor",
-    "seconds": 0.265
+    "seconds": 0.293
    },
    "teledata_only_relief": {
     "epr": 926,
@@ -676,7 +790,7 @@
     "packets": 0,
     "local_swaps": 9183,
     "depth": 15405,
-    "seconds": 3.055
+    "seconds": 3.004
    }
   }
  },
@@ -692,7 +806,7 @@
     "packets": 572,
     "local_swaps": 62119,
     "depth": 77093,
-    "seconds": 37.759
+    "seconds": 37.675
    },
    "full_relief": {
     "epr": 11040,
@@ -701,15 +815,124 @@
     "packets": 572,
     "local_swaps": 62119,
     "depth": 77093,
-    "seconds": 37.932
+    "seconds": 37.58
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['3398:cx q73,q65', '3613:cx q17,q66', '4023:cx q41,q44', '4599:cx q22,q52",
-    "seconds": 2.144
+    "seconds": 2.178
    },
    "teledata_only_relief": {
     "error": "RuntimeError: Router exceeded max_iterations; possible oscillation or deadlock",
-    "seconds": 238.586
+    "seconds": 236.098
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "qpeexact",
+  "ref_epr": 526,
+  "out": {
+   "full": {
+    "epr": 526,
+    "teleports": 271,
+    "telegates": 16,
+    "packets": 239,
+    "local_swaps": 3427,
+    "depth": 6492,
+    "seconds": 0.658
+   },
+   "full_relief": {
+    "epr": 526,
+    "teleports": 271,
+    "telegates": 16,
+    "packets": 239,
+    "local_swaps": 3427,
+    "depth": 6492,
+    "seconds": 0.628
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2631:cx q42,q45', '2737:cx q40,q59']\nFree slots by core: {0: 3, 1: 1, 2:",
+    "seconds": 0.156
+   },
+   "teledata_only_relief": {
+    "epr": 331,
+    "teleports": 331,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 2633,
+    "depth": 5437,
+    "seconds": 0.504
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "qaoa",
+  "ref_epr": 1122,
+  "out": {
+   "full": {
+    "epr": 1122,
+    "teleports": 804,
+    "telegates": 15,
+    "packets": 303,
+    "local_swaps": 7370,
+    "depth": 10151,
+    "seconds": 4.015
+   },
+   "full_relief": {
+    "epr": 1122,
+    "teleports": 804,
+    "telegates": 15,
+    "packets": 303,
+    "local_swaps": 7370,
+    "depth": 10151,
+    "seconds": 4.005
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1119:cx q20,q36', '2589:cx q14,q57', '4749:cx q13,q78', '5047:cx q12,q79",
+    "seconds": 0.772
+   },
+   "teledata_only_relief": {
+    "epr": 1086,
+    "teleports": 1086,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 7601,
+    "depth": 10827,
+    "seconds": 3.666
+   }
+  }
+ },
+ {
+  "suite": "80",
+  "circuit": "multiplier",
+  "ref_epr": 3501,
+  "out": {
+   "full": {
+    "epr": 3501,
+    "teleports": 1778,
+    "telegates": 1531,
+    "packets": 192,
+    "local_swaps": 18863,
+    "depth": 60964,
+    "seconds": 2.456
+   },
+   "full_relief": {
+    "epr": 3501,
+    "teleports": 1778,
+    "telegates": 1531,
+    "packets": 192,
+    "local_swaps": 18863,
+    "depth": 60964,
+    "seconds": 2.422
+   },
+   "teledata_only": {
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['462:cx q2,q26']\nFree slots by core: {0: 1, 1: 1, 2: 4, 3: 2, 4: 2, 5: 6}",
+    "seconds": 0.152
+   },
+   "teledata_only_relief": {
+    "error": "RuntimeError: Router exceeded max_iterations; possible oscillation or deadlock",
+    "seconds": 92.313
    }
   }
  }

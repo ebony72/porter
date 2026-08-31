@@ -38,7 +38,17 @@ FILES = {
     "64": {"qnn": "qnn_OLD_DEEP_nativegates_ibm_qiskit_opt3_64.qasm.bak"},
     "80": {"qnn": "qnn_nativegates_ibm_qiskit_opt3_80_DEEP.qasm"},
 }
-CIRCUITS = ["ae", "ghz", "graphstate", "qft", "qnn", "random"]
+CIRCUITS_BY_SUITE = {
+    # The 25q suite holds only these six; 64q and 80q add three more, and
+    # since 2026-08-31 the ablation covers all nine where they exist so the
+    # table is not a subset of the main comparison.
+    "25": ["ae", "ghz", "graphstate", "qft", "qnn", "random"],
+    "64": ["ae", "ghz", "graphstate", "qft", "qnn", "random",
+           "qpeexact", "qaoa", "multiplier"],
+    "80": ["ae", "ghz", "graphstate", "qft", "qnn", "random",
+           "qpeexact", "qaoa", "multiplier"],
+}
+CIRCUITS = CIRCUITS_BY_SUITE["25"]  # back-compat for callers that import it
 
 CONFIGS = {
     "full": dict(),
@@ -57,7 +67,7 @@ def main() -> None:
     rows = []
     for suite, arch, sub in SUITES:
         _, hw = hardware_for_name(arch)
-        for circ in CIRCUITS:
+        for circ in CIRCUITS_BY_SUITE[suite]:
             fname = FILES.get(suite, {}).get(circ)
             fname = fname or f"{circ}_nativegates_ibm_qiskit_opt3_{suite}.qasm"
             path = TELESABRE_CIRCUITS / sub / fname

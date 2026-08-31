@@ -124,6 +124,59 @@ def tab_shared():
     return "\n".join(out)
 
 
+def tab_ablation():
+    """tab:ablation (Table IV): one mechanism disabled at a time.
+
+    Since 2026-08-31 the basis is every circuit in each suite, not the six
+    common to all three -- the 25q suite has only six, but 64q and 80q have
+    nine, and restricting them to six made the ablation a subset of the main
+    comparison for no reason.  Rows where every configuration coincides (no
+    packets formed, no relief triggered, no telegates issued) are omitted.
+    """
+    A = {(r["suite"], r["circuit"]): r["out"]
+         for r in json.loads((_HERE.parent / "ablation_results.json").read_text())}
+    T = {(r["suite"], r["circuit"]): r["out"]
+         for r in json.loads((_HERE / "teledata_ablation_basis.json").read_text())}
+    order = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
+             "qpeexact", "qaoa", "multiplier"]
+    keys = [(s, c) for s in ("25", "64", "80") for c in order if (s, c) in A]
+    def ep(d, k):
+        return (d.get(k) or {}).get("epr")
+    def cnt(k, field):
+        return (T[k].get("full") or {}).get(field, 0) or 0
+    show = [k for k in keys
+            if not (ep(A[k], "full") == ep(A[k], "no_packets") == ep(A[k], "no_relief")
+                    and cnt(k, "packets") == 0 and cnt(k, "telegates") == 0)]
+    out, prev = [], None
+    for k in show:
+        if prev and k[0] != prev:
+            out.append("\\midrule")
+        prev = k[0]
+        a, t = A[k], T[k]
+        td = ep(t, "teledata_only_relief")
+        f = lambda v: "$^{\\dagger}$" if v is None else str(v)
+        # The double dagger marks a cell that needed the extra relief tier:
+        # strict removal of the TeleGate family failed there.
+        mark = "" if ep(t, "teledata_only") is not None else "$^{\\ddagger}$"
+        tdc = "$^{\\dagger}$" if td is None else (
+            f"\\textbf{{{td}}}{mark}" if td < ep(a, "full") else f"{td}{mark}")
+        out.append(f"{k[0]}q & {k[1]:<11} & {ep(a,'full'):>5} & "
+                   f"{f(ep(a,'no_packets')):>5} & {f(ep(a,'no_relief')):>5} & "
+                   f"{tdc} & {cnt(k,'packets'):>4} & {cnt(k,'telegates'):>4} \\\\")
+    out.append("\\midrule")
+    p3 = [k for k in show if all(ep(A[k], c) for c in ("full", "no_packets", "no_relief"))]
+    p2 = [k for k in show if ep(A[k], "full") and ep(T[k], "teledata_only_relief")]
+    gm = lambda ks, d, c: gmean([ep(d[k], c) for k in ks])
+    out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{gmean}}, paired "
+               f"$n{{=}}{len(p3)}$}} & {gm(p3,A,'full'):.1f} & "
+               f"{gm(p3,A,'no_packets'):.1f} & {gm(p3,A,'no_relief'):.1f} & & & \\\\")
+    td_g, full_g = gm(p2, T, "teledata_only_relief"), gm(p2, A, "full")
+    lo = "\\textbf{%.1f}" % td_g if td_g < full_g else "%.1f" % td_g
+    out.append(f"\\multicolumn{{2}}{{@{{}}l}}{{\\textbf{{gmean}}, paired "
+               f"$n{{=}}{len(p2)}$}} & {full_g:.1f} & & & {lo} & & \\\\")
+    return "\n".join(out)
+
+
 def tab_scaleup():
     """tab:scaleup (Table V): each compiler under its OWN initial layout and
     own protocol.  The PORTER+R and PORTER-on-dSABRE-layout columns were
@@ -261,7 +314,7 @@ def app_shared():
     return "\n".join(out2)
 
 
-TABLES = {"tab:shared": tab_shared,
+TABLES = {"tab:shared": tab_shared, "tab:ablation": tab_ablation,
           "tab:scaleup": tab_scaleup, "tab:heavyhex": tab_heavyhex}
 # The per-circuit main comparison moved to the appendix as tab:maineprs;
 # the main paper keeps only a hand-maintained suite-level summary.

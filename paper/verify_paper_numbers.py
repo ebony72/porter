@@ -313,13 +313,13 @@ for key, (td, raw_ok, pk, tg) in teledata.items():
 
 td_ok = [r for r in td_rows
          if (r["out"].get("teledata_only_relief") or {}).get("epr") is not None]
-check("td gmean basis count", 16, len(td_ok))
-check("td gmean full", 78.3,
+check("td gmean basis count", 21, len(td_ok))
+check("td gmean full", 131.3,
       round(gmean([r["out"]["full"]["epr"] for r in td_ok]), 1))
-check("td gmean nopk", 83.9,
+check("td gmean nopk", 141.6,
       round(gmean([(abl_by[(r["suite"], r["circuit"])]["out"]["no_packets"])["epr"]
                    for r in td_ok]), 1))
-check("td gmean teledata", 71.7,
+check("td gmean teledata", 120.9,
       round(gmean([r["out"]["teledata_only_relief"]["epr"] for r in td_ok]), 1))
 # Per-suite claims in the prose, over the table's own basis rows.
 def _td_delta_pct(suite, circs):
@@ -340,16 +340,30 @@ check("td raw deadlock count (of 12)", 10,
       sum(1 for k in basis12
           if (td_by[k]["out"].get("teledata_only") or {}).get("epr") is None))
 
+# V-C prose, on the widened basis (every circuit of every suite).
+_ap = [r for r in abl_rows if (r["out"].get("no_packets") or {}).get("epr")]
+check("abl packets basis", 24, len(_ap))
+check("abl packets pct", 7.6,
+      round(100 * (gmean([r["out"]["no_packets"]["epr"] for r in _ap])
+                   / gmean([r["out"]["full"]["epr"] for r in _ap]) - 1), 1))
+_ar = [r for r in abl_rows if (r["out"].get("no_relief") or {}).get("epr")]
+check("abl relief pct", 20.2,
+      round(100 * (gmean([r["out"]["no_relief"]["epr"] for r in _ar])
+                   / gmean([r["out"]["full"]["epr"] for r in _ar]) - 1), 1))
+check("abl relief failures", 5, len(abl_rows) - len(_ar))
+check("td strict removal completes", 8,
+      sum(1 for r in td_rows if (r["out"].get("teledata_only") or {}).get("epr")))
+
 full_v, nopk_v, norel_v = [], [], []
 for r in abl_rows:
     o = r["out"]
     e = [(o.get(k) or {}).get("epr") for k in ("full", "no_packets", "no_relief")]
     if all(v is not None for v in e):
         full_v.append(e[0]); nopk_v.append(e[1]); norel_v.append(e[2])
-check("abl basis count", 14, len(full_v))
-check("abl gmean full", 57.6, round(gmean(full_v), 1))
-check("abl gmean nopk", 61.4, round(gmean(nopk_v), 1))
-check("abl gmean norelief", 67.0, round(gmean(norel_v), 1))
+check("abl basis count", 19, len(full_v))
+check("abl gmean full", 122.2, round(gmean(full_v), 1))
+check("abl gmean nopk", 130.1, round(gmean(nopk_v), 1))
+check("abl gmean norelief", 146.9, round(gmean(norel_v), 1))
 
 # --------------------------------------- architecture / setup / Sec III facts
 import importlib
