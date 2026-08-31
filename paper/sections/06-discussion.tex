@@ -2,35 +2,23 @@
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-Several results in Section~\ref{sec:results} read as tensions when
-placed side by side. We resolve them here, then state what the
-evaluation does not establish.
+Three readings span several results of Section~\ref{sec:results}. We
+give them here, then state what the evaluation does not establish.
 
-\textbf{The remote stage is not isolated by any experiment.} The
-\emph{plan-oriented} design --- whole inter-core actions as candidates,
-ranked on gain with preparation cost demoted to a tie-break --- is the
-defining structural difference in \PORTER{}'s remote stage, and
-\emph{commitment} is the narrower rule that a selected plan is not
-reopened until ready. Neither is ablated here: every column of
-Table~\ref{tab:ablation} varies the action vocabulary or the capacity
-policy, and none replaces the plan with a hop. We therefore do not
-attribute the reductions of Section~\ref{sec:rq1} to either. Those are
-produced by the whole system --- layout, relief, vocabulary, scoring,
-horizon and protocol together --- and isolating the abstraction's share
-would need a hop-granular candidate set, which is a different router.
-This is the clearest gap in our attribution.
-
-\textbf{Layout binds below about a hundred physical qubits, the horizon
-above it.} \PORTER{} trails \dSABRE{} under RQ2 at $\le 108$ physical
-qubits, and controlling the layout at a matched budget erases the
-difference. On the scale-up series neither that control nor extra
-refinement helps --- \dSABRE{}'s layout is worse for \PORTER{} there than
-its own --- while a longer horizon moves \PORTER{} from $1.45\times$
-behind to $0.72\times$ ahead. Both regimes are consistent with the
-horizon being an absolute gate count that does not grow with the core
-count $K$, so a plan at twenty cores is scored over proportionally less
-of the circuit than at four. We have not tested a $K$-scaled horizon, so
-this is a hypothesis, not a finding.
+\textbf{Which component binds changes with scale.}
+Sections~\ref{sec:shared_results} and~\ref{sec:heavyhex} locate the
+difference between the two compilers at $\le 108$ physical qubits in the
+initial layout: the routing loops are within $2\%$ of one another from
+every layout source, the layout sources differ by more than twice that,
+and given \dSABRE{}'s own layouts \PORTER{} overtakes it on both
+heavy-hex core graphs. Section~\ref{sec:scaleup} locates it elsewhere:
+above $150$ physical qubits \dSABRE{}'s layout is \emph{worse} for
+\PORTER{} than its own, and the horizon instead moves \PORTER{} from
+$1.45\times$ behind to $0.72\times$ ahead. Both regimes fit a horizon
+that is an absolute gate count and does not grow with the core count
+$K$, so a plan at twenty cores is scored over proportionally less of the
+circuit than at four. A $K$-scaled horizon is untested; this is a
+hypothesis, not a finding.
 
 \textbf{Why \TeleData{}-only can beat the full action set.} Packets beat
 the single telegates they degrade into, yet removing gate teleportation
@@ -44,20 +32,23 @@ the comparator cannot see it. The ablation is evidence that this mismatch
 costs EPR pairs at scale; it is not evidence
 that a pair spread over a run of gates is a bad idea.
 
-\textbf{What the completion record does and does not show.}
-Section~\ref{sec:related} separates correctness and termination, which
-\PORTER{} guarantees by construction, from completion, which it does
-not. Every instance in this evaluation completes under the selected-horizon
-protocol, but that is a property of the protocol and the benchmark rather
-than of the router: at a fixed horizon, heavy-hex star Multiplier
-livelocks, and the extra candidate is a way of not meeting the failure
-rather than of excluding it. Only one of the four failure modes of Section~\ref{sec:terms} was
-observed for \PORTER{} here --- livelock at a fixed horizon on heavy-hex
-star Multiplier --- and capacity deadlock appeared only once relief was
-disabled. \dSABRE{}'s safe mode carries a
-termination-with-success proof under stated architectural hypotheses, and
-supplying a comparable guarantee is the clearest piece of theory this
-design leaves open.
+\textbf{Two things the evaluation does not establish.} The first is
+attribution to the remote stage: as
+Section~\ref{sec:sfc-plan-first} notes, no experiment here replaces a
+plan with a hop, so neither the plan abstraction nor the commitment rule
+is isolated and the reductions of Section~\ref{sec:rq1} belong to the
+whole system. Separating their share needs a hop-granular candidate set
+--- a different router. The second is completion, which \PORTER{} does
+not guarantee although it guarantees correctness and termination
+(Section~\ref{sec:related}). Of the four failure modes of
+Section~\ref{sec:terms} only livelock was observed here, on heavy-hex
+star Multiplier at a fixed horizon, and capacity deadlock only once
+relief was disabled --- but that clean record belongs to the
+selected-horizon protocol and this benchmark, and an extra candidate
+avoids a failure rather than excluding it. \dSABRE{}'s safe mode carries
+a termination-with-success proof under stated architectural hypotheses;
+a comparable guarantee is the clearest piece of theory this design
+leaves open.
 
 \subsection{Threats to Validity}
 \label{sec:threats}

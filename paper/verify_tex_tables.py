@@ -105,10 +105,14 @@ for cols in rows:
     chk(f"main {key} dTS", num(cols[6]),
         round(100 * (best - ts) / ts, 1) if ts else None)
 # tab:main in the main paper has two blocks: (a) suites over the circuits all
-# five configurations complete, (b) suites and a pooled row over EVERY circuit
+# four configurations complete, (b) suites and a pooled row over EVERY circuit
 # with TeleSABRE dashed.  Both are checked, and the row counts are pinned so a
 # reshaped table fails rather than passing on fewer rows.
-_MAIN_LEGS = ("telesabre", "dSE", "sfc", "sfc_refined", "sfc_search")
+# PORTER+S was dropped from the main paper on 2026-08-31 and now lives in
+# appendix tab:layoutsearch (checked separately below).  Removing it does not
+# move block (a)'s basis: every leg but TeleSABRE completes all 24, so the
+# matched set is TeleSABRE-limited either way.
+_MAIN_LEGS = ("telesabre", "dSE", "sfc", "sfc_refined")
 seg_m, rows_m = rows_of("tab:main", r"^(\d\dq|all)\s*\(")
 chk("tab:main summary row count", 7, len(rows_m))
 for cols in rows_m:
@@ -119,7 +123,7 @@ for cols in rows_m:
     matched = [k for k in pool
                if all((BY[k].get(l) or {}).get("epr") for l in _MAIN_LEGS)]
     # A dashed TeleSABRE cell marks block (b), which averages the whole suite;
-    # block (a) averages only the circuits all five configurations complete.
+    # block (a) averages only the circuits all four configurations complete.
     # (At 25q the two sets coincide, so the dash is the only reliable marker.)
     in_b = num(cols[1]) is None
     basis = pool if in_b else matched
@@ -130,6 +134,47 @@ for cols in rows_m:
             continue
         chk(f"tab:main {lab} {leg}", got,
             round(gmean([BY[k][leg]["epr"] for k in basis]), 1))
+
+# --------------------------------------------------- tab:layoutsearch (APP)
+# PORTER+S lives in the appendix only.  Its per-circuit EPR triples and the
+# four gmean lines are checked here so the appendix cannot drift either.
+_LS_ORDER = [(s, c) for s in ("25", "64", "80")
+             for c in ("ae", "ghz", "graphstate", "qft", "qnn", "random",
+                       "qpeexact", "qaoa", "multiplier")
+             if not (s == "25" and c in ("qpeexact", "qaoa", "multiplier"))]
+seg_ls, rows_ls = rows_of("tab:layoutsearch", r"^\d\dq\s*&", APP)
+chk("layoutsearch row count", 24, len(rows_ls))
+for key, cols in zip(_LS_ORDER, rows_ls):
+    r = BY[key]
+    for j, leg in enumerate(("sfc", "sfc_refined", "sfc_search")):
+        chk(f"layoutsearch {key} {leg}", cell(cols[2 + j]), r[leg]["epr"])
+    # gamma* and the two time columns
+    chk(f"layoutsearch {key} gamma", float(cols[6]),
+        round(r["sfc_search"]["best_gamma"], 2))
+    for idx, leg in ((7, "sfc_refined"), (8, "sfc_search")):
+        chk(f"layoutsearch {key} {leg} t", float(cols[idx]),
+            round(r[leg]["seconds"], 1))
+    # Delta is PORTER+S against PORTER+R, dashed where they coincide.
+    d = num(cols[5])
+    want = (None if r["sfc_search"]["epr"] == r["sfc_refined"]["epr"]
+            else round(100 * (r["sfc_search"]["epr"] / r["sfc_refined"]["epr"] - 1), 1))
+    chk(f"layoutsearch {key} delta", d, want)
+_ls_gm = gmean_rows(seg_ls) + [
+    [c.strip() for c in l.strip()[:-2].split("&")]
+    for l in seg_ls.splitlines() if r"\textbf{gmean, all}" in l]
+chk("layoutsearch gmean line count", 4, len(_ls_gm))
+for cols, sub in zip(_ls_gm, [[k for k in _LS_ORDER if k[0] == s]
+                              for s in ("25", "64", "80")] + [_LS_ORDER]):
+    for j, leg in enumerate(("sfc", "sfc_refined", "sfc_search")):
+        chk(f"layoutsearch gmean {leg} {len(sub)}", num(cols[1 + j]),
+            round(gmean([BY[k][leg]["epr"] for k in sub]), 1))
+    R = gmean([BY[k]["sfc_refined"]["epr"] for k in sub])
+    S = gmean([BY[k]["sfc_search"]["epr"] for k in sub])
+    chk(f"layoutsearch gmean delta {len(sub)}", num(cols[4]),
+        round(100 * (S / R - 1), 1))
+    for idx, leg in ((6, "sfc_refined"), (7, "sfc_search")):
+        chk(f"layoutsearch gmean {leg} t {len(sub)}", num(cols[idx]),
+            round(gmean_raw([BY[k][leg]["seconds"] for k in sub]), 2))
 
 # -------------------------------------------------------------- tab:shared
 # The layout-by-router grid: three layout sources x three routers, every cell

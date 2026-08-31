@@ -43,9 +43,10 @@ them here and use no synonyms.
 \item A \textbf{candidate layout} is one initial mapping a protocol
   supplies to the router. A protocol's cost is its layout count times its
   routes per layout.
-\item A \textbf{protocol} is a named row of Table~\ref{tab:budgets}: a
-  layout source, a route budget and a selection rule. We avoid
-  ``attempt'', which the baselines use for both meanings.
+\item A \textbf{protocol} is a layout source, a route budget and a
+  selection rule; Table~\ref{tab:budgets} names the ones used in the
+  main results. We avoid ``attempt'', which the baselines use for both
+  meanings.
 \item A \textbf{candidate horizon} is one value of $L_\mathrm{tp}$ offered
   to horizon selection; selecting among them costs one route each.
 \item \textbf{Complete compile cost} is the wall-clock time of an entire
@@ -268,31 +269,10 @@ intermediate pass may start from a layout worse than $\ell_0$ for
 \PORTER{}'s own capacity machinery. Individual passes therefore regress on
 some instances, and only the best-pass rule keeps that from surfacing.
 
-\subsubsection{Layout-discount search (\PORTER{}+S)}
-\label{sec:layoutsearch}
-
-\PORTER{}+S searches the one free scalar in the layout heuristic --- the
-per-layer discount $\gamma$ of Section~\ref{sec:sfc-layout}, fixed at
-$0.99$ elsewhere --- in two phases.
-
-Phase~1 builds a layout for each
-$\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ and routes it once at the
-configured horizon --- five routes --- keeping the lowest-EPR layout.
-Phase~2 runs the $P{=}5$ refinement schedule above from two seeds, phase
-1's winner and the $\gamma{=}0.99$ layout when that is not already the
-winner, adding $P{-}1{=}4$ routes each; refining the phase-1 winner alone
-is not reliably best, so both are run. The total is $5+4=9$ routes when
-$\gamma{=}0.99$ wins and $5+4+4=13$ otherwise, plus the
-$\lvert\mathcal{H}\rvert-1$ extra probes each seed's selection spends:
-$10$ to $17$ routes, the range Table~\ref{tab:budgets} reports. Since
-$\gamma{=}0.99$ always competes and is refined from its selected route,
-\PORTER{}+S cannot return a higher EPR count than \PORTER{} does.
-
-We previously also reported \PORTER{}+SR, the better of horizon
-selection and the $\gamma$-search. It is now redundant: phase 2 refines
-from the $\gamma{=}0.99$ layout among its seeds, which is the layout
-\PORTER{} builds by default, so the search contains the selected route.
-Section~\ref{sec:frontier} confirms the two never differ.
+A third schedule, \PORTER{}+S, additionally searches the layout
+heuristic's per-layer discount $\gamma$ before refining. It is a
+parameter search rather than a design decision, and buys little for what
+it costs, so we report it in \appLayoutSearch{} rather than here.
 
 \subsection{Comparison Protocols and Budgets}
 \label{sec:budgets}
@@ -309,10 +289,9 @@ throughout.
   per layout $P$, total routes, and the quantity minimised over them.
   Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$ except where a
   schedule selects a horizon, which adds
-  $\lvert\mathcal{H}\rvert{-}1$ probes per seed, and for \PORTER{}+S,
-  which spends one pass on every candidate layout and the full
-  refinement schedule on one or two of them. Lower EPR is better
-  everywhere.}
+  $\lvert\mathcal{H}\rvert{-}1$ probes per seed. The layout-discount
+  search of \appLayoutSearch{} is the one configuration not listed;
+  its budget is stated there. Lower EPR is better everywhere.}
 \label{tab:budgets}
 \setlength{\tabcolsep}{6pt}
 \small
@@ -326,7 +305,6 @@ routes & selects on \\
 \dSABRE{}         & SabreLayout, seeds 0--2 & 3 & 3 & 9 & best EPR \\
 \PORTER{}         & temporal locality-greedy & 1 & 3 & 3 & best EPR \\
 \PORTER{}+R       & temporal locality-greedy & 1 & 5 & 7 & best forward pass \\
-\PORTER{}+S       & $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$ & 5 & 1 or 5 & $10$--$17$ & best EPR \\
 \midrule
 \multicolumn{6}{@{}l}{\emph{Shared layout} (RQ2) --- both compilers routed from one external layout} \\
 \dSABRE{} shared  & \TeleSABRE{}'s or pytket-dqc's & 1 & 3 & 3 & best pass \\

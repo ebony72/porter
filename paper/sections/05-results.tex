@@ -25,9 +25,8 @@ completion counts and complete compile time.
   \PORTER{} routes the circuit at each of three candidate lookahead
   horizons and keeps the lowest-EPR result
   (Section~\ref{sec:horizon}); \PORTER{}+R refines backward from that
-  route, and \PORTER{}+S additionally searches the layout discount
-  $\gamma$. Block \emph{(a)} takes geometric means over the circuits
-  \emph{all five} configurations complete, which is the only basis on
+  route. Block \emph{(a)} takes geometric means over the circuits
+  \emph{all four} configurations complete, which is the only basis on
   which \TeleSABRE{} can be compared --- it excludes the seven it does
   not converge on, six of them at 80 qubits. Block \emph{(b)} drops
   \TeleSABRE{} and takes every circuit in the suite, which is the basis
@@ -41,28 +40,26 @@ completion counts and complete compile time.
 \setlength{\tabcolsep}{4pt}
 \small
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}l rr rr rr rr rr@{}}
+\begin{tabular}{@{}l rr rr rr rr@{}}
 \toprule
  & \multicolumn{2}{c}{\TeleSABRE{}} & \multicolumn{2}{c}{\dSABRE{}}
- & \multicolumn{2}{c}{\PORTER{}} & \multicolumn{2}{c}{\PORTER{}$+$R}
- & \multicolumn{2}{c}{\PORTER{}$+$S} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
-Suite & EPR & $t$ & EPR & $t$ & EPR & $t$ & EPR & $t$ & EPR & $t$ \\
+ & \multicolumn{2}{c}{\PORTER{}} & \multicolumn{2}{c}{\PORTER{}$+$R} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Suite & EPR & $t$ & EPR & $t$ & EPR & $t$ & EPR & $t$ \\
 \midrule
-\multicolumn{11}{@{}l}{\emph{(a)} over the circuits \emph{all five} complete} \\
-25q (6) & 106.6 & 0.51 & 45.8 & 0.23 & 43.1 & \textbf{0.11} & 38.8 & 0.26 & \textbf{38.4} & 0.65 \\
-64q (8) & 284.5 & 11.89 & \textbf{144.6} & \textbf{1.77} & 166.2 & 1.98 & 156.1 & 4.00 & 150.3 & 9.31 \\
-80q (3) & 121.0 & 5.11 & 44.9 & \textbf{3.57} & 38.5 & 3.95 & \textbf{36.6} & 14.04 & \textbf{36.6} & 50.23 \\
+\multicolumn{9}{@{}l}{\emph{(a)} over the circuits \emph{all four} complete} \\
+25q (6) & 106.6 & 0.51 & 45.8 & 0.23 & 43.1 & \textbf{0.11} & \textbf{38.8} & 0.26 \\
+64q (8) & 284.5 & 11.89 & \textbf{144.6} & \textbf{1.77} & 166.2 & 1.98 & 156.1 & 4.00 \\
+80q (3) & 121.0 & 5.11 & 44.9 & \textbf{3.57} & 38.5 & 3.95 & \textbf{36.6} & 14.04 \\
 \midrule
-\multicolumn{11}{@{}l}{\emph{(b)} over \emph{every} circuit in the suite; \TeleSABRE{} omitted} \\
-25q (6) & --- & --- & 45.8 & 0.23 & 43.1 & \textbf{0.11} & 38.8 & 0.26 & \textbf{38.4} & 0.65 \\
-64q (9) & --- & --- & \textbf{173.1} & \textbf{1.77} & 196.1 & 1.98 & 185.5 & 4.00 & 177.3 & 9.31 \\
-80q (9) & --- & --- & 412.1 & \textbf{3.57} & 396.7 & 3.95 & 372.9 & 14.04 & \textbf{368.3} & 50.23 \\
-all (24) & --- & --- & 171.9 & 1.38 & 174.9 & \textbf{1.25} & 163.0 & 3.22 & \textbf{159.1} & 9.01 \\
+\multicolumn{9}{@{}l}{\emph{(b)} over \emph{every} circuit in the suite; \TeleSABRE{} omitted} \\
+25q (6) & --- & --- & 45.8 & 0.23 & 43.1 & \textbf{0.11} & \textbf{38.8} & 0.26 \\
+64q (9) & --- & --- & \textbf{173.1} & \textbf{1.77} & 196.1 & 1.98 & 185.5 & 4.00 \\
+80q (9) & --- & --- & 412.1 & \textbf{3.57} & 396.7 & 3.95 & \textbf{372.9} & 14.04 \\
+all (24) & --- & --- & 171.9 & 1.38 & 174.9 & \textbf{1.25} & \textbf{163.0} & 3.22 \\
 \midrule
 done    & \multicolumn{2}{c}{17 / 24} & \multicolumn{2}{c}{24 / 24}
-        & \multicolumn{2}{c}{24 / 24} & \multicolumn{2}{c}{24 / 24}
-        & \multicolumn{2}{c}{24 / 24} \\
+        & \multicolumn{2}{c}{24 / 24} & \multicolumn{2}{c}{24 / 24} \\
 \bottomrule
 \end{tabular}%
 }
@@ -101,10 +98,9 @@ mean at 25 qubits ($43.1$ against $45.8$, $0.94\times$) and at 80
 against $173.1$, $1.13\times$), winning ten instances, losing twelve and
 tying two; pooled over all twenty-four it is within $2\%$, $174.9$
 against $171.9$. Refinement takes the lead pooled ($163.0$) at seven
-routes to \dSABRE{}'s nine and narrows 64 qubits to $1.07\times$, and
-the $\gamma$-search extends that to $159.1$ pooled and $1.02\times$ at
-64 qubits (Section~\ref{sec:frontier}), so the one suite \PORTER{} loses
-under its own protocol is also the one the extra search nearly closes.
+routes to \dSABRE{}'s nine and narrows 64 qubits to $1.07\times$
+(Section~\ref{sec:frontier}), so the one suite \PORTER{} loses under its
+own protocol is also the one extra routes largely close.
 \PORTER{}'s largest saving is 80q~Multiplier, $2{,}132$ against
 $4{,}841$ with refinement; its worst loss is 64q~QFT ($262$ against
 $179$).
@@ -127,12 +123,7 @@ geometric-mean EPR over all twenty-four instances.
   all three layout sources place all twenty-four circuits. \PORTER{}
   spends its three routes on three candidate lookahead horizons
   (Section~\ref{sec:horizon}); \PORTER{}+R refines backward from the one
-  it selects. \PORTER{}+S has no column here: its mechanism \emph{is}
-  choosing the initial layout, so it cannot be run from a supplied one
-  without destroying the control this table applies. From the layouts it
-  builds for itself it reaches $159.1$, lower than every cell here except
-  \PORTER{}+R on \texttt{pytket-dqc}'s partition.
-  Lower is better; the best entry in each column is bold.}
+  it selects. Lower is better; the best entry in each column is bold.}
 \label{tab:shared}
 \setlength{\tabcolsep}{5pt}
 \small
@@ -507,9 +498,9 @@ horizon takes over.
   routing passes; times are complete compile costs (geometric mean per
   instance). \PORTER{} routes each of three candidate lookahead horizons
   and keeps the best (Section~\ref{sec:horizon}); \PORTER{}+R refines
-  backward from the selected route (Section~\ref{sec:sfc-refine});
-  \PORTER{}+S adds the best-of-$\gamma$ layout search on top of that.
-  \PORTER{}+SR is not listed; the text says why.}
+  backward from the selected route (Section~\ref{sec:sfc-refine}). A
+  third schedule that also searches the layout discount $\gamma$ is
+  reported in \appLayoutSearch{}.}
 \label{tab:protocols}
 \small
 \resizebox{\columnwidth}{!}{%
@@ -519,8 +510,7 @@ Protocol & routes & EPR & vs.\ \dSABRE{} & time (s) & vs.\ \dSABRE{} \\
 \midrule
 \dSABRE{}                 &      9 & 171.9 & $1.00$ &  1.38 & $1.00$ \\
 \PORTER{}                 &      3 & 174.9 & $1.02$ &  1.25 & $\mathbf{0.91}$ \\
-\PORTER{}+R               &      7 & 163.0 & $0.95$ &  3.22 & $2.34$ \\
-\PORTER{}+S               & 10--17 & \textbf{159.1} & $\mathbf{0.93}$ &  9.01 & $6.55$ \\
+\PORTER{}+R               &      7 & \textbf{163.0} & $\mathbf{0.95}$ &  3.22 & $2.34$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -529,36 +519,27 @@ Protocol & routes & EPR & vs.\ \dSABRE{} & time (s) & vs.\ \dSABRE{} \\
 Table~\ref{tab:protocols} places \PORTER{}'s operating points
 (Section~\ref{sec:opprotocols}) against \dSABRE{}, pooled over all
 twenty-four instances. Each is the previous one plus a search: \PORTER{}
-selects the horizon, \PORTER{}+R refines backward from the route it
-selects, and \PORTER{}+S searches the layout discount as well. Because
-every schedule contains the one before it and keeps the best result by
-EPR, the column is monotone by construction, and none of them can report
-more EPR than routing once at the configured horizon.
+selects the horizon and \PORTER{}+R refines backward from the route it
+selects. Because each schedule contains the one before it and keeps the
+best result by EPR, the column is monotone by construction, and neither
+can report more EPR than routing once at the configured horizon. That
+property is what removed an earlier caveat: at a fixed horizon a refined
+route could lose to the cheaper configuration, and refining from the
+selected route is what stopped it.
 
 The trade is time against EPR pairs. \PORTER{} costs $1.02\times$
 \dSABRE{}'s EPR at $0.91\times$ its compile time; refinement takes the
 lead at $0.95\times$ the EPR for $2.34\times$ the time, on seven routes
-against \dSABRE{}'s nine; the layout search reaches $0.93\times$ at
-$6.55\times$. Increasing \PORTER{}'s deterministic search budget
-therefore closes and reverses the own-protocol gap. We stop short of
-calling that gap a search-budget gap: the added schedules change the
-initial layout as well as the route, and the comparison equalises route
-counts rather than wall-clock time --- which is what \PORTER{} actually
-spends, since a deep selected horizon makes each pass dearer rather than
-adding passes.
-
-\PORTER{}+SR, which took the better of horizon selection and the
-$\gamma$-search, is no longer a distinct operating point. The search
-refines from the $\gamma{=}0.99$ layout among others, and that is the
-layout \PORTER{} builds by default, so with refinement running on top of
-selection (Section~\ref{sec:sfc-refine}) the search contains the
-selected route and cannot lose to it. It does not differ from
-\PORTER{}+S on any of the twenty-four instances, at $19\%$ more compile
-time, so we drop it. The same argument makes each of the three listed
-schedules safe against the one below it, which is why none of them
-needed to be reported with a caveat about losing to a cheaper
-configuration: at a fixed horizon they did, and refining from the
-selected route is what removed that.
+against \dSABRE{}'s nine. Increasing \PORTER{}'s deterministic search
+budget therefore closes and reverses the own-protocol gap. We stop short
+of calling that gap a search-budget gap: refinement changes the layout
+each pass starts from as well as the route, and the comparison equalises
+route counts rather than wall-clock time --- which is what \PORTER{}
+actually spends, since a deep selected horizon makes each pass dearer
+rather than adding passes. Pushing the budget further reaches
+$0.93\times$ for $6.55\times$ the time (\appLayoutSearch{}); we do not
+report that operating point here because its return does not justify its
+cost.
 
 All times are \emph{complete} compile costs --- layout generation plus
 every route over every candidate, not the winning route alone --- and

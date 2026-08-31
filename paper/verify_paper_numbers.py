@@ -523,9 +523,44 @@ check("64q PORTER dearer per route on all nine", 9,
 # V-F: each schedule contains the one below it, so none can be worse.
 check("PORTER+R never worse than PORTER", 0,
       sum(1 for r in cmp_rows if r["sfc_refined"]["epr"] > r["sfc"]["epr"]))
+# --- Appendix J (tab:layoutsearch).  PORTER+S was dropped from the main
+# paper on 2026-08-31 -- 2.4% EPR for 2.9x the wall clock -- and every claim
+# it makes now lives in the appendix.  Pinned here so it cannot drift.
 check("PORTER+S never worse than PORTER", 0,
       sum(1 for r in cmp_rows if r["sfc_search"]["epr"] > r["sfc"]["epr"]))
-# V-F: PORTER+SR is retired -- it cannot differ from PORTER+S.
+check("PORTER+S never worse than PORTER+R", 0,
+      sum(1 for r in cmp_rows
+          if r["sfc_search"]["epr"] > r["sfc_refined"]["epr"]))
+check("appJ PORTER+S improves on 10 of 24", 10,
+      sum(1 for r in cmp_rows
+          if r["sfc_search"]["epr"] < r["sfc_refined"]["epr"]))
+check("appJ PORTER+S ties on 14 of 24", 14,
+      sum(1 for r in cmp_rows
+          if r["sfc_search"]["epr"] == r["sfc_refined"]["epr"]))
+# The cost claim: 2.9x PORTER+R's wall clock, 23x dSABRE's, and the 80q suite
+# carries 4,045 s of the 4,267 s for a 1.2% return.
+_tS = sum(r["sfc_search"]["seconds"] for r in cmp_rows)
+_tR = sum(r["sfc_refined"]["seconds"] for r in cmp_rows)
+check("appJ PORTER+S total seconds", 4267, round(_tS))
+check("appJ PORTER+R total seconds", 1468, round(_tR))
+check("appJ +S/+R wall clock", 2.9, round(_tS / _tR, 1))
+check("appJ +S/dSABRE wall clock", 23,
+      round(_tS / sum(r["dSE"]["seconds"] for r in cmp_rows)))
+check("appJ 80q share of +S seconds", 4045,
+      round(sum(r["sfc_search"]["seconds"] for r in cmp_rows
+                if r["suite"] == "80")))
+_ae80 = next(r for r in cmp_rows if r["suite"] == "80" and r["circuit"] == "ae")
+check("appJ 80q AE +S seconds", 928, round(_ae80["sfc_search"]["seconds"]))
+check("appJ 80q AE +R seconds", 14.9, round(_ae80["sfc_refined"]["seconds"], 1))
+check("appJ 80q AE +S/+R factor", 62,
+      round(_ae80["sfc_search"]["seconds"] / _ae80["sfc_refined"]["seconds"]))
+# gamma=0.80 wins phase 1 most often -- nine of twenty-four -- and all five
+# values win somewhere, which is why the appendix searches rather than retunes.
+check("appJ gamma=0.80 wins", 9,
+      sum(1 for r in cmp_rows if r["sfc_search"]["best_gamma"] == 0.80))
+check("appJ all five gammas win somewhere", 5,
+      len({r["sfc_search"]["best_gamma"] for r in cmp_rows}))
+# Appendix J: PORTER+SR is retired -- it cannot differ from PORTER+S.
 check("PORTER+SR identical to PORTER+S", 0,
       sum(1 for r in cmp_rows
           if r["sfc_selection_and_search"]["epr"] != r["sfc_search"]["epr"]))
@@ -821,6 +856,9 @@ narrative = {
 for key, want in narrative.items():
     r = by[key]
     d = r["dSE"]["epr"]
+    # Strongest PORTER protocol reported anywhere in the paper.  PORTER+S is
+    # now appendix-only (Appendix J) but is still a reported result, so this
+    # basis did not change when it left the main tables.
     pv = (r.get("sfc_search") or r.get("sfc_refined") or r["sfc"])["epr"]
     got = "P" if pv < d else ("dSE" if pv > d else "tie")
     check(f"narrative {key}", want, got)

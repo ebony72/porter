@@ -1041,6 +1041,86 @@ do sleep; done` **matches its own command line** and loops forever --- the
 +S/+SR run sat idle ~2 h. Match on something the waiter itself does not
 contain.
 
+## PORTER+S moved to Appendix J; Sec VI compressed (2026-08-31)
+
+**+S is out of the main paper entirely** (author's call: "cost much, gain
+little"). The measurement behind that: pooled over 24 it reaches 159.1 against
++R's 163.0 --- **-2.4% EPR for 2.9x the wall clock** (4,267 s vs 1,468 s, and
+**23x dSABRE's 182 s**). It improves 10 instances, ties 14, loses 0. The
+spend is badly distributed: 80q burns 4,045 of the 4,267 s for -1.2%, and
+**80q AE alone takes 928 s against +R's 14.9 s (62x)** to go 299 -> 284. Its
+one qualitative effect was 64q vs dSABRE 1.07x (+R) -> 1.02x.
+
+Three structural reasons beyond the return, all now stated in Appendix J:
+it can never appear in `tab:shared`'s layout x router grid (its mechanism
+*is* choosing the layout), so it is only ever a fourth own-protocol column;
+it adds a **second in-sample-fitted quantity** (the gamma set) next to the
+horizon candidate sets IV-E already declares in-sample; and at 10--17 routes
+/ 6.55x dSABRE's time it sits on the wrong side of V-F's own argument that
+PORTER's time advantage is the *count* of routes.
+
+What moved and what it cost:
+
+- `tab:main` lost 2 of 10 data columns (now 8, four compilers). **Block (a)'s
+  basis is unchanged at 6/8/3** --- it is TeleSABRE-limited, and every other
+  leg completes all 24, so no cell was recomputed. Caption "all five" ->
+  "all four"; bold moved to +R on three rows (25q both blocks, 80q(b), all).
+- `tab:protocols` lost its +S row; `tab:budgets` lost its +S row and the
+  caption clause, and now names Appendix J as the one configuration not
+  listed. IV-B's terminology bullet no longer defines a protocol as "a named
+  row of `tab:budgets`", which that omission would have contradicted.
+- `tab:shared`'s caption lost the four-line "+S has no column here" apology.
+- V-F lost the whole **PORTER+SR retirement paragraph** (it existed only to
+  explain a retired variant of +S); the surviving frontier prose keeps the
+  0.93x/6.55x point as one clause pointing at the appendix.
+- **New `sfc_appendix.tex` Appendix J** with the protocol definition, a
+  24-row per-circuit table (`tab:layoutsearch`: PORTER / +R / +S EPR, delta,
+  gamma*, both times), the buys/costs reading, and the +SR retirement.
+  Appended as **J so A--I keep their letters**; `\appLayoutSearch` added to
+  `sfc.tex`, front matter A--I -> A--J, plus `\mainRefine` / `\mainHorizon`
+  xr macros. **Two pointers into it** (IV-E and V-F) so it is not orphaned.
+
+**Paper is 15 pages (was 16); appendix 7 (was 6).**
+
+**Sec VI: the tensions half was half recap.** Kept the section --- it is
+referenced from six places and III-B *promises* it --- but rewrote it
+534 -> 428 words and **reordered so the two syntheses come first and the
+concessions last** (it had opened by undercutting the title).
+
+- The layout/horizon paragraph was the **third** statement of that reading
+  (V-D's closing, V-E's closing, then VI). It is now a pointer-style
+  synthesis whose only new content is the *K*-scaling hypothesis.
+- **It also overstated, and that was a real defect.** It said PORTER trails
+  "under RQ2 ... and controlling the layout at a matched budget erases the
+  difference." On the main suite it does **not**: PORTER/dSABRE is
+  1.019/1.022/1.014 across the three grid rows and 1.017 under the own
+  protocol --- controlling the layout leaves the ratio where it was, and V-B
+  says outright "this is the controlled test and PORTER loses it." The
+  erasure is **heavy-hex only** (82.9 vs 85.2 ring, 98.5 vs 101.1 star, 9
+  routes each side), and that is the *cross-layout* control, not the
+  equal-route one --- two different matched budgets IV-F is careful to
+  separate. Now scoped to the heavy-hex control and labelled as such.
+- The attribution paragraph duplicated III-B nearly verbatim; it now states
+  only what that leaves open and cites III-B for the fact. Merged with the
+  completion paragraph into one concession.
+- **Threats to Validity kept verbatim** --- it was added answering the second
+  review round, and cutting it would regress an answered review.
+
+**Verifier changes.** `verify_tex_tables._MAIN_LEGS` drops `sfc_search`, and
+a new **`tab:layoutsearch` parser** checks all 24 appendix rows (three EPR
+columns, delta, gamma*, both times) and its four gmean lines --- times via
+`gmean_raw`, per the clamping trap. `verify_paper_numbers.py` keeps the +S
+pins and **adds ten more** for Appendix J's claims (never worse than +R,
+10W/14T, all four wall-clock figures, the 80q share, the 80q AE 62x, and
+that gamma=0.80 wins 9 of 24 while all five win somewhere). 197 checks.
+The `narrative` per-instance check still reads +S as the strongest reported
+PORTER protocol, which is correct --- +S is still reported, in the appendix.
+
+**Gotcha for future appendix tables:** `verify_tex_tables.rows_of` and
+`gmean_rows` match **one line at a time**, so a row wrapped across two source
+lines is silently dropped or mis-indexed (it cost an `IndexError` here). Keep
+every table row on a single line.
+
 ## V-B rebuilt as a layout x router grid; Section V compressed (2026-08-31)
 
 **`tab:shared` in the main paper is no longer the \TeleSABRE{}-shared

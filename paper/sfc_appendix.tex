@@ -1,4 +1,4 @@
-%% sfc_appendix.tex — Supplementary material (Appendices A–I) for sfc.tex.
+%% sfc_appendix.tex — Supplementary material (Appendices A–J) for sfc.tex.
 %% Standalone document: compiles independently of the main paper.
 %%   pdflatex sfc_appendix
 %%   bibtex   sfc_appendix
@@ -66,6 +66,8 @@
 \newcommand{\mainSharedResults}{Section~\ref{main-sec:shared_results}}
 \newcommand{\mainCompileTime}{Section~\ref{main-sec:time}}
 \newcommand{\mainSharedTable}{Table~\ref{main-tab:shared}}
+\newcommand{\mainRefine}{Section~\ref{main-sec:sfc-refine}}
+\newcommand{\mainHorizon}{Section~\ref{main-sec:horizon}}
 
 \begin{document}
 
@@ -78,7 +80,7 @@
 \maketitle
 
 \noindent
-This supplement contains Appendices A--I of the main paper. Section,
+This supplement contains Appendices A--J of the main paper. Section,
 figure, and table numbers of the form ``Section~III-A'' or
 ``Table~VII'' refer to the main paper; numbers local to this document
 refer to the supplement itself.
@@ -1072,5 +1074,129 @@ queues are $O(1)$ amortised per layout mutation. Summing over $N$
 iterations gives $T_\mathrm{total} = O(N(Mn + KM^2\log M))$ excluding
 precomputation, in line with other core-local distributed
 compilers~\cite{lidsabre,russo2025telesabre}.
+
+\section{The Layout-Discount Search (\PORTER{}+S)}
+\label{app:layoutsearch}
+
+\PORTER{}+S is a third operating protocol, reported here rather than in
+the main paper because it is a parameter search rather than a design
+decision, and because what it returns does not justify what it costs. It
+searches the one free scalar in the initial-layout heuristic --- the
+per-layer discount $\gamma$ of \mainInitialLayout{}, fixed at $0.99$
+everywhere else --- in two phases.
+
+Phase~1 builds a layout for each $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$
+and routes it once at the configured horizon --- five routes --- keeping
+the lowest-EPR layout. Phase~2 runs the $P{=}5$ backward-refinement
+schedule of \mainRefine{} from two seeds: phase~1's winner, and the
+$\gamma{=}0.99$ layout when that is not already the winner, adding
+$P{-}1{=}4$ routes each. Refining the phase-1 winner alone is not
+reliably best, so both are run. The total is $5+4=9$ routes when
+$\gamma{=}0.99$ wins and $5+4+4=13$ otherwise, plus the
+$\lvert\mathcal{H}\rvert-1$ extra probes each seed's horizon selection
+spends: $10$ to $17$ routes. Since $\gamma{=}0.99$ always competes and is
+refined from its selected route, \PORTER{}+S cannot return a higher EPR
+count than \PORTER{} or \PORTER{}+R do.
+
+No single $\gamma$ dominates --- all five win somewhere, $0.80$ most
+often (nine of twenty-four instances) --- which is why the value is
+searched rather than retuned. The search is deterministic and takes no
+seed.
+
+\begin{table}[h]
+\centering
+\caption{\PORTER{}+S against \PORTER{} and \PORTER{}+R on the main
+  twenty-four instances, own protocol. $\gamma^{\ast}$ is the discount
+  phase~1 selected; $t$ is complete protocol time in seconds. $\Delta$ is
+  \PORTER{}+S against \PORTER{}+R and is dashed where the two coincide.
+  \PORTER{}+S is never worse, by construction. Lower is better.}
+\label{tab:layoutsearch}
+\setlength{\tabcolsep}{4pt}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}ll rrr r r rr@{}}
+\toprule
+ & & \multicolumn{3}{c}{EPR} & & &
+   \multicolumn{2}{c}{$t$ (s)} \\
+\cmidrule(lr){3-5}\cmidrule(lr){8-9}
+Suite & Circuit & \PORTER{} & $+$R & $+$S & $\Delta$\,\% &
+  $\gamma^{\ast}$ & $+$R & $+$S \\
+\midrule
+25q & ae         &    65 &    65 &    62 &   $-4.6$ & 0.80 &     0.5 &     1.4 \\
+25q & ghz        &     4 &     4 &     4 &      --- & 0.80 &     0.0 &     0.0 \\
+25q & graphstate &     7 &     4 &     4 &      --- & 0.80 &     0.0 &     0.1 \\
+25q & qft        &    74 &    74 &    74 &      --- & 0.99 &     0.6 &     1.0 \\
+25q & qnn        &   119 &   116 &   116 &      --- & 0.80 &     1.2 &     3.2 \\
+25q & random     &   401 &   383 &   379 &   $-1.0$ & 0.80 &     2.7 &     7.7 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 43.1 & 38.8 & \textbf{38.4} & $\mathbf{-1.0}$ & & 0.26 & 0.65 \\
+\midrule
+64q & ae         &   157 &   157 &   149 &   $-5.1$ & 0.95 &     8.4 &    16.3 \\
+64q & ghz        &     6 &     6 &     6 &      --- & 0.80 &     0.0 &     0.1 \\
+64q & graphstate &    20 &    16 &    16 &      --- & 0.80 &     0.3 &     0.9 \\
+64q & qft        &   262 &   262 &   262 &      --- & 0.99 &     7.4 &     9.8 \\
+64q & qnn        &   638 &   638 &   604 &   $-5.3$ & 1.00 &    10.4 &    36.0 \\
+64q & random     &   737 &   737 &   664 &   $-9.9$ & 0.90 &    21.0 &    53.3 \\
+64q & qpeexact   &   222 &   222 &   197 &  $-11.3$ & 1.00 &     7.4 &    13.2 \\
+64q & qaoa       &   775 &   586 &   586 &      --- & 0.95 &    18.5 &    44.6 \\
+64q & multiplier &  1076 &  1076 &   998 &   $-7.2$ & 0.90 &    14.0 &    34.6 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 196.1 & 185.5 & \textbf{177.3} & $\mathbf{-4.4}$ & & 4.00 & 9.31 \\
+\midrule
+80q & ae         &   299 &   299 &   284 &   $-5.0$ & 0.90 &    14.9 &   928.0 \\
+80q & ghz        &     7 &     7 &     7 &      --- & 0.80 &     0.0 &     0.1 \\
+80q & graphstate &    28 &    24 &    24 &      --- & 0.80 &     0.6 &     1.8 \\
+80q & qft        &   446 &   393 &   377 &   $-4.1$ & 1.00 &     8.4 &    18.9 \\
+80q & qnn        &  1070 &   918 &   918 &      --- & 1.00 &    19.0 &    68.9 \\
+80q & random     & 11040 & 11040 & 10836 &   $-1.8$ & 1.00 &   357.5 &  1957.6 \\
+80q & qpeexact   &   291 &   291 &   291 &      --- & 0.95 &   908.7 &   943.1 \\
+80q & qaoa       &  1122 &  1122 &  1122 &      --- & 0.99 &    41.4 &    62.4 \\
+80q & multiplier &  2411 &  2132 &  2132 &      --- & 0.95 &    25.2 &    64.1 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 396.7 & 372.9 & \textbf{368.3} & $\mathbf{-1.2}$ & & 14.04 & 50.23 \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{gmean, all} (24)} & 174.9 & 163.0 & \textbf{159.1} & $\mathbf{-2.4}$ & & 3.22 & 9.01 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{What it buys.} Table~\ref{tab:layoutsearch} gives the result.
+Pooled over the twenty-four instances \PORTER{}+S reaches $159.1$ EPR
+pairs against \PORTER{}+R's $163.0$, a $2.4\%$ reduction, and
+$0.93\times$ \dSABRE{}'s $171.9$ against \PORTER{}+R's $0.95\times$. It
+improves on ten instances, ties on fourteen and --- being a superset
+schedule --- loses on none. Its one qualitative effect is at 64 qubits,
+the single suite \PORTER{} loses under its own protocol: the ratio
+against \dSABRE{} falls from \PORTER{}+R's $1.07\times$ to $1.02\times$.
+
+\textbf{What it costs.} The same twenty-four instances take $4{,}267$\,s
+against \PORTER{}+R's $1{,}468$\,s --- $2.9\times$ the wall clock, and
+$23\times$ \dSABRE{}'s complete protocol cost of $182$\,s. The
+expenditure is badly distributed: the 80-qubit suite consumes $4{,}045$
+of those seconds and returns $1.2\%$, and 80q~AE alone spends $928$\,s
+against \PORTER{}+R's $14.9$\,s --- a factor of $62$ --- to move from
+$299$ pairs to $284$. On more than half the suite the search returns
+nothing at all.
+
+\textbf{Why it is not in the main paper.} Three reasons beyond the
+return. It cannot appear in the layout-against-router grid of
+\mainSharedTable{}, since its mechanism \emph{is} choosing the initial
+layout and a supplied layout would destroy that control --- so it can
+only ever be a fourth own-protocol column. It introduces a second
+in-sample-fitted quantity, the $\gamma$ set, alongside the horizon
+candidate sets whose in-sample fitting \mainHorizon{} already
+declares. And at $10$--$17$ routes and $6.55\times$ \dSABRE{}'s compile
+time it sits on the wrong side of the argument \mainCompileTime{} makes,
+that \PORTER{}'s time advantage lies in the number of routes it spends
+rather than their individual price. We report it here so the shape of
+the EPR/time frontier past \PORTER{}+R is on the record.
+
+\textbf{\PORTER{}+SR is subsumed.} An earlier version of this work also
+reported \PORTER{}+SR, the better of horizon selection and the
+$\gamma$-search. Phase~2 refines from the $\gamma{=}0.99$ layout among
+its seeds, and that is the layout \PORTER{} builds by default, so once
+refinement runs on top of horizon selection the search contains the
+selected route and cannot lose to it. \PORTER{}+SR does not differ from
+\PORTER{}+S on any of the twenty-four instances, at $19\%$ more compile
+time, and is retired.
+
 
 \end{document}
