@@ -72,8 +72,10 @@ explains. \PORTER{} and \dSABRE{} complete all twenty-four
 instances; \TeleSABRE{} completes seventeen, failing on 64q~Random and
 six of the nine 80-qubit circuits.
 
-Against \dSABRE{} the answer varies by suite. At its own three-route
-protocol \PORTER{} takes the geometric mean at 25 qubits ($43.1$ against
+Against \dSABRE{} the answer varies by suite. Routing its three candidate
+lookahead horizons and keeping the lowest-EPR result
+(Section~\ref{sec:horizon}), against \dSABRE{}'s three candidate layouts
+at three passes each, \PORTER{} takes the geometric mean at 25 qubits ($43.1$ against
 $45.8$) and at 80 ($38.5$ against $44.9$) and trails at 64 ($166.2$
 against $144.6$; all three on the \TeleSABRE{}-matched basis), winning
 ten instances, losing twelve and tying two; pooled over all twenty-four
@@ -152,8 +154,7 @@ weak layout alone would overstate it.
 \emph{Question:} what does each mechanism contribute on its own?
 \emph{Held fixed:} the initial layout, the lookahead horizon and every
 other parameter; exactly one mechanism is disabled per column.
-\emph{Metric:} EPR, completion, and --- for plan commitment, whose claim
-is about cost --- compile time.
+\emph{Metric:} EPR and completion.
 
 
 \begin{table}[t]
@@ -162,14 +163,13 @@ is about cost --- compile time.
   disabled at a time, all from the same temporal locality-greedy
   layout. Columns: ``No pk'' disables packets
   (\texttt{max\_packet\_size}=1), ``No rel.'' disables
-  both relief tiers, ``Hop-wise'' replaces plan commitment with
-  per-iteration re-scoring of the whole front, ``\TeleData{}'' removes
-  the \TeleGate{} family; ``pk'' and ``tg'' are the packet and
-  single-telegate counts of the full configuration. Each gmean row is over the instances \emph{all its filled columns}
-  complete, and only those columns are filled: $n{=}14$ pairs Full
-  against No pk and No rel., $n{=}16$ pairs Full against \TeleData{},
-  $n{=}12$ pairs Full against Hop-wise. Rows are therefore comparable
-  across a row and not down a column. $^{\dagger}$Fails to complete (deadlock
+  both relief tiers, ``\TeleData{}'' removes the \TeleGate{} family;
+  ``pk'' and ``tg'' are the packet and single-telegate counts of the full
+  configuration. Each gmean row is over the instances \emph{all its
+  filled columns} complete, and only those columns are filled: $n{=}14$
+  pairs Full against No pk and No rel., $n{=}16$ pairs Full against
+  \TeleData{}. Rows are therefore comparable across a row and not down a
+  column. $^{\dagger}$Fails to complete (deadlock
   or iteration-guard trip). $^{\ddagger}$Completes only with the additional
   relief tier described in the text, which the \TeleGate{} otherwise
   makes unnecessary. The first gmean row is over the fourteen instances the
@@ -179,26 +179,25 @@ is about cost --- compile time.
 \setlength{\tabcolsep}{3pt}
 \small
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}ll rrrrr rr@{}}
+\begin{tabular}{@{}ll rrrr rr@{}}
 \toprule
-Suite & Circuit & Full & No pk & No rel. & Hop-wise & \TeleData{} & pk & tg \\
+Suite & Circuit & Full & No pk & No rel. & \TeleData{} & pk & tg \\
 \midrule
-25q & ae         &    65 &    71 &    80 &    65 & 68$^{\ddagger}$ &   8 &    0 \\
-25q & qft        &    74 &    74 &   140 &    74 &   74 &   0 &    0 \\
-25q & qnn        &   119 &   122 &   212 &   128 &  119 &   0 &    0 \\
-25q & random     &   401 &   412 &   395 &   399 & 413$^{\ddagger}$ &  43 &   93 \\
-64q & ae         &   177 &   211 &   327 &   172 & 198$^{\ddagger}$ &  32 &    0 \\
-64q & qft        &   262 &   372 &   382 &   336 & \textbf{216}$^{\ddagger}$ &  45 &    1 \\
-64q & qnn        &   864 &   931 &   600 &   785 & \textbf{694}$^{\ddagger}$ & 240 &    5 \\
-64q & random     &   737 &   843 &   789 &   805 & $^{\dagger}$ &  77 &  228 \\
-80q & ae         &   490 &   688 & $^{\dagger}$ &   383 & \textbf{354}$^{\ddagger}$ & 264 &   15 \\
-80q & qft        &   446 &   435 & $^{\dagger}$ &   415 & \textbf{307}$^{\ddagger}$ & 209 &    2 \\
-80q & qnn        &  1517 &  1571 & $^{\dagger}$ &  1474 & \textbf{926}$^{\ddagger}$ & 448 &   30 \\
-80q & random     & 11040 & 11628 & $^{\dagger}$ & 11280 & $^{\dagger}$ & 572 & 3538 \\
+  25q & ae & 65 & 71 & 80 & 68$^{\ddagger}$ & 8 & 0 \\
+  25q & qft & 74 & 74 & 140 & 74 & 0 & 0 \\
+  25q & qnn & 119 & 122 & 212 & 119 & 0 & 0 \\
+  25q & random & 401 & 412 & 395 & 413$^{\ddagger}$ & 43 & 93 \\
+  64q & ae & 177 & 211 & 327 & 198$^{\ddagger}$ & 32 & 0 \\
+  64q & qft & 262 & 372 & 382 & \textbf{216}$^{\ddagger}$ & 45 & 1 \\
+  64q & qnn & 864 & 931 & 600 & \textbf{694}$^{\ddagger}$ & 240 & 5 \\
+  64q & random & 737 & 843 & 789 & $^{\dagger}$ & 77 & 228 \\
+  80q & ae & 490 & 688 & $^{\dagger}$ & \textbf{354}$^{\ddagger}$ & 264 & 15 \\
+  80q & qft & 446 & 435 & $^{\dagger}$ & \textbf{307}$^{\ddagger}$ & 209 & 2 \\
+  80q & qnn & 1517 & 1571 & $^{\dagger}$ & \textbf{926}$^{\ddagger}$ & 448 & 30 \\
+  80q & random & 11040 & 11628 & $^{\dagger}$ & $^{\dagger}$ & 572 & 3538 \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{gmean}, paired $n{=}14$} & 57.6 & 61.4 & 67.0 & & & & \\
-\multicolumn{2}{@{}l}{\textbf{gmean}, paired $n{=}16$} & 78.3 & 83.9 & & & \textbf{71.7} & & \\
-\multicolumn{2}{@{}l}{\textbf{gmean}, paired $n{=}12$} & 413.3 & & & 411.7 & & & \\
+  \multicolumn{2}{@{}l}{\textbf{gmean}, paired $n{=}14$} & 57.6 & 61.4 & 67.0 &  &  &  \\
+  \multicolumn{2}{@{}l}{\textbf{gmean}, paired $n{=}16$} & 78.3 & 83.9 &  & \textbf{71.7} &  &  \\
 \bottomrule
 \end{tabular}%
 }
@@ -223,10 +222,15 @@ the next overturns that reading.
 \emph{Strict removal} --- deleting the \TeleGate{} family and changing
 nothing else --- is the one-factor ablation, and it fails: ten of the
 twelve rows do not complete. The \TeleGate{} is the only remote action
-needing no free destination slot, so it is the fallback plan for an
-adjacent-remote CX; without it a front of core-adjacent remote CXs whose
-destinations all sit at or below $f_\mathrm{min}$ has an empty plan set,
-and the tail-relief BFS is offered only non-adjacent candidates. The
+that needs no free \emph{data} slot in the destination core. Like every
+remote action it needs the two inter-core communication qubits free, but
+the cat copy it creates lives on the target-side communication qubit
+rather than displacing a logical qubit, so unlike \TeleData{} it is not
+gated on $\mathrm{free}(c) \ge f_\mathrm{min}$ and is always available
+for an adjacent-remote CX. Without it, a front of core-adjacent remote
+CXs whose destinations all sit at or below $f_\mathrm{min}$ has an empty
+plan set, and the tail-relief BFS is offered only non-adjacent
+candidates. The
 \TeleGate{} is thus essential to
 \emph{completion} here under the unchanged relief policy --- not to
 termination, which the guards of Section~\ref{sec:sfc-progress} provide
@@ -250,17 +254,6 @@ packets. It also answers a question \dSABRE{} leaves open: its
 teledata-only vocabulary was chosen by measurement, with grouping
 untested. Grouping does close the per-EPR gap, and still does not
 justify spending pairs that teleporting would have spent better.
-
-\textbf{Plan commitment.} Replacing the commitment rule with
-\dSABRE{}'s --- re-scoring every plan after each round of preparation
-SWAPs --- leaves EPR unchanged: $413.3$ against $411.7$ over the twelve
-rows here, and $148.8$ against $148.0$ over the twenty-one instances we
-ran it on, all completing either way. The two make the same number of
-routing moves ($128{,}222$ against $128{,}565$ iterations): commitment
-does not change what the compiler decides, only what each decision
-costs, buying $1.31\times$ compile time in geometric mean and
-$3.07\times$ on 80q~Random. Section~\ref{sec:discussion} notes what this
-does and does not say about the plan abstraction beneath it.
 
 \textbf{Capacity relief.} Disabling both tiers costs completion, not
 just EPR pairs: 80q~AE, QFT, QNN and Random all fail, because with every

@@ -27,12 +27,8 @@ complete in practice; the initial layout dominates the difference between
 the two compilers at the smaller sizes evaluated, and the lookahead
 horizon at the larger ones.
 
-Two ablation results are negative and they delimit the contribution.
-Plan commitment does not lower EPR consumption --- it makes the same
-number of routing moves as re-scoring the front each iteration and lands
-within $0.6\%$ --- so it is a compile-time mechanism, and no experiment
-here isolates the plan abstraction it rests on. And a richer
-gate-teleportation vocabulary does not always pay: at 80 qubits, removing
+One ablation result is negative and it delimits the contribution. A
+richer gate-teleportation vocabulary does not always pay: at 80 qubits, removing
 gate teleportation entirely beats the full action set by $32.8\%$ on the
 packet-heaviest circuits, which we read as the plan scorer undervaluing
 teleportation's latent return rather than as a verdict on amortisation.

@@ -38,9 +38,6 @@ ABL = {(r["suite"], r["circuit"]): r
        for r in json.load(open(_HERE.parent / "ablation_results.json"))}
 TD = {(r["suite"], r["circuit"]): r
       for r in json.load(open(_HERE / "teledata_ablation_basis.json"))}
-PC = {(r["suite"], r["circuit"]): r
-      for r in json.load(open(_HERE / "plan_commitment_results.json"))}
-
 fails = []
 
 
@@ -201,15 +198,16 @@ seg, rows = rows_of("tab:ablation", r"^\d\dq\s*&")
 chk("ablation row count", 12, len(rows))
 for cols in rows:
     key = (cols[0].replace("q", ""), cols[1])
-    a, t, c = ABL[key]["out"], TD[key]["out"], PC[key]["out"]
+    a, t = ABL[key]["out"], TD[key]["out"]
+    # The Hop-wise (plan-commitment) column was removed on 2026-08-31.
+    chk(f"ablation {key} column count", 8, len(cols))
     chk(f"ablation {key} full", cell(cols[2]), (a.get("full") or {}).get("epr"))
     chk(f"ablation {key} nopk", cell(cols[3]), (a.get("no_packets") or {}).get("epr"))
     chk(f"ablation {key} norel", cell(cols[4]), (a.get("no_relief") or {}).get("epr"))
-    chk(f"ablation {key} hopwise", cell(cols[5]), (c.get("hopwise") or {}).get("epr"))
-    chk(f"ablation {key} teledata", cell(cols[6]),
+    chk(f"ablation {key} teledata", cell(cols[5]),
         (t.get("teledata_only_relief") or {}).get("epr"))
-    chk(f"ablation {key} pk", cell(cols[7]), (t.get("full") or {}).get("packets"))
-    chk(f"ablation {key} tg", cell(cols[8]), (t.get("full") or {}).get("telegates"))
+    chk(f"ablation {key} pk", cell(cols[6]), (t.get("full") or {}).get("packets"))
+    chk(f"ablation {key} tg", cell(cols[7]), (t.get("full") or {}).get("telegates"))
 
 if fails:
     print(f"{len(fails)} TEX/DATA MISMATCHES:")
