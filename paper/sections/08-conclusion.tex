@@ -24,22 +24,3 @@ target, and the lookahead horizon is what carries \PORTER{} past
 prove complementary rather than ranked: neither wins more than eleven of
 the twenty-four instances, and taking the better of the two per instance
 reaches $11.6\%$ below \dSABRE{} alone (Section~\ref{sec:discussion}).
-
-One ablation result is negative and delimits the contribution. A richer
-gate-teleportation vocabulary does not always pay: at 80 qubits a
-vocabulary with gate teleportation removed uses $21.4\%$ fewer pairs than
-the full action set, and no more on any circuit it completes. We read
-this as the plan scorer undervaluing teleportation's latent return rather
-than as a verdict on amortisation. It also points somewhere concrete: a
-teleport-only \PORTER{} is both the cheapest vocabulary we measured at
-that width and the one \dSABRE{}'s completion proof is written for, which
-makes it the natural place to try to earn a guarantee \PORTER{} presently
-lacks (Section~\ref{sec:future}).
-
-The evaluation is bounded --- two circuit families at the largest widths,
-two non-grid core graphs, horizon rules fitted on the corpus they are
-measured on, and a cost model that ignores link contention, latency and
-fidelity (\appThreats{}). What follows from those bounds ---
-scheduling and fidelity beyond pair count, richer interconnects, a
-completion guarantee, and a horizon that scales with the core count ---
-is set out in Section~\ref{sec:future}.

@@ -1171,6 +1171,31 @@ non-vacuous by corrupting a portfolio cell and watching it fail.
 
 59 tex checks, 252 numeric checks, generator idempotent, 14 pages.
 
+## Conclusion cut to two paragraphs (2026-09-01)
+
+Author's call: the last two paragraphs --- the negative ablation result and
+the bounds-plus-future-work summary --- were removed. **Neither needed
+relocating: both were summaries of material that already lives elsewhere**,
+so nothing was lost:
+
+- the negative finding is stated in V-C and interpreted in \S VI (which is
+  what the intro's contribution (iii) promises --- **that pointer still
+  resolves**, so do not remove \S VI's \TeleData{} paragraph without fixing
+  the intro);
+- the teleport-only / completion-guarantee synthesis added the same day
+  survives in VI-A;
+- the bounds are Appendix K, still cited from II-B and IV-A (**two
+  `\appThreats` references remain, so it is not orphaned**);
+- the future-work list is \S VI-A itself.
+
+Side effect: `sec:future` is now unreferenced from the main paper. Harmless
+--- it is a subsection anchor, and nothing in the appendix uses it via `xr`
+--- but a pointer to \S VI-A would have to be re-added if the conclusion
+ever wants one.
+
+Conclusion 395 -> 221 words, and it now ends on the complementarity result,
+which is the strongest note available. Paper still 14 pages.
+
 ## Teleport-only + \dSABRE{}'s proof named as the configuration to try (2026-09-01)
 
 **Author's idea, and two of our own results converge on it.** \dSABRE{}'s
