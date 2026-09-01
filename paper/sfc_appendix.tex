@@ -1137,9 +1137,11 @@ preparation SWAP without retiring a gate, and capacity relief adds further
 inter-core actions, so nothing here bounds $I$ by the gate count $N$ ---
 the iteration and repeated-state guards of \mainProgress{} bound it by
 construction instead. The shape is in line with other core-local
-distributed compilers~\cite{lidsabre,russo2025telesabre}. This is the cost
-of \emph{one} route; every wall-clock figure we report is complete
-protocol time over several (\mainProtocols{}).}
+distributed compilers~\cite{lidsabre,russo2025telesabre}. This is an
+operation count for \emph{one} route, and it is not what the reported
+timings measure: those are complete protocol time over several routes
+(\mainProtocols{}), so they neither validate this bound nor are bounded by
+it.}
 
 \section{The Layout-Discount Search (\PORTER{}+S)}
 \label{app:layoutsearch}

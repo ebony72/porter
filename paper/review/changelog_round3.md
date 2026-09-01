@@ -73,12 +73,36 @@ Nine passages, seven findings. **No numbers changed**; both verifiers pass.
 | `A10` | `00-abstract.tex:13` | "all three known inter-core primitives" was an exhaustiveness claim Related Work does not establish -> "the three inter-core primitives studied under this cost model". |
 | `B08` | `00-abstract.tex` (3 places) | Bases added: the TeleSABRE percentages are "over the instances both complete"; the scale-up series is "of QFT and QPEexact"; the portfolio is "an oracle over both, costing both". |
 
-## Batch 3 — pending
+## Batch 3 — specification and exposition (applied)
 
-`A04`/`B02` (Algorithm 1's abandonment branch), `B10` (plan tuple),
-`A08` (machine class), `A09` (tail-relief seed rule), `B11`, `B12`, `B15`,
-`A07`.
+Nine passages, eight findings. **No numbers changed**; both verifiers pass.
+`A04` and `A08` were settled by reading `porter/router.py`,
+`porter/hardware.py` and the device files rather than by inference.
 
-`A08` and `A04` are confirmed from the code and the device files; the
-findings are recorded in the session notes and reproduced in
-`triage_round3.md`'s questions section.
+| ID | File | What changed |
+|---|---|---|
+| `A04`/`B02` | `03-porter-compiler.tex` Algorithm 1 | The unconditional "apply preparation SWAPs until ready, then execute it" is now an explicit preparation loop (lines 23--33) with all three exits: ready and execute, no improving SWAP and abandon, decision state repeats and abort. |
+| `A04`/`B02` | `03-porter-compiler.tex:236` | Prose points at those lines instead of enumerating them, and adds the mechanism that was invisible: **abandonment needs no exclusion list**, because selection admits only plans that are ready or admit an improving SWAP — a test the abandoned plan cannot pass again until the layout moves. (Confirmed in `_commit_remote_plan` and `_select_ready_or_preparable_remote_plan`.) |
+| `B10` | `03-porter-compiler.tex:156` | $\mathrm{ready}(\pln{p},\ell)$ removed from the plan tuple. The tuple is now all static fields, with readiness defined immediately after as a predicate derived from a plan and a layout — so preparation changes the layout and the predicate, never the plan. |
+| `A08` | `02-background.tex:17` | The admissible machine class is stated: one link per adjacent pair, one port per neighbour, so an adjacent pair fixes its port pair and a plan has no port to choose. Confirmed from `Core.ports: Dict[CoreId, PhysicalQubit]`, the canonicalised `core_edges`, and both device files (max 1 link per pair, no shared ports). |
+| `A09` | `03-porter-compiler.tex:233` | Tail relief's seed rule stated: the highest-scoring blocked plan among those at the smallest hop count. Opportunistic relief already specified its $\arg\max$; this was the one genuine gap in `A09`. |
+| `B11` | `03-porter-compiler.tex:57` | "routes from any initial layout" -> qualified by the spare-capacity condition, with a forward reference to III-H's legalisation. |
+| `B12` | `04-methodology.tex:216` | "No instance above the threshold ever selected the long horizon" was circular — above the threshold the candidate set is $\{4,8,16\}$, so $128$ is never offered. Now states the non-vacuous claim: no above-threshold instance has an offline optimum beyond $16$. |
+| `B15` | `05-results.tex:286,302` | Table V's $P$ column (physical qubits) collided with Table I's $P$ (passes per layout) and was undefined in its caption. Renamed $N_\mathrm{phys}$ and defined. |
+| `A07` | `sfc_appendix.tex:1139` | Appendix I now says its operation count is for one route and that the reported timings — complete protocol time over several routes — neither validate the bound nor are bounded by it. Rejected the stronger reading: the paper never claimed the timings validate it. |
+
+**Page count.** The additions pushed the author biography onto a 15th page.
+Recovered by tightening the `A04` prose (the algorithm now shows the exits,
+so the prose need not restate them) and `A08`; back to **14 pages**.
+
+**Caught in passing:** the first draft cited Algorithm 1 "lines 20--28" for
+the preparation loop; the typeset range is **23--33**. The pre-existing
+"lines 11--19" citation for the remote stage is still correct, since the new
+lines were inserted after 19.
+
+## Round 3 status
+
+All 20 findings dispatched: 18 accepted and applied across three batches,
+`A03` rejected (the defect was in `paper_brief.md`, since corrected), and
+`A06` answered with evidence rather than a softened claim. Ready for the
+delta audit (`prompt_C_delta.md`).

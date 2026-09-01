@@ -283,7 +283,8 @@ complete compile time.
 \caption{Scale-up suite: QFT and QPEexact at 100, 200 and 360 logical
   qubits, EPR pairs, each compiler under its own layout and protocol.
   Architectures follow \dSABRE{}'s scalability protocol ($5{\times}5$ cores,
-  $K = 6 \to 12 \to 20$), read from its own device files; our \dSABRE{}
+  \chg{$N_\mathrm{phys}$ physical qubits in $K = 6 \to 12 \to 20$ cores}),
+  read from its own device files; our \dSABRE{}
   column reproduces its published series~\cite{lidsabre}
   ($201/246/766/896/1890/1938$). ``$t$'' is complete protocol time: nine
   routes for \dSABRE{}, three for \PORTER{}, which selects
@@ -298,7 +299,7 @@ complete compile time.
  & & \multicolumn{3}{c}{architecture} & \multicolumn{2}{c}{\dSABRE{}}
  & \multicolumn{2}{c}{\PORTER{}} \\
 \cmidrule(lr){3-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
-Circuit & CX & $n$ & $P$ & $K$ & EPR & $t$ & EPR & $t$ \\
+Circuit & CX & $n$ & $N_\mathrm{phys}$ & $K$ & EPR & $t$ & EPR & $t$ \\
 \midrule
 QFT      &   3{,}420 & 100 & 150 &  6 &  200 &   3.6 & \textbf{198} &   2.8 \\
 QPEexact &   3{,}579 & 100 & 150 &  6 &  246 &   4.3 & \textbf{200} &   2.2 \\

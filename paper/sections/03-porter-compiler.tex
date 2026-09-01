@@ -45,7 +45,15 @@ where they change the outcome.
            \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
   \ENDIF
   \IF{$\pln{p}^{\ast}$ is \texttt{None}} \STATE \textbf{report deadlock; abort} \ENDIF
-  \STATE apply $\pln{p}^{\ast}$'s own preparation SWAPs until ready, then execute it
+  \WHILE{$\pln{p}^{\ast}$ not ready}
+    \STATE $S \leftarrow$ improving preparation SWAPs for $\pln{p}^{\ast}$
+           \hfill\textit{(Sec.~\ref{sec:sfc-prep})}
+    \IF{$S = \emptyset$} \STATE \textbf{abandon $\pln{p}^{\ast}$; continue} \ENDIF
+    \IF{decision state $(\pln{p}^{\ast}, \ell, \mathrm{rng})$ seen before}
+      \STATE \textbf{report preparation cycle; abort} \ENDIF
+    \STATE apply $S$
+  \ENDWHILE
+  \STATE execute $\pln{p}^{\ast}$
 \ENDWHILE
 \RETURN emitted operations, final layout, stats
 \end{algorithmic}
@@ -54,7 +62,9 @@ where they change the outcome.
 \subsection{Initial Layout}
 \label{sec:sfc-layout}
 
-\PORTER{} routes from any initial layout, and the shared- and
+\PORTER{} routes from \chg{any initial layout the machine has spare
+capacity for (Section~\ref{sec:sfc-progress}, which also legalises a
+supplied layout whose cores are full)}, and the shared- and
 cross-layout experiments of Section~\ref{sec:shared_results} run it on
 layouts built by other compilers. Left to itself it builds $\ell_0$ with
 one deterministic heuristic --- no external partitioner, no best-of-$N$
@@ -153,12 +163,16 @@ handed to the machinery that works out \emph{how}.
 Formally, a plan is a tuple
 \[
   \pln{p} \;=\; \bigl(\pi,\; G(\pln{p}),\; \mathrm{dir},\; c_\mathrm{src},\;
-                c_\mathrm{dst},\; \Pi(\pln{p}),\; \mathrm{ready}(\pln{p},\ell)\bigr),
+                c_\mathrm{dst},\; \Pi(\pln{p})\bigr),
 \]
 with $\pi\in\{\TeleData{},\TeleGate{},\TeleGatePacket{}\}$ the primitive,
 $\mathrm{dir}$ its orientation, $c_\mathrm{src}$ and $c_\mathrm{dst}$ the
-cores, $\Pi(\pln{p})$ the ports it reserves, and
-$\mathrm{ready}(\pln{p},\ell)$ the predicate that holds when it can fire.
+cores, and $\Pi(\pln{p})$ the ports it reserves. \chg{Every field is static:
+a plan is fixed once generated, which is what makes committing to one
+meaningful. Readiness is not a field but a predicate derived from a plan and
+a layout, $\mathrm{ready}(\pln{p},\ell)$, holding when $\pln{p}$ can fire
+under $\ell$; preparation changes $\ell$ and so changes the predicate, never
+the plan.}
 $G(\pln{p})$ is the set of gates it \emph{discharges}: for a \TeleGate{}
 the single front CX; for a \TeleGatePacket{} the collected same-control
 run (Section~\ref{sec:sfc-packet}); for a \TeleData{} the empty set,
@@ -231,11 +245,16 @@ $\pln{b}^{\ast}$ out-scores it by more than $m_\mathrm{assist}{=}5.0$,
 $\pln{b}^{\ast}$ instead. If nothing in $\mathcal{P}$ was ready or
 preparable --- which includes $\mathcal{P}=\emptyset$ but is not limited
 to it --- it relieves $\mathcal{B}$'s blocked destinations in ascending
-hop order. In both cases what is committed is a relief \TeleData{}
+hop order\chg{, taking the highest-scoring blocked plan among those at the
+smallest hop count as the seed}. In both cases what is committed is a relief \TeleData{}
 generated for the purpose, never $\pln{b}^{\ast}$ itself. Having
-committed, \PORTER{} applies only that plan's preparation SWAPs until it
-is ready, no improving SWAP remains, or the decision state --- plan,
-layout, RNG --- repeats, which raises rather than loops.
+committed, \PORTER{} applies only that plan's preparation SWAPs, and
+\chg{leaves that loop three ways (Algorithm~\ref{alg:sfc}, lines 23--33):
+ready, and it executes; no improving SWAP, and it is abandoned to the top of
+the outer loop; or the decision state --- plan, layout, RNG --- repeats,
+which raises rather than loops. Abandonment needs no exclusion list, since
+selection admits only plans that are ready or admit an improving SWAP, a
+test the abandoned plan cannot pass again until the layout moves.}
 
 \textbf{Preparation SWAPs.}\label{sec:sfc-prep} A committed plan has
 exactly two readiness requirements, one per side: source and destination

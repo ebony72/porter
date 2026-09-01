@@ -223,9 +223,9 @@ untried.
 \PORTER{} therefore uses $\rho$ to \emph{prune}, not to choose. A circuit
 with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$, every other
 circuit at $\{8,16,128\}$, and the lowest-EPR route is kept --- three
-routes over one layout. No instance above the threshold ever selected the
-long horizon, so pruning costs no EPR while removing the dominant
-compile-time term, a long horizon that fails to converge. Two rules bound
+routes over one layout. \chg{No instance above the threshold has an offline optimum beyond $16$, so
+dropping $128$ from its candidate set costs no EPR while removing the
+dominant compile-time term, a long horizon that fails to converge.} Two rules bound
 the cost: the configured horizon --- $L_\mathrm{tp}{=}16$, the default of
 Section~\ref{sec:sfc-scoring}, which lies in both candidate sets --- is
 routed first, unguarded, and wins ties; the other two share a wall-clock
