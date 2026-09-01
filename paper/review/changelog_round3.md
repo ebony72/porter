@@ -106,3 +106,29 @@ All 20 findings dispatched: 18 accepted and applied across three batches,
 `A03` rejected (the defect was in `paper_brief.md`, since corrected), and
 `A06` answered with evidence rather than a softened claim. Ready for the
 delta audit (`prompt_C_delta.md`).
+
+---
+
+## Delta audit — applied
+
+Two audits run in fresh chats (`delta_A_round3.md`, `delta_B_round3.md`).
+Of 25 prior items, 21 `RESOLVED`, 3 `PARTIALLY_RESOLVED`, 1
+`REJECTED_WITH_JUSTIFICATION` accepted. Both audits raised the same Major
+new issue.
+
+| ID | File | What changed |
+|---|---|---|
+| `N01` (both) | `03-porter-compiler.tex` Algorithm 1 | **A bug introduced by batch 3.** `abandon $\pln{p}^{\ast}$; continue` sat inside the `while $\pln{p}^{\ast}$ not ready` loop, so under standard pseudocode semantics it re-entered the *preparation* loop with plan and layout unchanged — recreating the non-termination the branch was added to remove, and contradicting both the prose and `_commit_remote_plan`, which returns to the caller. Now sets $\pln{p}^{\ast} \leftarrow \texttt{None}$ under a guarded loop condition, with execution guarded after it. Lines are 23--35; the prose citation follows. |
+| `N02` (A) | `05-results.tex` Table V + V-D, `gen_tables_selection.py`, `verify_paper_numbers.py` | The budget instability was disclosed in IV-C but not propagated into the claims resting on it. Table V's 360q QPEexact cell now carries $^{\dagger}$ (**added in the generator**, since `tab:scaleup` is generated and a hand edit would be overwritten), the caption says what it means, and V-D states the range: $565.7$ / $0.80\times$ / five wins against $507.7$ / $0.72\times$ / six. Abstract and conclusion keep the selected figures, per the author's decision. Three new pins. The A auditor's estimate of $\approx564.0$ is superseded by the exact $565.7$. |
+| `A08` residual | `02-background.tex` | "one port per neighbour" left open whether ports for distinct neighbours are distinct physical qubits. The clause had been verified from the device files and then **cut during batch 3's page-count tightening**; restored as "distinct across neighbours". |
+| `N03` (A) | `04-methodology.tex` IV-C | The share formula was given without the measurements behind it. Now states the $3.5$\,s first route, the $14$\,s share and the $14.4$--$14.9$\,s L=128 route. |
+| `B08` residual / `N02` (B) | `00-abstract.tex` | "Controlled ablations measure what each mechanism contributes" was broader than the body, which assesses layout and horizon by controls and states that the plan abstraction and commitment rule are isolated by nothing. Now names what is assessed and says those two remain unisolated. Pre-existing, not a regression. |
+
+**Page count: 15, accepted.** Page 15 is the twelve-line author biography.
+The `N01` fix is a correctness repair and was not negotiable against a page.
+
+**Two audit claims not acted on**, both correctly identified as
+already-controlled residual risk by the auditors themselves: that "reaches
+circuits the other does not" could be read causally (the following sentence
+denies it explicitly), and that Appendix I remains a parameterised operation
+count rather than a size-only bound (which is now what it says it is).

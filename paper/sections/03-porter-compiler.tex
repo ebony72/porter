@@ -45,15 +45,17 @@ where they change the outcome.
            \hfill\textit{(Sec.~\ref{sec:sfc-relief})}
   \ENDIF
   \IF{$\pln{p}^{\ast}$ is \texttt{None}} \STATE \textbf{report deadlock; abort} \ENDIF
-  \WHILE{$\pln{p}^{\ast}$ not ready}
+  \WHILE{$\pln{p}^{\ast} \neq \texttt{None}$ and $\pln{p}^{\ast}$ not ready}
     \STATE $S \leftarrow$ improving preparation SWAPs for $\pln{p}^{\ast}$
            \hfill\textit{(Sec.~\ref{sec:sfc-prep})}
-    \IF{$S = \emptyset$} \STATE \textbf{abandon $\pln{p}^{\ast}$; continue} \ENDIF
-    \IF{decision state $(\pln{p}^{\ast}, \ell, \mathrm{rng})$ seen before}
-      \STATE \textbf{report preparation cycle; abort} \ENDIF
-    \STATE apply $S$
+    \IF{$S = \emptyset$}
+      \STATE $\pln{p}^{\ast} \leftarrow \texttt{None}$ \hfill\textit{(abandon)}
+    \ELSIF{decision state $(\pln{p}^{\ast}, \ell, \mathrm{rng})$ seen before}
+      \STATE \textbf{report preparation cycle; abort}
+    \ELSE \STATE apply $S$
+    \ENDIF
   \ENDWHILE
-  \STATE execute $\pln{p}^{\ast}$
+  \IF{$\pln{p}^{\ast} \neq \texttt{None}$} \STATE execute $\pln{p}^{\ast}$ \ENDIF
 \ENDWHILE
 \RETURN emitted operations, final layout, stats
 \end{algorithmic}
@@ -249,7 +251,7 @@ hop order\chg{, taking the highest-scoring blocked plan among those at the
 smallest hop count as the seed}. In both cases what is committed is a relief \TeleData{}
 generated for the purpose, never $\pln{b}^{\ast}$ itself. Having
 committed, \PORTER{} applies only that plan's preparation SWAPs, and
-\chg{leaves that loop three ways (Algorithm~\ref{alg:sfc}, lines 23--33):
+\chg{leaves that loop three ways (Algorithm~\ref{alg:sfc}, lines 23--35):
 ready, and it executes; no improving SWAP, and it is abandoned to the top of
 the outer loop; or the decision state --- plan, layout, RNG --- repeats,
 which raises rather than loops. Abandonment needs no exclusion list, since

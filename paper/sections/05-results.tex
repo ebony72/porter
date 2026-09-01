@@ -288,7 +288,10 @@ complete compile time.
   column reproduces its published series~\cite{lidsabre}
   ($201/246/766/896/1890/1938$). ``$t$'' is complete protocol time: nine
   routes for \dSABRE{}, three for \PORTER{}, which selects
-  $L_\mathrm{tp}{=}128$ on all six. \texttt{pytket-dqc} is omitted --- its
+  $L_\mathrm{tp}{=}128$ on all six. \chg{$^{\dagger}$Machine-dependent: this
+  route's cost sits at the speculative wall-clock share
+  (Section~\ref{sec:setup}); the resulting range is given below.}
+  \texttt{pytket-dqc} is omitted --- its
   partitioner does not finish at these widths. Lower is better.}
 \label{tab:scaleup}
 \setlength{\tabcolsep}{5pt}
@@ -306,7 +309,7 @@ QPEexact &   3{,}579 & 100 & 150 &  6 &  246 &   4.3 & \textbf{200} &   2.2 \\
 QFT      &   7{,}220 & 200 & 300 & 12 &  765 &  13.9 & \textbf{579} &   9.5 \\
 QPEexact &   7{,}579 & 200 & 300 & 12 &  896 &  13.9 & \textbf{528} &   8.9 \\
 QFT      &  13{,}300 & 360 & 500 & 20 & 1890 &  53.9 & \textbf{1156} &  19.5 \\
-QPEexact &  13{,}979 & 360 & 500 & 20 & 1938 &  83.1 & \textbf{1224} &  33.1 \\
+QPEexact &  13{,}979 & 360 & 500 & 20 & 1938 &  83.1 & \textbf{1224}$^{\dagger}$ &  33.1 \\
 \midrule
 \textbf{gmean} (6) & & & & & 705.7 & 15.4 & \textbf{507.7} & \textbf{8.4} \\
 \bottomrule
@@ -324,7 +327,12 @@ inter-core traffic with it --- \dSABRE{}'s own cost rises $200 \to 765
 
 \PORTER{} uses fewer EPR pairs than \dSABRE{} on all six instances, by a
 widening margin: $0.90\times$ at 100 logical qubits, $0.67\times$ at
-200, $0.62\times$ at 360, for $0.72\times$ overall. It does so at
+200, $0.62\times$ at 360, for $0.72\times$ overall. \chg{One entry is
+budget-sensitive: should 360-qubit QPEexact fall back to the configured
+horizon (Section~\ref{sec:setup}), the series reads $565.7$ rather than
+$507.7$, $0.80\times$ rather than $0.72\times$, and five wins rather than
+six. The figures quoted here are the selected outcome, and the horizon
+comparison below holds across the range.} It does so at
 $0.54\times$ \dSABRE{}'s complete compile cost ($8.4$\,s against
 $15.4$\,s), routing three times where \dSABRE{} routes nine.
 

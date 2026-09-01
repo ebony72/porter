@@ -736,6 +736,16 @@ check("360q qpeexact selected epr", 1224, _q360p["sfc"]["epr"])
 check("360q qpeexact selected horizon", 128, _q360p["sfc"].get("chosen_horizon"))
 check("360q qpeexact default-horizon fallback epr", 2342,
       _hz360p["horizon_eprs"][str(_hz360p["default_horizon"])])
+# V-D quotes the budget-sensitive range (round 3, N02): if 360q QPEexact falls
+# back to the configured horizon the series reads 565.7 / 0.80x / 5-of-6.
+_su_alt = [(_hz360p["horizon_eprs"][str(_hz360p["default_horizon"])]
+            if (r["suite"] == "360" and r["circuit"] == "qpeexact")
+            else r["sfc"]["epr"]) for r in su_rows]
+check("scaleup fallback gmean", 565.7, round(gmean(_su_alt), 1))
+check("scaleup fallback ratio", 0.80,
+      round(gmean(_su_alt) / _su_d, 2))
+check("scaleup fallback wins", 5,
+      sum(1 for r, e in zip(su_rows, _su_alt) if e < r["dSE"]["epr"]))
 check("scaleup every instance selects the long horizon", 6,
       sum(1 for r in su_rows if r["sfc"].get("chosen_horizon") == 128))
 _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
