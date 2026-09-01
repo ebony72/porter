@@ -1171,6 +1171,25 @@ non-vacuous by corrupting a portfolio cell and watching it fail.
 
 59 tex checks, 252 numeric checks, generator idempotent, 14 pages.
 
+## VI-A's completion paragraph reduced (2026-09-01)
+
+**428 -> 302 words.** Every load-bearing step of the argument survives ---
+the capacity half is already shared, the difference is atomicity, giving
+it up would cost the opportunistic tier, and it would not fix the failure
+we actually see (livelock, not deadlock) --- but each is now one clause
+instead of a sentence, and the two paragraphs of justification collapse
+into one.
+
+**Dropped: the identity of the three instances teleport-only fails on**
+(64q Random, 80q Multiplier, 80q Random). The count, twenty-one of
+twenty-four, is still quoted; the names are kept only as a regression
+guard in `verify_paper_numbers`, and its comment now says so. The
+livelock's own instance (heavy-hex star Multiplier) is kept, since it is
+the only place in the paper that names it --- V-E's livelock paragraph
+was removed earlier.
+
+Sec VI is 861 words; paper still 14 pages.
+
 ## Conclusion cut to two paragraphs (2026-09-01)
 
 Author's call: the last two paragraphs --- the negative ablation result and

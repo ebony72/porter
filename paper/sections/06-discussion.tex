@@ -41,45 +41,36 @@ idea.
 \subsection{Future Work}
 \label{sec:future}
 
-\textbf{On the compiler itself.} Four openings, the first of which is a
-completion guarantee to match \dSABRE{}'s. The obvious route is to adopt
-its recovery wholesale, and the capacity half of that is nearly in place
-already: both compilers treat free slots as a legality condition with the
-same floor of two, and both manufacture a slot by a breadth-first search
-for a reservoir (Section~\ref{sec:related}). What \dSABRE{} has that
-\PORTER{} lacks is atomicity --- it relays the whole chain as one
-all-or-nothing transaction, so the state after recovery is legal by
-construction, where \PORTER{} re-plans each hop and scores it with the
-ordinary plan machinery. That difference is not free to give up: scoring
-relief like any other plan is what lets the opportunistic tier compete
-with normal work at all (Section~\ref{sec:sfc-relief}), and an atomic
-drain would remove that. It also would not buy what is missing. \PORTER{}
-never reaches the capacity deadlock \dSABRE{}'s proof rules out --- with
-both relief tiers on, no instance in this evaluation does --- and the one
-failure we do observe is a local-SWAP livelock, on heavy-hex star
-Multiplier at a fixed horizon, with capacity healthy throughout and the
-EPR count frozen. A guarantee for \PORTER{} therefore needs a
-progress argument for the intra-core stage, which is where it actually
-stalls, rather than a stronger capacity transaction. One configuration is
-worth trying first, because two of our results point at it together:
-\dSABRE{}'s proof is for a teleport-only router, and a teleport-only
-vocabulary is also the cheapest one we measured at 80 qubits. A \PORTER{}
-restricted to \TeleData{} --- keeping the plan scoring, the relief tiers
-and horizon selection, dropping the \TeleGate{} family --- is therefore
-both where the guarantee is likeliest to transfer and where the
-vocabulary result says the pairs are. It would not come for free: that
-configuration completes twenty-one of the twenty-four instances here,
-failing 64-qubit Random and 80-qubit Multiplier and Random.
+\textbf{On the compiler itself.} Four openings, the first a completion
+guarantee to match \dSABRE{}'s. Adopting its recovery wholesale is the
+obvious route, and the capacity half is nearly in place --- both treat
+free slots as a legality condition with the same floor of two, and both
+relieve by breadth-first search to a reservoir
+(Section~\ref{sec:related}). What \dSABRE{} adds is atomicity: it relays
+the chain in one all-or-nothing transaction, where \PORTER{} re-plans each
+hop through the ordinary plan machinery, which is what lets the
+opportunistic tier compete with normal work at all
+(Section~\ref{sec:sfc-relief}). Nor would it buy what is missing.
+\PORTER{} never reaches the capacity deadlock that proof rules out, and
+the one failure we observe is a local-SWAP livelock --- heavy-hex star
+Multiplier at a fixed horizon --- with capacity healthy throughout. The
+guarantee needs a progress argument for the intra-core stage, not a
+stronger capacity transaction. One configuration is worth trying first,
+because two of our results point at it: \dSABRE{}'s proof is written for a
+teleport-only router, and a teleport-only vocabulary is the cheapest we
+measured at 80 qubits, so a \PORTER{} restricted to \TeleData{} is both
+where the guarantee is likeliest to transfer and where the pairs are ---
+though not for free, since that configuration completes twenty-one of the
+twenty-four instances here.
 
-The other three: a horizon that scales with the core count $K$ rather than
-being chosen by trial --- $L_\mathrm{tp}$ is an absolute gate count, so a
-plan at twenty cores is scored over proportionally less of the circuit
-than at four, and every scale-up instance selects the longest candidate
-offered, which suggests the candidate set rather than the selection rule
-is what binds there. An out-of-sample validation of that rule, fitted on
-the corpus it is measured on. And a comparator that weighs a resolved gate
-against a latent distance reduction on one scale, which the vocabulary
-result above indicates the present one does not.
+The other three: a horizon that scales with the core count $K$ ---
+$L_\mathrm{tp}$ is an absolute gate count, so a plan at twenty cores is
+scored over proportionally less of the circuit than at four, and every
+scale-up instance picks the longest candidate offered; an out-of-sample
+validation of that selection rule, fitted on the corpus it is measured
+on; and a comparator that weighs a resolved gate against a latent
+distance reduction on one scale, which the vocabulary result indicates the
+present one does not.
 
 \textbf{Beyond EPR count.} The trace \PORTER{} emits is unscheduled, so a
 lower pair count does not by itself imply a shorter makespan or a

@@ -178,8 +178,8 @@ for src, (d, p, pr) in _GRID.items():
         check(f"grid {src} {leg} covers all 24", 24,
               sum(1 for r in cmp_rows if (r.get(leg) or {}).get("epr")))
 # Sec VI-A + conclusion: a teleport-only PORTER is the configuration where
-# dSABRE's proof might transfer.  It completes 21 of 24, failing exactly
-# 64q Random and 80q Multiplier/Random -- named in the text, so pinned.
+# dSABRE's proof might transfer.  The count (21 of 24) is quoted; the
+# identity of the three failures is not, and is kept as a regression guard.
 _tdv = lambda r: ((r["out"].get("teledata_only") or {}).get("epr")
                   or (r["out"].get("teledata_only_relief") or {}).get("epr"))
 check("teledata-only completes", 21, sum(1 for r in td_rows if _tdv(r)))
