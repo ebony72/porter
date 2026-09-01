@@ -16,29 +16,21 @@ treats capacity as a legality condition with its own relief search
 rather than as \TeleSABRE{}'s safety-valve cap.
 
 \textbf{\dSABRE{}}~\cite{lidsabre} attacks the same problem and is a close
-relative; we run it in its default configuration, and our numbers match
-those it publishes for the architectures it reports. Stating what the two
-share keeps either from being credited with the other's ideas: both rank
-moves by \SABRE{}'s front-plus-lookahead $\Delta$ score, both are strictly
+relative. Both \dSABRE{} and \PORTER{} rank moves by \SABRE{}'s front-plus-lookahead $\Delta$ score, both are strictly
 locality-first, scoring an inter-core candidate only once no front gate is
 intra-core, both promote capacity from a scoring penalty to a legality
 condition with the same floor of two free slots, and both manufacture
 capacity by relaying a free slot from a reservoir along a BFS path rather
-than evicting arbitrarily. Four differences remain, and they are what this
-paper evaluates: \PORTER{}'s action vocabulary is larger; its unit of
+than evicting arbitrarily. Four differences remain: \PORTER{}'s action vocabulary is larger; its unit of
 commitment is a whole plan rather than one hop; preparation cost enters as
 a tiebreaker rather than additively; and its initial layout is one
-deterministic construction rather than a best-of-$N$ search. A fifth is
-not a design choice but a gap, and it runs \dSABRE{}'s way. Three
-guarantees are worth separating --- \emph{correctness}, that the returned
-stream realises every gate and violates no coupling or port rule;
-\emph{termination}, that every run ends, in success or by raising a
-diagnostic or tripping a guard; and \emph{completion}, that it ends in
-success. \PORTER{} provides the first two by construction
-(Section~\ref{sec:sfc-progress}) and the third only empirically, no
-instance in this evaluation being left unrouted; \dSABRE{}'s safe mode
-provides all three, carrying a termination-with-success proof under stated
-architectural hypotheses.
+deterministic construction rather than a best-of-$N$ search. A fifth is a gap
+rather than a design choice, and it runs \dSABRE{}'s way: its safe mode
+carries a termination-with-success proof under stated architectural
+hypotheses, so it guarantees \emph{completion}, where \PORTER{} guarantees
+only correctness and termination by construction
+(Section~\ref{sec:sfc-progress}) and has completion empirically, no
+instance in this evaluation being left unrouted.
 
 
 
