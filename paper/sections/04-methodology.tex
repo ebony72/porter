@@ -78,7 +78,17 @@ generator, so one route on a fixed circuit and hardware emits a
 byte-identical stream across runs. Horizon selection is the exception,
 its speculative routes sharing a wall-clock budget, so the protocol is
 reproducible only up to that budget and the horizon each run selected is
-recorded with its result. Every reported \PORTER{} route is certified by
+recorded with its result. \chg{One instance sits close enough to that
+boundary to cross it. Each speculative candidate gets
+$\max(5, \lceil 4\,t_\mathrm{first}\rceil)$ seconds, derived from the
+first route's own wall time; on 360-qubit QPEexact that share is $14$\,s
+and the $L_\mathrm{tp}{=}128$ route, which reaches $1{,}224$ pairs, needs
+within a second more than it. The instance therefore returns either
+$1{,}224$ or the configured horizon's $2{,}342$ depending on the machine,
+and note the share widens as the machine slows. We report the selected
+result and flag the instance rather than raising the factor, which would
+change every selected route in the paper; the released
+\texttt{probe\_horizon\_budget.py} measures all three quantities.} Every reported \PORTER{} route is certified by
 a replay verifier written separately from the router, which re-derives
 gate coverage, dependency order and physical legality from the emitted
 stream alone and is itself tested by fault injection

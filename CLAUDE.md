@@ -2390,3 +2390,76 @@ own-protocol comparison:
    own-protocol layouts, because `run_sabre_passes`' passes 2 and 3 start
    from whatever layout the previous pass left, and `tier1_floor=2` permits a
    core to end a pass at 1 free. dSABRE's own files are never modified.
+
+## External-review packet, round 3 (2026-09-01)
+
+`paper/review/` holds the artefacts for the Copilot/GPT-5.6 review round:
+`paper_brief.md` (grounding), `resolved_findings.md` (what two prior rounds
+already settled — the exclusion list), `prompt_A_technical.md`,
+`prompt_B_editorial.md`, `prompt_C_delta.md`, and `README.md` with the loop
+and the non-negotiable rules. Round boundary tagged `paper-round3-pre`.
+
+**The protocol, in one line**: Copilot returns *structured findings*, never a
+rewritten manuscript; Claude Code triages them against the verifiers before
+touching a file, then patches in risk-ordered batches.
+
+Three things about this repo shape the packet and are worth keeping:
+
+1. **The claims ledger is already executable**, so the rubric tells the
+   reviewer *not* to check arithmetic or table-to-text consistency — that is
+   machine-verified — and to spend the attention on **whether a number
+   supports the sentence built on it**. Triage rule that follows: a finding
+   contradicting a pinned number is **presumptively wrong**; disproving a pin
+   means showing the pin is wrong, not asserting a different value.
+2. **This is round 3.** `responses_to_reviews.md` answers two rounds, so an
+   unrestricted review re-surfaces answered items. `resolved_findings.md`
+   lists the corrected errors, the narrowed claims, the structural decisions
+   with their reasons, and the ten declared caveats — inviting the reviewer
+   to argue a declaration is *inadequate* rather than undisclosed.
+   **It is built from the current manuscript, not from
+   `responses_to_reviews.md`, which is stale in places** (it still describes
+   the Hop-wise ablation column and PORTER+S in IV-F3; both have since moved
+   or been removed).
+3. **Upload the PDFs, not the LaTeX** — a driver plus nine `\input`s gives
+   unusable locations in the report. Compile `sfc.tex` before the appendix or
+   its `xr` refs render as `??`.
+
+Per-batch build chain, generator FIRST (see the trap noted above):
+`gen_tables_selection.py --write` -> `verify_tex_tables.py` ->
+`verify_paper_numbers.py` -> pdflatex both documents.
+
+## The 360q QPEexact selected result sits ~0.5 s inside its budget (2026-09-01)
+
+Found while confirming the round-3 `A06` re-run. **`tab:scaleup`'s $1{,}224$
+for 360q QPEexact does not reproduce on this machine**; the protocol falls
+back to the configured horizon and $2{,}342$, which turns the suite from
+$0.72\times$/6-of-6 into $0.80\times$/5-of-6 -- and $0.72\times$ is in the
+abstract, intro, V-D and the conclusion.
+
+Diagnosed, not worked around. Each speculative candidate gets
+`max(SPECULATIVE_MIN_SECONDS, ceil(SPECULATIVE_TIME_FACTOR * t_first))`
+seconds, derived from the **first route's own wall time**. On this instance
+that share is 14 s and the L=128 route -- which reaches exactly 1224, so the
+released number is real -- costs 14.4-14.9 s. **It misses by under a second.**
+
+**Note the perversity: a slower machine buys a larger share**, so the released
+value is likelier to reproduce on slower hardware, not faster.
+
+- Released `paper/probe_horizon_budget.py` measures all three quantities
+  (default-horizon route, derived share, L=128 route), following the
+  `probe_front_limit.py` precedent. IV-C names the instance and cites it.
+- **Do not raise `SPECULATIVE_TIME_FACTOR` to "fix" this** -- it would change
+  every selected route in the paper and require re-running all three suites.
+- The **fixed-horizon** leg of `scaleup_results.json` reproduces *exactly*
+  (all six values, gmean 1026.5), so the V-D fixed-vs-selected comparison
+  (1026.5/1.45x/0-of-6 against 507.7/0.72x/6-of-6) is solid on both ends.
+
+**Protocol audit passed alongside** (2026-09-01): every PORTER leg in all
+three released selection files follows `tab:budgets`. 179 recorded
+`chosen_horizon` values -- `sfc`, `sfc_shared`, `sfc_pytket`,
+`sfc_on_dse_layout`, `porter`, `porter_on_dse` and every `*_refined` /
+`*_search` leg -- are each a member of the 3-element set `select_horizons`
+derives from that circuit's own density, and $|H|=3$ on all 48 instances.
+`run_sfc_sabre_layout` loops 3 candidate layouts x 3 horizons = the 9 routes
+`tab:budgets` claims. Script: scratchpad `audit_horizons.py`; worth
+re-running after any change to the horizon constants.

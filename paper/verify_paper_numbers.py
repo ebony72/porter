@@ -713,10 +713,29 @@ check("scaleup +R pct behind selection", 83,
 # guards on the measurement.
 check("scaleup dSE-layout ratio", 0.96,
       round(gmean([r["sfc_on_dse_layout"]["epr"] for r in su_rows]) / _su_d, 2))
-check("scaleup default-horizon ratio (the 1.45x it replaces)", 1.45,
+# V-D now quotes the fixed-vs-selected horizon comparison directly (A06,
+# round 3): the default horizon loses all six at 1026.5 / 1.45x, selection
+# wins all six at 507.7 / 0.72x.  Same layouts, same instances, only the
+# horizon policy differs.
+_su_fixed = [hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
+             ["horizon_eprs"][str(hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
+                                  ["default_horizon"])] for r in su_rows]
+check("scaleup default-horizon gmean", 1026.5, round(gmean(_su_fixed), 1))
+check("scaleup default horizon loses all six", 6,
+      sum(1 for r, e in zip(su_rows, _su_fixed) if e > r["dSE"]["epr"]))
+check("scaleup default-horizon ratio", 1.45,
       round(gmean([hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
                    ["horizon_eprs"][str(hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
                                         ["default_horizon"])] for r in su_rows]) / _su_d, 2))
+_q360p = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qpeexact"][0]
+_hz360p = hz_rows["scaleup/360/qpeexact"]
+# IV-C names this instance: it selects L=128 at 1224, but its L=128 route costs
+# more than the speculative share derived from its own first route, so a run
+# that misses the budget falls back to the default horizon and 2342.
+check("360q qpeexact selected epr", 1224, _q360p["sfc"]["epr"])
+check("360q qpeexact selected horizon", 128, _q360p["sfc"].get("chosen_horizon"))
+check("360q qpeexact default-horizon fallback epr", 2342,
+      _hz360p["horizon_eprs"][str(_hz360p["default_horizon"])])
 check("scaleup every instance selects the long horizon", 6,
       sum(1 for r in su_rows if r["sfc"].get("chosen_horizon") == 128))
 _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]

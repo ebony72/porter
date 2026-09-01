@@ -142,15 +142,15 @@ The three sources are those that place all twenty-four circuits.
 \TeleSABRE{} is not among them: it converges on seventeen and emits a
 layout only where it converges (Section~\ref{sec:rq1}).
 
-\textbf{The routing loops are equivalent within noise; the layouts are
-not.} Across any row of Table~\ref{tab:shared}, from the same layout at
+\textbf{\chg{Changing the routing loop moves less than changing the
+layout.}} Across any row of Table~\ref{tab:shared}, from the same layout at
 three routes each, the two land within $3\%$ of one another ---
 \dSABRE{} ahead in all three rows of block \emph{(a)} and in two of three
 of \emph{(b)}, \PORTER{} taking its own layout there. This is the
 controlled test and \PORTER{} does not win it. The spread down a column
-is two to four times the spread across a row in both blocks, so the
-initial layout is the weaker component of both compilers rather than an
-advantage to either. That much is stable.
+is two to four times the spread across a row in both blocks, \chg{so the
+initial layout is the larger source of variation in both compilers, and
+the component in which each has more to gain}. That much is stable.
 
 \textbf{Which layout is best is not, and \PORTER{} does not adopt the
 partition.} Over all twenty-four instances \texttt{pytket-dqc}'s
@@ -327,6 +327,17 @@ widening margin: $0.90\times$ at 100 logical qubits, $0.67\times$ at
 $0.54\times$ \dSABRE{}'s complete compile cost ($8.4$\,s against
 $15.4$\,s), routing three times where \dSABRE{} routes nine.
 
+\chg{The horizon is what makes that difference, and the comparison is
+available directly. Routing the same six instances from the same layouts
+at the configured horizon alone --- one route, no selection --- gives a
+geometric mean of $1{,}026.5$ pairs against \dSABRE{}'s $705.7$, which
+is $1.45\times$ and loses all six. Selection changes nothing else about
+the compiler and reaches $507.7$, which is $0.72\times$ and wins all
+six. Every instance selects $L_\mathrm{tp}{=}128$, the longest candidate
+offered, and none selects the configured $16$: at these widths a plan's
+value is realised further into the circuit than the default horizon can
+see.}
+
 \subsection{RQ4: Heavy-Hex Cores and Non-Grid Core Graphs}
 \label{sec:heavyhex}
 
@@ -439,6 +450,6 @@ against \dSABRE{}'s nine.
 All times are \emph{complete} compile costs --- layout generation plus
 every route over every candidate, not the winning route alone --- and
 \PORTER{}'s advantage there is in the count of routes, not their price.
-Pooled over all twenty-four \PORTER{} is slightly ahead at $0.91\times$,
-and at $1.02\times$ \dSABRE{}'s EPR the cheap operating point remains
-\PORTER{}'s.
+\chg{Pooled over all twenty-four \PORTER{} is the faster of the two, at
+$0.91\times$ \dSABRE{}'s complete compile time; it spends $1.02\times$ its
+EPR pairs to get there, so the cheap operating point remains \PORTER{}'s.}

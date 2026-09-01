@@ -12,6 +12,15 @@
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+
+%% ---- Round-3 revision highlighting -------------------------------------
+%% \chg{...} marks text changed in the round-3 revision.  Flip the \newif to
+%% \revisionhighlightfalse to typeset a clean, unmarked copy; the macro then
+%% expands to its argument and nothing else changes.
+\newif\ifrevisionhighlight
+\revisionhighlighttrue
+\newcommand{\chg}[1]{\ifrevisionhighlight\textcolor[HTML]{B03000}{#1}\else#1\fi}
+%% ------------------------------------------------------------------------
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usetikzlibrary{shapes.geometric,arrows,arrows.meta,positioning,fit,backgrounds,patterns,decorations.pathmorphing,calc}
@@ -74,6 +83,7 @@
 \newcommand{\mainRelated}{Section~\ref{main-sec:related}}
 \newcommand{\mainBaselines}{Section~\ref{main-sec:baselines}}
 \newcommand{\mainScope}{Section~\ref{main-sec:scope}}
+\newcommand{\mainProgress}{Section~\ref{main-sec:sfc-progress}}
 
 \begin{document}
 
@@ -1059,14 +1069,14 @@ Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\
 \end{table}
 
 Table~\ref{tab:mainswaps} gives the intra-core SWAP counts for the runs of
-Table~V of the main paper, in the same row order. Both baselines and
+\chg{Table~\ref{tab:maineprs}}, in the same row order. Both baselines and
 \PORTER{} count intra-core SWAPs only; inter-core movement is charged in
 EPR pairs.
 
 \begin{table}[h]
 \centering
 \caption{Local SWAP counts, own protocol. Row order and the
-  $^{\ast}$ non-convergence marker match Table~V of the main paper.}
+  $^{\ast}$ non-convergence marker match \chg{Table~\ref{tab:maineprs}}.}
 \label{tab:mainswaps}
 \setlength{\tabcolsep}{4pt}
 \small
@@ -1118,10 +1128,18 @@ $O(|F|)$; intra-core SWAP scoring evaluates $O(M)$ candidate edges,
 each at $O(|F_\mathrm{loc}| + N_\mathrm{loc})$ over one DAG snapshot
 reused across candidates; remote-plan scoring evaluates $O(n)$
 candidates at $O(N_\mathrm{tp})$ over the same snapshot. Free-slot
-queues are $O(1)$ amortised per layout mutation. Summing over $N$
-iterations gives $T_\mathrm{total} = O(N(Mn + KM^2\log M))$ excluding
-precomputation, in line with other core-local distributed
-compilers~\cite{lidsabre,russo2025telesabre}.
+queues are $O(1)$ amortised per layout mutation. \chg{Writing
+$C_\mathrm{iter} = O(\lvert F\rvert + M(\lvert F_\mathrm{loc}\rvert +
+N_\mathrm{loc}) + n N_\mathrm{tp})$ for that per-iteration cost, a route
+of $I$ iterations costs $T_\mathrm{pre} + O(I \cdot C_\mathrm{iter})$.
+We keep $I$ as an independent quantity: an iteration may apply a local or
+preparation SWAP without retiring a gate, and capacity relief adds further
+inter-core actions, so nothing here bounds $I$ by the gate count $N$ ---
+the iteration and repeated-state guards of \mainProgress{} bound it by
+construction instead. The shape is in line with other core-local
+distributed compilers~\cite{lidsabre,russo2025telesabre}. This is the cost
+of \emph{one} route; every wall-clock figure we report is complete
+protocol time over several (\mainProtocols{}).}
 
 \section{The Layout-Discount Search (\PORTER{}+S)}
 \label{app:layoutsearch}

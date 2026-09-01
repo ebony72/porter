@@ -6,7 +6,7 @@ Given a circuit and an initial layout $\ell_0$ (which \PORTER{} builds
 itself, Section~\ref{sec:sfc-layout}), \PORTER{} repeats the following
 loop (Algorithm~\ref{alg:sfc}) until every gate has been emitted or a
 configurable iteration budget is exhausted. Algorithm~\ref{alg:sfc}
-charts one iteration; lines 11--19 are the plan-first remote stage that
+\chg{charts the routing pass}; lines 11--19 are the plan-first remote stage that
 distinguishes \PORTER{} from compilers deciding at single-action
 granularity, and \appExample{} walks through them on a concrete front
 where they change the outcome.
@@ -16,7 +16,7 @@ where they change the outcome.
 \caption{\PORTER{} \texttt{compile}$(C, \ell_0)$}
 \label{alg:sfc}
 \begin{algorithmic}[1]
-\STATE $\ell \leftarrow \ell_0$; initialise DAG active/frontier sets from $C$
+\STATE $\ell \leftarrow \ell_0$; initialise DAG active \chg{and front} sets from $C$
 \WHILE{DAG has active gates}
   \STATE $F \leftarrow$ DAG front (bounded by \texttt{dag\_front\_limit})
   \STATE classify $F$ into singles, direct-local CX, local-CX-needing-SWAP,
@@ -181,8 +181,9 @@ grounds rather than measured ones. A preparation SWAP has no meaning
 except relative to the plan it prepares, so a router that reopens the
 choice part-way through preparation can leave the layout carrying moves
 made towards an action it then abandons; committing makes preparation and
-the action it serves one unit, and gives the abandonment test of
-Section~\ref{sec:sfc-prep} something well defined to fire on. It also
+the action it serves one unit, and gives \chg{the abandonment test below
+--- no preparation SWAP improves readiness --- something well defined to
+fire on}. It also
 fixes the granularity at which the plan set is derived --- once per
 committed action rather than once per router iteration. What it does
 \emph{not} come with is an experiment: no result in
