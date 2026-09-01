@@ -8,12 +8,12 @@
 The evaluation answers four questions, each with its own controls, and
 Section~\ref{sec:results} is organised around them.
 
-\begin{itemize}[leftmargin=1.4em,itemsep=1pt,topsep=2pt]
+\begin{itemize}[leftmargin=1.8em,itemsep=1pt,topsep=2pt]
 \item[\textbf{RQ1}] \textbf{End-to-end cost.} Under each compiler's own
   recommended protocol, how does \PORTER{}'s EPR consumption and compile
   time compare with \TeleSABRE{}'s and \dSABRE{}'s?
 \item[\textbf{RQ2}] \textbf{Routing quality with the layout controlled.}
-  Given the \emph{same} externally supplied initial layout, how does
+  Given the same, possibly externally supplied, initial layout, how does
   \PORTER{}'s routing loop compare with \dSABRE{}'s --- first at an equal
   route count, then when each is allowed its own refinement schedule?
 \item[\textbf{RQ3}] \textbf{Mechanism attribution.} What does each of
@@ -100,8 +100,7 @@ Graphstate, QFT, QNN, Random) on architecture~A, and a 64-qubit suite
 adding QPEexact, QAOA and Multiplier on architecture~H. We add an
 80-qubit suite of the same nine families; its AE and QNN instances are
 not produced by the stock generator and were reconstructed to match its
-construction, QNN as the deep ZZ-feature-map circuit rather than the
-79-CX chain the current generator emits (\appSuite{}).
+construction.
 
 \label{sec:baselines}
 \textbf{Baselines.} We compare against
@@ -166,103 +165,94 @@ other's own layout, which closes the remaining cell of the design.
 \subsection{Operating Protocols}
 \label{sec:opprotocols}
 
-Section~\ref{sec:sfc} defines one routing pass. Three protocols run that
-pass more than once and keep the best result by EPR; because they invoke
-the router repeatedly rather than changing what a single pass does, we
-describe them here rather than as part of the algorithm. All three are
-deterministic given the circuit, the hardware and the configuration, and
-none takes a seed.
+Section~\ref{sec:sfc} defines one routing pass. We evaluate two protocols
+built on it. \PORTER{} routes its own layout once at each of three
+candidate lookahead horizons and keeps the lowest-EPR result;
+\PORTER{}+R refines backward from that selected route. Both are
+deterministic and both keep the best result by EPR, so neither can return
+a worse route than the pass it contains. They invoke the router
+repeatedly rather than changing what a pass does, which is why they are
+described here and not in Section~\ref{sec:sfc}.
 
-\subsubsection{Lookahead-horizon selection}
+\subsubsection{\PORTER{}: choosing the horizon per circuit}
 \label{sec:horizon}
 
 The teleport-lookahead horizon $L_\mathrm{tp}$ is the one parameter of
-Section~\ref{sec:sfc-scoring} for which no tested constant is best across
-the corpus. In an offline sweep over $\{4,8,\dots,1024\}$ on every instance the best value
-spans the whole range: $80$-qubit QNN wants $4$, the $25$-qubit suite
-wants $16$, and every $100$-, $200$- and $360$-qubit instance wants
-$128$, beyond which EPR saturates. The gap between \PORTER{}'s configured
-default of $L_\mathrm{tp}{=}16$ and the per-instance best is $17.2\%$
-geometric-mean EPR.
+Section~\ref{sec:sfc-scoring} for which no constant is best across the
+corpus. In an offline sweep over $\{4,8,\dots,1024\}$ the best value
+spans the whole range --- $80$-qubit QNN wants $4$, the $25$-qubit suite
+$16$, every $100$-, $200$- and $360$-qubit instance $128$ --- and the gap
+between \PORTER{}'s configured $L_\mathrm{tp}{=}16$ and the per-instance
+best is $17.2\%$ geometric-mean EPR.
 
 Interaction density sets the direction. Let $\rho$ be the mean, over
-logical qubits appearing in at least one CX, of the number of distinct
-partners each shares a CX with, divided by $n-1$: the mean fraction of
-the other qubits each ever interacts with, so $\rho\to1$ is all-to-all
-and a linear CX chain gives $\rho\approx2/(n-1)$. The two regimes differ.
-Near $\rho{=}1$ a long horizon finds the moving qubit wanted in every
-core at once, the gain estimate degenerates into noise, and short
-horizons win; where $\rho$ is small the signal is coherent and long
-horizons win. Across the benchmark $\rho$ ranks the best horizon at
-Spearman $-0.765$, but is not a usable predictor alone: in the band
-$0.42\le\rho\le0.53$, where most 64-qubit circuits sit, QAOA wants $8$
-and AE wants $128$, and a threshold rule recovers only $8.0\%$ of the
-available $17.2\%$.
+logical qubits appearing in at least one CX, of the distinct partners
+each shares a CX with, divided by $n-1$ --- so $\rho\to1$ is all-to-all
+and a linear CX chain gives $\rho\approx2/(n-1)$. Near $\rho{=}1$ a long
+horizon finds the moving qubit wanted in every core at once, the gain
+estimate degenerates into noise, and short horizons win; where $\rho$ is
+small the signal is coherent and long horizons win. It is not a usable
+predictor alone, though: it ranks the best horizon at Spearman $-0.765$,
+yet in the band $0.42\le\rho\le0.53$ where most 64-qubit circuits sit
+QAOA wants $8$ and AE wants $128$, and a threshold rule recovers only
+$8.0\%$ of the available $17.2\%$.
 
-\PORTER{} therefore uses $\rho$ to \emph{prune} rather than to choose. A
-circuit with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$,
-every other circuit at $\{8,16,128\}$, and the lowest-EPR route is kept.
-No instance above the threshold ever selected the long horizon, so
-pruning costs no EPR and removes the dominant compile-time term: a long
-horizon that fails to converge and consumes the whole protocol's budget.
-Two rules bound the cost. The circuit's configured horizon is routed
-first, unguarded, and wins ties. The remaining candidates share a
-wall-clock budget proportional to what that first route cost, and one
-that overruns it is abandoned. The guarantee this gives is conditional
-and worth stating exactly: \emph{provided the configured-horizon route
-completes}, selection returns no higher an EPR count than that route
-would alone. It can still raise compile time, and which speculative
-candidates finish --- hence which route is selected --- depends on the
-wall-clock budget and so on the machine (Section~\ref{sec:perf}).
+\PORTER{} therefore uses $\rho$ to \emph{prune}, not to choose. A circuit
+with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$, every other
+circuit at $\{8,16,128\}$, and the lowest-EPR route is kept --- three
+routes over one layout. No instance above the threshold ever selected the
+long horizon, so pruning costs no EPR while removing the dominant
+compile-time term, a long horizon that fails to converge. Two rules bound
+the cost: the configured horizon is routed first, unguarded, and wins
+ties; the other two share a wall-clock budget proportional to what that
+first route cost, and one that overruns it is abandoned. Hence a
+conditional guarantee --- \emph{provided the configured-horizon route
+completes}, selection never returns a higher EPR count than that route
+alone --- and a dependence on the machine, since which speculative
+candidates finish decides which route is selected
+(Section~\ref{sec:perf}).
 
 \textbf{This rule was fitted on the corpus it is evaluated on.} The
 sweep, both candidate sets and the $0.80$ threshold were fixed by
 inspecting the $48$ instances, with no held-out family, so evidence for
-the \emph{size} of the gain is in-sample. Two things bound the risk. The
-rule is a portfolio, not a prediction --- a poor candidate set costs
-compile time but cannot worsen the selected route --- and the direction
-the sweep exposes, that no tested constant is best across circuits whose
-densities differ by an order of magnitude, does not depend on the values
-chosen. An out-of-sample validation remains to be done.
+the \emph{size} of the gain is in-sample. Two things bound the risk: the
+rule is a portfolio rather than a prediction, so a poor candidate set
+costs compile time but cannot worsen the selected route, and the
+direction the sweep exposes does not depend on the values chosen. An
+out-of-sample validation remains to be done.
 
-\subsubsection{Backward refinement (\PORTER{}+R)}
+\subsubsection{\PORTER{}+R: refining backward from that route}
 \label{sec:sfc-refine}
 
-\dSABRE{} routes each candidate layout with a
-forward\,$\to$\,backward\,$\to$\,forward schedule, so a protocol that
-matches its routing effort rather than only its layout count is needed to
-separate the two effects. \PORTER{}+R supplies one. The schedule is \SABRE{}'s bidirectional layout
-refinement~\cite{li2019tackling} applied to whole routes. Let $R(C,\ell)$
-denote routing $C$ from $\ell$ and $\ell'$ the layout it ends on.
-Pass~1 computes $R(C,\ell_0)$; pass~2 computes
-$R(C^{\mathrm{rev}},\ell_1')$ on the reversed circuit and
-\emph{discards its route}, keeping only $\ell_2'$; pass~3 computes
-$R(C,\ell_2')$. Reversing $C$ reverses every dependency edge, so
-routing it from the forward pass's end state yields a layout adapted to
-the \emph{start} of the forward circuit. Odd pass counts above three
-repeat the cycle; $P{=}5$ throughout. It adds no randomness.
+\dSABRE{} routes each candidate layout forward, backward and forward
+again, so comparing route budgets rather than layout counts alone needs a
+\PORTER{} protocol that spends the same effort. \PORTER{}+R is
+\SABRE{}'s bidirectional layout refinement~\cite{li2019tackling} applied
+to whole routes. Write $R(C,\ell)$ for routing circuit $C$ from layout
+$\ell$, and $\ell'_i$ for the layout pass $i$ ends on. Pass~1 computes
+$R(C,\ell_0)$ and ends on $\ell'_1$; pass~2 computes
+$R(C^{\mathrm{rev}},\ell'_1)$ on the reversed circuit, \emph{discards its
+route} and keeps only $\ell'_2$; pass~3 computes $R(C,\ell'_2)$.
+Reversing $C$ reverses every dependency edge, so routing it from where
+the forward pass ended yields a layout adapted to the \emph{start} of the
+forward circuit. Odd pass counts above three repeat the cycle;
+$P{=}5$ throughout, the best forward pass is kept, and nothing is random.
 
-Pass~1 is horizon selection itself, and the horizon it chooses is held
-for the remaining $P-1$ passes --- re-selecting every pass would multiply the
-count by the number of candidates to re-decide a property of the circuit
-that refinement does not change. Refining from the selected route is what
-makes \PORTER{}+R contain \PORTER{}, so with the best forward pass kept
-it can never report a higher EPR count than \PORTER{} does. Total routes
-are $\lvert\mathcal{H}\rvert + P - 1 = 7$. The cost is wall-clock rather
-than passes: a deep selected horizon makes a later pass dear, and on one
-instance a pass is stopped by the per-pass guard instead of converging.
+Pass~1 \emph{is} \PORTER{}: it runs the selection above, and the horizon
+it chooses is held for the remaining $P-1$ passes --- re-selecting each
+pass would multiply the count by the number of candidates to re-decide a
+property refinement does not change. That is what makes \PORTER{}+R
+contain \PORTER{}, so with the best forward pass kept it can never report
+more EPR. Total routes are $\lvert\mathcal{H}\rvert + P - 1 = 7$, and the
+cost is wall-clock rather than passes: a deep horizon makes a later pass
+dear, and on one instance a pass is stopped by the per-pass guard.
 
-One property of the schedule matters for reading its results. Refinement
-consumes a post-routing layout, and routing destroys the per-core free-slot
+One property matters for reading the results. Refinement consumes a
+post-routing layout, and routing destroys the per-core free-slot
 reservation $\ell_0$ was built with (Section~\ref{sec:sfc-layout}), so an
 intermediate pass may start from a layout worse than $\ell_0$ for
-\PORTER{}'s own capacity machinery. Individual passes therefore regress on
-some instances, and only the best-pass rule keeps that from surfacing.
-
-A third schedule, \PORTER{}+S, additionally searches the layout
-heuristic's per-layer discount $\gamma$ before refining. It is a
-parameter search rather than a design decision, and buys little for what
-it costs, so we report it in \appLayoutSearch{} rather than here.
+\PORTER{}'s capacity machinery. Individual passes therefore regress on
+some instances; only the best-pass rule keeps that from surfacing.
 
 \subsection{Comparison Protocols and Budgets}
 \label{sec:budgets}

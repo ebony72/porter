@@ -1171,6 +1171,30 @@ non-vacuous by corrupting a portfolio cell and watching it fail.
 
 59 tex checks, 252 numeric checks, generator idempotent, 14 pages.
 
+## IV-E reorganised around the two protocols (2026-09-01)
+
+**The section now names its subject up front**: "We evaluate two protocols
+built on it. \PORTER{} routes its own layout once at each of three
+candidate lookahead horizons and keeps the lowest-EPR result;
+\PORTER{}+R refines backward from that selected route." The subsubsections
+were retitled from mechanism names to protocol names --- "\PORTER{}:
+choosing the horizon per circuit" and "\PORTER{}+R: refining backward from
+that route" --- so E1 reads as \PORTER{}'s own protocol rather than as a
+standalone technique. 833 -> 794 words.
+
+**`\ell'` was undefined at its subscripts.** The text defined "$\ell'$ the
+layout it ends on" and then used $\ell'_1$ and $\ell'_2$ with no
+antecedent. Now: "**write $\ell'_i$ for the layout pass $i$ ends on**",
+after which pass~1 computes $R(C,\ell_0)$ and ends on $\ell'_1$; pass~2
+computes $R(C^{\mathrm{rev}},\ell'_1)$ and keeps only $\ell'_2$; pass~3
+computes $R(C,\ell'_2)$. The subscript indexes the pass, not the layout
+generation --- worth stating because $\ell_0$ (no prime) is the initial
+layout and the two indices look alike.
+
+Note the author commented out the \PORTER{}+S pointer here;
+`\appLayoutSearch` still has two references (`tab:budgets`' caption and
+`tab:protocols`' caption), so Appendix J is not orphaned --- checked.
+
 ## VI-A's completion paragraph reduced (2026-09-01)
 
 **428 -> 302 words.** Every load-bearing step of the argument survives ---
