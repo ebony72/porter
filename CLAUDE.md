@@ -1171,6 +1171,50 @@ non-vacuous by corrupting a portfolio cell and watching it fail.
 
 59 tex checks, 252 numeric checks, generator idempotent, 14 pages.
 
+## Four author queries on IV-D/IV-E answered (2026-09-01)
+
+**(1) $\rho$ is a scalar, one per circuit.** `circuit_interaction_density`
+returns a single float: partners are counted **over the whole circuit**,
+averaged over qubits, divided by $n-1$. The text now says so explicitly
+("one scalar summarising the whole circuit, not a per-qubit or
+horizon-limited quantity"), because the old wording left it open. The
+author's instinct is right and is now stated as untried work: **the
+horizon acts per moving qubit while $\rho$ averages over all of them**,
+which is a plausible reason one scalar cannot separate the $0.42$--$0.53$
+band, and a per-qubit or horizon-limited density has not been tested.
+
+**Spearman needs no citation** --- it is a standard statistic, used
+uncited in this literature --- but the sentence did need fixing: it said
+"$\rho$ ranks the best horizon at Spearman $-0.765$" without saying what
+was correlated with what. Now "its rank correlation with the per-instance
+best horizon is $-0.765$ (Spearman)". Note the **latent symbol clash**:
+Spearman's coefficient is conventionally $\rho$ too, so never write it
+symbolically here.
+
+**(2) The candidate sets are now stated in IV-E's opening**, not buried
+three paragraphs down: $\{4,8,16\}$ near all-to-all, $\{8,16,128\}$
+otherwise, chosen by $\rho$.
+
+**(3) The configured horizon IS the default, $L_\mathrm{tp}{=}16$.** The
+paper used both terms without connecting them. IV-E now says so and adds
+the fact that makes the guarantee work: **16 lies in both candidate
+sets**, which is why the configured horizon always competes.
+
+**(4) "Qubits withheld as communication slots" was wrong, and it was
+wrong in two places.** `sabre_locked_boundary_layout` removes the most
+remote **minimum-degree (corner)** qubits of each core **from the coupling
+map given to SabreLayout**, so no logical qubit is placed there: they
+begin **free and hold spare capacity** for arriving teleports and
+evictions. They are **not** communication ports --- those are the
+designated qubits at the link endpoints. Corrected in IV-D and in
+Appendix B.
+
+Appendix B carried a second, related error: it attributed the **chip-wide
+four-corner** rule to "\dSABRE{}'s stock corner-removal convention" and
+pointed at IV-D, which now describes the **per-core adaptive** count.
+Both rules are real --- the pytket legs kept the chip-wide one --- so the
+appendix now says which is which instead of conflating them.
+
 ## IV-E reorganised around the two protocols (2026-09-01)
 
 **The section now names its subject up front**: "We evaluate two protocols

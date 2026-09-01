@@ -148,9 +148,13 @@ best --- three routing passes over one layout, against nine over three.
 It searches no layouts, so every number is reproducible from the circuit
 file alone.
 
-\dSABRE{}'s SabreLayout runs on a coupling map with low-degree physical
-qubits withheld in every core as communication slots, the count fixed by
-its own fill-adaptive rule. We use that rule as it ships, which is why
+\dSABRE{}'s SabreLayout runs on a coupling map with the most remote
+minimum-degree (corner) physical qubits of every core removed, the count
+per core fixed by its own fill-adaptive rule. Removing them from the map
+means no logical qubit is placed there, so they begin free and hold spare
+capacity for arriving teleports and evictions; they are not communication
+ports, which are the designated qubits at the link endpoints
+(Section~\ref{sec:qcircuits}). We use the rule as it ships, which is why
 our \dSABRE{} figures reproduce those it publishes for the architectures
 it reports.
 
@@ -167,8 +171,11 @@ other's own layout, which closes the remaining cell of the design.
 
 Section~\ref{sec:sfc} defines one routing pass. We evaluate two protocols
 built on it. \PORTER{} routes its own layout once at each of three
-candidate lookahead horizons and keeps the lowest-EPR result;
-\PORTER{}+R refines backward from that selected route. Both are
+candidate lookahead horizons --- $L_\mathrm{tp}\in\{4,8,16\}$ for a
+circuit whose interaction graph is near all-to-all and $\{8,16,128\}$
+otherwise, a choice of set made by the single density coefficient $\rho$
+below --- and keeps the lowest-EPR result; \PORTER{}+R refines backward
+from that selected route. Both are
 deterministic and both keep the best result by EPR, so neither can return
 a worse route than the pass it contains. They invoke the router
 repeatedly rather than changing what a pass does, which is why they are
@@ -187,15 +194,21 @@ best is $17.2\%$ geometric-mean EPR.
 
 Interaction density sets the direction. Let $\rho$ be the mean, over
 logical qubits appearing in at least one CX, of the distinct partners
-each shares a CX with, divided by $n-1$ --- so $\rho\to1$ is all-to-all
-and a linear CX chain gives $\rho\approx2/(n-1)$. Near $\rho{=}1$ a long
+each shares a CX with anywhere in the circuit, divided by $n-1$: one
+scalar summarising the whole circuit, not a per-qubit or horizon-limited
+quantity. So $\rho\to1$ is all-to-all and a linear CX chain gives
+$\rho\approx2/(n-1)$. Near $\rho{=}1$ a long
 horizon finds the moving qubit wanted in every core at once, the gain
 estimate degenerates into noise, and short horizons win; where $\rho$ is
 small the signal is coherent and long horizons win. It is not a usable
-predictor alone, though: it ranks the best horizon at Spearman $-0.765$,
-yet in the band $0.42\le\rho\le0.53$ where most 64-qubit circuits sit
-QAOA wants $8$ and AE wants $128$, and a threshold rule recovers only
-$8.0\%$ of the available $17.2\%$.
+predictor alone, though. Its rank correlation with the per-instance best
+horizon is $-0.765$ (Spearman), strong but not decisive: in the band
+$0.42\le\rho\le0.53$ where most 64-qubit circuits sit, QAOA wants $8$ and
+AE wants $128$, and a threshold rule on $\rho$ recovers only $8.0\%$ of
+the available $17.2\%$. That one scalar cannot separate them is
+unsurprising --- the horizon acts per moving qubit, while $\rho$ averages
+over all of them --- and a per-qubit or horizon-limited density is
+untried.
 
 \PORTER{} therefore uses $\rho$ to \emph{prune}, not to choose. A circuit
 with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$, every other
@@ -203,9 +216,11 @@ circuit at $\{8,16,128\}$, and the lowest-EPR route is kept --- three
 routes over one layout. No instance above the threshold ever selected the
 long horizon, so pruning costs no EPR while removing the dominant
 compile-time term, a long horizon that fails to converge. Two rules bound
-the cost: the configured horizon is routed first, unguarded, and wins
-ties; the other two share a wall-clock budget proportional to what that
-first route cost, and one that overruns it is abandoned. Hence a
+the cost: the configured horizon --- $L_\mathrm{tp}{=}16$, the default of
+Section~\ref{sec:sfc-scoring}, which lies in both candidate sets --- is
+routed first, unguarded, and wins ties; the other two share a wall-clock
+budget proportional to what that first route cost, and one that overruns
+it is abandoned. Hence a
 conditional guarantee --- \emph{provided the configured-horizon route
 completes}, selection never returns a higher EPR count than that route
 alone --- and a dependence on the machine, since which speculative

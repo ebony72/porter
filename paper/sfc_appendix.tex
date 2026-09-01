@@ -172,11 +172,12 @@ reason as in \mainProtocols{} (no externally supplied
 layout support in its CLI). \texttt{HypergraphPartitioning} only
 decides which \emph{core} each logical qubit goes to; the capacity it
 sees for a core is the length of that core's declared qubit list in
-the \texttt{NISQNetwork}. Following \dSABRE{}'s stock corner-removal
-convention (the four lowest-degree corner qubits of the whole-chip
-graph; \mainProtocols{}), we withhold those four corner
-qubits from the cores' declared capacity and from the later
-physical-placement step within each core. This guarantees only a
+the \texttt{NISQNetwork}. We withhold from every core's declared capacity, and from the later
+physical-placement step, the four minimum-degree (corner) qubits of the
+whole-chip graph --- the chip-wide corner rule \dSABRE{} shipped when
+these legs were run, rather than the per-core count its own protocol now
+uses (\mainProtocols{}). As there, the reserved qubits hold spare
+capacity; they are not communication ports. This guarantees only a
 four-qubit margin \emph{chip-wide}, not per-core, so a core can still
 end up fully packed; rather than skip the run in that case,
 \PORTER{}'s general safeguard against fully packed cores
