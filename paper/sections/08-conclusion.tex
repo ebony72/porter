@@ -10,21 +10,17 @@ tiers, a deterministic initial layout, and a per-circuit choice of
 teleport-lookahead horizon.
 
 Three conclusions are supported. First, on the evaluated MQT-Bench suites
-\PORTER{} uses substantially fewer EPR pairs than published \TeleSABRE{}
---- $59.6\%$, $41.6\%$ and $68.2\%$ less in geometric mean at 25, 64 and
-80 logical qubits, at three routes each --- and completes all twenty-four
+\PORTER{} uses substantially fewer ($>40\%$) EPR pairs than published \TeleSABRE{} and completes all twenty-four
 instances, including the seven on which \TeleSABRE{} does not converge. Second,
 against \dSABRE{} it is competitive at the sizes both target,
 $1.02\times$ its pooled EPR at $0.91\times$ its compile time under each
 compiler's own protocol, and its advantage grows with the machine,
-reaching $0.72\times$ on the $100$--$360$-qubit scale-up series; at the
-smaller sizes which compiler leads depends on the initial layout and the
-routing budget, and Section~\ref{sec:shared_results} reports both
-directions. Third, the ablations attribute these results rather than
+reaching $0.72\times$ on the $100$--$360$-qubit scale-up series. Third, the ablations attribute these results rather than
 leaving them to the system as a whole: capacity relief is what lets a
-deterministic-greedy design complete in practice, while the initial
-layout dominates the difference between the two compilers at the smaller
-sizes and the lookahead horizon at the larger. The two compilers also
+deterministic-greedy design complete in practice, the initial layout
+dominates the difference between the two compilers at the sizes both
+target, and the lookahead horizon is what carries \PORTER{} past
+\dSABRE{} as the machine grows. The two compilers also
 prove complementary rather than ranked: neither wins more than eleven of
 the twenty-four instances, and taking the better of the two per instance
 reaches $11.6\%$ below \dSABRE{} alone (Section~\ref{sec:discussion}).
@@ -34,7 +30,11 @@ gate-teleportation vocabulary does not always pay: at 80 qubits a
 vocabulary with gate teleportation removed uses $21.4\%$ fewer pairs than
 the full action set, and no more on any circuit it completes. We read
 this as the plan scorer undervaluing teleportation's latent return rather
-than as a verdict on amortisation.
+than as a verdict on amortisation. It also points somewhere concrete: a
+teleport-only \PORTER{} is both the cheapest vocabulary we measured at
+that width and the one \dSABRE{}'s completion proof is written for, which
+makes it the natural place to try to earn a guarantee \PORTER{} presently
+lacks (Section~\ref{sec:future}).
 
 The evaluation is bounded --- two circuit families at the largest widths,
 two non-grid core graphs, horizon rules fitted on the corpus they are

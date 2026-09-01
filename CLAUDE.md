@@ -1171,6 +1171,36 @@ non-vacuous by corrupting a portfolio cell and watching it fail.
 
 59 tex checks, 252 numeric checks, generator idempotent, 14 pages.
 
+## Teleport-only + \dSABRE{}'s proof named as the configuration to try (2026-09-01)
+
+**Author's idea, and two of our own results converge on it.** \dSABRE{}'s
+termination-with-success proof is written for a **teleport-only** router,
+and a teleport-only vocabulary is also the **cheapest we measure at 80
+qubits** ($-21.4\%$). So a \PORTER{} restricted to \TeleData{} --- keeping
+plan scoring, the relief tiers and horizon selection, dropping the
+\TeleGate{} family --- is simultaneously where the guarantee is likeliest
+to transfer and where the vocabulary result says the pairs are. Stated in
+VI-A's completion paragraph and one clause of the conclusion.
+
+**With the honest caveat, which is pinned:** that configuration completes
+**21 of 24** here, failing **64q Random, 80q Multiplier and 80q Random**.
+So the guarantee would still need the atomic relay *and* a local-stage
+progress argument --- it is a promising starting point, not a proof
+waiting to be written.
+
+**Proofreading the conclusion also found a claim that had lost its
+support.** "The lookahead horizon [dominates] at the larger [sizes]" was
+supported by \S VI's "Which component binds changes with scale" paragraph,
+deleted earlier today; V-D reports only that \PORTER{} wins all six
+scale-up instances. Rewritten to what the paper still shows --- "the
+lookahead horizon is what carries \PORTER{} past \dSABRE{} as the machine
+grows" --- with the layout half scoped to "the sizes both target".
+**Every deletion from VI needs this check: the conclusion's third
+sentence summarises VI, so it goes stale whenever VI does.**
+
+Verified in passing: the author's ">40\%" replacement for the three
+TeleSABRE percentages is correct (the minimum is $41.6\%$).
+
 ## Sec VII: \dSABRE{} condensed to one paragraph; `tab:taxonomy` moved (2026-09-01)
 
 **Three \dSABRE{} paragraphs -> one.** Everything downstream depends on

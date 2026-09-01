@@ -60,7 +60,16 @@ failure we do observe is a local-SWAP livelock, on heavy-hex star
 Multiplier at a fixed horizon, with capacity healthy throughout and the
 EPR count frozen. A guarantee for \PORTER{} therefore needs a
 progress argument for the intra-core stage, which is where it actually
-stalls, rather than a stronger capacity transaction.
+stalls, rather than a stronger capacity transaction. One configuration is
+worth trying first, because two of our results point at it together:
+\dSABRE{}'s proof is for a teleport-only router, and a teleport-only
+vocabulary is also the cheapest one we measured at 80 qubits. A \PORTER{}
+restricted to \TeleData{} --- keeping the plan scoring, the relief tiers
+and horizon selection, dropping the \TeleGate{} family --- is therefore
+both where the guarantee is likeliest to transfer and where the
+vocabulary result says the pairs are. It would not come for free: that
+configuration completes twenty-one of the twenty-four instances here,
+failing 64-qubit Random and 80-qubit Multiplier and Random.
 
 The other three: a horizon that scales with the core count $K$ rather than
 being chosen by trial --- $L_\mathrm{tp}$ is an absolute gate count, so a

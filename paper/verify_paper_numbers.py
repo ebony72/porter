@@ -177,6 +177,15 @@ for src, (d, p, pr) in _GRID.items():
     for leg in (d, p, pr):
         check(f"grid {src} {leg} covers all 24", 24,
               sum(1 for r in cmp_rows if (r.get(leg) or {}).get("epr")))
+# Sec VI-A + conclusion: a teleport-only PORTER is the configuration where
+# dSABRE's proof might transfer.  It completes 21 of 24, failing exactly
+# 64q Random and 80q Multiplier/Random -- named in the text, so pinned.
+_tdv = lambda r: ((r["out"].get("teledata_only") or {}).get("epr")
+                  or (r["out"].get("teledata_only_relief") or {}).get("epr"))
+check("teledata-only completes", 21, sum(1 for r in td_rows if _tdv(r)))
+check("teledata-only failures", "64/random,80/multiplier,80/random",
+      ",".join(sorted(f"{r['suite']}/{r['circuit']}"
+                      for r in td_rows if not _tdv(r))))
 # Sec VI-A's completion-guarantee argument: PORTER's observed failure is a
 # LIVELOCK with capacity healthy, not the capacity deadlock dSABRE's proof
 # rules out -- which is why adopting dSABRE's recovery would not supply the
