@@ -134,6 +134,23 @@ for cols in rows_m:
             continue
         chk(f"tab:main {lab} {leg}", got,
             round(gmean([BY[k][leg]["epr"] for k in basis]), 1))
+    # The two portfolio columns: per-instance min of dSABRE and the named
+    # PORTER configuration, on whatever basis the row uses.
+    chk(f"tab:main {lab} column count", 11, len(cols))
+    # The bold EPR cell must be the best single compiler, never the portfolio:
+    # the portfolio is derived, and bolding it would read as a fifth column.
+    _epr = [cols[i] for i in (1, 3, 5, 7)]
+    _live = [(i, num(c)) for i, c in enumerate(_epr) if num(c) is not None]
+    chk(f"tab:main {lab} bold is best compiler",
+        [i for i, c in enumerate(_epr) if "textbf" in c],
+        [i for i, v in _live if v == min(v for _, v in _live)])
+    for _j in (9, 10):
+        chk(f"tab:main {lab} portfolio col {_j} unbold", False,
+            "textbf" in cols[_j])
+    for j, leg in enumerate(("sfc", "sfc_refined")):
+        chk(f"tab:main {lab} portfolio {leg}", num(cols[9 + j]),
+            round(gmean([min(BY[k]["dSE"]["epr"], BY[k][leg]["epr"])
+                         for k in basis]), 1))
 
 # --------------------------------------------------- tab:layoutsearch (APP)
 # PORTER+S lives in the appendix only.  Its per-circuit EPR triples and the
@@ -176,6 +193,19 @@ for cols, sub in zip(_ls_gm, [[k for k in _LS_ORDER if k[0] == s]
         chk(f"layoutsearch gmean {leg} t {len(sub)}", num(cols[idx]),
             round(gmean_raw([BY[k][leg]["seconds"] for k in sub]), 2))
 
+# tab:main's W/L/T row: the per-instance record against dSABRE over all 24.
+_seg_wlt, _ = rows_of("tab:main", r"^$")
+_m = re.search(r"^W/L/T\s*&(.+?)\\\\", _seg_wlt, re.M | re.S)
+chk("tab:main has a W/L/T row", True, _m is not None)
+if _m:
+    _cells = re.findall(r"\{(\d+ / \d+ / \d+)\}", _m.group(1))
+    chk("W/L/T cell count", 2, len(_cells))
+    for _cell, _leg in zip(_cells, ("sfc", "sfc_refined")):
+        w = sum(1 for r in CMP if r[_leg]["epr"] < r["dSE"]["epr"])
+        l = sum(1 for r in CMP if r[_leg]["epr"] > r["dSE"]["epr"])
+        chk(f"tab:main W/L/T {_leg}", _cell,
+            f"{w} / {l} / {len(CMP) - w - l}")
+
 # -------------------------------------------------------------- tab:shared
 # The layout-by-router grid: three layout sources x three routers, every cell
 # a geometric mean over ALL 24 instances (no source excludes any circuit).
@@ -184,13 +214,28 @@ _ROWS = {
     r"\PORTER{}'s":  ("dSE_on_porter_layout", "sfc", "sfc_refined"),
     r"\texttt{pytket-dqc}'s": ("dSE_pytket", "sfc_pytket", "sfc_pytket_refined"),
 }
+# Two blocks: (a) all 24, (b) the 18 excluding GHZ/Graphstate.  The blocks
+# disagree in every column -- pytket-dqc's partition is the best start in (a)
+# and the worst in (b) -- so both are parsed and the split is pinned.
+_TRIV = {"ghz", "graphstate"}
+_ALL = CMP
+_NT = [r for r in CMP if r["circuit"].replace("_OLD_DEEP", "") not in _TRIV]
 seg, rows = rows_of("tab:shared", r"^(\\dSABRE|\\PORTER|\\texttt\{pytket)")
-chk("layout-grid row count", 3, len(rows))
-for cols, legs in zip(rows, _ROWS.values()):
-    for j_, leg in enumerate(legs):
-        vals = [r[leg]["epr"] for r in CMP]
-        chk(f"layout grid {leg}", num(cols[1 + j_]), round(gmean(vals), 1))
-        chk(f"layout grid {leg} n", 24, len(vals))
+chk("layout-grid row count", 6, len(rows))
+for blk, (basis, want_n) in enumerate(((_ALL, 24), (_NT, 18))):
+    for cols, legs in zip(rows[3 * blk:3 * blk + 3], _ROWS.values()):
+        for j_, leg in enumerate(legs):
+            vals = [r[leg]["epr"] for r in basis]
+            chk(f"layout grid ({'ab'[blk]}) {leg}", num(cols[1 + j_]),
+                round(gmean(vals), 1))
+            chk(f"layout grid ({'ab'[blk]}) {leg} n", want_n, len(vals))
+# The reversal itself: pytket is the column minimum in (a) and the maximum
+# in (b), for all three routers.  This is what V-B's argument rests on.
+for j_ in range(3):
+    a = [num(rows[i][1 + j_]) for i in range(3)]
+    b = [num(rows[3 + i][1 + j_]) for i in range(3)]
+    chk(f"grid col {j_} pytket best in (a)", a[2], min(a))
+    chk(f"grid col {j_} pytket worst in (b)", b[2], max(b))
 
 # ------------------------------------------------------------- tab:scaleup
 SU_ORDER = [("100", "qft"), ("100", "qpeexact"), ("200", "qft"),
@@ -217,34 +262,25 @@ for key, cols in zip(SU_ORDER, rows):
 O9 = ["ae", "ghz", "graphstate", "qft", "qnn", "random", "qpeexact",
       "qaoa", "multiplier"]
 seg, rows = rows_of("tab:heavyhex", r"^(ring|star)\s")
-# The "star (8)" row exists only while PORTER fails star/Multiplier under its
-# own layout; horizon selection routes it, so the expected count follows the
-# data rather than being hardcoded.
-_star_incomplete = any(
-    (r.get("porter") or {}).get("epr") is None
-    for r in json.load(open(_res("heavyhex"))) if r["topology"] == "star")
-# The regex also matches the "star Multiplier" callout row, hence the +1.
-chk("heavyhex summary row count", 4 if _star_incomplete else 3, len(rows))
-# Own layout, own protocol only since 2026-08-31; the fixed-layout control
-# and the per-circuit rows are in the appendix, and no PORTER+R column
-# appears in either -- refinement is measured on the main suite alone.
-HH_LEGS = ("dSE", "porter")
+# Two summary rows since 2026-09-01: the star-Multiplier callout went with the
+# livelock discussion, and PORTER-on-dSABRE's-layout became a third column --
+# the fixed-layout control V-E's layout claim rests on.
+chk("heavyhex summary row count", 2, len(rows))
+HH_LEGS = ("dSE", "porter", "porter_on_dse")
 for cols in rows:
     lab = cols[0].strip()
-    if "Multiplier" in lab:
-        r = HH[("star", "multiplier")]
-        chk("heavyhex star mult dSE", cell(cols[1]), r["dSE"]["epr"])
-        chk("heavyhex star mult porter", cell(cols[2]), r["porter"]["epr"])
-        chk("heavyhex star mult column count", 3, len(cols))
-        continue
     topo = lab.split()[0]
     n = int(re.search(r"\((\d+)\)", lab).group(1))
-    circs = O9 if n == 9 else [c for c in O9 if c != "multiplier"]
-    chk(f"heavyhex summary basis {lab}", n, len(circs))
+    chk(f"heavyhex summary basis {lab}", n, len(O9))
+    chk(f"heavyhex summary {lab} column count", 4, len(cols))
     for j, leg in enumerate(HH_LEGS):
-        vals = [(HH[(topo, c)].get(leg) or {}).get("epr") for c in circs]
+        vals = [(HH[(topo, c)].get(leg) or {}).get("epr") for c in O9]
         got = round(gmean(vals), 1) if all(vals) else None
         chk(f"heavyhex summary {lab} {leg}", num(cols[1 + j]), got)
+# V-E's claim: from dSABRE's own candidates PORTER is lowest on BOTH rows.
+for cols in rows:
+    chk(f"heavyhex {cols[0].strip()} control is lowest", num(cols[3]),
+        min(num(cols[1]), num(cols[2]), num(cols[3])))
 
 seg, rows = rows_of("tab:heavyhex", r"^(ring|star)\s*&", APP)
 chk("heavyhex per-circuit row count", 18, len(rows))
@@ -257,35 +293,32 @@ for cols in rows:
         chk(f"heavyhex {key} {leg}", cell(cols[2 + j]), (r.get(leg) or {}).get("epr"))
 
 # ------------------------------------------------------------ tab:ablation
-# Per-circuit rows are 80q only; 25q and 64q appear as one summary line each,
-# and those lines are checked separately below.
-seg, rows = rows_of("tab:ablation", r"^\d\dq\s*&")
+# 80q only since 2026-08-31, and the Suite column is gone with it, so rows now
+# start with the circuit name.  The 25q/64q suites are still ablated and the
+# cross-scale trend is pinned in verify_paper_numbers; it is just not tabulated.
+_ABL80 = ["ae", "qft", "qnn", "random", "qpeexact", "qaoa", "multiplier"]
+seg, rows = rows_of("tab:ablation", r"^(%s)\s*&" % "|".join(_ABL80))
 chk("ablation row count", 7, len(rows))
-chk("ablation rows are 80q only", {"80q"}, {c[0].strip() for c in rows})
+chk("ablation rows are the 80q non-trivial set", _ABL80,
+    [c[0].strip() for c in rows])
 for cols in rows:
-    key = (cols[0].replace("q", ""), cols[1])
-    a, t = ABL[key]["out"], TD[key]["out"]
-    # The Hop-wise (plan-commitment) column was removed on 2026-08-31.
-    chk(f"ablation {key} column count", 8, len(cols))
-    chk(f"ablation {key} full", cell(cols[2]), (a.get("full") or {}).get("epr"))
-    chk(f"ablation {key} nopk", cell(cols[3]), (a.get("no_packets") or {}).get("epr"))
-    chk(f"ablation {key} norel", cell(cols[4]), (a.get("no_relief") or {}).get("epr"))
-    chk(f"ablation {key} teledata", cell(cols[5]),
-        (t.get("teledata_only_relief") or {}).get("epr"))
+    key = ("80", cols[0].strip())
+    a, t_ = ABL[key]["out"], TD[key]["out"]
+    chk(f"ablation {key} column count", 7, len(cols))
+    chk(f"ablation {key} full", cell(cols[1]), (a.get("full") or {}).get("epr"))
+    chk(f"ablation {key} nopk", cell(cols[2]), (a.get("no_packets") or {}).get("epr"))
+    chk(f"ablation {key} norel", cell(cols[3]), (a.get("no_relief") or {}).get("epr"))
+    chk(f"ablation {key} teledata", cell(cols[4]),
+        (t_.get("teledata_only_relief") or {}).get("epr"))
     # The double dagger must mark exactly the cells where strict removal failed.
-    chk(f"ablation {key} relief-tier marker", "ddagger" in cols[5],
-        (t.get("teledata_only") or {}).get("epr") is None
-        and (t.get("teledata_only_relief") or {}).get("epr") is not None)
+    chk(f"ablation {key} relief-tier marker", "ddagger" in cols[4],
+        (t_.get("teledata_only") or {}).get("epr") is None
+        and (t_.get("teledata_only_relief") or {}).get("epr") is not None)
+    chk(f"ablation {key} pk", cell(cols[5]), (t_.get("full") or {}).get("packets"))
+    chk(f"ablation {key} tg", cell(cols[6]), (t_.get("full") or {}).get("telegates"))
 
-    chk(f"ablation {key} pk", cell(cols[6]), (t.get("full") or {}).get("packets"))
-    chk(f"ablation {key} tg", cell(cols[7]), (t.get("full") or {}).get("telegates"))
-
-
-# Summary lines of tab:ablation.  Each carries one Full value plus whichever
-# comparison columns share its basis, and $n$ states that basis; a line is
-# checked against a gmean over EVERY circuit of the group that the compared
-# columns complete.  The line count is pinned so a relabelled table fails
-# rather than matching nothing.
+# Summary lines: each carries one Full value plus whichever comparison columns
+# share its basis, and $n$ states that basis.  All are over the 80q suite.
 _ORD = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
         "qpeexact", "qaoa", "multiplier"]
 def _abl_cols(k):
@@ -293,17 +326,15 @@ def _abl_cols(k):
     ep = lambda d, x: (d.get(x) or {}).get("epr")
     return (ep(a_, "full"), ep(a_, "no_packets"), ep(a_, "no_relief"),
             ep(t_, "teledata_only_relief"))
-_, _sum_lines = rows_of("tab:ablation", r"^\\multicolumn\{2\}")
-chk("ablation summary line count", 9, len(_sum_lines))
+_, _sum_lines = rows_of("tab:ablation", r"^\\textbf\{gmean\}")
+chk("ablation summary line count", 3, len(_sum_lines))
 for cols in _sum_lines:
-    lab = cols[0]
-    m = re.search(r"\{(?:\\textbf\{)?(all|\d\d)q?\}?, \$n\{=\}(\d+)\$", lab)
-    chk(f"ablation summary label parses: {lab[:40]}", True, m is not None)
+    m = re.search(r"\$n\{=\}(\d+)\$", cols[0])
+    chk(f"ablation summary label parses: {cols[0][:40]}", True, m is not None)
     if not m:
         continue
-    grp, n = m.group(1), int(m.group(2))
-    ks = [(s_, c) for s_ in (("25", "64", "80") if grp == "all" else (grp,))
-          for c in _ORD if (s_, c) in ABL]
+    grp, n = "80", int(m.group(1))
+    ks = [(grp, c) for c in _ORD if (grp, c) in ABL]
     for j in (1, 2, 3):
         got = num(cols[1 + j])
         if got is None:

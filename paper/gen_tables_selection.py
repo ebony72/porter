@@ -101,39 +101,58 @@ _GRID = (
 
 def tab_shared():
     """tab:shared in the main paper: layout source (rows) against routing
-    loop (columns), geometric-mean EPR over all 24 instances.  Every leg
-    must cover the whole suite -- the table's claim is that no instance is
-    excluded -- so a missing value is an error, not a dash."""
+    loop (columns), geometric-mean EPR, in two blocks.
+
+    Block (a) is over all 24 instances; every leg must cover the whole suite
+    -- the table's claim is that no instance is excluded -- so a missing
+    value is an error, not a dash.  Block (b) repeats it without GHZ and
+    Graphstate, whose EPR counts are one to two orders of magnitude below
+    the rest of the suite and therefore dominate an unweighted geometric
+    mean.  The two blocks disagree in every column, which is V-B's subject,
+    so both are generated rather than one being derived by hand.
+    """
     rows = load("compare")
-    cells = []
-    for label, legs in _GRID:
-        vals = []
-        for leg in legs:
-            xs = [epr(r, leg) for r in rows]
-            if len(xs) != 24 or not all(xs):
-                sys.exit(f"tab:shared: leg {leg} covers {sum(1 for x in xs if x)}"
-                         f" of {len(xs)} instances, expected 24")
-            vals.append(gmean(xs))
-        cells.append((label, vals))
-    best = [min(c[1][j] for c in cells) for j in range(3)]
+    triv = lambda r: r["circuit"].replace("_OLD_DEEP", "") in ("ghz", "graphstate")
+    blocks = [("\\emph{(a)} all twenty-four instances", rows, 24),
+              ("\\emph{(b)} the eighteen excluding GHZ and Graphstate",
+               [r for r in rows if not triv(r)], 18)]
     out = []
-    for label, vals in cells:
-        f = lambda j: (f"\\textbf{{{vals[j]:.1f}}}" if abs(vals[j] - best[j]) < 5e-2
-                       else f"{vals[j]:.1f}")
-        out.append(f"{label:<36} & {f(0)} & {f(1)} & {f(2)} \\\\")
+    for bi, (header, basis, want_n) in enumerate(blocks):
+        cells = []
+        for label, legs in _GRID:
+            vals = []
+            for leg in legs:
+                xs = [epr(r, leg) for r in basis]
+                if len(xs) != want_n or not all(xs):
+                    sys.exit(f"tab:shared: leg {leg} covers "
+                             f"{sum(1 for x in xs if x)} of {len(xs)}, "
+                             f"expected {want_n}")
+                vals.append(gmean(xs))
+            cells.append((label, vals))
+        best = [min(c[1][j] for c in cells) for j in range(3)]
+        if bi:
+            out.append("\\midrule")
+        out.append(f"\\multicolumn{{4}}{{@{{}}l}}{{{header}}} \\\\")
+        for label, vals in cells:
+            f = lambda j: (f"\\textbf{{{vals[j]:.1f}}}"
+                           if abs(vals[j] - best[j]) < 5e-2 else f"{vals[j]:.1f}")
+            out.append(f"{label:<36} & {f(0)} & {f(1)} & {f(2)} \\\\")
     return "\n".join(out)
 
 
 def tab_ablation():
-    r"""tab:ablation (Table IV): one mechanism disabled at a time.
+    r"""tab:ablation (Table IV): one mechanism disabled at a time, 80q only.
 
-    The basis is every circuit of all three suites, but only 80q --- the
-    scale at which the mechanisms bite hardest --- is shown per circuit;
-    25q and 64q are one summary line each, because what they contribute is
-    the trend across scale, not individual rows.  Rows where every
-    configuration coincides (no packets, no relief triggered, no telegates)
-    are omitted.  A suite line is the geometric mean over the circuits all
-    four EPR columns complete, so the line is comparable across itself.
+    The ablation still RUNS on all three suites -- the cross-scale trend is
+    quoted in V-C and pinned in verify_paper_numbers -- but only the 80-qubit
+    rows are shown, the scale at which every mechanism bites hardest.  Rows
+    where every configuration coincides (no packets, no relief triggered, no
+    telegates) are omitted; they are still inside the summary lines.  The
+    Suite column is gone, every row being 80q.
+
+    A summary line carries one Full value, so columns share a line only when
+    they complete on the same circuits; where they do not, the comparison
+    gets its own line and $n$ states the basis.
     """
     A = {(r["suite"], r["circuit"]): r["out"]
          for r in json.loads((_HERE.parent / "ablation_results.json").read_text())}
@@ -157,18 +176,11 @@ def tab_ablation():
     def cols_of(k):
         return (ep(A[k], "full"), ep(A[k], "no_packets"), ep(A[k], "no_relief"),
                 ep(T[k], "teledata_only_relief"))
-    out = []
-
-    # A summary line can only carry one Full value, so columns may share a
-    # line only when they complete on exactly the same circuits.  Group the
-    # three comparisons by their completing set and emit one line per group:
-    # that keeps every ratio in the table on the basis its prose claim uses,
-    # and no circuit is ever dropped for being uninformative.
     def basis(ks, i):
         return tuple(k for k in ks if cols_of(k)[i] is not None
                      and cols_of(k)[0] is not None)
 
-    def summary(label, ks, n_all):
+    def summary(ks, n_all):
         groups = {}
         for i in (1, 2, 3):
             groups.setdefault(basis(ks, i), []).append(i)
@@ -181,14 +193,11 @@ def tab_ablation():
                      (f"\\textbf{{{v[i]:.1f}}}" if abs(v[i] - lo) < 5e-2 else f"{v[i]:.1f}")
                      for i in range(4)]
             tag = "" if len(b) == n_all else f" of {n_all}"
-            lines.append(f"\\multicolumn{{2}}{{@{{}}l}}{{{label}, $n{{=}}{len(b)}${tag}}} & "
+            lines.append(f"\\textbf{{gmean}}, $n{{=}}{len(b)}${tag} & "
                          + " & ".join(cells) + " & & \\\\")
         return lines
 
-    for suite in ("25", "64"):
-        ks = all_of(suite)
-        out += summary(f"{suite}q", ks, len(ks))
-    out.append("\\midrule")
+    out = []
     for k in shown("80"):
         a, t = A[k], T[k]
         td = ep(t, "teledata_only_relief")
@@ -196,14 +205,12 @@ def tab_ablation():
         g = lambda v: "$^{\\dagger}$" if v is None else str(v)
         tdc = ("$^{\\dagger}$" if td is None else
                (f"\\textbf{{{td}}}{mark}" if td < ep(a, "full") else f"{td}{mark}"))
-        out.append(f"80q & {k[1]:<11} & {ep(a,'full'):>5} & {g(ep(a,'no_packets')):>5} & "
+        out.append(f"{k[1]:<11} & {ep(a,'full'):>5} & {g(ep(a,'no_packets')):>5} & "
                    f"{g(ep(a,'no_relief')):>5} & {tdc} & {cnt(k,'packets'):>4} & "
                    f"{cnt(k,'telegates'):>4} \\\\")
-    ks80 = all_of("80")
-    out += summary("80q", ks80, len(ks80))
     out.append("\\midrule")
-    allk = [k for s_ in ("25", "64", "80") for k in all_of(s_)]
-    out += summary("\\textbf{all}", allk, len(allk))
+    ks80 = all_of("80")
+    out += summary(ks80, len(ks80))
     return "\n".join(out)
 
 
@@ -238,10 +245,11 @@ def tab_scaleup():
 
 
 def tab_heavyhex():
-    """tab:heavyhex (Table VI): own layout, own protocol, both compilers.
-    The PORTER+R and PORTER-on-dSABRE-layout columns were removed on
-    2026-08-31; the per-circuit rows and the fixed-layout control live in the
-    appendix."""
+    """tab:heavyhex (Table VI): own layout, own protocol, plus the
+    fixed-layout control -- PORTER routing dSABRE's own SabreLayout
+    candidates -- which is what shows the star gap is PORTER's layout
+    rather than its routing loop.  The star-Multiplier callout row was
+    removed on 2026-09-01 with the livelock discussion it supported."""
     rows = load("heavyhex")
     out = []
     for topo in ("ring", "star"):
@@ -249,18 +257,12 @@ def tab_heavyhex():
         def col(k):
             vs = [epr(r, k) for r in rs]
             return None if any(v is None for v in vs) else gmean(vs)
-        g = {k: col(k) for k in ("dSE", "porter")}
+        g = {k: col(k) for k in ("dSE", "porter", "porter_on_dse")}
         f = lambda v: "---" if v is None else f"{v:.1f}"
         lo = min(v for v in g.values() if v is not None)
         c = lambda k: (f"\\textbf{{{f(g[k])}}}" if g[k] == lo else f"{f(g[k]):>5}")
-        out.append(f"{topo} ({len(rs)})".ljust(17) + f" & {c('dSE')} & {c('porter')} \\\\")
-    m = next(r for r in rows if r["topology"] == "star" and r["circuit"] == "multiplier")
-    cells = [epr(m, k) for k in ("dSE", "porter")]
-    lo = min(v for v in cells if v is not None)
-    out.append("\\midrule")
-    out.append("star Multiplier   & " + " & ".join(
-        (f"\\textbf{{{v}}}" if v == lo else f"{('---' if v is None else v):>5}")
-        for v in cells) + " \\\\")
+        out.append(f"{topo} ({len(rs)})".ljust(17)
+                   + f" & {c('dSE')} & {c('porter')} & {c('porter_on_dse')} \\\\")
     return "\n".join(out)
 
 

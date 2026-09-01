@@ -1,4 +1,4 @@
-%% sfc_appendix.tex — Supplementary material (Appendices A–J) for sfc.tex.
+%% sfc_appendix.tex — Supplementary material (Appendices A–K) for sfc.tex.
 %% Standalone document: compiles independently of the main paper.
 %%   pdflatex sfc_appendix
 %%   bibtex   sfc_appendix
@@ -64,10 +64,16 @@
 \newcommand{\mainSetup}{Section~\ref{main-sec:setup}}
 \newcommand{\mainProtocols}{Section~\ref{main-sec:protocols}}
 \newcommand{\mainSharedResults}{Section~\ref{main-sec:shared_results}}
+\newcommand{\mainScaleup}{Section~\ref{main-sec:scaleup}}
 \newcommand{\mainCompileTime}{Section~\ref{main-sec:time}}
 \newcommand{\mainSharedTable}{Table~\ref{main-tab:shared}}
 \newcommand{\mainRefine}{Section~\ref{main-sec:sfc-refine}}
 \newcommand{\mainHorizon}{Section~\ref{main-sec:horizon}}
+\newcommand{\mainPlanFirst}{Section~\ref{main-sec:sfc-plan-first}}
+\newcommand{\mainOwnProtocol}{Section~\ref{main-sec:rq1}}
+\newcommand{\mainRelated}{Section~\ref{main-sec:related}}
+\newcommand{\mainBaselines}{Section~\ref{main-sec:baselines}}
+\newcommand{\mainScope}{Section~\ref{main-sec:scope}}
 
 \begin{document}
 
@@ -80,7 +86,7 @@
 \maketitle
 
 \noindent
-This supplement contains Appendices A--J of the main paper. Section,
+This supplement contains Appendices A--K of the main paper. Section,
 figure, and table numbers of the form ``Section~III-A'' or
 ``Table~VII'' refer to the main paper; numbers local to this document
 refer to the supplement itself.
@@ -194,9 +200,9 @@ comparison~\cite{lidsabre}.
   safeguard leaves no missing entries on
   this suite.}
 \label{tab:pytket}
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{4.9pt}
 \small
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}l l r rr rr@{}}
 \toprule
 Suite & Circuit & \texttt{pytket} e-bits & \multicolumn{2}{c}{\dSABRE{}} & \multicolumn{2}{c}{\PORTER{}} \\
@@ -248,34 +254,75 @@ Appendix~\ref{app:optin}.
 \section{pytket-dqc as an Opt-In \PORTER{} Layout Candidate}
 \label{app:optin}
 
-Appendix~\ref{app:pytket} feeds pytket-dqc's partition to
-\PORTER{} as a controlled probe; the same partition can also be
-offered to \PORTER{} as one extra layout candidate beside its own
-(\mainInitialLayout{} of the main paper). Since
-\PORTER{} routes far faster than pytket-dqc partitions, this is nearly
-free on the routing side; taking the better of the two per instance
-lowers the eighteen-instance geometric-mean EPR from $116.8$ to $98.6$
-($-16\%$), with the gains concentrated on the most partitionable
-circuits (Graphstate $7\!\to\!4$, $20\!\to\!10$, $28\!\to\!11$ across
-the three suites; 80q~AE $490\!\to\!352$). We keep it \emph{opt-in}
-rather than the default for three reasons. First, on the dense and
-Random circuits the external partition is often \emph{worse} for
-\PORTER{} (64q~QNN $864\!\to\!1{,}031$, 64q~Random $737\!\to\!861$), so
-the best-of simply retains \PORTER{}'s own layout there. Second, the
-partition itself is expensive -- seconds to minutes, and on dense
-circuits more than \PORTER{}'s entire routing pass ($309$\,s to
-partition 80q~Random versus $\approx\!37$\,s to route it; $16$\,s
-versus $0.6$\,s on 80q~AE) -- against a sub-millisecond cost for
-\PORTER{}'s own layout build, so adopting it by default would erase
-\PORTER{}'s compile-time advantage (\mainCompileTime{} of the main
-paper). Third, it
-reintroduces the external-partitioner dependency \PORTER{}'s
-self-contained layout avoids, and unlike it can leave a core fully
-packed, relying on the full-core repair of
-\mainInitialLayout{}. \PORTER{} therefore defaults to its own
-layout and treats an external partition as an optional refinement,
-selected only when EPR is at a premium and its generation time is
-acceptable.
+Appendix~\ref{app:pytket} feeds pytket-dqc's partition to \PORTER{} as a
+controlled probe. The same partition can also be offered to \PORTER{} as
+one extra layout candidate beside its own (\mainInitialLayout{}), routing
+both and keeping the lower EPR count. That construction cannot lose, so
+the question is only what it gains and what it costs.
+\mainSharedResults{} states the conclusion; this appendix gives the
+figures behind it.
+
+\textbf{What it gains.} Over all twenty-four instances the best-of-two
+lowers geometric-mean EPR from $174.9$ to $153.8$ ($-12.1\%$). Over the
+eighteen excluding GHZ and Graphstate it lowers it from $464.6$ to
+$456.1$ --- $\mathbf{-1.8\%}$. The partition is selected on nine of the
+twenty-four, and the three largest margins are Graphstate at each width
+($7\!\to\!4$, $20\!\to\!10$, $28\!\to\!10$); GHZ contributes
+$4\!\to\!3$, $6\!\to\!5$ and a tie. Everything else it wins, it wins
+narrowly. On the dense circuits it is the worse start and the best-of
+simply keeps \PORTER{}'s own layout (64q~QNN $638$ against $740$,
+64q~Random $737$ against $787$, 80q~AE $299$ against $389$).
+
+\textbf{What it costs.} Table~\ref{tab:pytkettime} times the
+best-of-three KaHyPar partition against \PORTER{}'s own layout
+construction and against \PORTER{}'s complete three-route protocol, on
+the same machine as every other measurement in this paper. The partition
+is three to five orders of magnitude dearer than the layout it would
+replace, and on six of the eight circuits shown it costs more than
+routing the circuit three times. It also scales worse than the routing
+does: an $80\times$ increase in CX count from 25q~AE to 80q~Random buys a
+$200\times$ increase in partition time, and at the widths of
+\mainScaleup{} it does not finish at all.
+
+\begin{table}[h]
+\centering
+\caption{Cost of the \texttt{pytket-dqc} partition (best of three KaHyPar
+  seeds) against \PORTER{}'s own initial-layout construction and against
+  \PORTER{}'s complete three-route protocol. One measurement each, same
+  machine and conditions as \mainSetup{}.}
+\label{tab:pytkettime}
+\setlength{\tabcolsep}{7.3pt}
+\small
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
+\begin{tabular}{@{}ll r rr r@{}}
+\toprule
+ & & & \multicolumn{2}{c}{partition} & \PORTER{} \\
+\cmidrule(lr){4-5}
+Suite & Circuit & CX & time & vs.\ layout & 3 routes \\
+\midrule
+80q & graphstate &    80 &   $0.6$\,s & $1{,}100\times$ &   $0.3$\,s \\
+25q & ae         &   558 &   $3.2$\,s & $10{,}767\times$ &  $0.2$\,s \\
+25q & random     & 1{,}124 &   $7.3$\,s & $14{,}540\times$ &  $1.1$\,s \\
+64q & random     & 1{,}627 &  $12.1$\,s & $12{,}140\times$ & $11.2$\,s \\
+64q & ae         & 1{,}962 &  $14.2$\,s & $11{,}817\times$ &  $1.6$\,s \\
+80q & ae         & 2{,}780 &  $20.5$\,s & $13{,}633\times$ &  $3.2$\,s \\
+64q & qnn        & 8{,}126 & $122.2$\,s & $39{,}403\times$ &  $4.8$\,s \\
+80q & random     & 23{,}381 & $649.8$\,s & $67{,}685\times$ & $206.5$\,s \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Why it stays opt-in.} The gain is $1.8\%$ once the two smallest
+circuit families are set aside, and it is bought at a preprocessing cost
+that exceeds the whole compilation. A third consideration is
+robustness: the partition reintroduces an external dependency that
+\PORTER{}'s self-contained layout avoids, and unlike it can leave a core
+fully packed, relying on the full-core repair of \mainInitialLayout{} to
+become routable at all. \PORTER{} therefore defaults to its own layout
+and treats an external partition as an optional refinement, worth its
+price only where EPR is at a premium, the circuit is cleanly separable,
+and the partitioning time is acceptable.
 
 \section{Independent Replay Verification}
 \label{app:verification}
@@ -319,7 +366,7 @@ all pass. Two further artefacts make these checks concrete: a
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{@{}r l p{4.0cm}@{}}
+\begin{tabular}{@{}r l p{3.8cm}@{}}
 \toprule
 \# & emitted operation & verifier asserts \\
 \midrule
@@ -658,7 +705,7 @@ adjacent-remote, so the plan-first stage fires.
 \label{tab:example-plans}
 \centering
 \scriptsize
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}llcll@{}}
 \toprule
 Plan & Set & Gain & Readiness & Outcome \\
@@ -748,7 +795,7 @@ improved, a churn per-action re-scoring permits by construction.
 \label{tab:actionset}
 \setlength{\tabcolsep}{3.5pt}
 \small
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}l rr r rrr r@{}}
 \toprule
  & \multicolumn{2}{c}{\TeleSABRE} & \dSABRE{} & \multicolumn{4}{c}{\PORTER{}} \\
@@ -814,7 +861,7 @@ SWAP counts are reported here rather than in the main text.
 \centering
 \caption{Hardware cost and heuristic parameters (see Section~\ref{main-sec:sfc}).}
 \label{tab:params}
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}lll@{}}
 \toprule
 Parameter & Symbol & Value \\
@@ -863,9 +910,9 @@ circuit bit-for-bit identical.
   \dSABRE{} reproduces its own published numbers for these two
   architectures on all eighteen instances~\cite{lidsabre}.}
 \label{tab:heavyhex}
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{6.7pt}
 \small
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}ll r r r@{}}
 \toprule
  & & & own layout & \dSABRE{} layout \\
@@ -915,7 +962,7 @@ star  & multiplier  &   722 &   455 &   462 \\
 \label{tab:shared}
 \setlength{\tabcolsep}{3pt}
 \small
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}ll rr rrr rrr@{}}
 \toprule
  & & \multicolumn{2}{c}{\TeleSABRE} & \multicolumn{3}{c}{\dSABRE{}}
@@ -971,7 +1018,7 @@ Table~\ref{main-tab:main} of the main paper.
 \label{tab:maineprs}
 \setlength{\tabcolsep}{4pt}
 \small
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}ll rrrr r@{}}
 \toprule
 Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\mathrm{TS}$ \\
@@ -1022,7 +1069,7 @@ EPR pairs.
 \label{tab:mainswaps}
 \setlength{\tabcolsep}{4pt}
 \small
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}ll rrrr@{}}
 \toprule
 Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
@@ -1089,14 +1136,18 @@ Phase~1 builds a layout for each $\gamma\in\{0.80,0.90,0.95,0.99,1.0\}$
 and routes it once at the configured horizon --- five routes --- keeping
 the lowest-EPR layout. Phase~2 runs the $P{=}5$ backward-refinement
 schedule of \mainRefine{} from two seeds: phase~1's winner, and the
-$\gamma{=}0.99$ layout when that is not already the winner, adding
-$P{-}1{=}4$ routes each. Refining the phase-1 winner alone is not
-reliably best, so both are run. The total is $5+4=9$ routes when
-$\gamma{=}0.99$ wins and $5+4+4=13$ otherwise, plus the
-$\lvert\mathcal{H}\rvert-1$ extra probes each seed's horizon selection
-spends: $10$ to $17$ routes. Since $\gamma{=}0.99$ always competes and is
-refined from its selected route, \PORTER{}+S cannot return a higher EPR
-count than \PORTER{} or \PORTER{}+R do.
+$\gamma{=}0.99$ layout when that is not already the winner. Refining the
+phase-1 winner alone is not reliably best, so both are run. Each seed
+selects a horizon before refining, so each costs
+$\lvert\mathcal{H}\rvert+P-1=7$ routes as \PORTER{}+R does, and the
+nominal budget is $5+7=12$ invocations of the routing loop when
+$\gamma{=}0.99$ wins phase~1 and $5+7+7=19$ otherwise. One invocation per
+seed re-routes a layout at a horizon phase~1 already covered, so the
+number of \emph{distinct} routes --- which is what the released harness
+records --- is $11$ or $17$, falling to $10$ where a per-pass guard stops
+a pass short. Since $\gamma{=}0.99$ always competes and is refined from
+its selected route, \PORTER{}+S cannot return a higher EPR count than
+\PORTER{} or \PORTER{}+R do.
 
 No single $\gamma$ dominates --- all five win somewhere, $0.80$ most
 often (nine of twenty-four instances) --- which is why the value is
@@ -1113,7 +1164,7 @@ seed.
 \label{tab:layoutsearch}
 \setlength{\tabcolsep}{4pt}
 \small
-\resizebox{\columnwidth}{!}{%
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}ll rrr r r rr@{}}
 \toprule
  & & \multicolumn{3}{c}{EPR} & & &
@@ -1183,7 +1234,7 @@ layout and a supplied layout would destroy that control --- so it can
 only ever be a fourth own-protocol column. It introduces a second
 in-sample-fitted quantity, the $\gamma$ set, alongside the horizon
 candidate sets whose in-sample fitting \mainHorizon{} already
-declares. And at $10$--$17$ routes and $6.55\times$ \dSABRE{}'s compile
+declares. And at $12$--$19$ routing-loop invocations and $6.55\times$ \dSABRE{}'s compile
 time it sits on the wrong side of the argument \mainCompileTime{} makes,
 that \PORTER{}'s time advantage lies in the number of routes it spends
 rather than their individual price. We report it here so the shape of
@@ -1197,6 +1248,75 @@ refinement runs on top of horizon selection the search contains the
 selected route and cannot lose to it. \PORTER{}+SR does not differ from
 \PORTER{}+S on any of the twenty-four instances, at $19\%$ more compile
 time, and is retired.
+
+
+\section{Threats to Validity}
+\label{app:threats}
+
+This appendix collects the assumptions and limitations the evaluation of
+the main paper rests on. Each is stated where it first matters; they are
+gathered here so a reader can weigh them together.
+
+\textbf{Mechanism attribution.} No experiment replaces a plan with a hop
+(\mainPlanFirst{}), so neither the plan abstraction nor the commitment
+rule is isolated, and the reductions of \mainOwnProtocol{} belong to the whole
+system. Separating their share needs a hop-granular candidate set, which
+is a different router.
+
+\textbf{Completion is empirical.} \PORTER{} guarantees correctness and
+termination by construction but not completion (\mainRelated{}). Every
+instance completes under the selected-horizon protocol; at a fixed horizon
+one does not, so that record belongs to the protocol and this benchmark
+rather than to the router.
+
+\textbf{Benchmark coverage.} Nine MQT-Bench families at three widths, but
+the scale-up series is two families only --- nothing supports a claim about
+scaling on irregular circuits at those widths --- and the heavy-hex study
+is two core graphs, not a survey.
+
+\textbf{Parameter rules fitted in-sample.} The horizon candidate sets and
+the density threshold were chosen by inspecting these same instances
+(\mainHorizon{}), so the \emph{magnitude} of that gain is in-sample; the
+portfolio construction bounds the downside, but no out-of-sample
+validation has been performed. The same caution applies in weaker form to
+$f_\mathrm{min}$, $m_\mathrm{assist}$ and the packet window, fixed early
+and not swept.
+
+\textbf{Reconstructed benchmark instances.} The 80-qubit AE and QNN
+circuits were reconstructed rather than generated
+(Appendix~\ref{app:suite80}). We release the scripts and validate QNN
+against the 64-qubit file, but they remain our circuits, not the
+generator's.
+
+\textbf{Patched baseline binary.} All \TeleSABRE{} numbers use the patched
+binary of \mainBaselines{}. Beyond the bound stated there --- it moves only
+qubits the stock binary leaves unplaced, and architecture~H is unchanged
+--- we have not audited its effect.
+
+\textbf{Unequal native budgets.} The own-protocol comparison gives
+\dSABRE{} nine routes to \PORTER{}'s three. That is each compiler's own
+convention, not a controlled budget --- hence the shared-layout experiment,
+and hence compile time throughout.
+
+\textbf{Aggregation.} Geometric means are taken over jointly completed
+instances, so a baseline failing hard instances is scored only on easier
+ones; completion counts accompany every such mean. Being unweighted, they
+also let the two cheapest circuit families move a suite figure out of
+proportion to their cost --- which is why \mainSharedTable{} reports both
+bases.
+
+\textbf{Implementation and timing.} \PORTER{} and \dSABRE{} are Python and
+\TeleSABRE{} is C, so per-route times compare implementations as much as
+algorithms, and all are wall-clock on one machine. Horizon selection
+guards its speculative routes with a wall-clock budget, so a loaded
+machine may abandon a candidate that would otherwise have won: the
+protocol is reproducible only up to that budget, each individual route
+exactly.
+
+\textbf{Cost model.} One EPR pair per inter-core action, independent of
+hop count and generation protocol; link contention, entanglement latency
+and fidelity, purification and classical communication are outside the
+model (\mainScope{}). Conclusions are relative to it.
 
 
 \end{document}

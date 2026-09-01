@@ -10,36 +10,36 @@ tiers, a deterministic initial layout, and a per-circuit choice of
 teleport-lookahead horizon.
 
 Three conclusions are supported. First, on the evaluated MQT-Bench suites
-\PORTER{} uses substantially fewer EPR pairs than published
-\TeleSABRE{} --- $59.6\%$, $41.6\%$ and $68.2\%$ less in geometric mean at
-25, 64 and 80 logical qubits, at three routes each --- and
-completes every instance in all three suites, including the seven on
-which \TeleSABRE{} does not converge. Second, against \dSABRE{}, \PORTER{} is competitive at the sizes both
-target --- $1.02\times$ its pooled EPR at $0.91\times$ its compile time
-under each compiler's own protocol --- and its advantage grows with the
-machine, reaching $0.72\times$ its EPR pairs on the $100$--$360$-qubit
-scale-up series. At the smaller sizes which compiler leads depends on the
-initial layout and the routing budget, and
-Section~\ref{sec:shared_results} reports both directions. Third, the
-ablations attribute these results rather than leaving them to the system
-as a whole: capacity relief is what lets a deterministic-greedy design
-complete in practice; the initial layout dominates the difference between
-the two compilers at the smaller sizes evaluated, and the lookahead
-horizon at the larger ones.
+\PORTER{} uses substantially fewer EPR pairs than published \TeleSABRE{}
+--- $59.6\%$, $41.6\%$ and $68.2\%$ less in geometric mean at 25, 64 and
+80 logical qubits, at three routes each --- and completes all twenty-four
+instances, including the seven on which \TeleSABRE{} does not converge. Second,
+against \dSABRE{} it is competitive at the sizes both target,
+$1.02\times$ its pooled EPR at $0.91\times$ its compile time under each
+compiler's own protocol, and its advantage grows with the machine,
+reaching $0.72\times$ on the $100$--$360$-qubit scale-up series; at the
+smaller sizes which compiler leads depends on the initial layout and the
+routing budget, and Section~\ref{sec:shared_results} reports both
+directions. Third, the ablations attribute these results rather than
+leaving them to the system as a whole: capacity relief is what lets a
+deterministic-greedy design complete in practice, while the initial
+layout dominates the difference between the two compilers at the smaller
+sizes and the lookahead horizon at the larger. The two compilers also
+prove complementary rather than ranked: neither wins more than eleven of
+the twenty-four instances, and taking the better of the two per instance
+reaches $11.6\%$ below \dSABRE{} alone (Section~\ref{sec:discussion}).
 
-One ablation result is negative and it delimits the contribution. A
-richer gate-teleportation vocabulary does not always pay: at 80 qubits, removing
-gate teleportation entirely beats the full action set by $32.8\%$ on the
-packet-heaviest circuits, which we read as the plan scorer undervaluing
-teleportation's latent return rather than as a verdict on amortisation.
+One ablation result is negative and delimits the contribution. A richer
+gate-teleportation vocabulary does not always pay: at 80 qubits a
+vocabulary with gate teleportation removed uses $21.4\%$ fewer pairs than
+the full action set, and no more on any circuit it completes. We read
+this as the plan scorer undervaluing teleportation's latent return rather
+than as a verdict on amortisation.
 
-The evaluation is bounded: two circuit families at the largest widths,
+The evaluation is bounded --- two circuit families at the largest widths,
 two non-grid core graphs, horizon rules fitted on the corpus they are
-measured on, and a cost model charging one pair per inter-core action
-that ignores link contention, latency and fidelity
-(Section~\ref{sec:threats}). Five openings follow: a completion
-guarantee to match \dSABRE{}'s, an out-of-sample validation of the
-horizon rule, a horizon that scales with core count rather than being
-chosen by trial, a comparator that weighs a resolved gate against a
-latent distance reduction on one scale, and a hardware cost model under
-which EPR count is not the whole objective.
+measured on, and a cost model that ignores link contention, latency and
+fidelity (\appThreats{}). What follows from those bounds ---
+scheduling and fidelity beyond pair count, richer interconnects, a
+completion guarantee, and a horizon that scales with the core count ---
+is set out in Section~\ref{sec:future}.

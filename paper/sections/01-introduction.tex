@@ -15,24 +15,22 @@ A pair can be spent three ways. Teleporting a \emph{state} (\TeleData{})
 relocates a logical qubit, making every later gate it meets in its new
 core local~\cite{bennett1993teleporting}. Teleporting a \emph{gate}
 (\TeleGate{}) executes one straddling controlled gate through a
-cat-entangler, with neither
-operand moving~\cite{eisert2000optimal,yimsiriwattana2004generalized}.
-Holding that cat-entangled resource open across a run of straddling gates
-that share a control costs one pair for the whole run --- a
-\emph{packet}, following AutoComm's gate-sequence
-amortisation~\cite{wu2022autocomm}. The last two work for any controlled
-two-qubit gate; our benchmarks use CX throughout
-(Section~\ref{sec:qcircuits}). Which primitive is cheapest depends on the
-circuit structure where it is applied, so none dominates.
+cat-entangler, with neither operand
+moving~\cite{eisert2000optimal,yimsiriwattana2004generalized}. Holding
+that resource open across a run of straddling gates sharing a control
+costs one pair for the whole run --- a \emph{packet}, following
+AutoComm's amortisation~\cite{wu2022autocomm}. Which is cheapest depends
+on the circuit structure where it is applied, so none dominates.
 
 The choice must be made before its price is known. Each alternative
-becomes executable only after its own preparation: the right operand
+becomes executable only after its own preparation --- the right operand
 beside the right communication port, that port free, the destination
-holding a spare slot. A compiler performs that work only for the alternative it selects.
-Scoring each action together with the preparation it currently needs
-therefore confuses two things. It ranks candidates by the layout the
-compiler happens to occupy, not by the progress they buy. And staging a
-candidate that then loses still perturbs the layout.
+holding a spare slot --- and a compiler performs that work only for the
+alternative it selects. Scoring an action together with the preparation
+it currently needs therefore confuses two things: it ranks candidates by
+the layout the compiler happens to occupy rather than by the progress
+they buy, and staging a candidate that then loses still perturbs the
+layout.
 
 \PORTER{} --- a \emph{Plan-Oriented Router for Teleportation-Enabled
 aRchitectures} --- separates the two questions. Its unit of choice is a
@@ -45,36 +43,37 @@ when every candidate is blocked, and a single deterministic initial
 layout in place of the best-of-$N$ search its predecessors run.
 
 \textbf{Results.} We evaluate on MQT-Bench~\cite{quetschlich2023mqtbench}
-suites at 25, 64 and 80 logical qubits, on a $100$--$360$-qubit scale-up
-series, and on two networks of IBM heavy-hex cores --- forty-eight
+suites at 25, 64 and 80 logical qubits, a $100$--$360$-qubit scale-up
+series, and two networks of IBM heavy-hex cores --- forty-eight
 circuit--architecture instances. Against
 \TeleSABRE{}~\cite{russo2025telesabre}, the strongest published router we
-identified under this cost model, \PORTER{} uses substantially fewer EPR
-pairs: over the instances both complete it lowers geometric-mean
+identified under this cost model, \PORTER{} lowers geometric-mean EPR
 consumption by $59.6\%$, $41.6\%$ and $68.2\%$ on the three suites at
-three routes each, and it completes all twenty-four, including the seven
---- among them an 80-qubit, $23{,}381$-CX circuit --- on which
-\TeleSABRE{} does not converge.
+three routes each, over the instances both complete, and it completes all
+twenty-four --- including the seven \TeleSABRE{} does not converge on,
+among them an 80-qubit, $23{,}381$-CX circuit.
 
 The second comparison is with \dSABRE{}~\cite{lidsabre}, concurrent work
-on the same problem and the closest point of reference we have.
-\PORTER{} is competitive with it at the sizes both target, spending
-$1.02\times$ its pooled geometric-mean EPR for $0.91\times$ its compile
-time under each compiler's own protocol, and it pulls ahead as the machine grows: on the
-$100$--$360$-qubit series it uses $0.72\times$ \dSABRE{}'s EPR pairs and
-wins every instance. Reaching parity with a concurrent compiler from a
-different design, and then improving on it where the core count rises, is
-the result we take from this comparison; Section~\ref{sec:results} gives
-every operating point behind it. The two are close relatives and share
-four design decisions, set out in Section~\ref{sec:related} so neither is
-credited with the other's.
+on the same problem and the closest point of reference we have. \PORTER{}
+is competitive at the sizes both target, spending $1.02\times$ its pooled
+EPR for $0.91\times$ its compile time under each compiler's own protocol,
+and pulls ahead as the machine grows: on the scale-up series it uses
+$0.72\times$ \dSABRE{}'s pairs and wins every instance.
 
-\textbf{Problem.} Given a circuit DAG on $n$ logical qubits, a machine of
-$K$ cores with intra-core coupling graphs, inter-core links and designated
-communication ports, and an initial layout, emit a legal operation stream
-realising every gate while minimising the number of EPR pairs consumed.
-Section~\ref{sec:scope} states the cost model this objective assumes and
-what it excludes.
+A pooled figure that close invites the question of what a second compiler
+adds, and the per-instance record answers it: neither wins more than
+eleven of the twenty-four, and taking the better of the two per instance
+uses $9.3\%$ fewer EPR pairs than \dSABRE{} alone --- $8.0\%$ with the two
+cheapest circuit families set aside. A design that merely re-derived
+\dSABRE{}'s decisions would leave such a portfolio nothing to choose
+between. The two are close relatives and share four design decisions, set
+out in Section~\ref{sec:related} so neither is credited with the other's;
+what the portfolio measures is the part that is not shared.
+
+\textbf{Problem.} Given a circuit, a multi-core machine and an initial
+layout, emit a legal operation stream realising every gate while
+minimising EPR pairs consumed. Section~\ref{sec:scope} states this
+formally, with the cost model it assumes and what that excludes.
 
 \textbf{Contributions.} We make three.
 
@@ -90,31 +89,24 @@ what it excludes.
 \item \emph{Per-circuit selection of the lookahead horizon.} Every
   \SABRE{}-descended router fixes this parameter by constant, and no
   tested constant is best across our benchmark --- the best value spans a
-  factor of thirty-two. \PORTER{} instead measures how dense the
-  circuit's interaction graph is, uses that to prune a three-value
-  candidate set, routes each and keeps the lowest-EPR result. The
-  configured horizon always competes and wins ties, so the selection
-  cannot return a worse route than routing once. It is what carries
-  \PORTER{} past \dSABRE{} on the scale-up series
+  factor of thirty-two. \PORTER{} measures how dense the circuit's
+  interaction graph is, prunes a three-value candidate set with it,
+  routes each and keeps the lowest-EPR result; the configured horizon
+  always competes and wins ties, so selection cannot return a worse route
+  than routing once. It is what carries \PORTER{} past \dSABRE{} at scale
   (Section~\ref{sec:horizon}).
-\item \emph{A controlled study over forty-eight instances}, under
-  native, shared-layout and cross-layout protocols, with ablations that
-  measure what each mechanism contributes --- including a negative
-  finding, which Section~\ref{sec:discussion} interprets. Every
-  route is certified by a separately implemented replay verifier, and
-  the harness reproducing every table is released.
+\item \emph{A controlled study over forty-eight instances}, under native,
+  shared-layout and cross-layout protocols, with ablations measuring what
+  each mechanism contributes --- including a negative finding, which
+  Section~\ref{sec:discussion} interprets. Every route is certified by a
+  separately implemented replay verifier, and the harness reproducing
+  every table is released.
 \end{enumerate}
 
-Section~\ref{sec:rqs} states the four questions the evaluation answers.
-Each mechanism is tied to the experiment that assesses it: capacity
-relief to the completion ablation, the initial layout to the shared- and
-cross-layout controls,
-horizon selection to the scale-up series and the star-Multiplier
-livelock, packets to the action-vocabulary study, and the verifier to
-fault injection.
-
-The \PORTER{} implementation, the replay verifier, the full cross-router
-comparison harness, and the raw per-circuit results are publicly available at
+Section~\ref{sec:rqs} states the four questions the evaluation answers
+and ties each mechanism to the experiment that assesses it. The
+implementation, the replay verifier, the comparison harness and the raw
+per-circuit results are available at
 \url{https://github.com/ebony72/porter}.
 
 %%────────────────────────────────────────────────────────────────────────────

@@ -61,22 +61,19 @@ one deterministic heuristic --- no external partitioner, no best-of-$N$
 search --- giving every core at least $f_\mathrm{min}{=}2$ free
 positions.
 
-That floor is a natural requirement rather than a tuned parameter, and
-\dSABRE{}~\cite{lidsabre} independently arrives at the same value as its
-own routing legality condition. A core with no free physical
-qubit is dead: it cannot vacate an occupied communication port by local
-SWAPs, so no inter-core action can reach it. A core with exactly one free
-position is alive but cannot accept a \TeleData{}, since the arriving
-qubit would fill it. Two is therefore the smallest reserve under which
-every core can both receive a teleport and remain able to make room
-afterwards. $f_\mathrm{min}$ accordingly plays three roles, which we keep
-apart: this \emph{initial} condition; the \emph{admission threshold} a
-destination must meet \emph{before} a normal \TeleData{}
-(Section~\ref{sec:sfc-plan-first}), so at least one position remains
-after one; and the threshold defining a \emph{reservoir} for capacity
-relief (Section~\ref{sec:sfc-relief}). It is not maintained after every
-move: a core admitted at exactly $f_\mathrm{min}$ drops to one free, and
-cores do reach one free position during routing.
+That floor is a requirement rather than a tuned parameter, and
+\dSABRE{}~\cite{lidsabre} independently arrives at the same value. A core
+with no free position cannot vacate an occupied communication port by
+local SWAPs, so nothing can reach it; a core with one free position
+cannot accept a \TeleData{}, since the arriving qubit would fill it. Two
+is the smallest reserve under which a core can both receive a teleport
+and still make room afterwards. $f_\mathrm{min}$ accordingly plays three
+roles, which we keep apart: this \emph{initial} condition; the
+\emph{admission threshold} a destination must meet \emph{before} a normal
+\TeleData{} (Section~\ref{sec:sfc-plan-first}); and the threshold
+defining a \emph{reservoir} for relief (Section~\ref{sec:sfc-relief}). It
+is not an invariant --- a core admitted at exactly $f_\mathrm{min}$ drops
+to one free, and cores do reach one free position during routing.
 
 \textbf{Temporal locality-greedy.} Three steps.
 \emph{(i) Weighting}: each CX gate $g=(q_i,q_j)$ contributes
@@ -113,10 +110,10 @@ otherwise; a CX whose operands lie in different cores is
 \emph{non-adjacent-remote} otherwise. Directly executable gates drain
 first and completely, intra-core SWAPs are exhausted next, and
 remote-stage decisions are taken only once no front gate is
-intra-core. A cost guard caps the front at $96$ gates; it binds only on the three
-largest QPEexact instances, where removing it leaves the emitted stream
-unchanged, since truncation is by ascending gate index and directly
-executable gates drain before any routing decision is taken.
+intra-core. A cost guard caps the front at $96$ gates. It binds only on the three
+largest QPEexact instances, and is output-neutral there: truncation is by
+ascending gate index and executable gates drain before any routing
+decision.
 
 \subsection{Intra-Core SWAP Scoring}
 \label{sec:sfc-intra}
@@ -160,14 +157,13 @@ Formally, a plan is a tuple
 \]
 with $\pi\in\{\TeleData{},\TeleGate{},\TeleGatePacket{}\}$ the primitive,
 $\mathrm{dir}$ its orientation, $c_\mathrm{src}$ and $c_\mathrm{dst}$ the
-cores involved, $\Pi(\pln{p})$ the communication ports it reserves, and
-$\mathrm{ready}(\pln{p},\ell)$ the predicate that holds when $\pln{p}$ can
-fire. $G(\pln{p})$ is the set of gates the action \emph{discharges}: for a
-\TeleGate{}, the single front CX it executes; for a \TeleGatePacket{},
-the run of same-control gates collected in
-Section~\ref{sec:sfc-packet}; for a \TeleData{}, the empty set, since
-moving a qubit executes no gate --- its value lies entirely in the
-gates the relocation makes local, which the scorer estimates
+cores, $\Pi(\pln{p})$ the ports it reserves, and
+$\mathrm{ready}(\pln{p},\ell)$ the predicate that holds when it can fire.
+$G(\pln{p})$ is the set of gates it \emph{discharges}: for a \TeleGate{}
+the single front CX; for a \TeleGatePacket{} the collected same-control
+run (Section~\ref{sec:sfc-packet}); for a \TeleData{} the empty set,
+since moving a qubit executes no gate --- its value lies in the gates the
+relocation makes local, which the scorer estimates
 (Section~\ref{sec:sfc-scoring}).
 
 Three quantities are kept distinct: the plan's \emph{utility}, evaluated
@@ -191,9 +187,9 @@ fixes the granularity at which the plan set is derived --- once per
 committed action rather than once per router iteration. What it does
 \emph{not} come with is an experiment: no result in
 Section~\ref{sec:results} isolates either the commitment rule or the
-plan abstraction beneath it, and Section~\ref{sec:discussion} states
-what that leaves open. Section~\ref{sec:related} places both against the
-baselines' choices.
+plan abstraction beneath it, so no reduction reported there is attributed
+to them; separating their share would need a hop-granular candidate set,
+which is a different router.
 
 \textbf{The candidate sets.} When the front holds only remote CX gates,
 \PORTER{} builds two sets. \textbf{Normal plans} $\mathcal{P}$ are the
@@ -221,11 +217,10 @@ order and commits to the first plan it can actually work on. A plan
 qualifies if it is \emph{ready} --- its endpoints already sit beside the
 ports it needs and those ports are free, so it can fire immediately --- or
 if it is \emph{preparable}: not ready, but some local SWAP moves the
-layout strictly closer to readiness. A higher-scoring plan that is neither
-is skipped rather than waited for, and such plans do occur. A side whose
-core is completely full is the standard case: no local SWAP can change a
-core's free-slot count or clear a port that nothing can reach, so no
-amount of preparation will ever make that plan fire.
+layout strictly closer to readiness. A higher-scoring plan that is neither is skipped rather than waited for,
+and such plans do occur --- typically a side whose core is full, where no
+local SWAP can change the free-slot count or clear a port, so no
+preparation will ever make the plan fire.
 
 Two things can override the choice, and both are driven by the single
 best-scoring member of $\mathcal{B}$ alone --- call it $\pln{b}^{\ast}$;
@@ -267,8 +262,8 @@ the scored plans are ordered by one lexicographic key, smallest first:
      -\mathrm{lookahead}\bigr),
   \label{eq:sfc-key}
 \end{equation}
-each component evaluated at $\pln{p}$. The order of the components is the
-design, so we take them in turn.
+each component evaluated at $\pln{p}$. The order is the design, so we
+take the components in turn.
 
 \textbf{$\mathrm{total}$} is the estimated gate progress the plan buys,
 negated so that more progress sorts first. It decides almost every
@@ -288,26 +283,26 @@ layout is from satisfying $\mathrm{ready}$, measured as intra-core
 distance from each endpoint to the port it must reach. It ranks third,
 below progress and readiness.
 
-\textbf{$\mathrm{rank}$} orders the primitives, preferring \TeleData{}
-$(0)$ to \TeleGatePacket{} $(1)$ to \TeleGate{} $(2)$: when two plans are
-equal in value, readiness and preparation cost, the one that also
-improves the layout is kept.
+\textbf{$\mathrm{rank}$} orders the primitives, \TeleData{} $(0)$ before
+\TeleGatePacket{} $(1)$ before \TeleGate{} $(2)$: among plans equal in
+value, readiness and preparation cost, the one that also improves the
+layout is kept.
 
 \textbf{$\mathrm{cap}(\pln{p}) = 1/\max(1,f_\mathrm{dst}-1)$} grows as
-the destination core approaches the capacity floor, so between two
-otherwise identical plans the one leaving more room wins. It is computed
-alongside the score and never added to it.
+the destination approaches the capacity floor, so between otherwise
+identical plans the one leaving more room wins. It is computed alongside
+the score, never added to it.
 
 \textbf{$\mathrm{lookahead}$}, negated, is the discounted part of
 $\mathrm{total}$: among plans tied on everything above, the one whose
 value reaches further into the circuit is preferred, and a stable plan
-identifier resolves anything still tied. How far it reaches is set by the
-horizon $L_\mathrm{tp}$, counted in DAG layers. Since a qubit has at most
-one zero-predecessor gate at a time, at most one of its gates can appear
-per layer, so a companion cap $N_\mathrm{tp}$ on the gate count cannot
-bind whenever $N_\mathrm{tp}\ge L_\mathrm{tp}$ and $L_\mathrm{tp}$ alone
-governs the depth. It is the one parameter \PORTER{} does not fix by
-constant; Section~\ref{sec:horizon} chooses it per circuit.
+identifier resolves anything still tied. Its depth is the horizon
+$L_\mathrm{tp}$, counted in DAG layers --- a companion cap
+$N_\mathrm{tp}$ on the gate count cannot bind while
+$N_\mathrm{tp}\ge L_\mathrm{tp}$, since a qubit contributes at most one
+gate per layer (\appTables{}). $L_\mathrm{tp}$ is the one parameter
+\PORTER{} does not fix by constant; Section~\ref{sec:horizon} chooses it
+per circuit.
 
 That leaves $\mathrm{total}$, which the rest of this subsection computes,
 taking the three primitives in turn.
@@ -332,10 +327,9 @@ sits in $c_\mathrm{dst}$. For a CX $g=(q_i,q_j)$,
             - \dC\bigl(\kappa'(q_i),\kappa'(q_j)\bigr)
 \end{equation}
 is the core-graph distance the move removes from $g$. A \TeleData{} moves
-one qubit one hop, so $\Delta(g)\in\{1,0,-1\}$: it is $1$ whenever the hop
-brings $g$'s operands one core closer, whether or not that makes them
-local; $0$ for a gate the hop does not touch; and $-1$ for one it pushes
-apart.
+one qubit one hop, so $\Delta(g)\in\{1,0,-1\}$: $1$ when the hop brings
+$g$'s operands a core closer, whether or not that makes them local; $0$
+when it does not touch $g$; $-1$ when it pushes them apart.
 
 Three sets of CX gates on $q$
 contribute, obtained by simulating the DAG frontier forward under
@@ -346,14 +340,12 @@ $\kappa'$:
   $\lvert D(\pln{p})\rvert = 1$.
 \item $L(\pln{p})$, the CX gates on $q$ reached by \emph{local closure}.
   The simulator repeatedly retires every front gate executable under
-  $\kappa'$ --- one-qubit gates, and CX gates whose operands $\kappa'$
-  places in one core --- which advances the front and exposes gates that
-  were previously blocked behind them. Every CX on $q$ appearing in any
-  front along the way joins $L(\pln{p})$, and closure stops at the first
-  front with nothing locally executable. These count as current pressure
-  rather than prediction: reaching them required no gate outside
-  $\kappa'$'s reach, and the teleport fixes their core distance as soon as
-  they appear.
+  $\kappa'$ --- one-qubit gates, and CX gates $\kappa'$ places in one core
+  --- advancing the front and exposing gates blocked behind them. Every CX
+  on $q$ appearing in any front along the way joins $L(\pln{p})$, and
+  closure stops at the first front with nothing locally executable. These
+  are current pressure rather than prediction: reaching them needs no gate
+  outside $\kappa'$'s reach.
 \item $A_k(\pln{p})$, the CX gates on $q$ found by continuing past that
   stopping front, in simulated layer $k \le L_\mathrm{tp}$, discounted by
   $w_k = \max(w_\mathrm{min}, w_0\gamma^{k-1})$ with $w_0{=}0.9$,
@@ -382,24 +374,22 @@ absorbing any front CX that shares control $q_c$ and has its target in
 $c_t$ (up to $8$ gates), and any front 1Q gate whose qubit is already in
 $c_t$, since those execute freely while the cat resource is live.
 Collection stops at the first unproductive layer or at the size cap. The
-window counts simulated layers, not collected CXs, so it acts as a cost
-guard rather than a tuning knob. Because the simulation reaches past the
-current front, a packet may contain gates a front-limited scan could not.
-Collection is a heuristic in one respect we have not ablated: stopping at
-the first unproductive layer can miss a profitable packet separated by
-harmless intervening work.
+window counts simulated layers rather than collected CXs, so it is a cost
+guard rather than a tuning knob, and because the simulation reaches past
+the current front a packet may contain gates a front-limited scan could
+not. One heuristic here is unablated: stopping at the first unproductive
+layer can miss a packet separated by harmless intervening work.
 
 Collection only \emph{discovers} the run; nothing is emitted while it
-simulates. The sequence it returns is recorded on the plan, and if that
-plan is committed the sequence is emitted in exactly that order --- one
-\texttt{cat\_entangler}, which consumes the packet's single EPR pair;
-one \texttt{cat\_cx} per member, each target first brought beside the
-port by ordinary local SWAPs that may not touch either live port; and one
-closing \texttt{cat\_disentangler}, which frees both ports. Fixing the
-order at collection time is what lets the scorer count every member as
-work the packet will actually do: the members are DAG-chained, so
-executing them in that order respects their dependencies, and no member
-can become unexecutable once the resource is live.
+simulates. The sequence is recorded on the plan and, if that plan is
+committed, emitted in exactly that order --- one \texttt{cat\_entangler},
+consuming the packet's single EPR pair; one \texttt{cat\_cx} per member,
+each target first brought beside the port by local SWAPs that may not
+touch either live port; and a closing \texttt{cat\_disentangler} freeing
+both. Fixing the order at collection time is what lets the scorer count
+every member as work the packet will do: the members are DAG-chained, so
+that order respects their dependencies and none can become unexecutable
+once the resource is live.
 
 \subsection{Capacity Relief}
 \label{sec:sfc-relief}
@@ -410,12 +400,11 @@ qubit \emph{out} of the congested region rather than into it. Neither
 picks a destination freely: a breadth-first search from $c$ over the core
 graph finds the nearest \emph{reservoir}, a core with at least
 $f_\mathrm{min}$ free positions, and the relief action moves one qubit
-from the penultimate core of that path into the reservoir at the end of
-it. Every logical qubit in the penultimate core is a candidate, and the
-candidates are scored and ordered by the plan machinery already
-described, grouped by hop count so that shorter paths are tried first.
-Chaining beyond one hop is optional and enabled by default, which lets
-relief propagate along a path when the immediate neighbour is itself
+from the penultimate core of that path into the reservoir at its end.
+Every logical qubit in the penultimate core is a candidate, scored and
+ordered by the plan machinery already described and grouped by hop count
+so shorter paths are tried first. Chaining beyond one hop is on by
+default, letting relief propagate when the immediate neighbour is itself
 full.
 
 The two tiers differ only in when they fire. \textbf{Tail relief} fires
@@ -428,26 +417,21 @@ now is worth more than taking the best currently legal action.
 \subsection{Progress and the Failure Model}
 \label{sec:sfc-progress}
 
-Deterministic greedy routing on a capacity-constrained machine can
-stall, and \PORTER{} layers four defences against that. It keeps capacity
-away from zero: a core with no free physical qubit is terminal, since it
-cannot vacate an occupied port by local SWAPs, so \PORTER{} legalises the
-entry layout and admits a \TeleData{} into $c$ only while
-$\mathrm{free}(c)\ge f_\mathrm{min}$, which leaves one free position
-behind. Routing therefore cannot create a terminal core, and a supplied
-layout containing one is legalised first, by evicting a qubit into the
-core with the most room; the only input \PORTER{} refuses is one no core
-has spare capacity to receive such an eviction from. It detects starvation
-rather than thrashing, an empty $\mathcal{P}$ beside a non-empty
-$\mathcal{B}$ naming the cores responsible; it manufactures capacity, tail
-relief turning that signal into work (Section~\ref{sec:sfc-relief}); and
-it bounds every loop, hashing its decision
-state once per preparation round and raising if it repeats, and capping
-the loops with two budgets. Together these make every returned route
-correct and every run terminating, but they do not guarantee that a run
-terminates in success; Section~\ref{sec:related} states the three
-guarantees precisely and places \PORTER{} against \dSABRE{}, which does
-carry such a guarantee. A per-iteration cost analysis of the loop is in
-\appComplexity{}.
+Deterministic greedy routing on a capacity-constrained machine can stall,
+and \PORTER{} layers four defences. It keeps capacity away from zero: a
+core with no free position is terminal, so a \TeleData{} enters $c$ only
+while $\mathrm{free}(c)\ge f_\mathrm{min}$, leaving one position behind.
+Routing therefore cannot create a terminal core, and a supplied layout
+containing one is legalised first by evicting a qubit into the core with
+most room --- the only input \PORTER{} refuses is one where no core can
+receive that eviction. It detects starvation rather than thrashing, an
+empty $\mathcal{P}$ beside a non-empty $\mathcal{B}$ naming the cores
+responsible. It manufactures capacity, tail relief turning that signal
+into work (Section~\ref{sec:sfc-relief}). And it bounds every loop,
+hashing its decision state once per preparation round and raising if it
+repeats, under two budgets. Together these make every returned route
+correct and every run terminating, but not every run successful;
+Section~\ref{sec:related} states the three guarantees precisely. A
+per-iteration cost analysis is in \appComplexity{}.
 
 %%────────────────────────────────────────────────────────────────────────────

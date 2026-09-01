@@ -5,14 +5,14 @@
 \subsection{Quantum Circuits and Routing}
 \label{sec:qcircuits}
 
-A circuit acts on $n$ logical qubits. We work in the basis
+A circuit acts on $n$ logical qubits in the basis
 $\{\texttt{id}, \texttt{rz}, \texttt{sx}, \texttt{x}, \texttt{cx}\}$ of
 MQT-Bench's Qiskit-opt3-transpiled
-circuits~\cite{quetschlich2023mqtbench}: arbitrary one-qubit gates plus
-the two-qubit CX. A circuit is a directed acyclic graph, with a
-dependency edge between consecutive gates on each logical qubit. The
-\emph{front} is the set of gates with no unexecuted predecessor; only
-front gates can execute or be routed toward execution.
+circuits~\cite{quetschlich2023mqtbench} --- one-qubit gates plus CX ---
+and is a directed acyclic graph with a dependency edge between
+consecutive gates on each logical qubit. The \emph{front} is the set of
+gates with no unexecuted predecessor; only front gates can execute or be
+routed toward execution.
 
 Physical qubits are partitioned into \emph{cores}. Each core has an
 intra-core coupling graph, and pairs of cores may be joined by an
@@ -37,21 +37,20 @@ circuit depth and compile time are recorded but are not part of the
 objective and are never traded against EPR pairs by any rule in this
 paper.
 
-\textbf{Cost model.} One EPR pair is consumed per \TeleData{},
-per \TeleGate{}, and per \TeleGatePacket{} --- one per packet, however
-many remote CX gates the packet amortises --- and a pair is charged the
-same regardless of which link carries it. A multi-hop relocation is a
-sequence of single-hop \TeleData{} actions and is charged once per hop.
-This is the model \TeleSABRE{}~\cite{russo2025telesabre} and
-\dSABRE{}~\cite{lidsabre} use, which is what makes the three compilers
-comparable in a single unit.
-
-Communication ports are ordinary physical qubits, occupied for the
-duration of an action and free otherwise; no core is assumed to have
+\textbf{Cost model.} One EPR pair is consumed per \TeleData{}, per
+\TeleGate{} and per \TeleGatePacket{} --- one per packet, however many
+remote CX gates it amortises --- charged the same whichever link carries
+it; a multi-hop relocation is a sequence of single-hop \TeleData{}
+actions, charged once per hop. This is the model
+\TeleSABRE{}~\cite{russo2025telesabre} and \dSABRE{}~\cite{lidsabre} use,
+which is what makes the three compilers comparable in one unit.
+Communication ports are ordinary physical qubits, occupied for an
+action's duration and free otherwise; no core is assumed to have
 dedicated communication memory. What the model leaves out --- link
 contention, entanglement latency and fidelity, purification, classical
-communication cost --- and what that means for the conclusions drawn here
-is set out in Section~\ref{sec:threats}.
+communication --- is outside it, and every conclusion here is relative to
+that model. \appThreats{} collects this and the evaluation's other
+assumptions in one place.
 
 \subsection{Communication Primitives}
 \label{sec:primitives}
@@ -149,16 +148,13 @@ once and repaid over however many future gates the relocation makes
 local.
 
 \textbf{Gate teleportation (\TeleGate{}).} Executes a single remote CX
-with neither operand moving. One EPR pair entangles the two
-communication ports; a \emph{cat-entangler} ---
-$\mathrm{CX}(q_c,e_A)$, measurement of $e_A$, and a classically
-controlled $X$ on $e_B$ --- leaves $(q_c,e_B)$ in the cat state
+with neither operand moving. One EPR pair entangles the two communication
+ports; a \emph{cat-entangler} leaves $(q_c,e_B)$ in the cat state
 $\alpha|00\rangle + \beta|11\rangle$, so every CX controlled by the
-remote port $e_B$ acts as if controlled by $q_c$. A
-\emph{cat-disentangler} --- Hadamard on $e_B$, measurement, a
-classically controlled $Z$ on $q_c$ --- restores $q_c$ and frees both
-ports (\appCatent{}). Its value is entirely \emph{direct}: exactly one
-gate, and nothing is left behind.
+remote port $e_B$ acts as if controlled by $q_c$, and a
+\emph{cat-disentangler} then restores $q_c$ and frees both ports
+(\appCatent{} gives both constructions). Its value is entirely
+\emph{direct}: exactly one gate, nothing left behind.
 
 \textbf{Same-control packets (\TeleGatePacket{}).} When several remote
 CX gates share the same control and their targets lie in one core, the
@@ -169,11 +165,10 @@ each. This is the amortisation idea of AutoComm~\cite{wu2022autocomm},
 specialised to the shared-control case and applied inside a routing
 loop rather than as a pre-pass.
 
-The three differ in one respect that matters for scoring: how many
-gates one pair is spread over. \TeleData{} amortises over an unknown
-future, \TeleGate{} over exactly one gate, \TeleGatePacket{} over a run
-whose length the compiler must discover.
-Section~\ref{sec:sfc-scoring} makes that a direct/latent/lookahead
-decomposition.
+The three differ in the respect that matters for scoring: how many gates
+one pair is spread over. \TeleData{} amortises over an unknown future,
+\TeleGate{} over exactly one gate, \TeleGatePacket{} over a run whose
+length the compiler must discover. Section~\ref{sec:sfc-scoring} makes
+that a direct/latent/lookahead decomposition.
 
 %%────────────────────────────────────────────────────────────────────────────

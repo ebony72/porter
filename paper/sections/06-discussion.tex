@@ -1,106 +1,94 @@
 %% 06-discussion.tex --- included by ../sfc.tex
-\section{Discussion and Limitations}
+\section{Discussion and Future Work}
 \label{sec:discussion}
 
-Three readings span several results of Section~\ref{sec:results}. We
-give them here, then state what the evaluation does not establish.
+\textbf{The two compilers are complementary, and a portfolio beats
+either.} \PORTER{} wins ten of the twenty-four instances against
+\dSABRE{} and loses twelve, \PORTER{}+R eleven and eleven
+(Table~\ref{tab:main}), so neither dominates instance by instance even
+though their pooled means differ by only $2\%$ ($174.9$ against $171.9$).
+Taking the lower EPR count of the two per instance gives $155.9$, a
+$9.3\%$ reduction on the better of them, and $152.1$ with \PORTER{}+R in
+place of \PORTER{}, $11.6\%$ below \dSABRE{}. The gain is largest where
+the two disagree most --- $16.3\%$ at 80 qubits against $2.5\%$ at 64 ---
+and it is not an artefact of the two cheapest families: over the eighteen
+instances excluding GHZ and Graphstate it is still $8.0\%$ and $9.0\%$.
 
-\textbf{Which component binds changes with scale.}
-Sections~\ref{sec:shared_results} and~\ref{sec:heavyhex} locate the
-difference between the two compilers at $\le 108$ physical qubits in the
-initial layout: the routing loops are within $2\%$ of one another from
-every layout source, the layout sources differ by more than twice that,
-and given \dSABRE{}'s own layouts \PORTER{} overtakes it on both
-heavy-hex core graphs. Section~\ref{sec:scaleup} locates it elsewhere:
-above $150$ physical qubits \dSABRE{}'s layout is \emph{worse} for
-\PORTER{} than its own, and the horizon instead moves \PORTER{} from
-$1.45\times$ behind to $0.72\times$ ahead. Both regimes fit a horizon
-that is an absolute gate count and does not grow with the core count
-$K$, so a plan at twenty cores is scored over proportionally less of the
-circuit than at four. A $K$-scaled horizon is untested; this is a
-hypothesis, not a finding.
+That gap is what the pooled figure conceals, and it is the clearest
+evidence that the two designs are not interchangeable: a compiler that
+merely re-derived \dSABRE{}'s decisions by another route would leave a
+portfolio with nothing to choose between. A $9$--$12\%$ gain instead means
+the plan-oriented stage, the relief tiers and the horizon reach circuits
+\dSABRE{}'s hop-granular, fixed-horizon loop does not --- 80-qubit
+Multiplier at $2{,}411$ pairs against $4{,}841$, 80-qubit QPEexact at
+$291$ against $347$ --- while \dSABRE{} reaches others. It is a property
+of the pair rather than of either compiler: it costs both routes
+($2.1\times$ \dSABRE{}'s compile time, twelve routes to nine), and no rule
+we tested predicts the winner in advance.
 
 \textbf{Why \TeleData{}-only can beat the full action set.} Packets beat
-the single telegates they degrade into, yet removing gate teleportation
-entirely is cheaper still on the packet-heaviest 80-qubit circuits. The
-cause is a currency mismatch in the scorer. A packet's gain counts remote
-CX gates resolved immediately; a \TeleData{} plan's is a sum of
-core-distance reductions, most of it discounted over a bounded horizon.
-Nothing establishes that one resolved gate and one unit of distance
-reduction are commensurate, and where a teleport repays past the horizon
-the comparator cannot see it. The ablation is evidence that this mismatch
-costs EPR pairs at scale; it is not evidence
-that a pair spread over a run of gates is a bad idea.
+the single telegates they degrade into, yet a vocabulary with gate
+teleportation removed altogether --- \TeleData{} and nothing else --- uses
+no more EPR pairs than the full action set on any 80-qubit circuit it
+completes, and fewer on most. The cause is a currency mismatch in the scorer: a packet's gain
+counts remote CX gates resolved immediately, a \TeleData{} plan's a sum of
+core-distance reductions discounted over a bounded horizon. Nothing
+establishes the two are commensurate, and where a teleport repays past the
+horizon the comparator cannot see it. That is evidence the mismatch costs
+pairs at scale, not that spreading one pair over a run of gates is a bad
+idea.
 
-\textbf{Two things the evaluation does not establish.} The first is
-attribution to the remote stage: as
-Section~\ref{sec:sfc-plan-first} notes, no experiment here replaces a
-plan with a hop, so neither the plan abstraction nor the commitment rule
-is isolated and the reductions of Section~\ref{sec:rq1} belong to the
-whole system. Separating their share needs a hop-granular candidate set
---- a different router. The second is completion, which \PORTER{} does
-not guarantee although it guarantees correctness and termination
-(Section~\ref{sec:related}). Of the four failure modes of
-Section~\ref{sec:terms} only livelock was observed here, on heavy-hex
-star Multiplier at a fixed horizon, and capacity deadlock only once
-relief was disabled --- but that clean record belongs to the
-selected-horizon protocol and this benchmark, and an extra candidate
-avoids a failure rather than excluding it. \dSABRE{}'s safe mode carries
-a termination-with-success proof under stated architectural hypotheses;
-a comparable guarantee is the clearest piece of theory this design
-leaves open.
+\subsection{Future Work}
+\label{sec:future}
 
-\subsection{Threats to Validity}
-\label{sec:threats}
+\textbf{On the compiler itself.} Four openings, the first of which is a
+completion guarantee to match \dSABRE{}'s. The obvious route is to adopt
+its recovery wholesale, and the capacity half of that is nearly in place
+already: both compilers treat free slots as a legality condition with the
+same floor of two, and both manufacture a slot by a breadth-first search
+for a reservoir (Section~\ref{sec:related}). What \dSABRE{} has that
+\PORTER{} lacks is atomicity --- it relays the whole chain as one
+all-or-nothing transaction, so the state after recovery is legal by
+construction, where \PORTER{} re-plans each hop and scores it with the
+ordinary plan machinery. That difference is not free to give up: scoring
+relief like any other plan is what lets the opportunistic tier compete
+with normal work at all (Section~\ref{sec:sfc-relief}), and an atomic
+drain would remove that. It also would not buy what is missing. \PORTER{}
+never reaches the capacity deadlock \dSABRE{}'s proof rules out --- with
+both relief tiers on, no instance in this evaluation does --- and the one
+failure we do observe is a local-SWAP livelock, on heavy-hex star
+Multiplier at a fixed horizon, with capacity healthy throughout and the
+EPR count frozen. A guarantee for \PORTER{} therefore needs a
+progress argument for the intra-core stage, which is where it actually
+stalls, rather than a stronger capacity transaction.
 
-\textbf{Benchmark coverage.} The main suites are nine MQT-Bench families
-at three widths; the scale-up series is two families (QFT and QPEexact)
-only, so nothing here supports a claim about scaling behaviour on
-irregular or randomly structured circuits at those widths. The two
-heavy-hex networks are two core graphs, not a survey of architectures.
+The other three: a horizon that scales with the core count $K$ rather than
+being chosen by trial --- $L_\mathrm{tp}$ is an absolute gate count, so a
+plan at twenty cores is scored over proportionally less of the circuit
+than at four, and every scale-up instance selects the longest candidate
+offered, which suggests the candidate set rather than the selection rule
+is what binds there. An out-of-sample validation of that rule, fitted on
+the corpus it is measured on. And a comparator that weighs a resolved gate
+against a latent distance reduction on one scale, which the vocabulary
+result above indicates the present one does not.
 
-\textbf{Parameter rules fitted in-sample.} The horizon candidate sets and
-the density threshold were chosen by inspecting these same instances
-(Section~\ref{sec:horizon}). The magnitude of the horizon-selection gain
-is therefore in-sample. The portfolio construction bounds the downside ---
-the configured horizon is always a candidate and wins ties --- but an
-out-of-sample validation has not been performed. The same caution applies
-in weaker form to $f_\mathrm{min}$, $m_\mathrm{assist}$ and the packet
-window, which were fixed early and not swept.
+\textbf{Beyond EPR count.} The trace \PORTER{} emits is unscheduled, so a
+lower pair count does not by itself imply a shorter makespan or a
+higher-fidelity result. A scheduling pass should batch inter-core actions
+whose links, ports and preparation SWAPs do not conflict, and account for
+entanglement-generation rate, storage lifetime and gate
+error~\cite{baker2020time,ferrari2021compiler}; the objective should stay
+multi-objective, since pair count, depth and fidelity trade off in
+hardware-dependent ways. Lifetime bears on \PORTER{} in particular: a
+packet holds one cat resource open across a whole run, so a lifetime bound
+caps packet length in a way our cost model does not, and the vocabulary
+result above would have to be re-read under it.
 
-\textbf{Reconstructed benchmark instances.} The 80-qubit AE and QNN
-circuits are not produced by the stock generator and were reconstructed
-(\appSuite{}). We release the construction scripts and the files, and
-validate the QNN reconstruction by exact CNOT-sequence match against the
-64-qubit file, but they remain our circuits rather than the generator's.
+\textbf{Richer interconnects.} Every device evaluated here gives adjacent
+cores a single link and each core one to four ports. Widening that is the
+free variable: a second link turns an occupied port from an obstacle into
+an alternative, relieving preparation cost first, and it interacts with
+the capacity discipline, since more ports mean more ways to spend and to
+recover a free slot. Where the return on added links falls off against
+their hardware cost is a question for interconnect co-design.
 
-\textbf{Patched baseline binary.} All \TeleSABRE{} numbers use a binary
-patched to avoid an out-of-range index in its initial-layout pass
-(Section~\ref{sec:baselines}). The patch changes placement only for qubits
-the stock binary leaves unplaced, and architecture-H results, where the
-stock binary does not crash, are unchanged by it; we have not otherwise
-audited its effect.
-
-\textbf{Unequal native budgets.} The own-protocol comparison gives
-\dSABRE{} nine routes against \PORTER{}'s three. This is each
-compiler's own convention rather than a controlled budget, which is why
-RQ2 exists and why compile time is reported everywhere.
-
-\textbf{Aggregation over failures.} Geometric means are taken over jointly
-completed instances, so a baseline that fails hard instances is scored
-only on easier ones. Completion counts are reported alongside every such
-mean, but the two must be read together.
-
-\textbf{Implementation and timing.} \PORTER{} is Python and the baselines
-are Python and C respectively, so per-pass times compare implementations
-as much as algorithms. Compile times are wall-clock on one machine.
-Horizon selection additionally guards its speculative routes with a
-wall-clock budget, so on a loaded machine it may abandon a candidate that
-would otherwise have won: the protocol's output is reproducible only up to
-that budget, though each individual route is exactly reproducible.
-
-\textbf{Cost model.} One EPR pair per inter-core action, independent of
-hop count and generation protocol; link contention, entanglement latency
-and fidelity, purification, and classical communication cost are all
-outside the model (Section~\ref{sec:scope}). Conclusions are relative to
-that model.

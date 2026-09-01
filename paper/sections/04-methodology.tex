@@ -25,9 +25,9 @@ Section~\ref{sec:results} is organised around them.
 \end{itemize}
 
 Each results subsection opens with the question it answers, what is held
-fixed, and the metric; the interpretation of the answers, including the
-places where they appear to conflict, is collected in
-Section~\ref{sec:discussion}.
+fixed, and the metric; the interpretation of the answers is collected in
+Section~\ref{sec:discussion}, and the assumptions and limitations they
+rest on in \appThreats{}.
 
 
 \subsection{Terminology}
@@ -71,19 +71,18 @@ refused before routing begins (Section~\ref{sec:sfc-progress}).
 \label{sec:setup}
 \label{sec:perf}
 
-\textbf{Implementation.} \PORTER{} is implemented in Python and released
-with the comparison harness. It takes no seed: heuristic ties resolve
-through a fixed chain of deterministic keys and any residual tie through
-a constant-initialised generator, so one route on a fixed circuit and
-hardware emits a byte-identical stream across runs. Horizon selection is
-the exception, because its speculative routes share a wall-clock budget:
-on a loaded machine a candidate may be abandoned that would otherwise
-have won, so the protocol is reproducible only up to that budget, and the
-horizon each run selected is recorded with its result. Every reported
-\PORTER{} route is certified by a replay verifier written separately from
-the router, which re-derives gate coverage, dependency order and physical
-legality from the emitted stream alone and is itself tested by fault
-injection (\appVerification{}).
+\textbf{Implementation.} \PORTER{} is Python, released with the harness.
+It takes no seed: heuristic ties resolve through a fixed chain of
+deterministic keys and any residual tie through a constant-initialised
+generator, so one route on a fixed circuit and hardware emits a
+byte-identical stream across runs. Horizon selection is the exception,
+its speculative routes sharing a wall-clock budget, so the protocol is
+reproducible only up to that budget and the horizon each run selected is
+recorded with its result. Every reported \PORTER{} route is certified by
+a replay verifier written separately from the router, which re-derives
+gate coverage, dependency order and physical legality from the emitted
+stream alone and is itself tested by fault injection
+(\appVerification{}).
 
 \textbf{Architectures.} We use the two grid-of-grids topologies
 \dSABRE{}~\cite{lidsabre} evaluates on --- architecture~A, a $2{\times}2$
@@ -95,15 +94,14 @@ All are read from the baselines' own device files, so every compiler sees
 identical physical qubit ids.
 
 \textbf{Benchmarks.} We use the same
-MQT-Bench~\cite{quetschlich2023mqtbench} circuit files \dSABRE{}'s
-evaluation uses, confirmed by exact CX-count match: a 25-qubit suite (AE,
-GHZ, Graphstate, QFT, QNN, Random) on architecture~A, and a 64-qubit
-suite adding QPEexact, QAOA and Multiplier on architecture~H. We add an
+MQT-Bench~\cite{quetschlich2023mqtbench} files \dSABRE{}'s evaluation
+uses, confirmed by exact CX-count match: a 25-qubit suite (AE, GHZ,
+Graphstate, QFT, QNN, Random) on architecture~A, and a 64-qubit suite
+adding QPEexact, QAOA and Multiplier on architecture~H. We add an
 80-qubit suite of the same nine families; its AE and QNN instances are
 not produced by the stock generator and were reconstructed to match its
 construction, QNN as the deep ZZ-feature-map circuit rather than the
-79-CX chain the current generator emits. \appSuite{} gives both
-reconstructions and their validation, and the scripts are released.
+79-CX chain the current generator emits (\appSuite{}).
 
 \label{sec:baselines}
 \textbf{Baselines.} We compare against
@@ -112,23 +110,22 @@ latter in its default configuration --- safe mode, which makes capacity a
 legality condition with a per-core reserve and recovers by relaying slack
 along a BFS path (Section~\ref{sec:related}).
 
-Three decisions avoid disadvantaging \dSABRE{}. We let its recovery
-budgets derive from the architecture as its own drivers do, since a
-binding iteration budget would cut its heuristic search short and hand
-the remainder to its guaranteed drain at a worse EPR count. We do not
-charge it for pre-routing layout repair, which lands in its EPR counter
-although it adjusts the starting layout rather than routing anything, and
-we net that out for both compilers. And we take its layout rule exactly
-as it ships rather than substituting one of our own
+Three decisions avoid disadvantaging \dSABRE{}. Its recovery budgets
+derive from the architecture as its own drivers do, since a binding
+iteration budget would cut its heuristic search short and hand the
+remainder to its guaranteed drain at a worse EPR count. We do not charge
+it for pre-routing layout repair, which lands in its EPR counter although
+it adjusts the starting layout rather than routing anything; we net that
+out for both compilers. And we take its layout rule exactly as it ships
 (Section~\ref{sec:protocols}).
 
 \TeleSABRE{}'s stock C binary crashes deterministically on
 architecture~A, in its initial-layout pass rather than in routing. All
 \TeleSABRE{} numbers use a minimally patched binary, released with ours,
-that falls back to the least-loaded core; it changes placement only for
-qubits the stock binary leaves unplaced, and architecture-H results are
-unchanged by it. Every compiler invocation is capped at $900$\,s
-wall-clock, and a call exceeding it counts as a failure to complete.
+that falls back to the least-loaded core; it moves only qubits the stock
+binary leaves unplaced, and architecture-H results are unchanged. Every
+compiler invocation is capped at $900$\,s wall-clock, and a call
+exceeding it counts as a failure to complete.
 
 \subsection{Initial-Layout Protocols}
 \label{sec:protocols}
@@ -188,20 +185,19 @@ $128$, beyond which EPR saturates. The gap between \PORTER{}'s configured
 default of $L_\mathrm{tp}{=}16$ and the per-instance best is $17.2\%$
 geometric-mean EPR.
 
-Interaction density sets the direction. For each logical qubit that
-appears in at least one CX, count the distinct partners it shares a CX
-with anywhere in the circuit; $\rho$ is the mean of that count over those
-qubits, divided by $n-1$. It is the mean fraction of the other logical
-qubits each qubit ever interacts with: $\rho\to1$ is all-to-all, every
-qubit meeting essentially every other, while a linear CX chain gives
-$\rho\approx2/(n-1)$. The two regimes behave differently. When $\rho$ is
-near $1$ a long horizon finds the moving qubit wanted in every core at
-once, so the gain estimate degenerates into noise and short horizons win;
-when $\rho$ is small the signal is coherent and long horizons win. Across the benchmark $\rho$ ranks the best horizon at
-Spearman $-0.765$, but it is not a usable predictor alone: in the band
+Interaction density sets the direction. Let $\rho$ be the mean, over
+logical qubits appearing in at least one CX, of the number of distinct
+partners each shares a CX with, divided by $n-1$: the mean fraction of
+the other qubits each ever interacts with, so $\rho\to1$ is all-to-all
+and a linear CX chain gives $\rho\approx2/(n-1)$. The two regimes differ.
+Near $\rho{=}1$ a long horizon finds the moving qubit wanted in every
+core at once, the gain estimate degenerates into noise, and short
+horizons win; where $\rho$ is small the signal is coherent and long
+horizons win. Across the benchmark $\rho$ ranks the best horizon at
+Spearman $-0.765$, but is not a usable predictor alone: in the band
 $0.42\le\rho\le0.53$, where most 64-qubit circuits sit, QAOA wants $8$
-and AE wants $128$, and a threshold rule on $\rho$ recovers only $8.0\%$
-of the available $17.2\%$.
+and AE wants $128$, and a threshold rule recovers only $8.0\%$ of the
+available $17.2\%$.
 
 \PORTER{} therefore uses $\rho$ to \emph{prune} rather than to choose. A
 circuit with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$,
@@ -221,14 +217,13 @@ wall-clock budget and so on the machine (Section~\ref{sec:perf}).
 
 \textbf{This rule was fitted on the corpus it is evaluated on.} The
 sweep, both candidate sets and the $0.80$ threshold were fixed by
-inspecting the $48$ benchmark instances, and there is no held-out
-family, so evidence for the \emph{size} of the gain is in-sample. Two
-things bound the risk. The rule is a portfolio, not a prediction: the
-configured horizon always competes and wins ties, so a poor candidate
-set costs compile time but cannot worsen the selected route. And the
-direction the sweep exposes --- that no tested constant is best across
-circuits whose densities differ by an order of magnitude --- does not
-depend on the values chosen. An out-of-sample validation remains to be done.
+inspecting the $48$ instances, with no held-out family, so evidence for
+the \emph{size} of the gain is in-sample. Two things bound the risk. The
+rule is a portfolio, not a prediction --- a poor candidate set costs
+compile time but cannot worsen the selected route --- and the direction
+the sweep exposes, that no tested constant is best across circuits whose
+densities differ by an order of magnitude, does not depend on the values
+chosen. An out-of-sample validation remains to be done.
 
 \subsubsection{Backward refinement (\PORTER{}+R)}
 \label{sec:sfc-refine}
@@ -245,22 +240,17 @@ $R(C^{\mathrm{rev}},\ell_1')$ on the reversed circuit and
 $R(C,\ell_2')$. Reversing $C$ reverses every dependency edge, so
 routing it from the forward pass's end state yields a layout adapted to
 the \emph{start} of the forward circuit. Odd pass counts above three
-repeat the cycle; $P{=}5$ throughout. Because the best forward pass is
-selected, \PORTER{}+R can never report a higher EPR count than the pass~1
-route it contains --- at the cost of $P$ routes where one would do. It
-adds no randomness.
+repeat the cycle; $P{=}5$ throughout. It adds no randomness.
 
-\PORTER{}+R refines from the \emph{selected} route: pass 1 is horizon
-selection, and the horizon it chooses is held for the remaining $P-1$
-passes. Choosing once rather than per pass keeps the pass count linear
---- re-selecting every pass would multiply it by the number of
-candidates to re-decide a property of the circuit that refinement does
-not change --- and starting from the selected route is what makes
-\PORTER{}+R contain \PORTER{}, so the best-pass rule bounds it below.
-Total routes are $\lvert\mathcal{H}\rvert + P - 1 = 7$. The cost is
-wall-clock rather than passes: a deep selected horizon makes a later
-pass dear, and on one instance a pass is stopped by the per-pass guard
-instead of converging.
+Pass~1 is horizon selection itself, and the horizon it chooses is held
+for the remaining $P-1$ passes --- re-selecting every pass would multiply the
+count by the number of candidates to re-decide a property of the circuit
+that refinement does not change. Refining from the selected route is what
+makes \PORTER{}+R contain \PORTER{}, so with the best forward pass kept
+it can never report a higher EPR count than \PORTER{} does. Total routes
+are $\lvert\mathcal{H}\rvert + P - 1 = 7$. The cost is wall-clock rather
+than passes: a deep selected horizon makes a later pass dear, and on one
+instance a pass is stopped by the per-pass guard instead of converging.
 
 One property of the schedule matters for reading its results. Refinement
 consumes a post-routing layout, and routing destroys the per-core free-slot
@@ -284,14 +274,11 @@ throughout.
 
 \begin{table*}[t]
 \centering
-\caption{Every configuration that appears in Section~\ref{sec:results}:
-  layout source, layout count $\lvert\mathcal{L}\rvert$, routing passes
-  per layout $P$, total routes, and the quantity minimised over them.
-  Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$ except where a
-  schedule selects a horizon, which adds
-  $\lvert\mathcal{H}\rvert{-}1$ probes per seed. The layout-discount
-  search of \appLayoutSearch{} is the one configuration not listed;
-  its budget is stated there. Lower EPR is better everywhere.}
+\caption{Every configuration in Section~\ref{sec:results}: layout source,
+  layout count $\lvert\mathcal{L}\rvert$, passes per layout $P$, routes, and
+  what is minimised. Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$, plus
+  $\lvert\mathcal{H}\rvert{-}1$ probes per seed where a horizon is selected.
+  \appLayoutSearch{} gives the one configuration not listed.}
 \label{tab:budgets}
 \setlength{\tabcolsep}{6pt}
 \small

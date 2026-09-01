@@ -1116,6 +1116,813 @@ that gamma=0.80 wins 9 of 24 while all five win somewhere). 197 checks.
 The `narrative` per-instance check still reads +S as the strongest reported
 PORTER protocol, which is correct --- +S is still reported, in the appendix.
 
+## Sec I and II trimmed (2026-09-01) --- every section has now had a pass
+
+**I 892 -> 794 words ($-11\%$), II 678 -> 630 ($-7\%$).**
+
+**The one real duplication was between them.** The intro's \textbf{Problem}
+paragraph restated II-B's \textbf{Objective} paragraph almost clause for
+clause --- "Given a circuit DAG on $n$ logical qubits, a machine of $K$
+cores with intra-core coupling graphs, inter-core links and designated
+communication ports, and an initial layout, emit a legal operation
+stream..." appeared in both. The intro's is now one sentence pointing at
+II-B, which keeps the notation and the "never traded against EPR" clause.
+
+Also cut from I: the second \textbf{Results} paragraph's editorialising
+("Reaching parity with a concurrent compiler from a different design ...
+Section~\ref{sec:results} gives every operating point behind it"); the
+scale-up claim in contribution (ii), which the Results paragraph already
+makes; the "last two work for any controlled two-qubit gate" aside; and
+**the closing mechanism-to-experiment map**, which listed the same five
+pairings the contributions list and IV-A both give --- now a pointer.
+
+From II: the cat-entangler's gate-level construction (\appCatent{} carries
+it in full), and phrasing in II-A and the cost model.
+
+**Everything the abstract and conclusion rely on survives** --- the three
+headline percentages, $1.02\times$/$0.91\times$/$0.72\times$, "forty-eight
+instances", the $23{,}381$-CX circuit.
+
+## Table II carries the portfolio and became a `table*` (2026-09-01)
+
+**Two columns added**, headed *best of \dSABRE{} with* / \PORTER{} / $+$R:
+the per-instance minimum of \dSABRE{} and that \PORTER{} configuration, on
+whatever basis the row uses. Values: (a) $42.0$/$38.8$, $140.5$/$140.5$,
+$34.4$/$34.4$; (b) $42.0$/$38.8$, $168.8$/$168.8$, $345.1$/$340.4$, and
+pooled $155.9$/$152.1$.
+
+**The table had to span both columns.** At 11 columns its natural width is
+$345$\,pt against a $252$\,pt column --- the shrink-only resizebox would
+have cut it to $73\%$ of `\small`, far smaller than any other table. As a
+`table*` with `\tabcolsep` $4 \to 12.5$\,pt it measures $502$\,pt against
+`\textwidth` $516$\,pt: **no scaling at all**. Its resizebox now guards
+against `\textwidth`, not `\columnwidth` --- **any future `table*` needs
+that same change** or it will be squeezed into one column's width.
+
+**Bolding: the portfolio is deliberately NOT bold.** The first version
+bolded whichever portfolio cell beat both compilers, which (i) contradicted
+the caption on the $25$q rows, and (ii) read as if the portfolio were a
+fifth configuration --- exactly what the text denies, since it costs both
+routes and predicts nothing. **The bold EPR cell in every row is the best
+single compiler**, and the caption says so. `verify_tex_tables` now pins
+both halves of that rule: the bold cell equals the row minimum over the
+four compiler columns, and both portfolio cells are unbold. Verified
+non-vacuous by corrupting a portfolio cell and watching it fail.
+
+59 tex checks, 252 numeric checks, generator idempotent, 14 pages.
+
+## VI: "dearer of the two" fixed; completion opening answers dSABRE (2026-09-01)
+
+**"never the dearer of the two" was ambiguous** --- "the two" meant the full
+action set and the teleport-only vocabulary, but neither had been named in
+the sentence. Both occurrences (Sec VI and the conclusion) now say it
+directly: "a vocabulary with gate teleportation removed altogether ---
+\TeleData{} and nothing else --- uses no more EPR pairs than the full
+action set on any 80-qubit circuit it completes, and fewer on most."
+
+**"On the compiler itself" is now the first future-work item**, and the
+completion opening answers *why not just adopt \dSABRE{}'s recovery*:
+
+- **The capacity half is nearly in place already.** Both compilers treat
+  free slots as a legality condition with the same floor of two, and both
+  manufacture a slot by BFS to a reservoir. What \dSABRE{} has is
+  **atomicity** --- it relays the chain as one all-or-nothing transaction,
+  so post-recovery state is legal by construction, where \PORTER{} re-plans
+  each hop through the ordinary plan machinery.
+- **That difference is not free to give up**: scoring relief like any other
+  plan is exactly what lets the *opportunistic* tier compete with normal
+  work (III-G). An atomic drain removes that.
+- **And it would not buy the missing guarantee.** \PORTER{} never reaches
+  the capacity deadlock \dSABRE{}'s proof rules out --- with both tiers on,
+  no instance in this evaluation does --- while the one failure observed is
+  a **local-SWAP livelock** (heavy-hex star Multiplier at a fixed horizon,
+  capacity healthy, EPR frozen). **A guarantee for \PORTER{} needs a
+  progress argument for the intra-core stage, not a stronger capacity
+  transaction.** This is the substantive answer; keep it if the section is
+  trimmed again.
+
+Note the livelock's *nature* is now stated only here --- V-E's livelock
+paragraph was removed earlier, and Appendix K says only that one instance
+fails at a fixed horizon. Pinned: no deadlock with relief on, \PORTER{}
+completes all 48, and star/Multiplier completes under selection. 255 checks.
+
+## Threats moved to Appendix K (2026-09-01)
+
+Restored as **`sfc_appendix.tex` Appendix K, "Threats to Validity"** ---
+all ten, in the trimmed form they had before the deletion, including the
+two folded in from VI's dropped concession paragraph (`Mechanism
+attribution`, `Completion is empirical`). Appended as **K so A--J keep
+their letters**; `\appThreats` added to `sfc.tex`, front matter A--J -> A--K.
+
+**Six new `xr` macros** for the cross-document references the threats need:
+`\mainPlanFirst`, `\mainOwnProtocol`, `\mainRelated`, `\mainBaselines`,
+`\mainScope` (plus the existing `\mainHorizon`, `\mainSharedTable`).
+
+**LaTeX trap that cost a debugging round: a control sequence cannot
+contain a digit.** `\newcommand{\mainRQ1}{...}` parses as `\mainRQ`
+followed by `1`, which produced `Missing \begin{document}` plus three
+`Undefined control sequence` errors *and silently inflated the appendix
+from 7 to 9 pages* before it was caught. Renamed `\mainOwnProtocol`.
+**Never put a digit in a macro name** --- and note the page count moved
+before the error surfaced, so page count alone is not a compile check.
+
+**Three pointers** keep it attached: II-B's cost-model sentence, IV-A's
+research-questions paragraph, and the conclusion's "the evaluation is
+bounded" sentence. Verified each threat's `\ref` resolves in the built
+appendix (II-B, III-D, IV-C, IV-E1, V-A, VII, Appendix A, Table III).
+
+Main paper **14 pages**, appendix **8** (was 7). Both compile with zero
+errors and zero overfull boxes.
+
+## Threats to Validity deleted; Sec VI is now Discussion and Future Work (2026-09-01)
+
+**VI-B Threats to Validity is gone** (author's call), and the section is
+retitled **"Discussion and Future Work"**: two findings, then VI-A Future
+Work. $1{,}193 \to 665$ words.
+
+**Checked before deleting: every one of the ten threats is stated
+elsewhere.** The subsection was a consolidation, not a unique source ---
+benchmark coverage and the cost-model bounds in the conclusion and II-B;
+in-sample fitting, the reconstructed circuits, the patched binary, the
+aggregation policy and the timing caveat in IV; unequal budgets in
+`tab:budgets` and V; mechanism attribution in III-D; completion in VII.
+**If any of those sections is trimmed in future, its caveat is now the only
+copy** --- there is no backstop.
+
+**Three pointers into `sec:threats` had to be rewritten**, since the label
+no longer exists: II-B's cost-model sentence now ends on "every conclusion
+in this paper is relative to that model"; the conclusion points at
+`sec:future`; and **III-D's forward pointer** ("Section~\ref{sec:discussion}
+states what that leaves open") was replaced by the substance itself, so the
+attribution concession survives where the claim is made. One of these
+edits dropped a full stop --- caught by the `grep -nE "\. +[a-z]"` sweep,
+which is worth running after every pointer rewrite.
+
+**"The $2\%$ pooled difference" was unexplained.** VI used the phrase twice
+with no antecedent --- V-A states $174.9$ against $171.9$ but that is
+several pages earlier. Now written out inline: "their pooled means differ
+by only $2\%$ ($174.9$ against $171.9$)", and the second use is "that gap"
+/ "the pooled figure".
+
+Paper back to **14 pages**, 10,682 prose words; Sec III (3,008) is now more
+than four times the size of Sec VI.
+
+## Sec VI rebuilt: two findings + Future Work (2026-09-01)
+
+Author's call --- "I can't see the value of Sec VI". It now holds only the
+**two discussions worth keeping** (complementarity, and why \TeleData{}-only
+can win), a new **VI-A Future Work**, and VI-B Threats.
+
+**Dropped, and what each one cost:**
+- **"Which component binds changes with scale"** --- the layout-below-108 /
+  horizon-above-150 reading. Its one durable idea, the **$K$-scaled
+  horizon**, moved into Future Work, where the motivation (an absolute gate
+  count, and every scale-up instance picking the longest candidate offered)
+  reads better as an opening than as a finding. **V-E pointed at this
+  paragraph** and now points at V-D instead.
+- **"Two things the evaluation does not establish"** --- split into two
+  compact **threats** (`Mechanism attribution`, `Completion is empirical`).
+  This keeps III-D's promise ("Section~\ref{sec:discussion} states what that
+  leaves open") valid, since Threats is inside VI. **Do not delete those two
+  threats without fixing III-D.**
+
+**New VI-A Future Work**, informed by \dSABRE{}'s own future-work section
+(`../dsabre/paper/dsabre.tex` §Future Work) but scoped to \PORTER{}:
+scheduling/makespan and fidelity (the emitted trace is unscheduled);
+**entanglement lifetime, which bites \PORTER{} specifically** --- a packet
+holds one cat resource across a whole run, so a lifetime bound caps packet
+length in a way our cost model does not, and the vocabulary result would
+have to be re-read under it; richer interconnects (a second link turns an
+occupied port into an alternative, and interacts with the capacity
+discipline); then the four compiler-side openings. Cites
+`baker2020time` and `ferrari2021compiler`, both already in `sfc.bib`.
+
+**The conclusion's "Five openings follow: ..." list was deleted** --- it now
+points at \S VI-A rather than duplicating it.
+
+Sec VI $1{,}072 \to 1{,}193$ words: it lost ~290 of restatement and gained
+~330 of future work and ~85 of threats. **The paper is 15 pages, but the
+body still ends on 14** --- p15 is 18 lines of bibliography, pushed over by
+the two new citations.
+
+## The portfolio result is now a headline (2026-09-01)
+
+**Author's framing, and it is the right one**: a $2\%$ pooled difference
+invites "why another compiler that is not significantly better than
+\dSABRE{}?" The portfolio answers it --- **a compiler that merely
+re-derived \dSABRE{}'s decisions would leave a best-of-two with nothing to
+choose between, and the gain would be zero.** A $9$--$12\%$ gain is
+positive evidence that the designs are not interchangeable.
+
+**Checked for the pytket trap first, and it holds.** Unlike the
+`pytket-dqc` layout result, this one does NOT invert when the two cheapest
+families are removed:
+
+| basis | dSE+\PORTER{} | dSE+\PORTER{}+R |
+|---|---|---|
+| gmean, all 24 | $-9.3\%$ | $-11.6\%$ |
+| gmean, the 18 non-trivial | $-8.0\%$ | $-9.0\%$ |
+| **total EPR, the 18** | $-12.4\%$ | $-13.7\%$ |
+
+Both bases are quoted in the paper and both are pinned. **Always run this
+check before promoting a gmean result** --- it is what separated this
+finding from the pytket one.
+
+**Landed in the abstract, the intro (as the explicit answer to "what does a
+second compiler add"), Sec VI and the conclusion.** Cost is stated wherever
+the claim is made at length: $2.1\times$ \dSABRE{}'s compile time, twelve
+routes to nine, an oracle with no predictor for the winner. Sec VI names
+the two instances that carry it (80q Multiplier $4{,}841\to2{,}411$, 80q
+QPEexact $347\to291$).
+
+## Table II gains a W/L/T row; the portfolio result (2026-09-01)
+
+**`tab:main` has a `W/L/T` row** giving each \PORTER{} configuration's
+per-instance record against \dSABRE{} over all 24: **\PORTER{} 10/12/2,
+\PORTER{}+R 11/11/2**. Per suite (not shown): 25q 4/1/1 and 5/0/1,
+64q 2/6/1 for both, 80q 4/5/0 for both. \TeleSABRE{} and \dSABRE{} get
+dashes --- \dSABRE{} is the reference. `verify_tex_tables` parses the row
+and recomputes both cells; **confirmed non-vacuous** by corrupting a cell
+and watching it fail.
+
+**New finding: the two compilers are complementary, and a portfolio beats
+either.** Taking the lower EPR count of the two per instance:
+
+| portfolio | gmean | vs \dSABRE{} | vs the \PORTER{} leg |
+|---|---|---|---|
+| \dSABRE{} + \PORTER{} | 155.9 | $-9.3\%$ | $-10.9\%$ |
+| \dSABRE{} + \PORTER{}+R | 152.1 | $-11.6\%$ | $-6.7\%$ |
+
+Per suite the gain tracks disagreement: **$-16.3\%$ at 80q** (where
+\PORTER{} goes 4W/5L) against **$-2.5\%$ at 64q** (where \dSABRE{} takes
+six of nine). Total EPR over the 24 falls $12.4\%$ / $13.7\%$.
+
+Landed as a paragraph in **Sec VI** --- it is a reading across V's results,
+which is VI's stated job --- plus one clause in the conclusion. **Stated as
+a property of the pair, not of either compiler**: it needs both routes, it
+is an oracle over them, and no rule we tested predicts the winner in
+advance. Its real force is that **the $2\%$ pooled difference understates
+how differently the two behave**. Ten pins added (both records, both
+portfolio gmeans, both ratios, the 80q/64q split); 244 checks.
+
+## Table fonts: `\resizebox{\columnwidth}` was MAGNIFYING tables (2026-09-01)
+
+**Root cause of "the fonts in several tables are too large".**
+`\resizebox{\columnwidth}{!}{...}` scales a box to *exactly* the column
+width --- **it enlarges a narrow table as readily as it shrinks a wide
+one.** Every table trimmed this session got narrower, so several started
+being blown up. Column width is $252.0$\,pt; measured natural widths:
+
+| table | natural | effect of the old resizebox |
+|---|---|---|
+| tab:main | 252.7 | shrink 0.3\% |
+| tab:shared | 286.8 | shrink 12\% |
+| tab:ablation | 247.4 | **magnify 1.9\%** |
+| **tab:scaleup (Table V)** | **227.9** | **magnify 10.6\%** |
+| tab:protocols | 279.2 | shrink 10\% |
+| tab:taxonomy | 307.7 | shrink 18\% |
+| app tab:pytket | 229.4 | **magnify 9.9\%** |
+| app tab:pytkettime | 218.9 | **magnify 15.1\%** |
+| app tab:heavyhex | 230.4 | **magnify 9.4\%** |
+
+**Fix, applied to all 16 resizeboxes in both documents:**
+
+```latex
+\resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
+```
+
+which shrinks when too wide and otherwise leaves the box alone. **Use this
+form for every new table** --- it is also what \dSABRE{}'s paper uses --- so
+a future trim cannot silently magnify.
+
+Then `\tabcolsep` was raised on the five narrow tables so they *fill* the
+column at true `\small` rather than sitting short: tab:scaleup
+$3.5\to5$\,pt, tab:ablation $3\to3.4$\,pt, app tab:pytket $3\to4.9$\,pt,
+app tab:pytkettime $4\to7.3$\,pt, app tab:heavyhex $4\to6.7$\,pt. All nine
+resizeboxed tables now measure $251.9$--$337.8$\,pt, i.e. at or above the
+column, so none is scaled up.
+
+**To re-measure after changing a table**, box the tabular and print its
+width against `\columnwidth`:
+
+```latex
+\setlength{\tabcolsep}{<value>}\small
+\sbox0{\begin{tabular}...\end{tabular}}
+\typeout{WIDTH = \the\wd0 col=\the\columnwidth}
+```
+
+Found and fixed in passing: `fig:trace`'s tabular in the verification
+appendix was $5.58$\,pt overfull (pre-existing, no resizebox);
+`p{4.0cm}` $\to$ `p{3.8cm}`. **Both documents now compile with zero
+overfull boxes.**
+
+## V-F cut to three short paragraphs (2026-09-01)
+
+**246 -> 158 prose words**, on the author's instruction: paragraph 2 keeps
+only its first two sentences, paragraph 3 only its first and last.
+
+Gone, and worth knowing they are gone:
+
+- **"Increasing \PORTER{}'s deterministic search budget therefore closes and
+  reverses the own-protocol gap"** and the caveat that followed it ("We stop
+  short of calling that gap a search-budget gap: refinement changes the
+  layout each pass starts from as well as the route..."). That caveat came
+  from the second review round --- but it existed **only** to qualify the
+  sentence before it, so removing both together is safe. **Do not restore
+  the claim without the caveat.**
+- The \PORTER{}+S operating point ($0.93\times$ for $6.55\times$) and its
+  \appLayoutSearch{} pointer. Appendix J still has **three** references
+  (two in IV-E, one in `tab:protocols`'s caption), so it is not orphaned ---
+  checked.
+- The per-route paragraph's middle sentence: \PORTER{} is dearer per route
+  on all nine 64q circuits, $3.6\times$ in gmean, so \dSABRE{} is cheaper
+  end to end there ($1.77$ vs $1.98$\,s). **The surviving text still claims
+  \PORTER{}'s advantage "is in the count of routes, not their price", which
+  is exactly what that sentence evidenced** --- the claim now rests on the
+  reader taking it, with the numbers in `tab:main`'s $t$ column. Pins kept
+  as regression guards and commented as unquoted.
+
+V-F now states the frontier, the trade, and that complete-protocol time is
+the metric. Section V is 1,900 prose words; paper still 14 pages.
+
+## Trimming round complete (2026-09-01)
+
+| section | before | after | |
+|---|---|---|---|
+| abstract | 263 | 263 | --- |
+| I introduction | 892 | 794 | $-11\%$ |
+| II background | 678 | 630 | $-7\%$ |
+| III compiler | 3,190 | 2,992 | $-6\%$ |
+| IV methodology | 2,481 | 2,359 | $-5\%$ |
+| V results | ~2,800 | 1,988 | $-29\%$ |
+| VI discussion | 866 | 779 | $-10\%$ |
+| VII related work | 522 | 468 | $-10\%$ |
+| VIII conclusion | 382 | 375 | $-2\%$ |
+
+Plus main-paper captions $899 \to 432$ ($-52\%$) and `tab:ablation` from 18
+per-circuit rows to 7. **Paper 16 -> 14 pages.** Section V absorbed most of
+the reduction because it held most of the restatement; I--IV are dense and
+their small percentages reflect that, not a light pass.
+
+## Sec III and IV trimmed (2026-09-01) --- the small percentages are the point
+
+**III 3,190 -> 2,992 words ($-6\%$), IV 2,481 -> 2,359 ($-5\%$).** These are
+the densest sections in the paper and the least compressible: III carries
+**every parameter value the verifier pins against the live `RouterConfig`**,
+and much of IV was written answering the two review rounds. Do not read the
+small percentages as a light pass --- every paragraph was gone over; there
+simply is not 20\% of restatement in them.
+
+Where the words came from, all phrasing or genuine duplication:
+
+- **III-A**: the $f_\mathrm{min}$ derivation ("a core with no free physical
+  qubit is dead ... alive but cannot accept a \TeleData{}") argued the point
+  twice. The **three roles stay, and so does the explicit non-invariant
+  sentence** --- that wording was a review fix, do not lose it.
+- **III-D**: the formal tuple's gloss re-described the paragraph above it;
+  the full-core illustration became a clause; the trailing
+  "Section~\ref{sec:related} places both against the baselines' choices"
+  pointer went.
+- **III-E**: "The order of the components is the design" filler; the
+  $N_\mathrm{tp}$-inertness argument compressed to a clause pointing at
+  \appTables{}, which carries it in full; the $\Delta$ and $L(\pln{p})$
+  paragraphs each justified themselves twice.
+- **III-F/G/H**: phrasing throughout; the four defences in III-H read as one
+  long sentence and are now four.
+- **IV-C Setup**: the benchmark and baseline paragraphs restated detail the
+  appendix and \dSABRE{}'s own paper carry.
+- **IV-E horizon**: the $\rho$ definition took five sentences to say one
+  thing; the in-sample paragraph overlapped Sec VI's threat of the same name.
+- **IV-E refinement**: the "+R can never report a higher EPR count" bound was
+  stated **twice**, once per paragraph. Merged.
+
+**Verified after**: all twelve numeric parameters III quotes are still
+present (checked by regex, and `verify_paper_numbers` still matches them
+against the live `RouterConfig`), no broken sentences, no orphaned labels,
+no unresolved refs.
+
+**Whole paper 10,881 prose words, 14 pages.** Section III at 2,992 is now
+the largest by a wide margin and is the only place left with meaningful
+slack --- but cutting it further means cutting algorithm description, not
+restatement.
+
+## Sec VII and VIII trimmed and audited (2026-09-01)
+
+**VII 522 -> 468 words, VIII 382 -> 357.** Both were already dense; the cuts
+are phrasing plus two real removals:
+
+- VII's "Its capacity handling is also more proactive: ... an explicit
+  blocked-plan set with a tail-relief search and a pre-emptive relief
+  comparator" re-described Section III's mechanism. Folded into one clause.
+- **VII and VI both ended on "the clearest piece of theory this design
+  leaves open".** The judgement now appears once, in VI; VII states the gap
+  factually and stops. (Checked: `grep -n "clearest"` returns one line.)
+
+**One scoping fix.** My first pass changed the conclusion to "completes every
+instance", which is *true* --- \PORTER{} completes 48/48 (main 24, scale-up
+6, heavy-hex 18) --- but the sentence is about the MQT-Bench suites and the
+\TeleSABRE{} comparison, so it now says "all twenty-four", matching the
+abstract. Worth remembering: since horizon selection landed, **48/48 is
+accurate and the old "scoped to the three MQT-Bench suites" caveat recorded
+below is obsolete** --- the star-Multiplier exception it guarded against is
+gone.
+
+**Audit clean.** All `\ref`s in both sections resolve. VII's two enumerations
+still match their announced counts (four shared decisions --- which the intro
+also claims --- and four differences), the three-guarantee taxonomy VI cites
+is intact, "no instance left unrouted" holds at 48/48, and VIII's "five
+openings" really lists five. Every figure VIII quotes was re-verified
+earlier today.
+
+**Whole paper: 11,880 prose words, 14 pages** (abstract 256, intro 884,
+background 1,026, Sec III 3,357, Sec IV 2,744, Sec V 1,925, VI 775, VII 468,
+VIII 358). **Sections III and IV are now by far the largest** --- together
+6,101 words, more than half the paper --- and are the only places left with
+real slack if more is needed.
+
+## Sec VI trimmed and audited against the trimmed Sec V (2026-09-01)
+
+**866 -> 775 words, only $11\%$** --- the section resists cutting because
+every paragraph carries a finding and every threat was added answering a
+review. Where the cuts came from: **four threats were re-deriving Section
+IV's setup** rather than stating a threat (the patched binary, the
+reconstructed circuits, the 9-vs-3 budget, the Python/C timing caveat).
+Each now states its threat and cites IV for the setup. Do not read the
+small percentage as "nothing was cut" --- read it as the section already
+being close to its floor.
+
+**Two consistency defects found, both introduced by earlier edits in this
+session:**
+
+1. **VI claimed \TeleData{}-only is "cheaper still on \emph{every} 80-qubit
+   circuit it completes".** GHZ and Graphstate **tie** ($7\to7$,
+   $28\to28$), so the correct form is "never the dearer of the two" ---
+   which is what V-C and the conclusion already said. This is the *same*
+   overstatement I fixed in the conclusion earlier the same day; it had been
+   introduced into VI when the stale "packet-heaviest" qualifier was
+   replaced. **When fixing a claim, grep for its siblings.**
+2. **VI attributed to V-D a fact V-D no longer states** (dSABRE's layout is
+   worse for PORTER on scale-up). Now attributed to the released results,
+   which is where it lives after V-D's interpretive paragraphs were removed.
+
+**Full audit run and clean.** All thirteen `\ref`s in VI resolve; `sec:terms`
+really lists four failure modes; `sec:sfc-plan-first` really states the
+no-experiment-isolates-it claim; `sec:related` really separates
+correctness/termination/completion and carries \dSABRE{}'s
+termination-with-success proof. Every quantitative claim recomputed from the
+JSONs: routing loops within $3\%$ (max exactly $3.00\%$), the heavy-hex
+control beating \dSABRE{} on both graphs, \dSABRE{}'s layout worse for
+\PORTER{} on scale-up ($678.9$ vs $507.7$), $0.72\times$, zero 80q circuits
+where \TeleData{}-only is dearer, five relief failures.
+
+## V-E refocused; Table VI gains the fixed-layout column (2026-09-01)
+
+**The star-Multiplier livelock is out of V-E** (author's call: not helpful
+for the section's purpose, which is only to show \PORTER{} runs on both core
+graphs and that its layout suits a star badly). Removed: the whole
+"Star Multiplier is a livelock the horizon escapes" paragraph and the
+`star Multiplier 722 / 455` callout row of `tab:heavyhex`.
+
+**`tab:heavyhex` now has three columns** --- \dSABRE{}, \PORTER{} on its own
+layout, \PORTER{} on \dSABRE{}'s `SabreLayout` candidates --- so the
+fixed-layout control that carries V-E's layout claim is in the main table
+instead of only the appendix:
+
+| core graph | dSABRE | PORTER own | PORTER on dSABRE's |
+|---|---|---|---|
+| ring (9) | 85.2 | 86.1 | **82.9** |
+| star (9) | 101.1 | 122.3 | **98.5** |
+
+The control is the row minimum on both graphs, which is the point.
+
+**Three downstream fixes the removal forced:**
+- the **intro's** mechanism-to-experiment map tied horizon selection to "the
+  scale-up series and the star-Multiplier livelock"; now the scale-up series
+  alone;
+- `verify_tex_tables`'s heavyhex parser assumed the callout row and a
+  conditional row count keyed on whether \PORTER{} still failed the instance
+  --- now a flat 2 rows, 4 columns, plus a check that the control column is
+  the row minimum;
+- the $455$/$722$ and widest-margin pins are no longer quoted; kept as
+  regression guards that horizon selection still routes the instance.
+
+**Sec VI keeps the livelock** as a limitation on the completion record
+("only livelock was observed here, on heavy-hex star Multiplier at a fixed
+horizon"). That is the right home for it --- it is a limitation, not a
+result --- and it is self-contained, so V-E no longer has to set it up.
+
+**V-E 460 -> 379 words; Section V 1,902; the paper dropped to 14 pages**
+(references now start on 13), the first page the whole trimming round has
+bought.
+
+## V-A trimmed; Section V now under 2,000 words (2026-09-01)
+
+**V-A 341 -> 264 prose words.** Cut: the "Table~II summarises the three
+suites" opener; the two sentences explaining why block \emph{(a)} is the
+\TeleSABRE{} basis and block \emph{(b)} the \dSABRE{} one (the caption says
+both); the restatement of each protocol's route budget (`tab:budgets` says
+it); and the raw pairs behind the 25q and 80q ratios ($43.1$/$45.8$,
+$396.7$/$412.1$), which are table cells --- the ratios stay in prose. Every
+figure the abstract, intro or conclusion cites is untouched.
+
+**Section V across this round: ~2,800 -> 1,983 prose words** (V-A 264,
+V-B 397, V-C 452, V-D 158, V-E 460, V-F 252), plus captions 899 -> 432 and
+`tab:ablation` from 18 per-circuit rows to 7. Paper holds at 15 pages with
+references starting on 14, so the space went into margin rather than
+page count --- worth knowing before trimming further.
+
+## V-B trimmed, pytket paragraph halved (2026-09-01)
+
+**V-B 535 -> 397 prose words**; the pytket paragraph, which was $290$ of
+them, is down to about $170$. Cut:
+
+- **Four of the six statistics.** The argument needs the reversal
+  ($+10.7\%$ / $+9.1\%$ on the eighteen), the per-instance record (worse on
+  14 of 24) and the median ratio ($1.03$). The $38.8\%$/$36.8\%$ pair and
+  the total-EPR figures ($+11.8\%$ / $+5.9\%$) made the same point a third
+  and fourth time; their pins stay as regression guards, commented as
+  unquoted.
+- **The gmean-sensitivity explanation** ("costing one to two orders of
+  magnitude fewer pairs ... moves an unweighted geometric mean as much as
+  halving the dearest circuit"). It is in `tab:shared`'s caption, where a
+  reader meets the two blocks.
+- The 64q-QNN timing specifics and the "controlled probe" half of the
+  opt-in sentence; the $0.6$--$650$\,s range and \appOptin{} carry both.
+- The parenthetical spelling out pytket's permissive network ("every qubit
+  available for data, unboundedly many live link qubits per core"), now just
+  a citation --- \dSABRE{}'s paper is where that model is described.
+- V-B's opening paragraph, which spelled out the \TeleSABRE{} exclusion in
+  two sentences, is one.
+
+**Section V is now 2,060 prose words** (V-A 341, V-B 397, V-C 452, V-D 158,
+V-E 460, V-F 252), from roughly 2,800 before this round of trims. V-C and
+V-E are now the longest; both are carrying findings rather than restatement.
+
+## V-E and V-F trimmed (2026-09-01)
+
+**V-E 512 -> 460 prose words, V-F 353 -> 252.** Cut, all of it either
+restatement or implementation history:
+
+- V-E's opening restated the *Question* line directly above it and described
+  the topology assertion, which IV-C already covers ("read from the
+  baselines' own device files, so every compiler sees identical physical
+  qubit ids").
+- The star-Multiplier livelock forensics ($3{,}226$ of $13{,}040$ retired,
+  EPR frozen at $538$) --- the livelock-vs-deadlock *distinction* is what
+  Sec VI's failure-mode claim needs, not the counters. Kept the mechanism,
+  dropped the numbers.
+- The $f_\mathrm{min}\in\{4,6\}$ parenthetical; the claim that a uniform
+  bump does not repair the star survives without it.
+- **V-F's "That property is what removed an earlier caveat"** --- a note
+  about how *our own implementation* used to behave at a fixed horizon.
+  IV-E-2 already states the property that matters (refining from the
+  selected route is what makes +R contain \PORTER{}).
+- V-F's per-iteration explanation of why \PORTER{} is dearer per route
+  (plan enumeration, packet forward-simulation, two-tier capacity search).
+  The $3.6\times$ figure carries the point.
+- The separate \PORTER{}+S sentence folded into the trade sentence as one
+  clause.
+
+Nothing removed was pinned or cited elsewhere (checked both verifiers and
+every `\ref`). **Section V is now 2,198 prose words** --- V-A 341, V-B 535,
+V-C 452, V-D 158, V-E 460, V-F 252. Paper 15 pages, references start on 14.
+
+## V-D reports, Sec VI interprets (2026-09-01)
+
+**V-D's last two paragraphs are gone** (author's call: not directly helpful):
+"The horizon, not the layout, accounts for the reversal" and "This separates
+two deficits the smaller suites conflate" --- 167 words. V-D now answers RQ4
+and stops: \PORTER{} wins all six, $0.72\times$, at $0.54\times$ the compile
+cost. The horizon-vs-layout attribution is interpretation spanning V-B, V-D
+and V-E, so it belongs in Sec VI, which already made it --- this is the
+paper's own structural rule ("interpretation spanning several results goes in
+VI, not in the results subsections").
+
+**Two downstream claims had to be rescoped, both of which the removal
+orphaned:**
+- **Sec VI** said "Section V-D locates it elsewhere: ... the horizon moves
+  \PORTER{} from $1.45\times$ behind to $0.72\times$ ahead", attributing to
+  V-D a claim it no longer makes. VI now owns the interpretation and cites
+  V-D only for the $0.72\times$ it does report.
+- **V-E's closing** asserted "above $150$ the horizon takes over", supported
+  only by the removed text. It now states its own $\le108$ bound and points
+  at VI for the contrast.
+
+**No longer quoted anywhere:** the $0.96\times$ dSABRE-layout scale-up ratio
+and the $1{,}791$ figure for 360q QFT on dSABRE's layout. Their pins are kept
+as regression guards, commented as unquoted. $1.45\times$ survives in Sec VI
+and is its only occurrence --- note the removed text cited
+Section~\ref{sec:horizon} for it, which never stated it.
+
+**A real error found while reconciling VI with V-B:** both said the layout
+spread is "three to five times" the routing spread. Measured over the six
+column/block pairs it is **2.2x--3.6x**; no pairing supports three-to-five.
+Corrected to "two to four times" in both, and pinned as a bounded range.
+Sec VI also still said the routing loops are "within $2\%$" (true of block
+(a) only) where V-B now says $3\%$; aligned.
+
+## Table IV is 80q-only; V-C and every caption cut (2026-08-31)
+
+**Author's call, and it REVERSES the 2026-08-31 decision recorded below**
+("Ablation basis widened, then compacted"), which kept 25q/64q summary lines
+to preserve two cross-scale findings. Those findings are now **dropped from
+the paper entirely**, on the author's framing that *the purpose of a
+mechanism ablation is to show why a mechanism is needed*, and a scale trend
+does not speak to that:
+
+- "the TeleData advantage is monotone in width" ($+1.3\%$ / $-1.6\%$ /
+  $-21.4\%$) --- gone from V-C and from the conclusion, which now quotes the
+  80q figure alone;
+- "relief inverts with scale" --- gone; V-C says only that relief earns its
+  place on *completion* (5 of 9 fail without it) and not on cost ($4.0\%$).
+
+The ablation still **runs** on all three suites, and the 25q/64q checks stay
+in `verify_paper_numbers` as a regression guard on the measurement, clearly
+commented as no longer quoted. CLAUDE.md is where those trends now live.
+
+**V-C is restructured around "does this mechanism earn its place":** packets
+yes on EPR ($10.9\%$), \TeleGate{} yes on *completion* (strict removal fails
+all but two rows), relief yes on *completion* and not on cost. The ordering
+$\text{\TeleData{} only} < \text{Full} < \text{No packets}$ is now made on
+**80q alone** --- it holds on 4 of the 5 rows where all three columns
+complete, **QFT the exception**, which is also one of the two circuits
+cheaper without packets. Pinned as a count plus the exception's identity.
+
+**Sec VI was carrying the same stale qualifier** ("cheaper still on the
+packet-heaviest 80-qubit circuits") and now says "on every 80-qubit circuit
+it completes" --- at 80q there is no packet discrimination, it wins
+everything it completes.
+
+**`tab:ablation` now has no Suite column** (every row is 80q): 7 per-circuit
+rows + 3 gmean lines, 7 columns. `gen_tables_selection.tab_ablation` and
+`verify_tex_tables` were both rewritten for the shape --- the row regex
+matches circuit names now, indices shift by one, and the summary regex is
+`^\\textbf\{gmean\}`.
+
+**A basis change silently invalidated a count.** V-C said "two instances are
+cheaper without relief" --- true pooled over 24 (64q QNN, 80q Multiplier, 25q
+Random) but at 80q it is **one** (Multiplier). Fixed, and `verify_paper_
+numbers` now pins the 80q counts specifically: 5 relief failures, 1 cheaper
+without relief, 2 cheaper without packets, and the QAOA/AE packet
+percentages. **Whenever a table's basis narrows, re-derive every count in its
+prose --- percentages usually survive, counts usually do not.**
+
+**V-C prose 705 -> 426 words (-40%).** Not the full half: the remaining
+material is load-bearing and has been cut-and-restored once already (the
+"the next overturns that" bridge and the dSABRE-open-question link are both
+asserted by the intro and conclusion, so V-C has to make them).
+
+**Every main-paper caption cut, 899 -> 432 words (-52%):**
+tab:ablation $-70\%$, tab:main $-51\%$, tab:scaleup $-47\%$,
+tab:protocols $-44\%$, tab:heavyhex $-43\%$, tab:shared $-41\%$,
+tab:budgets $-38\%$. Paper back to **15 pages**.
+
+## Why pytket-dqc's partition is NOT PORTER's layout (2026-08-31)
+
+**V-B used to say pytket-dqc's partition is "the best start for *both*
+routers" ($-4.5\%$ / $-4.8\%$). That is a geometric-mean artefact of six
+near-trivial rows.** Decomposed:
+
+| basis | dSABRE own -> pytket | PORTER own -> pytket |
+|---|---|---|
+| gmean, all 24 | 171.9 -> 164.1 (**-4.5%**) | 174.9 -> 166.4 (**-4.8%**) |
+| GHZ + Graphstate (6) | 9.4 -> 5.8 (-38.8%) | 9.3 -> 5.9 (-36.8%) |
+| **the other 18** | 452.5 -> 501.1 (**+10.7%**) | 464.6 -> 506.7 (**+9.1%**) |
+| total EPR (24) | +11.8% | +5.9% |
+| win/loss | 10W/14L | 9W/14L/1T |
+| median per-instance ratio | 1.031 | 1.032 |
+
+GHZ/Graphstate cost 1-2 orders of magnitude fewer pairs than the rest, so a
+proportional change there moves an unweighted gmean as much as halving the
+dearest circuit in the suite. **Same inflation pattern as
+[[porter-two-phase-layout-qap]]** --- check for it whenever a layout change
+looks like a broad win.
+
+**Independently confirmed by dSABRE's own harness.** `../dsabre/code/results/
+results_pytket_layout.json` (2026-08-10) routes dSABRE from pytket KaHyPar
+layouts. At **64q**, the one suite where our dSE column reproduces theirs
+exactly: theirs 173.3 -> 181.2 (**+4.6%**, 3W/6L), ours 173.1 -> 179.7
+(**+3.8%**, 4W/5L). (Their 25q rows are a *different device* --- B-grid,
+2 ports/core --- so not comparable; do not cross-check 25q.)
+
+**Cost, measured (best-of-3 KaHyPar vs `build_initial_layout` vs PORTER's
+3-route protocol):**
+
+| circuit | CX | partition | layout build | PORTER 3 routes |
+|---|---|---|---|---|
+| 80q graphstate | 80 | 0.55 s | 0.5 ms | 0.3 s |
+| 25q ae | 558 | 3.2 s | 0.3 ms | 0.2 s |
+| 64q ae | 1,962 | 14.2 s | 1.2 ms | 1.6 s |
+| 64q qnn | 8,126 | 122.2 s | 3.1 ms | 4.8 s |
+| **80q random** | 23,381 | **649.8 s** | 9.6 ms | 206.5 s |
+
+3-5 orders of magnitude over the layout it would replace, and more than the
+whole compile on 6 of 8. Scales worse than routing: 80x the CX buys 200x the
+partition time. **Appendix C said 309 s for 80q Random; measured 650 s.**
+
+**What dSABRE's paper says** (`../dsabre/paper/dsabre.tex`): as a *compiler*
+it is "a cost-model study, not a like-for-like router comparison" --- pytket's
+network is more permissive than the device (every qubit available for data,
+unbounded live link qubits per core), so 4/6, 2/6 and >=6/9 of its
+distributions are **provably unbuildable** (25q AE needs 20 simultaneous link
+qubits where the device has 2), and its e-bits assume unbounded entanglement
+lifetime (cap at 3 gates/pair and 64q flips from pytket +15.3% to dSABRE
+-59.6%). As a *layout source* its Related Work explicitly endorses the use
+--- "their output can supply an initial allocation" --- but reports no result
+doing it. That permissiveness is the paper's stated reason the partition need
+not suit a port-constrained router.
+
+**Landed.** `tab:shared` is now **two blocks** --- (a) all 24, (b) the 18
+without GHZ/Graphstate --- because the two disagree in *every column*: pytket
+is the column minimum in (a) and the maximum in (b), where each router's own
+layout is (near) best for it. What survives both bases: the routing loops are
+within 3.0% across every row (max deviation exactly 3.00%, so pins must round
+to 1 dp) while the column spread is 3-5x larger, i.e. **the layout is the
+weaker component of both compilers**. What does not survive: which layout is
+best, and "dSABRE ahead in all three rows" (it is ahead in 2 of 3 in block
+(b); PORTER takes its own layout there).
+
+V-B now states the two reasons for not adopting the partition --- **cost, and
+confinement to the two structurally simplest families** --- and Appendix C was
+rebuilt around them with a timing table (`tab:pytkettime`). Its stale figures
+were: the "-16%" best-of-2 (now **-12.1%** over 24 and only **-1.8%** over the
+18), "80q AE 490->352" (490 was the pre-selection single pass; now **299 own
+vs 389 pytket, a loss**), "Graphstate 28->11" (28->10), and the 309 s.
+
+**`gen_tables_selection.tab_shared` had to be taught the second block** --- it
+silently spliced the old 3-row grid back over the new table *after* both
+verifiers had passed. Same trap as 2026-08-31's first occurrence: **run the
+generator BEFORE the verifiers, and test idempotence by diffing the file
+across two runs, not against HEAD.** `verify_tex_tables` now pins 6 rows and
+the column-minimum reversal; `verify_paper_numbers` adds ~20 pins covering
+the decomposition, both bases, the totals, the win/loss counts, the median
+ratio and Appendix C's two best-of-2 figures. 223 checks.
+
+Paper is 16 pages (body ends on 15; p16 is 22 lines of references).
+
+**Abstract/intro/conclusion re-audited after the +S removal --- one stale
+number found.** Every headline figure was recomputed live: the three
+TeleSABRE margins (59.6/41.6/68.2 at three routes, block (a) basis), 24-vs-17
+completions and the seven non-convergences, 1.02x EPR / 0.91x time vs dSABRE,
+0.72x and 6/6 on scale-up, 48 instances, the 23,381-CX circuit (80q Random),
+and the factor-32 horizon span. **All correct, and none of them depended on
++S** --- the removal touched nothing in those three sections.
+
+**The exception: the conclusion's negative-finding figure was wrong.** It said
+TeleData-only "beats the full action set by $32.8\%$ on the packet-heaviest
+circuits" at 80q, while V-C and `tab:ablation` say **-21.4%** (n=7). The
+32.8% reproduces on exactly one basis --- the geometric mean over
+{80q ae, qft, qnn} --- which the paper never defines, and **those three are
+not the packet-heaviest**: at 80q the ranking is random 572 > qnn 448 >
+qaoa 303 > ae 264 > qpeexact 239 > qft 209 > multiplier 192. It is a fossil
+of the pre-widening common-6 ablation basis. **It was the only headline
+percentage in the three sections with no pin**, which is how it survived
+(the `-32.8` that greps in `verify_paper_numbers.py` and the appendix is an
+unrelated coincidence --- 64q Multiplier's $\Delta_\mathrm{TS}$).
+
+Fixed to the body's own basis, and the conclusion now states the **monotone
+scale trend** that is the actual finding: +1.3% at 25q, -1.6% at 64q,
+-21.4% at 80q, "never the more expensive of the two on any circuit it
+completes" at 80q (verified: zero 80q circuits where TeleData-only is dearer).
+
+**V-C's "the circuits it wins are the packet-heaviest" was also unscoped.**
+It holds cleanly at **64q** --- ranked by packets, the completers go
+`WWWLLLTT` (qaoa 331, qnn 240, qft 45 win; qpeexact 42, multiplier 34, ae 32
+lose; ghz/graphstate tie at 0) --- and **fails at 80q**, where the ranking is
+`WWWWWTT`: it wins every circuit it completes, and the two it cannot complete
+are the packet-heaviest (random) and the packet-lightest (multiplier). The
+sentence sat immediately after the 80q figure, so it read as explaining it.
+Now scoped to 64q with the 80q behaviour stated separately. Both orderings
+are pinned as strings, so either flipping fails.
+
+**Route-count arithmetic checked, and one number was wrong.** \PORTER{}+R's
+`routes = 7` is **correct** --- verified by counting `PorterRouter.compile`
+calls: `run_refinement_passes(selection=True)` spends |H|=3 on horizon
+selection, **pins `dag_extended_max_layers` to the winner**, and runs the
+remaining P-1=4 passes at that horizon (live trace: `L per route =
+[16,4,8,16,16,16,16]`). It is **not** 5x3=15; re-selecting per pass is
+explicitly rejected in the code. With `selection=False` it is 5.
+
+**But \PORTER{}+S's "10--17" was wrong under the paper's own definition of a
+route** ("one invocation of the routing loop"). Two counts exist:
+
+- **Actual invocations** = 5 (phase 1) + **7 per refinement seed**, since each
+  seed runs the full `run_refinement_passes(selection=True)` = |H| + P - 1.
+  So **12** when gamma=0.99 wins phase 1 (one seed) and **19** otherwise.
+  Measured live: 25q ae 19, qft 12, graphstate 19.
+- **`info["routes"]`**, what the harness records, discounts one route per seed
+  --- `info["routes"] += (passes_run-1) + (horizon_routes-1)` charges each
+  seed's pass 1 to phase 1, because that (layout, horizon) pair was already
+  routed there. Gives 11 or 17, dropping to 10/13/15/16 where a per-pass
+  guard cuts a pass short. **The code does not memoise: it really re-routes.**
+
+Appendix J now states both and the derivation; the old text's
+"$5+4=9$ / $5+4+4=13$ plus $|H|-1$ probes" was the second count with a wrong
+derivation (it credits P-1=4 + 2 probes = 6 per seed, not 7). Pinned:
+per-seed routes = |H|+P-1 = 7 against the live constants, |H|=3 for both
+candidate sets, the counter's observed min/max (10/17), and that the
+one-seed instances are exactly the three where gamma=0.99 wins.
+
 **Gotcha for future appendix tables:** `verify_tex_tables.rows_of` and
 `gmean_rows` match **one line at a time**, so a row wrapped across two source
 lines is silently dropped or mis-indexed (it cost an `IndexError` here). Keep

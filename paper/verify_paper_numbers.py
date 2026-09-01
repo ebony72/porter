@@ -4,6 +4,7 @@ teledata_ablation_basis.json.
 Expected values below mirror the paper; rerun after any harness refresh."""
 import json
 import math
+import statistics
 
 BASE = "/Users/sanjiangli/Documents/pyzoo/SFC"
 # Track the results files the paper's tables are generated from.  During the
@@ -176,21 +177,160 @@ for src, (d, p, pr) in _GRID.items():
     for leg in (d, p, pr):
         check(f"grid {src} {leg} covers all 24", 24,
               sum(1 for r in cmp_rows if (r.get(leg) or {}).get("epr")))
-# "the routing loops land within 2% of one another on every row, dSABRE ahead"
+# Sec VI-A's completion-guarantee argument: PORTER's observed failure is a
+# LIVELOCK with capacity healthy, not the capacity deadlock dSABRE's proof
+# rules out -- which is why adopting dSABRE's recovery would not supply the
+# missing guarantee.  Both halves pinned.
+check("no capacity deadlock with relief on", 0,
+      sum(1 for r in abl_rows if not (r["out"].get("full") or {}).get("epr")))
+check("PORTER completes every instance of the evaluation", True,
+      all((r.get("sfc") or {}).get("epr") for r in cmp_rows)
+      and all((r.get("sfc") or {}).get("epr") for r in su_rows)
+      and all((r.get("porter") or {}).get("epr") for r in hh_rows))
+# The livelock instance: PORTER completes it under selection, and it is the
+# star/Multiplier row Sec VI and Appendix K both name.
+check("heavy-hex star Multiplier completes under selection", True,
+      any((r.get("porter") or {}).get("epr") for r in hh_rows
+          if r["topology"] == "star" and r["circuit"] == "multiplier"))
+
+# Sec VI + conclusion: the two compilers are complementary, and the
+# per-instance portfolio beats either.  Also tab:main's W/L/T row.
+_wlt = lambda leg, rows: (
+    sum(1 for r in rows if r[leg]["epr"] < r["dSE"]["epr"]),
+    sum(1 for r in rows if r[leg]["epr"] > r["dSE"]["epr"]))
+for _leg, _want in (("sfc", "10/12"), ("sfc_refined", "11/11")):
+    check(f"tab:main W/L vs dSABRE {_leg}", _want,
+          "%d/%d" % _wlt(_leg, cmp_rows))
+check("neither wins more than eleven", 11,
+      max(_wlt("sfc", cmp_rows)[0], _wlt("sfc_refined", cmp_rows)[0]))
+_best = lambda leg, rows: gmean([min(r["dSE"]["epr"], r[leg]["epr"]) for r in rows])
+check("portfolio dSE+PORTER", 155.9, round(_best("sfc", cmp_rows), 1))
+check("portfolio dSE+PORTER+R", 152.1, round(_best("sfc_refined", cmp_rows), 1))
+check("portfolio vs dSABRE (PORTER)", -9.3,
+      round(100 * (_best("sfc", cmp_rows) / _g("dSE") - 1), 1))
+check("portfolio vs dSABRE (PORTER+R)", -11.6,
+      round(100 * (_best("sfc_refined", cmp_rows) / _g("dSE") - 1), 1))
+_s80 = [r for r in cmp_rows if r["suite"] == "80"]
+_s64 = [r for r in cmp_rows if r["suite"] == "64"]
+# Abstract/intro/VI: the portfolio gain is NOT a geometric-mean artefact of
+# the two cheapest families -- it survives dropping them, unlike the
+# pytket-dqc layout result.  Both bases are quoted, so both are pinned.
+_nt18 = [r for r in cmp_rows
+         if r["circuit"].replace("_OLD_DEEP", "") not in ("ghz", "graphstate")]
+check("portfolio basis 18", 18, len(_nt18))
+_g18 = gmean([r["dSE"]["epr"] for r in _nt18])
+check("portfolio over the 18, PORTER", -8.0,
+      round(100 * (_best("sfc", _nt18) / _g18 - 1), 1))
+check("portfolio over the 18, PORTER+R", -9.0,
+      round(100 * (_best("sfc_refined", _nt18) / _g18 - 1), 1))
+_tot = lambda leg, rows: sum(min(r["dSE"]["epr"], r[leg]["epr"]) for r in rows)
+_dtot = sum(r["dSE"]["epr"] for r in _nt18)
+check("portfolio total EPR over the 18, PORTER", -12.4,
+      round(100 * (_tot("sfc", _nt18) / _dtot - 1), 1))
+check("portfolio total EPR over the 18, PORTER+R", -13.7,
+      round(100 * (_tot("sfc_refined", _nt18) / _dtot - 1), 1))
+# VI's cost statement and its two named instances.
+check("portfolio compile time vs dSABRE", 2.1,
+      round(gmean([r["dSE"]["seconds"] + r["sfc"]["seconds"] for r in cmp_rows])
+            / gmean([r["dSE"]["seconds"] for r in cmp_rows]), 1))
+for _s, _c, _d, _p in (("80", "multiplier", 4841, 2411), ("80", "qpeexact", 347, 291)):
+    _r = next(r for r in cmp_rows if r["suite"] == _s and r["circuit"] == _c)
+    check(f"VI portfolio example {_s}q {_c} dSE", _d, _r["dSE"]["epr"])
+    check(f"VI portfolio example {_s}q {_c} PORTER", _p, _r["sfc"]["epr"])
+check("portfolio gain at 80q", -16.3,
+      round(100 * (_best("sfc", _s80) / gmean([r["dSE"]["epr"] for r in _s80]) - 1), 1))
+check("portfolio gain at 64q", -2.5,
+      round(100 * (_best("sfc", _s64) / gmean([r["dSE"]["epr"] for r in _s64]) - 1), 1))
+check("80q PORTER record", "4/5", "%d/%d" % _wlt("sfc", _s80))
+check("64q dSABRE wins six of nine", 6, _wlt("sfc", _s64)[1])
+
+# V-B block (b): the same grid without GHZ and Graphstate, whose EPR counts
+# are 1-2 orders of magnitude below the rest and so dominate an unweighted
+# geometric mean.  Every conclusion about WHICH layout is best inverts here.
+_NT = [r for r in cmp_rows
+       if r["circuit"].replace("_OLD_DEEP", "") not in ("ghz", "graphstate")]
+_TRIV = [r for r in cmp_rows
+         if r["circuit"].replace("_OLD_DEEP", "") in ("ghz", "graphstate")]
+check("grid block (b) basis", 18, len(_NT))
+check("grid trivial rows", 6, len(_TRIV))
+_gn = lambda leg: gmean([r[leg]["epr"] for r in _NT])
+# "the two land within 3% on every row -- dSABRE ahead in all three rows of
+# (a), and in two of three of (b), PORTER taking its own layout there"
 for src, (d, p, _) in _GRID.items():
-    ratio = _g(p) / _g(d)
-    check(f"grid {src}: dSABRE ahead", True, ratio > 1.0)
-    check(f"grid {src}: within 2%", True, ratio < 1.022)
-# "wins twelve to eight on the pytket row"
-check("pytket-row dSABRE wins", 12,
-      sum(1 for r in cmp_rows if r["dSE_pytket"]["epr"] < r["sfc_pytket"]["epr"]))
-check("pytket-row PORTER wins", 8,
-      sum(1 for r in cmp_rows if r["sfc_pytket"]["epr"] < r["dSE_pytket"]["epr"]))
-# "pytket's partition is the best start for both routers"
-check("pytket best for dSABRE", 4.5,
-      round(100 * (1 - _g("dSE_pytket") / _g("dSE")), 1))
-check("pytket best for PORTER", 4.8,
-      round(100 * (1 - _g("sfc_pytket") / _g("sfc")), 1))
+    check(f"grid {src} (a): dSABRE ahead", True, _g(p) / _g(d) > 1.0)
+    # "within 3%" is quoted to one decimal; the widest row is exactly 3.00%.
+    check(f"grid {src} (a): within 3%", True,
+          round(100 * abs(_g(p) / _g(d) - 1), 1) <= 3.0)
+    check(f"grid {src} (b): within 3%", True,
+          round(100 * abs(_gn(p) / _gn(d) - 1), 1) <= 3.0)
+check("grid (b): dSABRE ahead on two of three rows", 2,
+      sum(1 for _, (d, p, _) in _GRID.items() if _gn(p) / _gn(d) > 1.0))
+check("grid (b): PORTER ahead on its own layout", True,
+      _gn("sfc") < _gn("dSE_on_porter_layout"))
+# "the spread down a column is two to four times larger than across a row"
+# (V-B and Sec VI).  Measured 2.2x-3.6x over the six column/block pairs; an
+# earlier draft said "three to five", which no pairing supports.
+_COLS = {"dSABRE": ("dSE", "dSE_on_porter_layout", "dSE_pytket"),
+         "PORTER": ("sfc_on_dse_layout", "sfc", "sfc_pytket"),
+         "PORTER+R": ("sfc_on_dse_layout_refined", "sfc_refined",
+                      "sfc_pytket_refined")}
+_ratios = []
+for _basis, _g_ in ((cmp_rows, _g), (_NT, _gn)):
+    _row = max(abs(_g_(b) / _g_(a) - 1) for a, b in
+               (("dSE", "sfc_on_dse_layout"), ("dSE_on_porter_layout", "sfc"),
+                ("dSE_pytket", "sfc_pytket")))
+    for _legs in _COLS.values():
+        _v = [_g_(l) for l in _legs]
+        _ratios.append((max(_v) / min(_v) - 1) / _row)
+check("grid column/row spread ratio >= 2", True, min(_ratios) >= 2.0)
+check("grid column/row spread ratio <= 4", True, max(_ratios) <= 4.0)
+# The reversal V-B rests on: pytket is the lowest cell of every column over
+# all 24 and the highest of every column over the 18.
+for j, (dse, por) in enumerate((("dSE", "dSE_pytket"),
+                                ("sfc", "sfc_pytket"),
+                                ("sfc_refined", "sfc_pytket_refined"))):
+    check(f"grid col {j}: pytket best over 24", True, _g(por) < _g(dse))
+    check(f"grid col {j}: pytket worst over 18", True, _gn(por) > _gn(dse))
+# V-B was trimmed on 2026-09-01: the 38.8/36.8 pair and the total-EPR figures
+# are no longer quoted (the +10.7/+9.1 pair, the 14-of-24 count and the median
+# ratio carry the argument).  Kept as regression guards on the decomposition.
+_gt = lambda leg: gmean([r[leg]["epr"] for r in _TRIV])
+check("pytket on the six trivial, dSABRE", -38.8,
+      round(100 * (_gt("dSE_pytket") / _gt("dSE") - 1), 1))
+check("pytket on the six trivial, PORTER", -36.8,
+      round(100 * (_gt("sfc_pytket") / _gt("sfc") - 1), 1))
+check("pytket on the eighteen, dSABRE", 10.7,
+      round(100 * (_gn("dSE_pytket") / _gn("dSE") - 1), 1))
+check("pytket on the eighteen, PORTER", 9.1,
+      round(100 * (_gn("sfc_pytket") / _gn("sfc") - 1), 1))
+# "raises total EPR by 11.8% and 5.9%, worse start on fourteen of 24 for
+# both, at a median per-instance ratio of 1.03"
+_tot = lambda leg: sum(r[leg]["epr"] for r in cmp_rows)
+check("pytket total EPR, dSABRE", 11.8,
+      round(100 * (_tot("dSE_pytket") / _tot("dSE") - 1), 1))
+check("pytket total EPR, PORTER", 5.9,
+      round(100 * (_tot("sfc_pytket") / _tot("sfc") - 1), 1))
+for lab, (o, q) in (("dSABRE", ("dSE", "dSE_pytket")),
+                    ("PORTER", ("sfc", "sfc_pytket"))):
+    check(f"pytket worse start for {lab}", 14,
+          sum(1 for r in cmp_rows if r[q]["epr"] > r[o]["epr"]))
+    check(f"pytket median ratio {lab}", 1.03,
+          round(statistics.median([r[q]["epr"] / max(r[o]["epr"], 1)
+                                   for r in cmp_rows]), 2))
+_gs80 = next(r for r in cmp_rows
+             if r["suite"] == "80" and r["circuit"] == "graphstate")
+check("80q Graphstate PORTER own layout", 28, _gs80["sfc"]["epr"])
+check("80q Graphstate PORTER pytket layout", 10, _gs80["sfc_pytket"]["epr"])
+# Appendix C: the best-of-two gains 12.1% over 24 but only 1.8% over the 18,
+# and the partition is selected on nine instances.
+_best = lambda rows: gmean([min(r["sfc"]["epr"], r["sfc_pytket"]["epr"])
+                            for r in rows])
+check("appC best-of-2 over 24", -12.1,
+      round(100 * (_best(cmp_rows) / _g("sfc") - 1), 1))
+check("appC best-of-2 over 18", -1.8,
+      round(100 * (_best(_NT) / _gn("sfc") - 1), 1))
+check("appC pytket selected", 9,
+      sum(1 for r in cmp_rows if r["sfc_pytket"]["epr"] < r["sfc"]["epr"]))
 # "refinement gains 3.0% on dSABRE's layout and nothing on pytket's"
 check("refinement gain on dSE layout", 9.5,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_on_dse_layout")), 1))
@@ -362,6 +502,45 @@ for _s, _want in (("25", 26.4), ("64", 24.0), ("80", 4.0)):
     check(f"abl relief {_s}q failures", 0 if _s != "80" else 5,
           sum(1 for r in abl_rows if r["suite"] == _s
               and not (r["out"].get("no_relief") or {}).get("epr")))
+# V-C is 80q-only since 2026-08-31 (tab:ablation shows that suite alone), so
+# every count in its prose is on the 80q basis, NOT the pooled one.  The
+# relief count in particular differs: three instances are cheaper without
+# relief over all 24, but only ONE (Multiplier) at 80q.
+_a80 = [r for r in abl_rows if r["suite"] == "80"]
+_ae = lambda r, k: ((r["out"].get(k) or {}).get("epr"))
+check("V-C 80q relief failures", 5,
+      sum(1 for r in _a80 if _ae(r, "no_relief") is None))
+check("V-C 80q cheaper without relief", 1,
+      sum(1 for r in _a80 if _ae(r, "no_relief") is not None
+          and _ae(r, "no_relief") < _ae(r, "full")))
+check("V-C 80q cheaper without packets", 2,
+      sum(1 for r in _a80 if _ae(r, "no_packets") is not None
+          and _ae(r, "no_packets") < _ae(r, "full")))
+# V-C's ordering claim, now made on 80q alone: TeleData-only < Full <
+# No packets on four of the five rows where all three columns complete,
+# QFT the exception (it is also one of the two cheaper without packets).
+_e = lambda d, k: ((d.get(k) or {}).get("epr"))
+_ord80 = [(c, _e(abl_by[("80", c)]["out"], "full"),
+           _e(abl_by[("80", c)]["out"], "no_packets"),
+           _e(td_by[("80", c)]["out"], "teledata_only_relief"))
+          for c in ("ae", "qft", "qnn", "random", "qpeexact", "qaoa", "multiplier")]
+_ord80 = [(c, f, n, d) for c, f, n, d in _ord80 if n is not None and d is not None]
+check("V-C 80q ordering basis", 5, len(_ord80))
+check("V-C 80q ordering holds", 4,
+      sum(1 for _, f, n, d in _ord80 if d < f < n))
+check("V-C 80q ordering exception is QFT", "qft",
+      ",".join(c for c, f, n, d in _ord80 if not (d < f < n)))
+check("V-C 80q packets QAOA pct", 47,
+      round(100 * (_ae(next(r for r in _a80 if r["circuit"] == "qaoa"), "no_packets")
+                   / _ae(next(r for r in _a80 if r["circuit"] == "qaoa"), "full") - 1)))
+check("V-C 80q packets AE pct", 40,
+      round(100 * (_ae(next(r for r in _a80 if r["circuit"] == "ae"), "no_packets")
+                   / _ae(next(r for r in _a80 if r["circuit"] == "ae"), "full") - 1)))
+# The 25q/64q TeleData percentages and their monotonicity are NO LONGER
+# QUOTED: V-C and the conclusion are 80q-only since 2026-08-31, because a
+# scale trend does not speak to whether a mechanism earns its place.  The
+# checks are kept as a regression guard on the measurement itself -- the
+# 80q value IS quoted, and CLAUDE.md records the trend as project knowledge.
 # V-C: the TeleData-only advantage grows monotonically with scale.
 _tdp = []
 for _s, _want in (("25", 1.3), ("64", -1.6), ("80", -21.4)):
@@ -374,6 +553,32 @@ for _s, _want in (("25", 1.3), ("64", -1.6), ("80", -21.4)):
     _tdp.append(_got)
 check("td advantage is monotone in scale", True,
       _tdp[0] > _tdp[1] > _tdp[2])
+# Conclusion: at 80q the teleport-only vocabulary is "never the more expensive
+# of the two on any circuit it completes".  The conclusion used to claim 32.8%
+# here, which reproduces ONLY over the undisclosed subset {ae, qft, qnn} and
+# was inconsistent with V-C's 21.4% -- it was the one headline figure in the
+# abstract/intro/conclusion with no pin.  Both facts are pinned now.
+_td80 = [r for r in td_rows if r["suite"] == "80"]
+def _tdv(r):
+    o = r["out"].get("teledata_only") or {}
+    return o.get("epr") or (r["out"].get("teledata_only_relief") or {}).get("epr")
+check("conc 80q teledata never dearer", 0,
+      sum(1 for r in _td80
+          if _tdv(r) and abl_by[(r["suite"], r["circuit"])]["out"]["full"]["epr"] < _tdv(r)))
+# V-C: the 64q split follows the packet count -- the three packet-heaviest
+# circuits it completes win, the three lightest lose, the two zero-packet
+# circuits tie.  This does NOT hold at 80q, which is why V-C now scopes it.
+_td64 = [r for r in td_rows if r["suite"] == "64" and _tdv(r)]
+_ranked = sorted(_td64, key=lambda r: -r["out"]["full"]["packets"])
+_verdict = ["W" if _tdv(r) < r["out"]["full"]["epr"]
+            else ("T" if _tdv(r) == r["out"]["full"]["epr"] else "L")
+            for r in _ranked]
+check("td 64q split follows packet count", "WWWLLLTT", "".join(_verdict))
+check("td 80q split does NOT follow packet count", "WWWWWTT",
+      "".join("W" if _tdv(r) < r["out"]["full"]["epr"]
+              else ("T" if _tdv(r) == r["out"]["full"]["epr"] else "L")
+              for r in sorted([r for r in _td80 if _tdv(r)],
+                              key=lambda r: -r["out"]["full"]["packets"])))
 check("td strict removal completes", 8,
       sum(1 for r in td_rows if (r["out"].get("teledata_only") or {}).get("epr")))
 
@@ -451,6 +656,11 @@ check("64q PORTER slower per pass on", 9, sum(1 for x in _ratios if x < 1))
 check("64q per-pass gmean", 0.08, round(gmean(_ratios), 2))
 check("64q dSABRE routes per circuit", 9,
       3 * _r64[0]["dSE"].get("n_candidates", 1))
+# V-F's per-route paragraph was cut to its first and last sentences on
+# 2026-09-01, so the 64q per-route ratio, the 3.6x factor and the
+# 1.77/1.98 s pair are no longer quoted; the surviving prose claims only
+# that PORTER's time advantage is in the count of routes.  Kept as
+# regression guards -- they are what makes that claim true.
 check("64q complete-cost gmean dSE", 1.77,
       round(gmean([r["dSE"]["seconds"] for r in _r64]), 2))
 check("64q complete-cost gmean PORTER", 1.98,
@@ -487,6 +697,11 @@ check("scaleup +R loses on all six", 6,
       sum(1 for r in su_rows if r["sfc_refined"]["epr"] > r["sfc"]["epr"]))
 check("scaleup +R pct behind selection", 83,
       round(100 * (gmean([r["sfc_refined"]["epr"] for r in su_rows]) / _su_p - 1)))
+# V-D's two interpretive paragraphs were removed on 2026-09-01 (the section
+# now reports the result and Sec VI interprets it), so 0.96x and the 1,791
+# figure are no longer quoted anywhere; 1.45x and "dSABRE's layout is worse
+# for PORTER" survive in Sec VI.  The unquoted checks are kept as regression
+# guards on the measurement.
 check("scaleup dSE-layout ratio", 0.96,
       round(gmean([r["sfc_on_dse_layout"]["epr"] for r in su_rows]) / _su_d, 2))
 check("scaleup default-horizon ratio (the 1.45x it replaces)", 1.45,
@@ -560,6 +775,30 @@ check("appJ gamma=0.80 wins", 9,
       sum(1 for r in cmp_rows if r["sfc_search"]["best_gamma"] == 0.80))
 check("appJ all five gammas win somewhere", 5,
       len({r["sfc_search"]["best_gamma"] for r in cmp_rows}))
+# Appendix J route budget.  TWO counts are in play and the appendix states
+# both: actual invocations of the routing loop (5 phase-1 routes + 7 per
+# refinement seed = 12 or 19), and the DISTINCT-route counter the harness
+# records, which charges each seed's pass 1 to phase 1 because it re-routes a
+# (layout, horizon) pair phase 1 already covered.  The old "10--17" figure
+# quoted the second while the paper's terminology defines the first.
+_cmpr = importlib.import_module("compare_routers")
+check("appJ per-seed routes = |H| + P - 1", 7,
+      len(_cdr.PORTER_HORIZONS) + _cmpr.PORTER_REFINE_PASSES - 1)
+check("appJ |H| = 3", 3, len(_cdr.PORTER_HORIZONS))
+check("appJ |H| dense = 3", 3, len(_cdr.PORTER_HORIZONS_DENSE))
+check("appJ distinct-route counter max", 17,
+      max(r["sfc_search"]["routes"] for r in cmp_rows))
+check("appJ distinct-route counter min", 10,
+      min(r["sfc_search"]["routes"] for r in cmp_rows))
+# One seed exactly when gamma=0.99 wins phase 1; that bounds the counter at 11.
+check("appJ one-seed instances", 3,
+      sum(1 for r in cmp_rows if r["sfc_search"]["best_gamma"] == 0.99))
+check("appJ one-seed counter <= 11", True,
+      all(r["sfc_search"]["routes"] <= 11 for r in cmp_rows
+          if r["sfc_search"]["best_gamma"] == 0.99))
+check("appJ two-seed counter <= 17", True,
+      all(r["sfc_search"]["routes"] <= 17 for r in cmp_rows
+          if r["sfc_search"]["best_gamma"] != 0.99))
 # Appendix J: PORTER+SR is retired -- it cannot differ from PORTER+S.
 check("PORTER+SR identical to PORTER+S", 0,
       sum(1 for r in cmp_rows
@@ -751,10 +990,13 @@ for topo in ("ring", "star"):
     check(f"hh {topo} fixed-layout PORTER beats dSABRE", True,
           _hh_gmean_raw(topo, "porter_on_dse", _HH9)
           < _hh_gmean_raw(topo, "dSE", _HH9))
-# Star Multiplier: PORTER's own layout fails, dSABRE's layout gives 462 vs 722.
+# The star-Multiplier livelock discussion was removed from V-E on 2026-09-01
+# (V-E now shows only that PORTER runs on both core graphs and that its layout
+# suits the star badly).  These checks are no longer quoted in the paper --
+# Sec VI still cites the livelock as a limitation, without the figures -- and
+# are kept as regression guards that horizon selection routes the instance.
 check("hh star multiplier porter completes", True,
       (hh_by[("star", "multiplier")].get("porter") or {}).get("epr") is not None)
-# V-E: star Multiplier is PORTER's widest margin on these architectures.
 _hh_ratio = {k: r["porter"]["epr"] / r["dSE"]["epr"] for k, r in hh_by.items()
              if (r.get("porter") or {}).get("epr")}
 check("hh widest PORTER margin", "star/multiplier",
