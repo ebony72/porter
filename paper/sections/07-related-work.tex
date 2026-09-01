@@ -7,7 +7,7 @@ the art for this cost model, supporting teledata and gate teleportation
 on \SABRE{}'s extended-set scoring. The two differ chiefly in decision
 structure. \TeleSABRE{} scores inter-core candidates through a
 contracted-communication-graph Dijkstra energy folding staging cost and
-lookahead into one value, and --- uniquely here --- pools those
+lookahead into one value, and pools those
 candidates with local SWAPs, taking the global minimum each iteration.
 \PORTER{} keeps local work strictly ahead of inter-core work, scores
 whole plans independently of preparation cost, generates preparation
@@ -16,37 +16,48 @@ treats capacity as a legality condition with its own relief search
 rather than as \TeleSABRE{}'s safety-valve cap.
 
 \textbf{\dSABRE{}}~\cite{lidsabre} attacks the same problem and is a close
-relative. We run it in its default configuration, and our numbers match
-those it publishes for the architectures it reports.
+relative; we run it in its default configuration, and our numbers match
+those it publishes for the architectures it reports. Stating what the two
+share keeps either from being credited with the other's ideas: both rank
+moves by \SABRE{}'s front-plus-lookahead $\Delta$ score, both are strictly
+locality-first, scoring an inter-core candidate only once no front gate is
+intra-core, both promote capacity from a scoring penalty to a legality
+condition with the same floor of two free slots, and both manufacture
+capacity by relaying a free slot from a reservoir along a BFS path rather
+than evicting arbitrarily. Four differences remain, and they are what this
+paper evaluates: \PORTER{}'s action vocabulary is larger; its unit of
+commitment is a whole plan rather than one hop; preparation cost enters as
+a tiebreaker rather than additively; and its initial layout is one
+deterministic construction rather than a best-of-$N$ search. A fifth is
+not a design choice but a gap, and it runs \dSABRE{}'s way. Three
+guarantees are worth separating --- \emph{correctness}, that the returned
+stream realises every gate and violates no coupling or port rule;
+\emph{termination}, that every run ends, in success or by raising a
+diagnostic or tripping a guard; and \emph{completion}, that it ends in
+success. \PORTER{} provides the first two by construction
+(Section~\ref{sec:sfc-progress}) and the third only empirically, no
+instance in this evaluation being left unrouted; \dSABRE{}'s safe mode
+provides all three, carrying a termination-with-success proof under stated
+architectural hypotheses.
 
-Stating what the two share keeps either from being credited with the
-other's ideas. Both rank moves by \SABRE{}'s front-plus-lookahead
-$\Delta$ score; both are strictly locality-first, scoring an inter-core
-candidate only once no front gate is intra-core; both promote capacity
-from a scoring penalty to a legality condition with the same floor of two
-free slots; and both manufacture capacity by relaying a free slot from a
-reservoir along a BFS path rather than evicting arbitrarily. Four
-differences remain, and they are what this paper evaluates: \PORTER{}'s
-action vocabulary is larger; its unit of commitment is a whole plan
-rather than one hop; preparation cost enters as a tiebreaker rather than
-additively; and its initial layout is one deterministic construction
-rather than a best-of-$N$ search.
 
-The fifth difference is not a design choice but a gap, and it runs
-\dSABRE{}'s way. Three guarantees are worth separating.
-\emph{Correctness}: the returned stream realises every gate and violates
-no coupling or port rule. \emph{Termination}: every run ends, in success
-or by raising a diagnostic or tripping a guard. \emph{Completion}: that
-it ends in success. \PORTER{} provides the first two by construction
-(Section~\ref{sec:sfc-progress}) and the third only empirically.
-\dSABRE{}'s safe mode provides all three, carrying a
-termination-with-success proof under stated architectural hypotheses ---
-a connected core graph, connected intra-core couplings, and enough spare
-capacity per core. \PORTER{} has no analogue; what it has is measured
-rather than proved, and no instance in this evaluation is left
-unrouted.
 
-\begin{table}[t]
+\textbf{Other approaches.} Partition-first compilers assign qubits to
+cores by hypergraph or community
+partitioning~\cite{escofet2023hqa,pytketdqc2024,daei2020optimized} and
+route the residue; \texttt{pytket-dqc}~\cite{pytketdqc2024} is the mature
+representative, compared against in \appPytket{} under the caveat that
+its e-bit unit assumes long-lived entanglement and different
+communication memory. AutoComm~\cite{wu2022autocomm} identifies gate
+sequences that can share one entangled resource, which \PORTER{}'s packet
+applies inside the routing loop rather than as a pre-pass
+(Section~\ref{sec:primitives}). \SABRE{}~\cite{li2019tackling} supplies
+the scoring skeleton all three inherit.
+
+Table~\ref{tab:taxonomy} places the four systems on the axes that
+matter here.
+
+\begin{table}[b]
 \centering
 \caption{Design axes of the compilers discussed here. ``Commitment'' is
   the unit a scoring decision is taken over. \texttt{pytket-dqc} is
@@ -74,18 +85,3 @@ Metric         & EPR & EPR & e-bits & EPR \\
 \end{tabular}%
 }
 \end{table}
-
-Table~\ref{tab:taxonomy} places the four systems on the axes that
-matter here.
-
-\textbf{Other approaches.} Partition-first compilers assign qubits to
-cores by hypergraph or community
-partitioning~\cite{escofet2023hqa,pytketdqc2024,daei2020optimized} and
-route the residue; \texttt{pytket-dqc}~\cite{pytketdqc2024} is the mature
-representative, compared against in \appPytket{} under the caveat that
-its e-bit unit assumes long-lived entanglement and different
-communication memory. AutoComm~\cite{wu2022autocomm} identifies gate
-sequences that can share one entangled resource, which \PORTER{}'s packet
-applies inside the routing loop rather than as a pre-pass
-(Section~\ref{sec:primitives}). \SABRE{}~\cite{li2019tackling} supplies
-the scoring skeleton all three inherit.

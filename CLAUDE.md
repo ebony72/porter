@@ -1171,6 +1171,27 @@ non-vacuous by corrupting a portfolio cell and watching it fail.
 
 59 tex checks, 252 numeric checks, generator idempotent, 14 pages.
 
+## Sec VII: \dSABRE{} condensed to one paragraph; `tab:taxonomy` moved (2026-09-01)
+
+**Three \dSABRE{} paragraphs -> one.** Everything downstream depends on
+this paragraph, so all of it survives: the **four shared decisions** (the
+intro says "share four design decisions"), the **four differences**, and
+the **three guarantees** --- Sec VI-A's completion argument cites the
+shared capacity floor and BFS relay, and Appendix K's "Completion is
+empirical" cites the correctness/termination/completion split. Verified by
+count after the edit: 4 / 4 / 3.
+
+**`tab:taxonomy` appeared before \texttt{pytket-dqc} was introduced**, even
+after moving its source below the "Other approaches" paragraph --- a `[t]`
+float still rises to the top of its column, above the text that declares
+it. **Changing the source position is not enough; the placement specifier
+has to change too.** `[t]` -> `[b]` puts it at the foot of the column, so
+the reading order is now: pytket-dqc introduced, the reference sentence,
+then the table. Same trap applies to any float whose caption names
+something the surrounding text introduces.
+
+Sec VII prose 464 -> 440 words. Paper still 14 pages, zero overfull.
+
 ## VI: "dearer of the two" fixed; completion opening answers dSABRE (2026-09-01)
 
 **"never the dearer of the two" was ambiguous** --- "the two" meant the full
