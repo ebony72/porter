@@ -2721,6 +2721,25 @@ Nothing in it is read by the verifiers; released numbers are untouched.
     with backward refinement is untested. Next step is a joint
     (schedule, horizon) portfolio study at budgets 3/4/5, not more schedule
     search -- the axes are clearly not independent.
+- **Replacing the rho branch with a single set (asked 2026-09-03).** A
+  horizon-only single set is not enough: {4,16,128} is -0.6% in-sample but
+  **+0.3%/+1.0% held out**, and even {4,16,32,64,128} (5 routes) only reaches
+  -1.0%/-2.0%. Crossing the two axes works. **Recommended: the full 3x3
+  crossing {4,16,128} x w_min {0.5,0.25,0}, 9 routes** -- `-8.1%` gmean,
+  **21 better / 0 worse over all 48** (it strictly dominates the branch),
+  1.98x the 3-route wall time, and vs dSABRE main-24 **0.99x**, scale-up
+  **0.67x**, ring **0.93x**, star **1.04x** (from 1.21x). Nine routes is
+  **exactly dSABRE's budget**, which buys a matched-budget framing the paper
+  cannot currently make. Nothing in the shape is postselected -- only the axis
+  ranges, and {4,16,128} was independently the best global 3-set.
+  - The 6-route subsets are NOT loss-free: dropping the zero-floor row costs
+    64q QAOA +10.2%, dropping L=4 costs 80q QNN +14.5%. `{4,16,128} x
+    {0.5,0.25}` (6 routes) is the fallback: -6.4%, 16W/2L, worst +10.2%, 1.65x.
+  - Caveat: figures are single fixed-pair forward passes under a flat 300 s
+    guard, so 1.98x is idealised -- at 9 routes the speculative wall-clock
+    budget needs redesigning, not scaling, and compile time would go from
+    0.91x dSABRE to ~1.8x. Interaction with +R untested.
+  - Search: `paper/horizon_sweep/hz_joint.py` -> `report_single_set.md`.
 - Grid was routed from a snapshot carrying the **uncommitted three-term
   selection key**; the shipped schedule was re-run as the control arm, so all
   comparisons are same-key. vs the old-key sweep, 24/271 fixed-horizon cells
