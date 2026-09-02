@@ -2649,3 +2649,51 @@ answer.
 
 Scripts: scratchpad `determinism.py` (SHA + tie-count harness, reusable for any
 refactor), `phase2.py`, `recover.py`.
+
+
+## Adaptive-horizon programme evaluated; weight floor is load-bearing (2026-09-03)
+
+The vault's `porter_adaptive_horizon_experiment_instructions.md` (a 7-phase
+programme: sweep validation, portfolio search, architecture-aware selection,
+incremental collector + plan-level traces, progressive stopping, calibrated
+stopping, weight-floor factorial) was evaluated and the affordable phases
+run. Full write-up: vault `porter_adaptive_horizon_experiment_evaluation.md`.
+Data: **`paper/horizon_sweep/`** (uncommitted) -- 1,248 single forward passes
+(`selection=False`, own layout, 300 s guard, all replay-verified): 48 instances
+x {4,8,16,32,64,128} x four weight schedules, plus {48,256} for the shipped
+one; `README.md`, `MANIFEST.txt`, scripts and three generated reports.
+Nothing in it is read by the verifiers; released numbers are untouched.
+
+- **`teleport_lookahead_weight_floor=0.5` is load-bearing.** `w_min=0` costs
+  **+14.9%** EPR under the 3-route rule and **+62% on the scale-up series
+  (0W/6L)** -- with a true decay the weight at layer 30 is 0.04, so L=128
+  collapses to ~L=32 and the deep-horizon wins vanish. Flat weight (no
+  decay, `w_min=0.9`) costs +7.8%. `w_min=0.25` is parity overall
+  (wins heavy-hex/scale-up 3-6%, loses 25q +14.5%, 80q +8.1%). **Keep
+  0.5 / gamma 0.9.** Also: `w_min=0` halves horizon spread and cuts timeouts
+  15 -> 2 and *still* loses -- a smoother score is a worse route, and deep-L
+  non-convergence is a property of the score, not collector cost.
+- **A single global set {4,16,128} matches the density rule**: 363.1 vs 365.4
+  in-sample, parity leave-one-suite-out, p90 regret 11% vs 21%. The density
+  split's whole net effect is 80q QNN (wins at L=4) against heavy-hex star QNN
+  (loses, wants 128), which cancel; the sparse set alone scores exactly 365.4.
+  Adopting it would retire the in-sample-fitted rule IV-E declares, but moves
+  8/48 selected results (star QNN -29%, 64q QAOA +10%) -> author's call,
+  needs every selected leg re-run. 4th candidate (64): -2.1% for +33% routes.
+- **K/D scaling rules fail** (`L=clip(round(c*K))` etc.: median held-out
+  regret 19-35%, worse than fixed 16). Ring and star share K=4, D=2 and
+  differ in best L on 5/7 shared circuits; only one star family exists, so
+  hub-aware rules are unvalidatable here. Refitting even the 3-parameter
+  density form out-of-sample (375.8) is worse than a fixed global set (366.5).
+- **Phases 3-5 (progressive / plan-level lookahead) not built, by evidence**:
+  their "deep reference winner" is the optimum on 9/38 instances (median
+  regret 20.7%, max 111%); L=256 vs 128 is 1 better / 8 worse / 5 tied.
+- Sweep bookkeeping fixed: 348 routes (30x8 + 18x6), not 288; fixed-16
+  statistics are over 37 because star/Multiplier livelocks at L=16.
+  Best-of-assigned-set from the sweep reproduces the released protocol exactly
+  (174.9 / 507.7 / 86.1 / 122.3).
+- Grid was routed from a snapshot carrying the **uncommitted three-term
+  selection key**; the shipped schedule was re-run as the control arm, so all
+  comparisons are same-key. vs the old-key sweep, 24/271 fixed-horizon cells
+  differ, 3 at the protocol (25q Random 401->393, 80q Multiplier 2411->2486,
+  360q QFT 1156->1170).

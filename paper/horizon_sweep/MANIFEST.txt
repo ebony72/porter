@@ -1,0 +1,13 @@
+HEAD=53200e9c22514352e597f20450c429ddc764b046
+branch=porter-eval-rewrite
+router_diff_sha=747de62a3ec7b782
+snapshot_time=2026-09-02T22:52:40+10:00
+d7b4148eab2714edb3d83ab4d3e7a2f9dc8c7fa4f830507eae06686d8df8fdb0  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/porter/__init__.py
+92f2355c184214b68a9659b75e98582c4069a78589a10f095a1021682e83f0eb  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/porter/hardware.py
+cb656ed8e5324e1376f78914554c4cd6fe44fb01e3316fd4d413a796dca2bc71  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/porter/layout.py
+d35bae24620da69186c956ed5c488d2f0b30a7b09ee2ba1ac7ce3ed826ca0a1d  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/porter/model.py
+84335930c826457a6b50d75c7f4b8388280b0d6ce55167a2d733fa95808c72ef  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/porter/router.py
+3ce8035450487b9cbb2d32105be36093c06f9c9551b03cd56d0745a9dd558fc8  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/compare_heavyhex.py
+a04ee94d56756ebfbf8c011d4c1bf499b6cfa0c5abf8d3a066e574df531a2603  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/compare_routers.py
+2fe95c5981026c417b320f657a6795beee2d8524a30cffd0bf8c2b09b33c4cc1  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/compile_porter.py
+d0f924b0fd6155a13ff53a63e9516e3675cd4c713f6dca7ca91e8c120fb9aa28  /private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/7bd2ce57-f479-4fd2-bcd9-8558599f1110/scratchpad/snap/SFC/verify_porter.py
