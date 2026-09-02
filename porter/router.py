@@ -462,6 +462,11 @@ class PorterRouter:
         gates = state.remaining
         state.gate_by_id = {g.gid: g for g in gates}
         state.dag_active = {g.gid for g in gates}
+        state.active_cx_by_qubit = {}
+        for g in gates:
+            if g.is_cx():
+                for q in g.qubits:
+                    state.active_cx_by_qubit[q] = state.active_cx_by_qubit.get(q, 0) + 1
         state.dag_successors = {g.gid: set() for g in gates}
         state.dag_predecessors = {g.gid: set() for g in gates}
         state.dag_predecessor_count = {g.gid: 0 for g in gates}
@@ -495,12 +500,10 @@ class PorterRouter:
     # ---------------------------------------------------------------------
 
     def _current_dag_front(self, state: RouterState) -> List[Gate]:
-        # Gate ids are assigned in circuit order, so ascending gid equals the
-        # original remaining-list order.
+        # Gate ids are assigned in circuit order, so sorting by gid yields the
+        # front in circuit order -- a canonical order independent of the set's
+        # iteration order, which is what makes the emitted stream deterministic.
         front_ids = sorted(state.dag_frontier)
-        limit = self.cfg.dag_front_limit
-        if limit and limit > 0:
-            front_ids = front_ids[:limit]
         return [state.gate_by_id[gid] for gid in front_ids]
 
     def _classify_front(self, front: List[Gate], layout: Layout) -> FrontInfo:
@@ -1568,14 +1571,20 @@ class PorterRouter:
         max_cx: int,
         max_layers: int,
     ) -> List[Tuple[Gate, int]]:
-        if max_cx <= 0 or max_layers <= 0:
+        # Only active CXs of the moving qubit are collectable, and there are
+        # exactly `active_cx_by_qubit[moving_qubit]` of them, so the walk can
+        # never return more.  Capping by it is output-preserving -- it stops
+        # peeling layers that provably cannot yield another gate -- and it
+        # returns immediately for a qubit whose line is already finished.
+        cap = min(max_cx, state.active_cx_by_qubit.get(moving_qubit, 0))
+        if cap <= 0 or max_layers <= 0:
             return []
 
         seen = set(exclude)
         out: List[Tuple[Gate, int]] = []
 
         for layer in range(1, max_layers + 1):
-            if not dag.frontier or len(out) >= max_cx:
+            if not dag.frontier or len(out) >= cap:
                 break
 
             current = sim.current_layer(dag)
@@ -1584,7 +1593,7 @@ class PorterRouter:
 
             sim.remove_gate_ids(dag, current)
             for gid in sorted(dag.frontier):
-                if len(out) >= max_cx:
+                if len(out) >= cap:
                     break
                 if gid in seen:
                     continue
@@ -2397,6 +2406,11 @@ class PorterRouter:
                 continue
             state.dag_active.remove(gid)
             state.dag_frontier.discard(gid)
+            gate = state.gate_by_id.get(gid)
+            if gate is not None and gate.is_cx():
+                for q in gate.qubits:
+                    state.active_cx_by_qubit[q] = max(
+                        0, state.active_cx_by_qubit.get(q, 0) - 1)
             for succ in state.dag_successors.get(gid, set()):
                 if succ in state.dag_active:
                     count = max(0, state.dag_predecessor_count.get(succ, 0) - 1)

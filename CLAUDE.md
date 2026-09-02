@@ -835,12 +835,11 @@ time is not a selling point** -- report it, never lead with it.
 **Factual defects the review surfaced, both confirmed:**
 - **The front-cap claim was wrong.** "A cap that never binds since front
   gates are pairwise qubit-disjoint" -- disjointness bounds the front by $n$,
-  not by 96, and 1Q gates are not excluded. The cap **binds on all three
-  QPEexact scale-up instances** (front reaches 100/200/360). It is
-  output-neutral there (truncation is by ascending gate index and executable
-  gates drain first), verified by re-routing uncapped. New released probe
-  `paper/probe_front_limit.py` reproduces both figures; max front elsewhere
-  is 47 (64q random).
+  not by 96, and 1Q gates are not excluded. The cap **bound on all three
+  QPEexact scale-up instances** (front reaches 100/200/360); max front
+  elsewhere is 47 (64q random). **SUPERSEDED 2026-09-01: the cap is gone**
+  -- see "dag_front_limit removed" below. `paper/probe_front_limit.py` was
+  deleted with it.
 - **Notation collision**: `\ell` was the layout *and* `\ell(g)` the ASAP
   layer. The ASAP layer is now `\mathrm{asap}(g)`.
 
@@ -2463,3 +2462,190 @@ derives from that circuit's own density, and $|H|=3$ on all 48 instances.
 `run_sfc_sabre_layout` loops 3 candidate layouts x 3 horizons = the 9 routes
 `tab:budgets` claims. Script: scratchpad `audit_horizons.py`; worth
 re-running after any change to the horizon constants.
+
+
+## `dag_front_limit` removed (2026-09-01)
+
+The front cap (96 gates) is **deleted from `RouterConfig` and from
+`_current_dag_front`**, and from Algorithm 1, III-D and the appendix
+parameter table. `paper/probe_front_limit.py` is deleted; the
+`dag_front_limit` pin is out of `verify_paper_numbers.py`.
+
+**It never changed a routing decision.** Measured capped vs uncapped at a
+fixed horizon on all six scale-up instances: EPR, SWAPs, depth,
+intercore depth and `seeded_tie_break_count` identical everywhere. On the
+three QFT instances the op stream is **byte-identical** (max front 8). On
+the three QPEexact instances, where the front reaches $n$, the stream is a
+**permutation**: same multiset of ops, first divergence at index exactly
+96, and every differing op a **single-qubit gate**. Both arms pass
+`verify_porter`. Cost of removal: **1.03x wall clock**.
+
+**No released number changed.** Re-verified after the removal: all 24
+main-suite and all 6 scale-up single-pass EPRs reproduce exactly, 60/60
+fuzz trials pass. The released `*_results*.json` are untouched and still
+correct.
+
+**Watch out: `_current_dag_front` still sorts by gid**, and that sort is
+now the only thing making the front order canonical -- it is what keeps
+the emitted stream deterministic, not a leftover of the truncation. Do
+not "optimise" it into a raw set iteration.
+
+**Found alongside, and NOT fixed: a second instance sits inside a second
+of its speculative budget.** IV-C discloses only 360q QPEexact. Measured
+slack (budget $-$ the $L{=}128$ route's own time):
+
+| instance | t(L=16) | budget | t(L=128) | slack |
+|---|---|---|---|---|
+| **200q QFT** | 1.6 s | 7 s | 6.6 s | **+0.4 s** |
+| 200q QPEexact | 2.2 s | 9 s | 5.4 s | +3.6 s |
+| 360q QFT | 3.9 s | 16 s | 12.7 s | +3.3 s |
+| 360q QPEexact | 4.2 s | 17 s | 14.8 s | +2.2 s |
+
+200q QFT flips $579 \leftrightarrow 1128$ across repeats (2 of 3 trials
+gave 579), so `tab:scaleup`'s $579$ is as fragile as the $1{,}224$ IV-C
+flags. **This is unrelated to the cap** -- the cap never bound there (max
+front 8) and its timings are identical in both arms.
+
+**`paper/responses_to_reviews.md` s1.1 is now stale**: it tells the
+reviewer that `probe_front_limit.py` was released. The cap's removal
+supersedes that answer.
+
+
+## The last component of the selection key is vestigial, and its sign is wrong (2026-09-01)
+
+`_remote_plan_selection_key` (router.py:1293) is
+`(-total, not ready, prep, rank(kind), cap, -lookahead_gain, stable_id)`.
+Instrumented over **2,714 plan rankings** on 7 circuits (25q ae/random,
+64q ae/qft/qaoa/qpeexact, 80q qft), counting the first index at which the
+winner and runner-up differ:
+
+| deciding component | count | share |
+|---|---|---|
+| `-total` | 1,995 | 73.5% |
+| `prep` | 377 | 13.9% |
+| `not ready` | 96 | 3.5% |
+| `rank` | 78 | 2.9% |
+| `cap` | 19 | 0.7% |
+| **`-lookahead`** | **1** | **0.04%** |
+| `stable_id` | 148 | 5.5% |
+
+- **Neutralising `-lookahead` changes the selected plan in 0 of 2,714
+  rankings** -- including the one it decides, where the tie fell through
+  to `stable_id`, which picked the same plan. The arbitrary identifier
+  does **148x** the work of the component the paper describes as a design
+  choice.
+- **The cause is structural**: `total = direct_gain + lookahead_gain`
+  (router.py:1326), so lookahead is a *summand of* component 0. Any
+  difference in it moves `total` first and the comparison ends at index 0.
+  It is not degenerate -- `lookahead_gain` varies across candidates in
+  2,336 of 2,714 rankings (86%) -- it just never gets to matter. Reaching
+  index 5 needs direct and latent gain to trade in exactly compensating
+  amounts *and* a tie on readiness, prep, kind and capacity.
+- **The sign is backwards** (author's observation, 2026-09-01). At equal
+  `total`, preferring the larger `lookahead_gain` is preferring the
+  *smaller* `direct_gain` -- deferring certain progress in favour of
+  discounted progress. To break the tie toward surer progress it should
+  sort on `-direct_gain`. Noted as future work in VI-A alongside the
+  comparator-currency item, which is the same mismatch; **not changed in
+  the code**, since touching the key means re-deriving every released
+  number (the front-cap removal is the template for that).
+- **III-E still presents the six components as equally load-bearing**
+  ("The order is the design, so we take the components in turn"). Softening
+  the last one's billing was offered and not taken; if a reviewer asks why
+  the key has a component that never fires, this is the answer.
+
+Script: scratchpad `key_components.py`. **Trap it hit first time**: the
+probe re-wrapped `PorterRouter._choose_best_remote_plan` once per circuit
+without restoring, so wrappers nested and early circuits' counters kept
+incrementing during later circuits -- pooled totals came out 4.6x too
+high (12,599 vs 2,714). Restore the pristine method before each wrap.
+
+
+## Lookahead horizon: the walk bound landed, the gate budget did not (2026-09-02)
+
+Two changes were tried against `_collect_teleport_post_latent_lookahead_gates`
+(router.py:1559). **The first shipped, the second is refuted.**
+
+### What the collector actually does -- read this before touching it
+
+It peels **whole DAG layers** and re-sorts the entire frontier each layer, so
+cost is `O(L x |frontier| log|frontier|)` **whether or not the moving qubit
+has anything left to find**. A qubit has at most one front gate at a time, so
+`|out| <= L`.
+
+**The discount floors at layer 7.** `layer_weight = max(0.5, 0.9 * 0.9^(L-1))`
+hits the `teleport_lookahead_weight_floor=0.5` at layer 7 and stays there, so
+a gate found at layer 8 and one at layer 128 contribute **identically**.
+Past layer 7 the horizon does not discount at all.
+
+Measured (`selection=False`, single pass):
+
+| | mean gates found | walks finding nothing | found beyond layer 16 |
+|---|---|---|---|
+| 64q QFT, L=16 | 2.41 | 28% | 0% |
+| 64q QFT, L=128 | **34.69** | 7% | **92%** |
+| 200q QFT, L=16 | 2.18 | 58% | 0% |
+| 200q QFT, L=128 | **23.74** | 25% | **92%** |
+
+Also: at 64q QFT, L=128 makes **434,417** collector calls against 3,830 at
+L=16 (113x) because the deeper horizon changes the *trajectory* into far more
+router iterations; at 200q QFT it goes the other way (10,468 vs 16,744). That
+asymmetry -- not per-call cost -- is why L=128 times out on some circuits and
+runs fast on others.
+
+### SHIPPED: bound the walk by the moving qubit's remaining CXs
+
+`RouterState.active_cx_by_qubit` is a per-qubit count of active CXs, built in
+`_initialize_dag` and decremented at the **single** retirement point
+`_remove_gate_ids`. The collector now uses
+`cap = min(max_cx, active_cx_by_qubit[moving_qubit])`, which returns
+immediately for a finished qubit line and stops peeling layers that provably
+cannot yield another gate.
+
+**Output-preserving by construction** -- only active CXs of the moving qubit
+are collectable and there are exactly that many. Verified: op-stream SHA,
+`seeded_tie_break_count`, EPR, SWAPs, depth and op count **identical on 12
+routes** (including L=128); 60/60 fuzz; all 24 main + 6 scale-up single-pass
+EPRs reproduce exactly; **0 desyncs in 6,259 in-flight counter checks** against
+a fresh scan of `dag_active`, draining to zero at the end.
+
+Payoff is **1.11x** overall, 1.26x on 200q QFT at L=128. It does **NOT** buy
+back timed-out horizons: `max_cx = teleport_lookahead_cx_count = 50` was
+already the binding cap on dense circuits, so 0 of 9 probed timeouts were
+recovered before the run was stopped. Do not claim otherwise.
+
+### REFUTED: replacing the layer budget with a per-qubit gate budget
+
+**No code needed to test this** -- `teleport_lookahead_cx_count` *is* the gate
+budget, merely dominated by `dag_extended_max_layers`. Setting
+`RouterConfig(teleport_lookahead_cx_count=k, dag_extended_max_layers=512)`
+gives a per-qubit horizon directly. (The shipped walk bound is what makes it
+affordable; without it an exhausted qubit walks 512 layers.)
+
+Swept k in {16,24,32,48,64} on the six 80q/200q/360q instances:
+
+| configuration | routes | gmean | vs best-L | completes |
+|---|---|---|---|---|
+| fixed L=16 | 1 | 1152.9 | +95% | 6/6 |
+| **shipped best-of-3 L** | 3 | **618.8** | **+5%** | 6/6 |
+| gate budget k=16 | 1 | 925.6 | +56% | 6/6 |
+| gate budget k=24 | 1 | 856.4 | +45% | 6/6 |
+| best k per instance (oracle) | 5 | 650.5 | +10% | 6/6 |
+| best L per instance (oracle) | 8 | 592.0 | -- | 6/6 |
+
+The best k **loses to the best L on all six** (+1% to +24%), an *oracle* over
+k is beaten by the shipped 3-route protocol, and k >= 32 times out on half the
+instances. Also worse at 25q AE (75 vs 65) and 64q QFT (268 vs 262).
+
+**Why, and this is the durable lesson: the layer bound is a *relevance
+window*, not just a counter.** The flat weight past layer 7 makes it look like
+pure counting, but L also *excludes* gates beyond it outright. A gate budget
+deletes that window and counts the first k gates however distant -- at 360q a
+qubit's 48th future CX can be 900 layers out, and scoring it at half weight is
+a claim about a layout that will be unrecognisable by then. **`N_tp` inert and
+`L_tp` live is the correct assignment, not an accident** -- if a reviewer asks
+why the paper has a second lookahead parameter that never binds, this is the
+answer.
+
+Scripts: scratchpad `determinism.py` (SHA + tie-count harness, reusable for any
+refactor), `phase2.py`, `recover.py`.

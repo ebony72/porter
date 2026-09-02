@@ -118,6 +118,10 @@ class RouterState:
     # Zero-predecessor active gates, maintained incrementally so the DAG front
     # never has to be recomputed by scanning every remaining gate.
     dag_frontier: Set[GateId] = field(default_factory=set)
+    # Active CX count per logical qubit, maintained alongside `dag_active`.
+    # Bounds how many of a qubit's gates a lookahead walk can still find, so
+    # the walk can stop instead of peeling layers that cannot yield anything.
+    active_cx_by_qubit: Dict[LogicalQubit, int] = field(default_factory=dict)
     gate_by_id: Dict[GateId, Gate] = field(default_factory=dict)
     dag_edge_count: int = 0
 
@@ -128,7 +132,6 @@ class RouterState:
 @dataclass
 class RouterConfig:
     # DAG and local-SWAP lookahead.
-    dag_front_limit: int = 96
     local_swap_extended_weight: float = 0.8
     local_swap_extended_max_layers: int = 12
     local_swap_extended_cx_count: int = 20
