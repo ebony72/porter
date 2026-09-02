@@ -2692,6 +2692,35 @@ Nothing in it is read by the verifiers; released numbers are untouched.
   statistics are over 37 because star/Multiplier livelocks at L=16.
   Best-of-assigned-set from the sweep reproduces the released protocol exactly
   (174.9 / 507.7 / 86.1 / 122.3).
+- **Test 1 (same day): slow decay with no floor is REFUTED as a way to remove
+  the horizon parameter, but the weight schedule is a richer portfolio axis
+  than the horizon.** Three arms `w_min=0` x gamma {0.95,0.97,0.99} over
+  {4..256}, 1,008 routes. No single slow route matches the shipped 3-route
+  rule (best that completes all 38: `slow95@L64`, **+20.3%**); EPR does **not**
+  go flat in L (spread 1.43/1.46/1.71 vs base 1.64 -- gamma=0.99 is *worse*);
+  a portfolio is still needed inside each slow arm. Only gamma=0.99 recovers
+  scale-up (+2.9%), and that is the arm that most resembles a floor -- **the
+  sharp inclusion boundary is the mechanism, not a stand-in for one**.
+  - **The actionable result: a 4th route at a DIFFERENT SCHEDULE beats a 4th or
+    5th HORIZON.** Oracle over 7 schedules x 7 horizons is **-11.0%** against
+    the shipped rule where a horizon oracle is only -3.5%, and **all seven
+    schedules win somewhere** (base 10, slow99 8, floor25 6, floor0 4,
+    slow95 4, flat 3, slow97 3). Adding one route at **`w_min=0.25, L=128`**
+    gives **-4.8%, 12W/0L** (losses impossible: it is a portfolio) for 1.39x
+    the wall time, against -2.1% for a 4th horizon and -3.1% for a 5th.
+    **Held out**: leave-one-family-out -4.8% (all 7 folds pick the same route),
+    leave-one-suite-out -3.7% (5 of 6 folds; scale-up picks `slow99@L256`).
+  - Against dSABRE under each own protocol it lands where PORTER is weakest:
+    main-24 1.02x -> **1.01x**, heavy-hex ring 1.01x -> **0.96x (a flip)**,
+    star 1.21x -> **1.11x**, scale-up 0.72x -> **0.67x**. Twelve instances
+    improve: star QPEexact -27.2%, ring QPEexact -28.6%, star AE -20.8%,
+    200q QFT -22.8%, 80q QFT -14.6%.
+  - **Not shipped.** Every figure is a single forward pass at a fixed
+    (schedule, horizon); shipping means extending the speculative time budget
+    to a second axis and re-running every released leg, and the interaction
+    with backward refinement is untested. Next step is a joint
+    (schedule, horizon) portfolio study at budgets 3/4/5, not more schedule
+    search -- the axes are clearly not independent.
 - Grid was routed from a snapshot carrying the **uncommitted three-term
   selection key**; the shipped schedule was re-run as the control arm, so all
   comparisons are same-key. vs the old-key sweep, 24/271 fixed-horizon cells

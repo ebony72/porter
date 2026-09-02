@@ -30,7 +30,14 @@ ARMS = {
     "floor0": (0.0, 0.9),
     "floor25": (0.25, 0.9),
     "flat": (0.9, 0.9),
+    # Test 1 (2026-09-03): no floor, slow decay -- the discount itself bounds
+    # the horizon instead of a hard window.  Effective reach (weight < 0.05):
+    # ~60 layers at 0.95, ~130 at 0.97, ~400 at 0.99.
+    "slow95": (0.0, 0.95),
+    "slow97": (0.0, 0.97),
+    "slow99": (0.0, 0.99),
 }
+SLOW = ("slow95", "slow97", "slow99")
 OUT = H.HERE / "horizon_grid.jsonl"
 PREV = H.HERE / "sweep_2026-09-01_main.json"
 PREV_HH = H.HERE / "sweep_2026-09-01_heavyhex.json"
@@ -102,10 +109,18 @@ def cost_estimate():
     return est
 
 
+def horizons_for(arm, extra):
+    if arm == "base" and extra:
+        return HORIZONS + EXTRA
+    if arm in SLOW:
+        return HORIZONS + [256]      # deep L tests whether EPR goes flat in L
+    return HORIZONS
+
+
 def build_tasks(arms, keys, extra):
     tasks = []
     for arm in arms:
-        Ls = HORIZONS + (EXTRA if (arm == "base" and extra) else [])
+        Ls = horizons_for(arm, extra)
         for key in keys:
             for L in Ls:
                 tasks.append((key, L, arm))
