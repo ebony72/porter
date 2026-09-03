@@ -2651,6 +2651,42 @@ Scripts: scratchpad `determinism.py` (SHA + tie-count harness, reusable for any
 refactor), `phase2.py`, `recover.py`.
 
 
+## The refined and search legs were stale too; re-run (2026-09-03)
+
+**`rerun_porter_legs.py` skips every `*_refined` leg on a rationale that does
+not cover the selection key.** Its docstring says refinement keeps its own
+unselected horizon, which is true of the 2026-08-29 horizon change and false of
+a change to the key, which every route uses. Checked: 25q Random's
+`sfc_refined` read 383 and produced 389 live. `sfc_search` was stale the same
+way. **Do not accept that rationale for any future router change.**
+
+Re-run `sfc_refined`, `sfc_on_dse_layout_refined`, `sfc_search` and
+`sfc_selection_and_search` for the 24 main instances and overlaid.
+
+| protocol | routes | EPR (24) | time |
+|---|---|---|---|
+| dSABRE | 9 | 171.9 | 182 s |
+| PORTER | 3 | 175.0 | 165 s |
+| PORTER+R | 7 | 163.0 -> **163.1** | 1468 s -> **386 s** |
+| PORTER+S | 12 | 159.1 -> **160.1** | 4267 s -> **796 s** |
+
+- **The stall guard is what collapsed those times.** PORTER+R's released 8.9x
+  over PORTER was one instance: 80q QPEexact took **908.7 s of the 1468**, one
+  refinement pass oscillating until the 900 s per-pass guard fired. With the
+  stall guard it is **13.9 s**, and +R is now **2.3x** PORTER, matching 7/3 on
+  routes. Excluding the top three instances the released figure was already
+  2.2x, so the 8.9x was never the protocol.
+- EPR moved on five +R cells (25q Random 383->389, 64q Random 737->732,
+  80q AE 299->277, 80q Random 11040->11013, 80q Multiplier 2132->2313) and the
+  +R record against dSABRE went **11W/11L/2T -> 11W/10L/3T**.
+- **Appendix J changed materially**: +S improves on **6** instances now, not
+  ten, ties on 18, and costs **2.1x** +R rather than 2.9x. 80q AE's 62x
+  becomes 4x and returns nothing, since +R already reaches 277.
+- **STILL STALE: `sfc_shared_refined` and `sfc_pytket_refined`** (and the
+  `sfc_shared` / `sfc_pytket` legs themselves). They need TeleSABRE's and
+  pytket-dqc's layouts, which the results file does not store, so they require
+  a full `compare_routers.py` run. `tab:shared` reads them.
+
 ## The four cost optimisations, measured on one basis (2026-09-03)
 
 All four toggled independently, 48 instances, shipped 3-route protocol, one

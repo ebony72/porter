@@ -67,7 +67,7 @@ main25 = {
     "graphstate":     (21, 63, 6, 31, 7, 34, 4, 19, -81.0),
     "qft":            (138, 448, 81, 365, 74, 327, 74, 327, -46.4),
     "qnn":            (515, 820, 143, 711, 119, 642, 116, 603, -77.5),
-    "random":         (636, 1367, 411, 1448, 393, 1342, 383, 1319, -39.8),
+    "random":         (636, 1367, 411, 1448, 393, 1342, 389, 1295, -38.8),
 }
 main64 = {
     "ae":             (353, 1494, 165, 1325, 157, 1468, 157, 1468, -55.5),
@@ -75,21 +75,21 @@ main64 = {
     "graphstate":     (62, 281, 15, 88, 20, 131, 16, 103, -74.2),
     "qft":            (312, 1711, 179, 1480, 262, 1846, 262, 1846, -16.0),
     "qnn":            (889, 5471, 538, 5260, 638, 5901, 638, 5901, -28.2),
-    "random":         (None, None, 732, 3603, 737, 4048, 737, 4048, None),
+    "random":         (None, None, 732, 3603, 737, 4048, 732, 4061, None),
     "qpeexact":       (289, 1706, 187, 1576, 222, 1729, 222, 1729, -23.2),
     "qaoa":           (956, 4189, 555, 3734, 775, 4784, 586, 4066, -38.7),
     "multiplier":     (1601, 9654, 1285, 8969, 1076, 8649, 1076, 8649, -32.8),
 }
 main80 = {
-    "ae":             (None, None, 332, 2624, 299, 2433, 299, 2433, None),
+    "ae":             (None, None, 332, 2624, 299, 2433, 277, 2200, None),
     "ghz":            (26, 215, 13, 80, 7, 115, 7, 115, -73.1),
     "graphstate":     (87, 435, 20, 97, 28, 198, 24, 150, -72.4),
     "qft":            (None, None, 322, 2362, 446, 2968, 393, 2692, None),
     "qnn":            (None, None, 807, 8445, 1070, 9347, 918, 8782, None),
-    "random":         (None, None, 10551, 56624, 11040, 62119, 11040, 62119, None),
+    "random":         (None, None, 10551, 56624, 11040, 62119, 11013, 61667, None),
     "qpeexact":       (784, 2875, 347, 2254, 291, 2378, 291, 2378, -62.9),
     "qaoa":           (None, None, 862, 6067, 1122, 7370, 1122, 7370, None),
-    "multiplier":     (None, None, 4841, 22029, 2486, 15462, 2132, 14895, None),
+    "multiplier":     (None, None, 4841, 22029, 2486, 15462, 2313, 14883, None),
 }
 
 for suite, table in (("25", main25), ("64", main64), ("80", main80)):
@@ -132,7 +132,7 @@ g25 = own("25", ("telesabre", "dSE", "sfc", "sfc_refined"),
 check("gmean25 TS", 106.6, round(g25["telesabre"], 1))
 check("gmean25 dSE", 45.8, round(g25["dSE"], 1))
 check("gmean25 P", 43.0, round(g25["sfc"], 1))
-check("gmean25 delta", -63.6, round(pct(g25["sfc_refined"], g25["telesabre"]), 1))
+check("gmean25 delta", -63.5, round(pct(g25["sfc_refined"], g25["telesabre"]), 1))
 
 # TeleSABRE-matched basis: the circuits it completes at 64q
 c64 = ['ae', 'ghz', 'graphstate', 'qft', 'qnn', 'qpeexact', 'qaoa', 'multiplier']
@@ -207,17 +207,17 @@ check("heavy-hex star Multiplier completes under selection", True,
 _wlt = lambda leg, rows: (
     sum(1 for r in rows if r[leg]["epr"] < r["dSE"]["epr"]),
     sum(1 for r in rows if r[leg]["epr"] > r["dSE"]["epr"]))
-for _leg, _want in (("sfc", "10/12"), ("sfc_refined", "11/11")):
+for _leg, _want in (("sfc", "10/12"), ("sfc_refined", "11/10")):
     check(f"tab:main W/L vs dSABRE {_leg}", _want,
           "%d/%d" % _wlt(_leg, cmp_rows))
 check("neither wins more than eleven", 11,
       max(_wlt("sfc", cmp_rows)[0], _wlt("sfc_refined", cmp_rows)[0]))
 _best = lambda leg, rows: gmean([min(r["dSE"]["epr"], r[leg]["epr"]) for r in rows])
 check("portfolio dSE+PORTER", 156.0, round(_best("sfc", cmp_rows), 1))
-check("portfolio dSE+PORTER+R", 152.1, round(_best("sfc_refined", cmp_rows), 1))
+check("portfolio dSE+PORTER+R", 152.2, round(_best("sfc_refined", cmp_rows), 1))
 check("portfolio vs dSABRE (PORTER)", -9.3,
       round(100 * (_best("sfc", cmp_rows) / _g("dSE") - 1), 1))
-check("portfolio vs dSABRE (PORTER+R)", -11.6,
+check("portfolio vs dSABRE (PORTER+R)", -11.5,
       round(100 * (_best("sfc_refined", cmp_rows) / _g("dSE") - 1), 1))
 _s80 = [r for r in cmp_rows if r["suite"] == "80"]
 _s64 = [r for r in cmp_rows if r["suite"] == "64"]
@@ -230,13 +230,13 @@ check("portfolio basis 18", 18, len(_nt18))
 _g18 = gmean([r["dSE"]["epr"] for r in _nt18])
 check("portfolio over the 18, PORTER", -8.0,
       round(100 * (_best("sfc", _nt18) / _g18 - 1), 1))
-check("portfolio over the 18, PORTER+R", -9.0,
+check("portfolio over the 18, PORTER+R", -8.9,
       round(100 * (_best("sfc_refined", _nt18) / _g18 - 1), 1))
 _tot = lambda leg, rows: sum(min(r["dSE"]["epr"], r[leg]["epr"]) for r in rows)
 _dtot = sum(r["dSE"]["epr"] for r in _nt18)
 check("portfolio total EPR over the 18, PORTER", -12.1,
       round(100 * (_tot("sfc", _nt18) / _dtot - 1), 1))
-check("portfolio total EPR over the 18, PORTER+R", -13.7,
+check("portfolio total EPR over the 18, PORTER+R", -13.0,
       round(100 * (_tot("sfc_refined", _nt18) / _dtot - 1), 1))
 # VI's cost statement and its two named instances.
 check("portfolio compile time vs dSABRE", 2.0,
@@ -342,7 +342,7 @@ check("appC best-of-2 over 18", -1.7,
 check("appC pytket selected", 8,
       sum(1 for r in cmp_rows if r["sfc_pytket"]["epr"] < r["sfc"]["epr"]))
 # "refinement gains 3.0% on dSABRE's layout and nothing on pytket's"
-check("refinement gain on dSE layout", 9.6,
+check("refinement gain on dSE layout", 11.2,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_on_dse_layout")), 1))
 check("refinement gain on pytket layout", 6.8,
       round(100 * (1 - _g("sfc_pytket_refined") / _g("sfc_pytket")), 1))
@@ -811,32 +811,32 @@ check("PORTER+S never worse than PORTER", 0,
 check("PORTER+S never worse than PORTER+R", 0,
       sum(1 for r in cmp_rows
           if r["sfc_search"]["epr"] > r["sfc_refined"]["epr"]))
-check("appJ PORTER+S improves on 10 of 24", 10,
+check("appJ PORTER+S improves on 10 of 24", 6,
       sum(1 for r in cmp_rows
           if r["sfc_search"]["epr"] < r["sfc_refined"]["epr"]))
-check("appJ PORTER+S ties on 14 of 24", 14,
+check("appJ PORTER+S ties on 14 of 24", 18,
       sum(1 for r in cmp_rows
           if r["sfc_search"]["epr"] == r["sfc_refined"]["epr"]))
 # The cost claim: 2.9x PORTER+R's wall clock, 23x dSABRE's, and the 80q suite
 # carries 4,045 s of the 4,267 s for a 1.2% return.
 _tS = sum(r["sfc_search"]["seconds"] for r in cmp_rows)
 _tR = sum(r["sfc_refined"]["seconds"] for r in cmp_rows)
-check("appJ PORTER+S total seconds", 4267, round(_tS))
-check("appJ PORTER+R total seconds", 1468, round(_tR))
-check("appJ +S/+R wall clock", 2.9, round(_tS / _tR, 1))
-check("appJ +S/dSABRE wall clock", 23,
+check("appJ PORTER+S total seconds", 796, round(_tS))
+check("appJ PORTER+R total seconds", 386, round(_tR))
+check("appJ +S/+R wall clock", 2.1, round(_tS / _tR, 1))
+check("appJ +S/dSABRE wall clock", 4,
       round(_tS / sum(r["dSE"]["seconds"] for r in cmp_rows)))
-check("appJ 80q share of +S seconds", 4045,
+check("appJ 80q share of +S seconds", 592,
       round(sum(r["sfc_search"]["seconds"] for r in cmp_rows
                 if r["suite"] == "80")))
 _ae80 = next(r for r in cmp_rows if r["suite"] == "80" and r["circuit"] == "ae")
-check("appJ 80q AE +S seconds", 928, round(_ae80["sfc_search"]["seconds"]))
-check("appJ 80q AE +R seconds", 14.9, round(_ae80["sfc_refined"]["seconds"], 1))
-check("appJ 80q AE +S/+R factor", 62,
+check("appJ 80q AE +S seconds", 40, round(_ae80["sfc_search"]["seconds"]))
+check("appJ 80q AE +R seconds", 11.1, round(_ae80["sfc_refined"]["seconds"], 1))
+check("appJ 80q AE +S/+R factor", 4,
       round(_ae80["sfc_search"]["seconds"] / _ae80["sfc_refined"]["seconds"]))
 # gamma=0.80 wins phase 1 most often -- nine of twenty-four -- and all five
 # values win somewhere, which is why the appendix searches rather than retunes.
-check("appJ gamma=0.80 wins", 9,
+check("appJ gamma=0.80 wins", 8,
       sum(1 for r in cmp_rows if r["sfc_search"]["best_gamma"] == 0.80))
 check("appJ all five gammas win somewhere", 5,
       len({r["sfc_search"]["best_gamma"] for r in cmp_rows}))
@@ -856,7 +856,7 @@ check("appJ distinct-route counter max", 17,
 check("appJ distinct-route counter min", 10,
       min(r["sfc_search"]["routes"] for r in cmp_rows))
 # One seed exactly when gamma=0.99 wins phase 1; that bounds the counter at 11.
-check("appJ one-seed instances", 3,
+check("appJ one-seed instances", 5,
       sum(1 for r in cmp_rows if r["sfc_search"]["best_gamma"] == 0.99))
 check("appJ one-seed counter <= 11", True,
       all(r["sfc_search"]["routes"] <= 11 for r in cmp_rows
@@ -910,8 +910,8 @@ check("dTS all negative", True, all(x < 0 for x in _d))
 _w = sum(1 for r in _pr if r["sfc_refined"]["epr"] < r["dSE"]["epr"])
 _l = sum(1 for r in _pr if r["sfc_refined"]["epr"] > r["dSE"]["epr"])
 check("P+R vs dSE wins", 11, _w)
-check("P+R vs dSE losses", 11, _l)
-check("P+R vs dSE ties", 2, len(_pr) - _w - _l)
+check("P+R vs dSE losses", 10, _l)
+check("P+R vs dSE ties", 3, len(_pr) - _w - _l)
 # "64q Multiplier is the widest margin here" and the worst losses are ~1.5x
 _best = min(_pr, key=lambda r: r["sfc_refined"]["epr"] / r["dSE"]["epr"])
 check("widest P+R win circuit", "80/multiplier", f'{_best["suite"]}/{_best["circuit"]}')
@@ -926,7 +926,7 @@ check("grid dSE gain from own layout", -0.4,
       round(100 * (1 - _g("dSE") / _g("dSE_on_porter_layout")), 1))
 check("grid PORTER gain from dSE layout", -0.2,
       round(100 * (1 - _g("sfc_on_dse_layout") / _g("sfc")), 1))
-check("grid PORTER+R gain from dSE layout", 2.7,
+check("grid PORTER+R gain from dSE layout", 4.5,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_refined")), 1))
 # shared-layout figures quoted in the prose but no longer in the table.
 # These legs run PORTER's own (horizon-selecting) protocol, not one pass.

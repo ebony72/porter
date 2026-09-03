@@ -220,18 +220,18 @@ Suite & Circuit & \texttt{pytket} e-bits & \multicolumn{2}{c}{\dSABRE{}} & \mult
 \cmidrule(lr){4-5}\cmidrule(lr){6-7}
 & & & EPR & SWAP & EPR & SWAP \\
 \midrule
-25q & ae         &   78 &   68 &  282 &   73 &  348 \\
-25q & ghz        &    3 &    3 &   17 &    3 &   17 \\
+25q & ae         &     78 &     68 &    282 &     65 &    348 \\
+25q & ghz        &      3 &      3 &     17 &      4 &     17 \\
 25q & graphstate &    4 &    4 &   17 &    4 &   19 \\
-25q & qft        &   70 &   91 &  406 &  118 &  438 \\
-25q & qnn        &  148 &  151 &  714 &  127 &  703 \\
-25q & random     &  564 &  431 & 1409 &  395 & 1340 \\
-64q & ae         &  264 &  219 & 1560 &  223 & 1638 \\
-64q & ghz        &    5 &    5 &   58 &    5 &   62 \\
-64q & graphstate &   10 &    8 &   60 &   10 &   60 \\
-64q & qft        &  307 &  243 & 1736 &  278 & 2021 \\
-64q & qnn        &  621 &  535 & 5285 & 1031 & 6538 \\
-64q & random     & 1020 &  729 & 3770 &  861 & 4384 \\
+25q & qft        &     70 &     91 &    406 &     74 &    438 \\
+25q & qnn        &    148 &    151 &    714 &    116 &    703 \\
+25q & random     &    564 &    431 &   1409 &    389 &   1340 \\
+64q & ae         &    264 &    219 &   1560 &    157 &   1638 \\
+64q & ghz        &      5 &      5 &     58 &      6 &     62 \\
+64q & graphstate &     10 &      8 &     60 &     16 &     60 \\
+64q & qft        &    307 &    243 &   1736 &    262 &   2021 \\
+64q & qnn        &    621 &    535 &   5285 &    638 &   6538 \\
+64q & random     &   1020 &    729 &   3770 &    732 &   4384 \\
 \bottomrule
 \end{tabular}%
 }
@@ -1039,29 +1039,29 @@ Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\
 25q & graphstate  &         21 &     6 &     7 &     4 &   $-81.0$ \\
 25q & qft         &        138 &    81 &    74 &    74 &   $-46.4$ \\
 25q & qnn         &        515 &   143 &   119 &   116 &   $-77.5$ \\
-25q & random      &        636 &   411 &   393 &   383 &   $-39.8$ \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & 45.8 & 43.0 & \textbf{38.8} & $\mathbf{-63.6}$ \\
+25q & random      &        636 &   411 &   393 &   389 &   $-38.8$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & 45.8 & 43.0 & \textbf{38.9} & $\mathbf{-63.5}$ \\
 \midrule
 64q & ae          &        353 &   165 &   157 &   157 &   $-55.5$ \\
 64q & ghz         &         16 &     6 &     6 &     6 &   $-62.5$ \\
 64q & graphstate  &         62 &    15 &    20 &    16 &   $-74.2$ \\
 64q & qft         &        312 &   179 &   262 &   262 &   $-16.0$ \\
 64q & qnn         &        889 &   538 &   638 &   638 &   $-28.2$ \\
-64q & random      &  $^{\ast}$ &   732 &   737 &   737 &       --- \\
+64q & random      &  $^{\ast}$ &   732 &   737 &   732 &       --- \\
 64q & qpeexact    &        289 &   187 &   222 &   222 &   $-23.2$ \\
 64q & qaoa        &        956 &   555 &   775 &   586 &   $-38.7$ \\
 64q & multiplier  &       1601 &  1285 &  1076 &  1076 &   $-32.8$ \\
 \multicolumn{2}{@{}l}{\quad\textbf{gmean} (8)} & 284.5 & 144.6 & 166.2 & \textbf{156.1} & $\mathbf{-45.1}$ \\
 \midrule
-80q & ae          &  $^{\ast}$ &   332 &   299 &   299 &       --- \\
+80q & ae          &  $^{\ast}$ &   332 &   299 &   277 &       --- \\
 80q & ghz         &         26 &    13 &     7 &     7 &   $-73.1$ \\
 80q & graphstate  &         87 &    20 &    28 &    24 &   $-72.4$ \\
 80q & qft         &  $^{\ast}$ &   322 &   446 &   393 &       --- \\
 80q & qnn         &  $^{\ast}$ &   807 &  1070 &   918 &       --- \\
-80q & random      &  $^{\ast}$ & 10551 & 11040 & 11040 &       --- \\
+80q & random      &  $^{\ast}$ & 10551 & 11040 & 11013 &       --- \\
 80q & qpeexact    &        784 &   347 &   291 &   291 &   $-62.9$ \\
 80q & qaoa        &  $^{\ast}$ &   862 &  1122 &  1122 &       --- \\
-80q & multiplier  &  $^{\ast}$ &  4841 &  2486 &  2132 &       --- \\
+80q & multiplier  &  $^{\ast}$ &  4841 &  2486 &  2313 &       --- \\
 \multicolumn{2}{@{}l}{\quad\textbf{gmean} (3)} & 121.0 & 44.9 & 38.5 & \textbf{36.6} & $\mathbf{-69.8}$ \\
 \bottomrule
 \end{tabular}%
@@ -1194,59 +1194,59 @@ seed.
 Suite & Circuit & \PORTER{} & $+$R & $+$S & $\Delta$\,\% &
   $\gamma^{\ast}$ & $+$R & $+$S \\
 \midrule
-25q & ae         &    65 &    65 &    62 &   $-4.6$ & 0.80 &     0.5 &     1.4 \\
-25q & ghz        &     4 &     4 &     4 &      --- & 0.80 &     0.0 &     0.0 \\
-25q & graphstate &     7 &     4 &     4 &      --- & 0.80 &     0.0 &     0.1 \\
-25q & qft        &    74 &    74 &    74 &      --- & 0.99 &     0.6 &     1.0 \\
-25q & qnn        &   119 &   116 &   116 &      --- & 0.80 &     1.2 &     3.2 \\
-25q & random     &   393 &   383 &   379 &   $-1.0$ & 0.80 &     2.7 &     7.7 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 43.0 & 38.8 & \textbf{38.4} & $\mathbf{-1.0}$ & & 0.26 & 0.65 \\
+25q & ae         &    65 &    65 &    62 &    $-4.6$ & 0.8 &     0.4 &     1.3 \\
+25q & ghz        &     4 &     4 &     4 &       --- & 0.8 &     0.0 &     0.0 \\
+25q & graphstate &     7 &     4 &     4 &       --- & 0.8 &     0.0 &     0.1 \\
+25q & qft        &    74 &    74 &    74 &       --- & 0.99 &     0.7 &     1.1 \\
+25q & qnn        &   119 &   116 &   116 &       --- & 0.8 &     1.1 &     3.2 \\
+25q & random     &   393 &   389 &   389 &       --- & 0.99 &     2.7 &     4.8 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 43.0 & 38.9 & \textbf{38.6} & $\mathbf{-0.8}$ & & 0.25 & 0.61 \\
 \midrule
-64q & ae         &   157 &   157 &   149 &   $-5.1$ & 0.95 &     8.4 &    16.3 \\
-64q & ghz        &     6 &     6 &     6 &      --- & 0.80 &     0.0 &     0.1 \\
-64q & graphstate &    20 &    16 &    16 &      --- & 0.80 &     0.3 &     0.9 \\
-64q & qft        &   262 &   262 &   262 &      --- & 0.99 &     7.4 &     9.8 \\
-64q & qnn        &   638 &   638 &   604 &   $-5.3$ & 1.00 &    10.4 &    36.0 \\
-64q & random     &   737 &   737 &   664 &   $-9.9$ & 0.90 &    21.0 &    53.3 \\
-64q & qpeexact   &   222 &   222 &   197 &  $-11.3$ & 1.00 &     7.4 &    13.2 \\
-64q & qaoa       &   775 &   586 &   586 &      --- & 0.95 &    18.5 &    44.6 \\
-64q & multiplier &  1076 &  1076 &   998 &   $-7.2$ & 0.90 &    14.0 &    34.6 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 196.1 & 185.5 & \textbf{177.3} & $\mathbf{-4.4}$ & & 4.00 & 9.31 \\
+64q & ae         &   157 &   157 &   157 &       --- & 0.95 &     6.3 &    14.7 \\
+64q & ghz        &     6 &     6 &     6 &       --- & 0.8 &     0.0 &     0.1 \\
+64q & graphstate &    20 &    16 &    16 &       --- & 0.8 &     0.3 &     0.9 \\
+64q & qft        &   262 &   262 &   262 &       --- & 0.99 &     4.9 &     6.8 \\
+64q & qnn        &   638 &   638 &   604 &    $-5.3$ & 1 &    10.2 &    34.5 \\
+64q & random     &   737 &   732 &   664 &    $-9.3$ & 0.9 &    20.7 &    49.3 \\
+64q & qpeexact   &   222 &   222 &   197 &   $-11.3$ & 1 &     4.1 &     9.1 \\
+64q & qaoa       &   775 &   586 &   586 &       --- & 0.9 &    18.3 &    45.1 \\
+64q & multiplier &  1076 &  1076 &   998 &    $-7.2$ & 0.9 &    13.6 &    33.4 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 196.1 & 185.3 & \textbf{178.3} & $\mathbf{-3.8}$ & & 3.45 & 8.35 \\
 \midrule
-80q & ae         &   299 &   299 &   284 &   $-5.0$ & 0.90 &    14.9 &   928.0 \\
-80q & ghz        &     7 &     7 &     7 &      --- & 0.80 &     0.0 &     0.1 \\
-80q & graphstate &    28 &    24 &    24 &      --- & 0.80 &     0.6 &     1.8 \\
-80q & qft        &   446 &   393 &   377 &   $-4.1$ & 1.00 &     8.4 &    18.9 \\
-80q & qnn        &  1070 &   918 &   918 &      --- & 1.00 &    19.0 &    68.9 \\
-80q & random     & 11040 & 11040 & 10836 &   $-1.8$ & 1.00 &   357.5 &  1957.6 \\
-80q & qpeexact   &   291 &   291 &   291 &      --- & 0.95 &   908.7 &   943.1 \\
-80q & qaoa       &  1122 &  1122 &  1122 &      --- & 0.99 &    41.4 &    62.4 \\
-80q & multiplier &  2486 &  2132 &  2132 &      --- & 0.95 &    25.2 &    64.1 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 398.0 & 372.9 & \textbf{368.3} & $\mathbf{-1.2}$ & & 14.04 & 50.23 \\
+80q & ae         &   299 &   277 &   277 &       --- & 0.9 &    11.1 &    40.0 \\
+80q & ghz        &     7 &     7 &     7 &       --- & 0.8 &     0.0 &     0.1 \\
+80q & graphstate &    28 &    24 &    24 &       --- & 0.8 &     0.6 &     1.8 \\
+80q & qft        &   446 &   393 &   377 &    $-4.1$ & 1 &     5.2 &    11.8 \\
+80q & qnn        &  1070 &   918 &   918 &       --- & 1 &    18.5 &    65.8 \\
+80q & random     & 11040 & 11013 & 11013 &       --- & 0.99 &   188.6 &   321.0 \\
+80q & qpeexact   &   291 &   291 &   291 &       --- & 0.95 &    13.9 &    35.6 \\
+80q & qaoa       &  1122 &  1122 &  1122 &       --- & 0.99 &    39.4 &    59.2 \\
+80q & multiplier &  2486 &  2313 &  2313 &       --- & 0.95 &    25.6 &    56.3 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 398.0 & 373.0 & \textbf{371.2} & $\mathbf{-0.5}$ & & 7.46 & 18.55 \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{gmean, all} (24)} & 175.0 & 163.0 & \textbf{159.1} & $\mathbf{-2.4}$ & & 3.22 & 9.01 \\
+\multicolumn{2}{@{}l}{\textbf{gmean, all} (24)} & 175.0 & 163.1 & \textbf{160.1} & $\mathbf{-1.8}$ & & 2.40 & 5.85 \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
 \textbf{What it buys.} Table~\ref{tab:layoutsearch} gives the result.
-Pooled over the twenty-four instances \PORTER{}+S reaches $159.1$ EPR
-pairs against \PORTER{}+R's $163.0$, a $2.4\%$ reduction, and
+Pooled over the twenty-four instances \PORTER{}+S reaches \chg{$160.1$} EPR
+pairs against \PORTER{}+R's \chg{$163.1$}, a \chg{$1.8\%$} reduction, and
 $0.93\times$ \dSABRE{}'s $171.9$ against \PORTER{}+R's $0.95\times$. It
-improves on ten instances, ties on fourteen and --- being a superset
+improves on \chg{six} instances, ties on \chg{eighteen} and --- being a superset
 schedule --- loses on none. Its one qualitative effect is at 64 qubits,
 the single suite \PORTER{} loses under its own protocol: the ratio
-against \dSABRE{} falls from \PORTER{}+R's $1.07\times$ to $1.02\times$.
+against \dSABRE{} falls from \PORTER{}+R's $1.07\times$ to \chg{$1.03\times$}.
 
-\textbf{What it costs.} The same twenty-four instances take $4{,}267$\,s
-against \PORTER{}+R's $1{,}468$\,s --- $2.9\times$ the wall clock, and
-$23\times$ \dSABRE{}'s complete protocol cost of $182$\,s. The
-expenditure is badly distributed: the 80-qubit suite consumes $4{,}045$
-of those seconds and returns $1.2\%$, and 80q~AE alone spends $928$\,s
-against \PORTER{}+R's $14.9$\,s --- a factor of $62$ --- to move from
-$299$ pairs to $284$. On more than half the suite the search returns
-nothing at all.
+\textbf{What it costs.} \chg{The same twenty-four instances take $796$\,s
+against \PORTER{}+R's $386$\,s --- $2.1\times$ the wall clock, and
+$4\times$ \dSABRE{}'s complete protocol cost of $182$\,s. The
+expenditure is badly distributed: the 80-qubit suite consumes $592$
+of those seconds and returns $0.5\%$, and 80q~AE alone spends $40.0$\,s
+against \PORTER{}+R's $11.1$\,s --- a factor of four --- to return
+$277$ pairs, the figure \PORTER{}+R already reaches. On three quarters of
+the suite the search returns nothing at all.}
 
 \textbf{Why it is not in the main paper.} Three reasons beyond the
 return. It cannot appear in the layout-against-router grid of
