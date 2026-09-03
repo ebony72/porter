@@ -25,6 +25,11 @@ vault note `porter_adaptive_horizon_experiment_instructions.md`
 * `refine_fixed_horizon_{main,rest}.json` -- backward refinement at the FIXED
   default horizon (`selection=False`, 5 passes), isolating what refinement
   contributes without horizon selection beneath it.  Not the shipped `+R`.
+* `budget_probe.jsonl`, `portfolio_head.jsonl`, `budget_validation.jsonl` --
+  the deterministic work budget (`hz_budget.py`) and the 3x3 portfolio's cost
+  re-measured against HEAD (`hz_portfolio.py`, `hz_budget_validate.py`).
+  `hz_head.py` is `hz_common.py` pointed at the repo rather than the frozen
+  snapshot, for measurements that must include the stall guard.
 * `stall_gaps.json` -- longest run of router iterations retiring no gate, for
   all 48 instances at L=16 and L=128; the basis for the stall-guard threshold.
 * `sweep_2026-09-01_*.json` -- the earlier sweep under the OLD six-term

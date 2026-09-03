@@ -825,6 +825,19 @@ PORTER_HORIZONS: Tuple[int, ...] = (8, 16, 128)
 # oscillating rather than converging and is safe to abandon.
 SPECULATIVE_TIME_FACTOR: float = 4.0
 SPECULATIVE_MIN_SECONDS: int = 5
+# Deterministic replacement for the wall-clock share.  A speculative horizon may
+# peel at most this multiple of the DAG layers the first route peeled -- a
+# property of the route rather than of the machine, so the protocol's output no
+# longer depends on load.  Calibrated on all 48 instances against that counter:
+# every candidate that WINS its instance costs at most 6.47x the configured
+# horizon's layers (64q Multiplier 6.05, 360q QPEexact 6.24, 80q Multiplier
+# 6.47), while the cheapest candidate that wins nothing costs 7.95x, so 7 sits
+# in a real gap -- it admits every winner and still rejects five deep routes
+# that only cost time.  4x and 6x are both too tight and drop those three
+# winners, 360q QPEexact by 91%.  The factor is fitted on this corpus; setting
+# it too low costs EPR rather than correctness, since the configured horizon
+# always runs unguarded and wins ties.  Set to 0 to fall back on the clock.
+SPECULATIVE_WORK_FACTOR: float = 7.0
 
 # Which horizons are worth trying depends on the circuit's interaction-graph
 # density -- the mean fraction of the other logical qubits each qubit shares a
@@ -1002,14 +1015,22 @@ def run_horizon_selection(
     best: Optional[porter.RouterState] = None
     best_key: Optional[Tuple[int, int, int]] = None
     budget: Optional[int] = None
+    work_budget: int = 0
     for position, horizon in enumerate(ordered):
-        attempt_cfg = dataclasses.replace(cfg, dag_extended_max_layers=horizon)
+        attempt_cfg = dataclasses.replace(
+            cfg, dag_extended_max_layers=horizon,
+            max_lookahead_layers=(0 if position == 0 or not SPECULATIVE_WORK_FACTOR
+                                  else work_budget))
         started = time.perf_counter()
         # The first horizon establishes the time budget, so it runs unguarded.
         outcome = _route(porter.PorterRouter(hw, attempt_cfg), circuit,
                          initial_layout, None if position == 0 else budget)
         elapsed = time.perf_counter() - started
         info["horizon_seconds"][horizon] = round(elapsed, 3)
+        if position == 0 and not isinstance(outcome, BaseException):
+            work_budget = math.ceil(SPECULATIVE_WORK_FACTOR
+                                    * outcome.stats.lookahead_layers_peeled)
+            info["work_budget"] = work_budget
         if position == 0:
             budget = max(int(min_seconds), math.ceil(time_factor * elapsed))
 

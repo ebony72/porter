@@ -2651,6 +2651,60 @@ Scripts: scratchpad `determinism.py` (SHA + tie-count harness, reusable for any
 refactor), `phase2.py`, `recover.py`.
 
 
+## The speculative budget is deterministic now; the portfolio is priced (2026-09-03)
+
+**SHIPPED: `SPECULATIVE_WORK_FACTOR = 7.0` in `compile_porter.py`.** A
+speculative horizon is bounded by the DAG layers its lookahead walk may peel --
+at most 7x the count the configured horizon's route produced -- instead of a
+share of wall-clock time. New: `RouterConfig.max_lookahead_layers` (0 = off) and
+`RouterStats.lookahead_layers_peeled`, incremented once per peeled layer in the
+collector. **Validated on all 48 instances: op-stream SHA, EPR, SWAPs, depth,
+tie count AND selected horizon identical 48/48, protocol wall time 0.88x.**
+Both paper verifiers pass and the released numbers still reproduce.
+
+- **Why a work counter and not an iteration cap**: the iteration cap is already
+  refuted here (a deep peel makes each iteration ~400x costlier). Peeled layers
+  rise with the horizon as the run time does, so the same factor transfers.
+- **The factor is load-bearing and was calibrated twice.** Against the SHIPPED
+  counter, every candidate that *wins* its instance costs at most **6.47x**
+  (64q Multiplier 6.05, 360q QPEexact 6.24, 80q Multiplier 6.47) while the
+  cheapest candidate that wins nothing costs **7.95x** -- a real gap, and 7
+  sits in it. **6x is too tight** and drops all three winners (360q QPEexact by
+  91%). Fitted on this corpus; too low costs EPR, not correctness, since the
+  configured horizon runs unguarded and wins ties.
+- **TRAP that cost a wrong calibration.** The offline probe counted
+  `DagFrontierSimulator.remove_gate_ids` globally, which includes the
+  latent-direct closure; the shipped counter counts only the post-latent
+  lookahead walk. The closure does not scale with L, so the probe's ratios are
+  **damped** and its 6x looked safe when it was not. Live validation caught it.
+  **Calibrate against the counter you ship, not a probe's superset.**
+- IV-C's reproducibility sentence now states the work bound; the wall-clock
+  caveat is gone.
+
+**The 3x3 portfolio is priced, and it is dearer than the frozen grid implied.**
+Measured head to head against HEAD's router, same process, 38 non-trivial
+instances, each portfolio budgeted by the same 4x rule the protocol uses:
+
+| portfolio | routes | gmean | vs shipped | budgeted time |
+|---|---|---|---|---|
+| shipped density branch | 3 | 365.6 | --- | 1.00x |
+| `{4,16,128}` at w=0.5 (single horizon set) | 3 | 366.7 | **+0.3%** | **1.31x** |
+| `{16,128}` x `{.5,.25}` | 4 | 351.8 | -3.8% | 2.71x |
+| `{4,16,128}` x `{.5,.25}` | 6 | 345.4 | -5.5% | 3.08x |
+| `{16,128}` x `{.5,.25,0}` | 6 | 344.9 | -5.7% | 4.07x |
+| **full 3x3** | 9 | 341.4 | **-6.6%** | **4.61x** |
+
+- **This REVISES the earlier advice to replace the rho branch with one horizon
+  set.** On the frozen grid `{4,16,128}` looked like parity EPR with tighter
+  tails; measured head to head with budgets and the stall guard it is
+  **+0.3% EPR for 1.31x the time**. The density branch is doing real work --
+  **as a compile-time optimisation**, avoiding L=128 on dense circuits -- not as
+  an EPR mechanism. Removing rho is not free.
+- The earlier "1.98x" for the 3x3 was an artefact of comparing grid-summed times
+  where the baseline still contained 300 s timeouts the stall guard now avoids.
+  The guard made the *baseline* much cheaper, which raises the relative price of
+  any larger portfolio.
+
 ## Released results re-run against HEAD's router (2026-09-03)
 
 The three-term selection key (`df034da`) and the stall guard (`01b8be8`) left

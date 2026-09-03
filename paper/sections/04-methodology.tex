@@ -74,10 +74,11 @@ refused before routing begins (Section~\ref{sec:sfc-progress}).
 It takes no seed: heuristic ties resolve through a fixed chain of
 deterministic keys and any residual tie through a constant-initialised
 generator, so one route on a fixed circuit and hardware emits a
-byte-identical stream across runs. Horizon selection is the exception,
-its speculative routes sharing a wall-clock budget, so the protocol is
-reproducible only up to that budget and the horizon each run selected is
-recorded with its result. \chg{Every reported \PORTER{} route is certified by}
+byte-identical stream across runs, \chg{horizon selection included: a
+speculative route is bounded by the DAG layers its lookahead walk may peel,
+at most seven times the count of the route the configured horizon produced,
+so the bound is a property of the route rather than of the machine. The
+horizon each run selected is recorded with its result.} \chg{Every reported \PORTER{} route is certified by}
 a replay verifier written separately from the router, which re-derives
 gate coverage, dependency order and physical legality from the emitted
 stream alone and is itself tested by fault injection

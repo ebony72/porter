@@ -81,6 +81,9 @@ class RouterStats:
     teleport_capacity_relief_count: int = 0
 
     local_swap_count: int = 0
+    # DAG layers peeled by the teleport lookahead walk; the deterministic work
+    # counter `run_horizon_selection` budgets a speculative horizon against.
+    lookahead_layers_peeled: int = 0
     local_cx_count: int = 0
     single_count: int = 0
     emitted_gate_count: int = 0
@@ -221,6 +224,14 @@ class RouterConfig:
     # stall.  Being an iteration count rather than a wall-clock share, it
     # abandons a stalled route reproducibly.  0 disables the guard.
     max_iterations_without_progress: int = 1_000
+    # Work budget for a speculative horizon, counted in DAG layers peeled by the
+    # lookahead walk -- the dominant cost inside the collector, and one that
+    # rises with the horizon as the run time does.  `run_horizon_selection` sets
+    # it from the first route's own count so a candidate cannot cost
+    # unboundedly more than the route the caller would have got anyway.  Unlike
+    # a wall-clock share this is a property of the route, not of the machine.
+    # 0 disables the budget.
+    max_lookahead_layers: int = 0
     # Hard bound on preparation SWAPs applied while committing one remote
     # plan.  The decision-state cycle check includes the RNG state, so an
     # oscillating trajectory that consumes randomness on every round would

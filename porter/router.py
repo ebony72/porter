@@ -278,6 +278,7 @@ class PorterRouter:
         # Stall guard: `dag_active` only shrinks, so a run of iterations that
         # never shrinks it is a router doing work that retires no gate.
         stall_limit = int(getattr(self.cfg, "max_iterations_without_progress", 0) or 0)
+        self._lookahead_layer_budget = int(getattr(self.cfg, "max_lookahead_layers", 0) or 0)
         active_watermark = len(state.dag_active)
         stalled_iterations = 0
 
@@ -1613,6 +1614,15 @@ class PorterRouter:
                 break
 
             sim.remove_gate_ids(dag, current)
+            # Deterministic work counter: one tick per peeled layer.  This is
+            # what `run_horizon_selection` budgets a speculative horizon
+            # against, in place of a share of wall-clock time.
+            state.stats.lookahead_layers_peeled += 1
+            if (self._lookahead_layer_budget
+                    and state.stats.lookahead_layers_peeled > self._lookahead_layer_budget):
+                raise RuntimeError(
+                    f'Lookahead work budget exceeded '
+                    f'({self._lookahead_layer_budget} peeled layers)')
             # Two gates sharing a qubit are ordered by that qubit's own chain,
             # so at most one frontier gate can involve `moving_qubit`.  The
             # scan therefore has a unique answer and needs neither an ordering
