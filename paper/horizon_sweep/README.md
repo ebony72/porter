@@ -30,6 +30,10 @@ vault note `porter_adaptive_horizon_experiment_instructions.md`
   re-measured against HEAD (`hz_portfolio.py`, `hz_budget_validate.py`).
   `hz_head.py` is `hz_common.py` pointed at the repo rather than the frozen
   snapshot, for measurements that must include the stall guard.
+* `optimisation_ablation.jsonl` -- each of the four cost optimisations toggled
+  independently over all 48 instances in one process (`hz_ablate_opt.py`), so
+  the times are comparable with each other; every configuration emits the
+  identical op stream, which is the point.
 * `stall_gaps.json` -- longest run of router iterations retiring no gate, for
   all 48 instances at L=16 and L=128; the basis for the stall-guard threshold.
 * `sweep_2026-09-01_*.json` -- the earlier sweep under the OLD six-term

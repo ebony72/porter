@@ -1,0 +1,288 @@
+{"epr": 4, "sha": "12f2d94f721db02b", "horizon": 16, "status": "completed", "key": "main/25/ghz", "config": "shipped", "seconds": 0.01}
+{"epr": 7, "sha": "7a950f19a40db3c2", "horizon": 16, "status": "completed", "key": "main/25/graphstate", "config": "shipped", "seconds": 0.02}
+{"epr": 65, "sha": "e9613ee176905ea7", "horizon": 16, "status": "completed", "key": "main/25/ae", "config": "shipped", "seconds": 0.18}
+{"epr": 74, "sha": "d63cc0429381801b", "horizon": 16, "status": "completed", "key": "main/25/qft", "config": "shipped", "seconds": 0.22}
+{"epr": 6, "sha": "0f59dec9a68adda3", "horizon": 16, "status": "completed", "key": "main/64/ghz", "config": "shipped", "seconds": 0.02}
+{"epr": 20, "sha": "b6cff21a8c198727", "horizon": 16, "status": "completed", "key": "main/64/graphstate", "config": "shipped", "seconds": 0.16}
+{"epr": 119, "sha": "c1382cb8e0ec985b", "horizon": 16, "status": "completed", "key": "main/25/qnn", "config": "shipped", "seconds": 0.48}
+{"epr": 393, "sha": "a0cd8b17321a49eb", "horizon": 16, "status": "completed", "key": "main/25/random", "config": "shipped", "seconds": 1.12}
+{"epr": 157, "sha": "8c02f7ba0bd7c3fc", "horizon": 128, "status": "completed", "key": "main/64/ae", "config": "shipped", "seconds": 1.56}
+{"epr": 262, "sha": "c25a67a34e1e0bdd", "horizon": 16, "status": "completed", "key": "main/64/qft", "config": "shipped", "seconds": 3.04}
+{"epr": 222, "sha": "53e20257c2405a5b", "horizon": 16, "status": "completed", "key": "main/64/qpeexact", "config": "shipped", "seconds": 2.44}
+{"epr": 638, "sha": "a625ad591e5bf912", "horizon": 8, "status": "completed", "key": "main/64/qnn_OLD_DEEP", "config": "shipped", "seconds": 5.19}
+{"epr": 299, "sha": "252da7d092a033d7", "horizon": 128, "status": "completed", "key": "main/80/ae", "config": "shipped", "seconds": 2.97}
+{"epr": 7, "sha": "603c2924e160d3bc", "horizon": 16, "status": "completed", "key": "main/80/ghz", "config": "shipped", "seconds": 0.03}
+{"epr": 28, "sha": "be8333dc355e9b84", "horizon": 16, "status": "completed", "key": "main/80/graphstate", "config": "shipped", "seconds": 0.37}
+{"epr": 1076, "sha": "ab28fc4e85414922", "horizon": 128, "status": "completed", "key": "main/64/multiplier", "config": "shipped", "seconds": 4.97}
+{"epr": 446, "sha": "53318d8733f996b1", "horizon": 16, "status": "completed", "key": "main/80/qft", "config": "shipped", "seconds": 3.17}
+{"epr": 737, "sha": "857b71aefd79f52f", "horizon": 16, "status": "completed", "key": "main/64/random", "config": "shipped", "seconds": 11.38}
+{"epr": 291, "sha": "63016873d66be10e", "horizon": 128, "status": "completed", "key": "main/80/qpeexact", "config": "shipped", "seconds": 3.01}
+{"epr": 775, "sha": "df60bdfb1ba8542d", "horizon": 8, "status": "completed", "key": "main/64/qaoa", "config": "shipped", "seconds": 12.87}
+{"epr": 1070, "sha": "0169b6c476806616", "horizon": 4, "status": "completed", "key": "main/80/qnn_DEEP", "config": "shipped", "seconds": 10.59}
+{"epr": 198, "sha": "71868c07d3e697f7", "horizon": 128, "status": "completed", "key": "scaleup/100/qft", "config": "shipped", "seconds": 2.64}
+{"epr": 200, "sha": "ed678a07669b7fe9", "horizon": 128, "status": "completed", "key": "scaleup/100/qpeexact", "config": "shipped", "seconds": 2.22}
+{"epr": 2486, "sha": "e19b22099dcb8d2e", "horizon": 128, "status": "completed", "key": "main/80/multiplier", "config": "shipped", "seconds": 10.21}
+{"epr": 579, "sha": "f8043b9ff63e0dc4", "horizon": 128, "status": "completed", "key": "scaleup/200/qft", "config": "shipped", "seconds": 8.56}
+{"epr": 528, "sha": "f7449c1c920280f2", "horizon": 128, "status": "completed", "key": "scaleup/200/qpeexact", "config": "shipped", "seconds": 8.56}
+{"epr": 1122, "sha": "45cf5e21df71e04a", "horizon": 16, "status": "completed", "key": "main/80/qaoa", "config": "shipped", "seconds": 23.98}
+{"epr": 69, "sha": "03a6b5ac7d7ad2b7", "horizon": 128, "status": "completed", "key": "heavyhex/ring/ae", "config": "shipped", "seconds": 1.18}
+{"epr": 2, "sha": "3f564c761f5d0c63", "horizon": 16, "status": "completed", "key": "heavyhex/ring/ghz", "config": "shipped", "seconds": 0.03}
+{"epr": 12, "sha": "a4a7c53de1402f92", "horizon": 16, "status": "completed", "key": "heavyhex/ring/graphstate", "config": "shipped", "seconds": 0.26}
+{"epr": 109, "sha": "ceee9641becf2158", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qft", "config": "shipped", "seconds": 1.68}
+{"epr": 240, "sha": "bb83dd7e549d0c4d", "horizon": 16, "status": "completed", "key": "heavyhex/ring/qnn", "config": "shipped", "seconds": 3.58}
+{"epr": 1170, "sha": "1d466c7fcca494d9", "horizon": 128, "status": "completed", "key": "scaleup/360/qft", "config": "shipped", "seconds": 17.63}
+{"epr": 105, "sha": "603e8fdb042e2a83", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qpeexact", "config": "shipped", "seconds": 1.43}
+{"epr": 1224, "sha": "4c3b0e646eff9cc0", "horizon": 128, "status": "completed", "key": "scaleup/360/qpeexact", "config": "shipped", "seconds": 19.32}
+{"epr": 465, "sha": "dc4c224a01841de2", "horizon": 8, "status": "completed", "key": "heavyhex/ring/random", "config": "shipped", "seconds": 10.29}
+{"epr": 149, "sha": "915cb576c2104fcd", "horizon": 8, "status": "completed", "key": "heavyhex/star/ae", "config": "shipped", "seconds": 1.24}
+{"epr": 3, "sha": "fad9d4abab4e30ce", "horizon": 16, "status": "completed", "key": "heavyhex/star/ghz", "config": "shipped", "seconds": 0.04}
+{"epr": 16, "sha": "3b877831b4286972", "horizon": 16, "status": "completed", "key": "heavyhex/star/graphstate", "config": "shipped", "seconds": 0.26}
+{"epr": 506, "sha": "ed3f3f4201be0483", "horizon": 16, "status": "completed", "key": "heavyhex/ring/multiplier", "config": "shipped", "seconds": 4.58}
+{"epr": 117, "sha": "814d37e10aa02726", "horizon": 128, "status": "completed", "key": "heavyhex/star/qft", "config": "shipped", "seconds": 1.57}
+{"epr": 244, "sha": "7935b6eb8b77ba0b", "horizon": 8, "status": "completed", "key": "heavyhex/ring/qaoa", "config": "shipped", "seconds": 7.64}
+{"epr": 162, "sha": "5a4f3e15419e1c05", "horizon": 16, "status": "completed", "key": "heavyhex/star/qpeexact", "config": "shipped", "seconds": 1.54}
+{"epr": 449, "sha": "dc37764058bc96a9", "horizon": 4, "status": "completed", "key": "heavyhex/star/qnn", "config": "shipped", "seconds": 4.16}
+{"epr": 455, "sha": "ddff00392fed7918", "horizon": 128, "status": "completed", "key": "heavyhex/star/multiplier", "config": "shipped", "seconds": 4.78}
+{"epr": 65, "sha": "e9613ee176905ea7", "horizon": 16, "status": "completed", "key": "main/25/ae", "config": "no work budget", "seconds": 0.18}
+{"epr": 4, "sha": "12f2d94f721db02b", "horizon": 16, "status": "completed", "key": "main/25/ghz", "config": "no work budget", "seconds": 0.01}
+{"epr": 7, "sha": "7a950f19a40db3c2", "horizon": 16, "status": "completed", "key": "main/25/graphstate", "config": "no work budget", "seconds": 0.02}
+{"epr": 74, "sha": "d63cc0429381801b", "horizon": 16, "status": "completed", "key": "main/25/qft", "config": "no work budget", "seconds": 0.22}
+{"epr": 547, "sha": "2c69ef25fab7542e", "horizon": 8, "status": "completed", "key": "heavyhex/star/random", "config": "shipped", "seconds": 9.97}
+{"epr": 119, "sha": "c1382cb8e0ec985b", "horizon": 16, "status": "completed", "key": "main/25/qnn", "config": "no work budget", "seconds": 0.54}
+{"epr": 393, "sha": "a0cd8b17321a49eb", "horizon": 16, "status": "completed", "key": "main/25/random", "config": "no work budget", "seconds": 1.12}
+{"epr": 6, "sha": "0f59dec9a68adda3", "horizon": 16, "status": "completed", "key": "main/64/ghz", "config": "no work budget", "seconds": 0.02}
+{"epr": 20, "sha": "b6cff21a8c198727", "horizon": 16, "status": "completed", "key": "main/64/graphstate", "config": "no work budget", "seconds": 0.16}
+{"epr": 157, "sha": "8c02f7ba0bd7c3fc", "horizon": 128, "status": "completed", "key": "main/64/ae", "config": "no work budget", "seconds": 1.55}
+{"epr": 405, "sha": "22d5267d794299e7", "horizon": 8, "status": "completed", "key": "heavyhex/star/qaoa", "config": "shipped", "seconds": 9.64}
+{"epr": 638, "sha": "a625ad591e5bf912", "horizon": 8, "status": "completed", "key": "main/64/qnn_OLD_DEEP", "config": "no work budget", "seconds": 4.99}
+{"epr": 262, "sha": "c25a67a34e1e0bdd", "horizon": 16, "status": "completed", "key": "main/64/qft", "config": "no work budget", "seconds": 5.83}
+{"epr": 222, "sha": "53e20257c2405a5b", "horizon": 16, "status": "completed", "key": "main/64/qpeexact", "config": "no work budget", "seconds": 5.7}
+{"epr": 737, "sha": "857b71aefd79f52f", "horizon": 16, "status": "completed", "key": "main/64/random", "config": "no work budget", "seconds": 11.25}
+{"epr": 11040, "sha": "f9a65453a6192a9a", "horizon": 16, "status": "completed", "key": "main/80/random", "config": "shipped", "seconds": 72.74}
+{"epr": 7, "sha": "603c2924e160d3bc", "horizon": 16, "status": "completed", "key": "main/80/ghz", "config": "no work budget", "seconds": 0.03}
+{"epr": 28, "sha": "be8333dc355e9b84", "horizon": 16, "status": "completed", "key": "main/80/graphstate", "config": "no work budget", "seconds": 0.36}
+{"epr": 299, "sha": "252da7d092a033d7", "horizon": 128, "status": "completed", "key": "main/80/ae", "config": "no work budget", "seconds": 2.93}
+{"epr": 1076, "sha": "ab28fc4e85414922", "horizon": 128, "status": "completed", "key": "main/64/multiplier", "config": "no work budget", "seconds": 4.91}
+{"epr": 775, "sha": "df60bdfb1ba8542d", "horizon": 8, "status": "completed", "key": "main/64/qaoa", "config": "no work budget", "seconds": 12.86}
+{"epr": 446, "sha": "53318d8733f996b1", "horizon": 16, "status": "completed", "key": "main/80/qft", "config": "no work budget", "seconds": 5.96}
+{"epr": 291, "sha": "63016873d66be10e", "horizon": 128, "status": "completed", "key": "main/80/qpeexact", "config": "no work budget", "seconds": 2.97}
+{"epr": 1070, "sha": "0169b6c476806616", "horizon": 4, "status": "completed", "key": "main/80/qnn_DEEP", "config": "no work budget", "seconds": 10.33}
+{"epr": 198, "sha": "71868c07d3e697f7", "horizon": 128, "status": "completed", "key": "scaleup/100/qft", "config": "no work budget", "seconds": 2.6}
+{"epr": 200, "sha": "ed678a07669b7fe9", "horizon": 128, "status": "completed", "key": "scaleup/100/qpeexact", "config": "no work budget", "seconds": 2.22}
+{"epr": 2486, "sha": "e19b22099dcb8d2e", "horizon": 128, "status": "completed", "key": "main/80/multiplier", "config": "no work budget", "seconds": 9.94}
+{"epr": 579, "sha": "f8043b9ff63e0dc4", "horizon": 128, "status": "completed", "key": "scaleup/200/qft", "config": "no work budget", "seconds": 8.23}
+{"epr": 528, "sha": "f7449c1c920280f2", "horizon": 128, "status": "completed", "key": "scaleup/200/qpeexact", "config": "no work budget", "seconds": 8.17}
+{"epr": 1122, "sha": "45cf5e21df71e04a", "horizon": 16, "status": "completed", "key": "main/80/qaoa", "config": "no work budget", "seconds": 23.89}
+{"epr": 69, "sha": "03a6b5ac7d7ad2b7", "horizon": 128, "status": "completed", "key": "heavyhex/ring/ae", "config": "no work budget", "seconds": 1.08}
+{"epr": 2, "sha": "3f564c761f5d0c63", "horizon": 16, "status": "completed", "key": "heavyhex/ring/ghz", "config": "no work budget", "seconds": 0.03}
+{"epr": 12, "sha": "a4a7c53de1402f92", "horizon": 16, "status": "completed", "key": "heavyhex/ring/graphstate", "config": "no work budget", "seconds": 0.26}
+{"epr": 109, "sha": "ceee9641becf2158", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qft", "config": "no work budget", "seconds": 1.64}
+{"epr": 240, "sha": "bb83dd7e549d0c4d", "horizon": 16, "status": "completed", "key": "heavyhex/ring/qnn", "config": "no work budget", "seconds": 3.52}
+{"epr": 1170, "sha": "1d466c7fcca494d9", "horizon": 128, "status": "completed", "key": "scaleup/360/qft", "config": "no work budget", "seconds": 17.04}
+{"epr": 105, "sha": "603e8fdb042e2a83", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qpeexact", "config": "no work budget", "seconds": 1.42}
+{"epr": 1224, "sha": "4c3b0e646eff9cc0", "horizon": 128, "status": "completed", "key": "scaleup/360/qpeexact", "config": "no work budget", "seconds": 18.75}
+{"epr": 465, "sha": "dc4c224a01841de2", "horizon": 8, "status": "completed", "key": "heavyhex/ring/random", "config": "no work budget", "seconds": 11.3}
+{"epr": 506, "sha": "ed3f3f4201be0483", "horizon": 16, "status": "completed", "key": "heavyhex/ring/multiplier", "config": "no work budget", "seconds": 4.82}
+{"epr": 3, "sha": "fad9d4abab4e30ce", "horizon": 16, "status": "completed", "key": "heavyhex/star/ghz", "config": "no work budget", "seconds": 0.04}
+{"epr": 244, "sha": "7935b6eb8b77ba0b", "horizon": 8, "status": "completed", "key": "heavyhex/ring/qaoa", "config": "no work budget", "seconds": 7.33}
+{"epr": 149, "sha": "915cb576c2104fcd", "horizon": 8, "status": "completed", "key": "heavyhex/star/ae", "config": "no work budget", "seconds": 2.17}
+{"epr": 16, "sha": "3b877831b4286972", "horizon": 16, "status": "completed", "key": "heavyhex/star/graphstate", "config": "no work budget", "seconds": 0.26}
+{"epr": 117, "sha": "814d37e10aa02726", "horizon": 128, "status": "completed", "key": "heavyhex/star/qft", "config": "no work budget", "seconds": 1.64}
+{"epr": 449, "sha": "dc37764058bc96a9", "horizon": 4, "status": "completed", "key": "heavyhex/star/qnn", "config": "no work budget", "seconds": 4.16}
+{"epr": 162, "sha": "5a4f3e15419e1c05", "horizon": 16, "status": "completed", "key": "heavyhex/star/qpeexact", "config": "no work budget", "seconds": 2.83}
+{"epr": 455, "sha": "ddff00392fed7918", "horizon": 128, "status": "completed", "key": "heavyhex/star/multiplier", "config": "no work budget", "seconds": 4.76}
+{"epr": 65, "sha": "e9613ee176905ea7", "horizon": 16, "status": "completed", "key": "main/25/ae", "config": "no stall guard", "seconds": 0.19}
+{"epr": 4, "sha": "12f2d94f721db02b", "horizon": 16, "status": "completed", "key": "main/25/ghz", "config": "no stall guard", "seconds": 0.01}
+{"epr": 7, "sha": "7a950f19a40db3c2", "horizon": 16, "status": "completed", "key": "main/25/graphstate", "config": "no stall guard", "seconds": 0.02}
+{"epr": 74, "sha": "d63cc0429381801b", "horizon": 16, "status": "completed", "key": "main/25/qft", "config": "no stall guard", "seconds": 0.22}
+{"epr": 547, "sha": "2c69ef25fab7542e", "horizon": 8, "status": "completed", "key": "heavyhex/star/random", "config": "no work budget", "seconds": 9.99}
+{"epr": 119, "sha": "c1382cb8e0ec985b", "horizon": 16, "status": "completed", "key": "main/25/qnn", "config": "no stall guard", "seconds": 0.47}
+{"epr": 393, "sha": "a0cd8b17321a49eb", "horizon": 16, "status": "completed", "key": "main/25/random", "config": "no stall guard", "seconds": 1.05}
+{"epr": 6, "sha": "0f59dec9a68adda3", "horizon": 16, "status": "completed", "key": "main/64/ghz", "config": "no stall guard", "seconds": 0.02}
+{"epr": 20, "sha": "b6cff21a8c198727", "horizon": 16, "status": "completed", "key": "main/64/graphstate", "config": "no stall guard", "seconds": 0.16}
+{"epr": 157, "sha": "8c02f7ba0bd7c3fc", "horizon": 128, "status": "completed", "key": "main/64/ae", "config": "no stall guard", "seconds": 1.87}
+{"epr": 405, "sha": "22d5267d794299e7", "horizon": 8, "status": "completed", "key": "heavyhex/star/qaoa", "config": "no work budget", "seconds": 8.63}
+{"epr": 262, "sha": "c25a67a34e1e0bdd", "horizon": 16, "status": "completed", "key": "main/64/qft", "config": "no stall guard", "seconds": 3.47}
+{"epr": 222, "sha": "53e20257c2405a5b", "horizon": 16, "status": "completed", "key": "main/64/qpeexact", "config": "no stall guard", "seconds": 3.12}
+{"epr": 638, "sha": "a625ad591e5bf912", "horizon": 8, "status": "completed", "key": "main/64/qnn_OLD_DEEP", "config": "no stall guard", "seconds": 5.84}
+{"epr": 1076, "sha": "ab28fc4e85414922", "horizon": 128, "status": "completed", "key": "main/64/multiplier", "config": "no stall guard", "seconds": 5.11}
+{"epr": 11040, "sha": "f9a65453a6192a9a", "horizon": 16, "status": "completed", "key": "main/80/random", "config": "no work budget", "seconds": 73.53}
+{"epr": 7, "sha": "603c2924e160d3bc", "horizon": 16, "status": "completed", "key": "main/80/ghz", "config": "no stall guard", "seconds": 0.03}
+{"epr": 28, "sha": "be8333dc355e9b84", "horizon": 16, "status": "completed", "key": "main/80/graphstate", "config": "no stall guard", "seconds": 0.36}
+{"epr": 737, "sha": "857b71aefd79f52f", "horizon": 16, "status": "completed", "key": "main/64/random", "config": "no stall guard", "seconds": 13.12}
+{"epr": 299, "sha": "252da7d092a033d7", "horizon": 128, "status": "completed", "key": "main/80/ae", "config": "no stall guard", "seconds": 3.12}
+{"epr": 446, "sha": "53318d8733f996b1", "horizon": 16, "status": "completed", "key": "main/80/qft", "config": "no stall guard", "seconds": 3.0}
+{"epr": 775, "sha": "df60bdfb1ba8542d", "horizon": 8, "status": "completed", "key": "main/64/qaoa", "config": "no stall guard", "seconds": 12.87}
+{"epr": 291, "sha": "63016873d66be10e", "horizon": 128, "status": "completed", "key": "main/80/qpeexact", "config": "no stall guard", "seconds": 3.0}
+{"epr": 1070, "sha": "0169b6c476806616", "horizon": 4, "status": "completed", "key": "main/80/qnn_DEEP", "config": "no stall guard", "seconds": 10.66}
+{"epr": 198, "sha": "71868c07d3e697f7", "horizon": 128, "status": "completed", "key": "scaleup/100/qft", "config": "no stall guard", "seconds": 2.79}
+{"epr": 200, "sha": "ed678a07669b7fe9", "horizon": 128, "status": "completed", "key": "scaleup/100/qpeexact", "config": "no stall guard", "seconds": 2.13}
+{"epr": 2486, "sha": "e19b22099dcb8d2e", "horizon": 128, "status": "completed", "key": "main/80/multiplier", "config": "no stall guard", "seconds": 10.43}
+{"epr": 579, "sha": "f8043b9ff63e0dc4", "horizon": 128, "status": "completed", "key": "scaleup/200/qft", "config": "no stall guard", "seconds": 8.15}
+{"epr": 528, "sha": "f7449c1c920280f2", "horizon": 128, "status": "completed", "key": "scaleup/200/qpeexact", "config": "no stall guard", "seconds": 8.07}
+{"epr": 1122, "sha": "45cf5e21df71e04a", "horizon": 16, "status": "completed", "key": "main/80/qaoa", "config": "no stall guard", "seconds": 24.39}
+{"epr": 69, "sha": "03a6b5ac7d7ad2b7", "horizon": 128, "status": "completed", "key": "heavyhex/ring/ae", "config": "no stall guard", "seconds": 1.07}
+{"epr": 2, "sha": "3f564c761f5d0c63", "horizon": 16, "status": "completed", "key": "heavyhex/ring/ghz", "config": "no stall guard", "seconds": 0.03}
+{"epr": 12, "sha": "a4a7c53de1402f92", "horizon": 16, "status": "completed", "key": "heavyhex/ring/graphstate", "config": "no stall guard", "seconds": 0.26}
+{"epr": 109, "sha": "ceee9641becf2158", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qft", "config": "no stall guard", "seconds": 1.55}
+{"epr": 240, "sha": "bb83dd7e549d0c4d", "horizon": 16, "status": "completed", "key": "heavyhex/ring/qnn", "config": "no stall guard", "seconds": 3.45}
+{"epr": 1170, "sha": "1d466c7fcca494d9", "horizon": 128, "status": "completed", "key": "scaleup/360/qft", "config": "no stall guard", "seconds": 17.03}
+{"epr": 105, "sha": "603e8fdb042e2a83", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qpeexact", "config": "no stall guard", "seconds": 1.41}
+{"epr": 465, "sha": "dc4c224a01841de2", "horizon": 8, "status": "completed", "key": "heavyhex/ring/random", "config": "no stall guard", "seconds": 9.95}
+{"epr": 244, "sha": "7935b6eb8b77ba0b", "horizon": 8, "status": "completed", "key": "heavyhex/ring/qaoa", "config": "no stall guard", "seconds": 7.31}
+{"epr": 506, "sha": "ed3f3f4201be0483", "horizon": 16, "status": "completed", "key": "heavyhex/ring/multiplier", "config": "no stall guard", "seconds": 4.75}
+{"epr": 3, "sha": "fad9d4abab4e30ce", "horizon": 16, "status": "completed", "key": "heavyhex/star/ghz", "config": "no stall guard", "seconds": 0.04}
+{"epr": 16, "sha": "3b877831b4286972", "horizon": 16, "status": "completed", "key": "heavyhex/star/graphstate", "config": "no stall guard", "seconds": 0.26}
+{"epr": 149, "sha": "915cb576c2104fcd", "horizon": 8, "status": "completed", "key": "heavyhex/star/ae", "config": "no stall guard", "seconds": 1.34}
+{"epr": 117, "sha": "814d37e10aa02726", "horizon": 128, "status": "completed", "key": "heavyhex/star/qft", "config": "no stall guard", "seconds": 1.55}
+{"epr": 1224, "sha": "4c3b0e646eff9cc0", "horizon": 128, "status": "completed", "key": "scaleup/360/qpeexact", "config": "no stall guard", "seconds": 28.57}
+{"epr": 162, "sha": "5a4f3e15419e1c05", "horizon": 16, "status": "completed", "key": "heavyhex/star/qpeexact", "config": "no stall guard", "seconds": 1.54}
+{"epr": 449, "sha": "dc37764058bc96a9", "horizon": 4, "status": "completed", "key": "heavyhex/star/qnn", "config": "no stall guard", "seconds": 4.25}
+{"epr": 547, "sha": "2c69ef25fab7542e", "horizon": 8, "status": "completed", "key": "heavyhex/star/random", "config": "no stall guard", "seconds": 10.0}
+{"epr": 65, "sha": "e9613ee176905ea7", "horizon": 16, "status": "completed", "key": "main/25/ae", "config": "no frontier fix", "seconds": 0.18}
+{"epr": 4, "sha": "12f2d94f721db02b", "horizon": 16, "status": "completed", "key": "main/25/ghz", "config": "no frontier fix", "seconds": 0.01}
+{"epr": 7, "sha": "7a950f19a40db3c2", "horizon": 16, "status": "completed", "key": "main/25/graphstate", "config": "no frontier fix", "seconds": 0.02}
+{"epr": 74, "sha": "d63cc0429381801b", "horizon": 16, "status": "completed", "key": "main/25/qft", "config": "no frontier fix", "seconds": 0.34}
+{"epr": 119, "sha": "c1382cb8e0ec985b", "horizon": 16, "status": "completed", "key": "main/25/qnn", "config": "no frontier fix", "seconds": 0.48}
+{"epr": 393, "sha": "a0cd8b17321a49eb", "horizon": 16, "status": "completed", "key": "main/25/random", "config": "no frontier fix", "seconds": 1.19}
+{"epr": 405, "sha": "22d5267d794299e7", "horizon": 8, "status": "completed", "key": "heavyhex/star/qaoa", "config": "no stall guard", "seconds": 9.7}
+{"epr": 6, "sha": "0f59dec9a68adda3", "horizon": 16, "status": "completed", "key": "main/64/ghz", "config": "no frontier fix", "seconds": 0.02}
+{"epr": 20, "sha": "b6cff21a8c198727", "horizon": 16, "status": "completed", "key": "main/64/graphstate", "config": "no frontier fix", "seconds": 0.16}
+{"epr": 157, "sha": "8c02f7ba0bd7c3fc", "horizon": 128, "status": "completed", "key": "main/64/ae", "config": "no frontier fix", "seconds": 1.56}
+{"epr": 262, "sha": "c25a67a34e1e0bdd", "horizon": 16, "status": "completed", "key": "main/64/qft", "config": "no frontier fix", "seconds": 3.19}
+{"epr": 455, "sha": "ddff00392fed7918", "horizon": 128, "status": "completed", "key": "heavyhex/star/multiplier", "config": "no stall guard", "seconds": 14.56}
+{"epr": 638, "sha": "a625ad591e5bf912", "horizon": 8, "status": "completed", "key": "main/64/qnn_OLD_DEEP", "config": "no frontier fix", "seconds": 5.65}
+{"epr": 222, "sha": "53e20257c2405a5b", "horizon": 16, "status": "completed", "key": "main/64/qpeexact", "config": "no frontier fix", "seconds": 3.15}
+{"epr": 1076, "sha": "ab28fc4e85414922", "horizon": 128, "status": "completed", "key": "main/64/multiplier", "config": "no frontier fix", "seconds": 5.07}
+{"epr": 737, "sha": "857b71aefd79f52f", "horizon": 16, "status": "completed", "key": "main/64/random", "config": "no frontier fix", "seconds": 12.99}
+{"epr": 7, "sha": "603c2924e160d3bc", "horizon": 16, "status": "completed", "key": "main/80/ghz", "config": "no frontier fix", "seconds": 0.03}
+{"epr": 28, "sha": "be8333dc355e9b84", "horizon": 16, "status": "completed", "key": "main/80/graphstate", "config": "no frontier fix", "seconds": 0.36}
+{"epr": 299, "sha": "252da7d092a033d7", "horizon": 128, "status": "completed", "key": "main/80/ae", "config": "no frontier fix", "seconds": 3.12}
+{"epr": 446, "sha": "53318d8733f996b1", "horizon": 16, "status": "completed", "key": "main/80/qft", "config": "no frontier fix", "seconds": 3.3}
+{"epr": 775, "sha": "df60bdfb1ba8542d", "horizon": 8, "status": "completed", "key": "main/64/qaoa", "config": "no frontier fix", "seconds": 16.54}
+{"epr": 291, "sha": "63016873d66be10e", "horizon": 128, "status": "completed", "key": "main/80/qpeexact", "config": "no frontier fix", "seconds": 3.35}
+{"epr": 1070, "sha": "0169b6c476806616", "horizon": 4, "status": "completed", "key": "main/80/qnn_DEEP", "config": "no frontier fix", "seconds": 11.18}
+{"epr": 2486, "sha": "e19b22099dcb8d2e", "horizon": 128, "status": "completed", "key": "main/80/multiplier", "config": "no frontier fix", "seconds": 10.54}
+{"epr": 198, "sha": "71868c07d3e697f7", "horizon": 128, "status": "completed", "key": "scaleup/100/qft", "config": "no frontier fix", "seconds": 2.82}
+{"epr": 200, "sha": "ed678a07669b7fe9", "horizon": 128, "status": "completed", "key": "scaleup/100/qpeexact", "config": "no frontier fix", "seconds": 2.25}
+{"epr": 1122, "sha": "45cf5e21df71e04a", "horizon": 16, "status": "completed", "key": "main/80/qaoa", "config": "no frontier fix", "seconds": 25.43}
+{"epr": 579, "sha": "f8043b9ff63e0dc4", "horizon": 128, "status": "completed", "key": "scaleup/200/qft", "config": "no frontier fix", "seconds": 8.77}
+{"epr": 528, "sha": "f7449c1c920280f2", "horizon": 128, "status": "completed", "key": "scaleup/200/qpeexact", "config": "no frontier fix", "seconds": 8.85}
+{"epr": 1170, "sha": "1d466c7fcca494d9", "horizon": 128, "status": "completed", "key": "scaleup/360/qft", "config": "no frontier fix", "seconds": 18.14}
+{"epr": 69, "sha": "03a6b5ac7d7ad2b7", "horizon": 128, "status": "completed", "key": "heavyhex/ring/ae", "config": "no frontier fix", "seconds": 1.03}
+{"epr": 2, "sha": "3f564c761f5d0c63", "horizon": 16, "status": "completed", "key": "heavyhex/ring/ghz", "config": "no frontier fix", "seconds": 0.03}
+{"epr": 12, "sha": "a4a7c53de1402f92", "horizon": 16, "status": "completed", "key": "heavyhex/ring/graphstate", "config": "no frontier fix", "seconds": 0.26}
+{"epr": 109, "sha": "ceee9641becf2158", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qft", "config": "no frontier fix", "seconds": 1.69}
+{"epr": 240, "sha": "bb83dd7e549d0c4d", "horizon": 16, "status": "completed", "key": "heavyhex/ring/qnn", "config": "no frontier fix", "seconds": 3.55}
+{"epr": 1224, "sha": "4c3b0e646eff9cc0", "horizon": 128, "status": "completed", "key": "scaleup/360/qpeexact", "config": "no frontier fix", "seconds": 19.81}
+{"epr": 105, "sha": "603e8fdb042e2a83", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qpeexact", "config": "no frontier fix", "seconds": 1.47}
+{"epr": 465, "sha": "dc4c224a01841de2", "horizon": 8, "status": "completed", "key": "heavyhex/ring/random", "config": "no frontier fix", "seconds": 10.77}
+{"epr": 244, "sha": "7935b6eb8b77ba0b", "horizon": 8, "status": "completed", "key": "heavyhex/ring/qaoa", "config": "no frontier fix", "seconds": 8.21}
+{"epr": 149, "sha": "915cb576c2104fcd", "horizon": 8, "status": "completed", "key": "heavyhex/star/ae", "config": "no frontier fix", "seconds": 1.29}
+{"epr": 3, "sha": "fad9d4abab4e30ce", "horizon": 16, "status": "completed", "key": "heavyhex/star/ghz", "config": "no frontier fix", "seconds": 0.04}
+{"epr": 16, "sha": "3b877831b4286972", "horizon": 16, "status": "completed", "key": "heavyhex/star/graphstate", "config": "no frontier fix", "seconds": 0.26}
+{"epr": 506, "sha": "ed3f3f4201be0483", "horizon": 16, "status": "completed", "key": "heavyhex/ring/multiplier", "config": "no frontier fix", "seconds": 4.52}
+{"epr": 117, "sha": "814d37e10aa02726", "horizon": 128, "status": "completed", "key": "heavyhex/star/qft", "config": "no frontier fix", "seconds": 1.68}
+{"epr": 11040, "sha": "f9a65453a6192a9a", "horizon": 16, "status": "completed", "key": "main/80/random", "config": "no frontier fix", "seconds": 76.06}
+{"epr": 162, "sha": "5a4f3e15419e1c05", "horizon": 16, "status": "completed", "key": "heavyhex/star/qpeexact", "config": "no frontier fix", "seconds": 1.54}
+{"epr": 449, "sha": "dc37764058bc96a9", "horizon": 4, "status": "completed", "key": "heavyhex/star/qnn", "config": "no frontier fix", "seconds": 4.25}
+{"epr": 455, "sha": "ddff00392fed7918", "horizon": 128, "status": "completed", "key": "heavyhex/star/multiplier", "config": "no frontier fix", "seconds": 4.65}
+{"epr": 65, "sha": "e9613ee176905ea7", "horizon": 16, "status": "completed", "key": "main/25/ae", "config": "no walk bound", "seconds": 0.18}
+{"epr": 4, "sha": "12f2d94f721db02b", "horizon": 16, "status": "completed", "key": "main/25/ghz", "config": "no walk bound", "seconds": 0.01}
+{"epr": 7, "sha": "7a950f19a40db3c2", "horizon": 16, "status": "completed", "key": "main/25/graphstate", "config": "no walk bound", "seconds": 0.02}
+{"epr": 74, "sha": "d63cc0429381801b", "horizon": 16, "status": "completed", "key": "main/25/qft", "config": "no walk bound", "seconds": 0.22}
+{"epr": 119, "sha": "c1382cb8e0ec985b", "horizon": 16, "status": "completed", "key": "main/25/qnn", "config": "no walk bound", "seconds": 0.47}
+{"epr": 547, "sha": "2c69ef25fab7542e", "horizon": 8, "status": "completed", "key": "heavyhex/star/random", "config": "no frontier fix", "seconds": 10.08}
+{"epr": 393, "sha": "a0cd8b17321a49eb", "horizon": 16, "status": "completed", "key": "main/25/random", "config": "no walk bound", "seconds": 1.1}
+{"epr": 6, "sha": "0f59dec9a68adda3", "horizon": 16, "status": "completed", "key": "main/64/ghz", "config": "no walk bound", "seconds": 0.02}
+{"epr": 20, "sha": "b6cff21a8c198727", "horizon": 16, "status": "completed", "key": "main/64/graphstate", "config": "no walk bound", "seconds": 0.16}
+{"epr": 157, "sha": "8c02f7ba0bd7c3fc", "horizon": 128, "status": "completed", "key": "main/64/ae", "config": "no walk bound", "seconds": 1.67}
+{"epr": 405, "sha": "22d5267d794299e7", "horizon": 8, "status": "completed", "key": "heavyhex/star/qaoa", "config": "no frontier fix", "seconds": 9.64}
+{"epr": 262, "sha": "c25a67a34e1e0bdd", "horizon": 16, "status": "completed", "key": "main/64/qft", "config": "no walk bound", "seconds": 2.96}
+{"epr": 222, "sha": "53e20257c2405a5b", "horizon": 16, "status": "completed", "key": "main/64/qpeexact", "config": "no walk bound", "seconds": 2.58}
+{"epr": 638, "sha": "a625ad591e5bf912", "horizon": 8, "status": "completed", "key": "main/64/qnn_OLD_DEEP", "config": "no walk bound", "seconds": 4.95}
+{"epr": 1076, "sha": "ab28fc4e85414922", "horizon": 128, "status": "completed", "key": "main/64/multiplier", "config": "no walk bound", "seconds": 4.96}
+{"epr": 737, "sha": "857b71aefd79f52f", "horizon": 16, "status": "completed", "key": "main/64/random", "config": "no walk bound", "seconds": 11.26}
+{"epr": 7, "sha": "603c2924e160d3bc", "horizon": 16, "status": "completed", "key": "main/80/ghz", "config": "no walk bound", "seconds": 0.09}
+{"epr": 28, "sha": "be8333dc355e9b84", "horizon": 16, "status": "completed", "key": "main/80/graphstate", "config": "no walk bound", "seconds": 0.36}
+{"epr": 299, "sha": "252da7d092a033d7", "horizon": 128, "status": "completed", "key": "main/80/ae", "config": "no walk bound", "seconds": 3.29}
+{"epr": 446, "sha": "53318d8733f996b1", "horizon": 16, "status": "completed", "key": "main/80/qft", "config": "no walk bound", "seconds": 3.4}
+{"epr": 775, "sha": "df60bdfb1ba8542d", "horizon": 8, "status": "completed", "key": "main/64/qaoa", "config": "no walk bound", "seconds": 13.87}
+{"epr": 291, "sha": "63016873d66be10e", "horizon": 128, "status": "completed", "key": "main/80/qpeexact", "config": "no walk bound", "seconds": 3.31}
+{"epr": 1070, "sha": "0169b6c476806616", "horizon": 4, "status": "completed", "key": "main/80/qnn_DEEP", "config": "no walk bound", "seconds": 10.23}
+{"epr": 2486, "sha": "e19b22099dcb8d2e", "horizon": 128, "status": "completed", "key": "main/80/multiplier", "config": "no walk bound", "seconds": 10.24}
+{"epr": 198, "sha": "71868c07d3e697f7", "horizon": 128, "status": "completed", "key": "scaleup/100/qft", "config": "no walk bound", "seconds": 2.99}
+{"epr": 11040, "sha": "f9a65453a6192a9a", "horizon": 16, "status": "completed", "key": "main/80/random", "config": "no stall guard", "seconds": 209.4}
+{"epr": 200, "sha": "ed678a07669b7fe9", "horizon": 128, "status": "completed", "key": "scaleup/100/qpeexact", "config": "no walk bound", "seconds": 2.37}
+{"epr": 1122, "sha": "45cf5e21df71e04a", "horizon": 16, "status": "completed", "key": "main/80/qaoa", "config": "no walk bound", "seconds": 23.86}
+{"epr": 579, "sha": "f8043b9ff63e0dc4", "horizon": 128, "status": "completed", "key": "scaleup/200/qft", "config": "no walk bound", "seconds": 9.64}
+{"epr": 528, "sha": "f7449c1c920280f2", "horizon": 128, "status": "completed", "key": "scaleup/200/qpeexact", "config": "no walk bound", "seconds": 9.11}
+{"epr": 69, "sha": "03a6b5ac7d7ad2b7", "horizon": 128, "status": "completed", "key": "heavyhex/ring/ae", "config": "no walk bound", "seconds": 1.18}
+{"epr": 2, "sha": "3f564c761f5d0c63", "horizon": 16, "status": "completed", "key": "heavyhex/ring/ghz", "config": "no walk bound", "seconds": 0.03}
+{"epr": 12, "sha": "a4a7c53de1402f92", "horizon": 16, "status": "completed", "key": "heavyhex/ring/graphstate", "config": "no walk bound", "seconds": 0.26}
+{"epr": 109, "sha": "ceee9641becf2158", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qft", "config": "no walk bound", "seconds": 1.57}
+{"epr": 240, "sha": "bb83dd7e549d0c4d", "horizon": 16, "status": "completed", "key": "heavyhex/ring/qnn", "config": "no walk bound", "seconds": 3.5}
+{"epr": 465, "sha": "dc4c224a01841de2", "horizon": 8, "status": "completed", "key": "heavyhex/ring/random", "config": "no walk bound", "seconds": 9.9}
+{"epr": 1170, "sha": "1d466c7fcca494d9", "horizon": 128, "status": "completed", "key": "scaleup/360/qft", "config": "no walk bound", "seconds": 19.85}
+{"epr": 105, "sha": "603e8fdb042e2a83", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qpeexact", "config": "no walk bound", "seconds": 1.76}
+{"epr": 1224, "sha": "4c3b0e646eff9cc0", "horizon": 128, "status": "completed", "key": "scaleup/360/qpeexact", "config": "no walk bound", "seconds": 21.92}
+{"epr": 149, "sha": "915cb576c2104fcd", "horizon": 8, "status": "completed", "key": "heavyhex/star/ae", "config": "no walk bound", "seconds": 1.4}
+{"epr": 3, "sha": "fad9d4abab4e30ce", "horizon": 16, "status": "completed", "key": "heavyhex/star/ghz", "config": "no walk bound", "seconds": 0.04}
+{"epr": 16, "sha": "3b877831b4286972", "horizon": 16, "status": "completed", "key": "heavyhex/star/graphstate", "config": "no walk bound", "seconds": 0.26}
+{"epr": 506, "sha": "ed3f3f4201be0483", "horizon": 16, "status": "completed", "key": "heavyhex/ring/multiplier", "config": "no walk bound", "seconds": 4.66}
+{"epr": 244, "sha": "7935b6eb8b77ba0b", "horizon": 8, "status": "completed", "key": "heavyhex/ring/qaoa", "config": "no walk bound", "seconds": 7.83}
+{"epr": 117, "sha": "814d37e10aa02726", "horizon": 128, "status": "completed", "key": "heavyhex/star/qft", "config": "no walk bound", "seconds": 1.66}
+{"epr": 162, "sha": "5a4f3e15419e1c05", "horizon": 16, "status": "completed", "key": "heavyhex/star/qpeexact", "config": "no walk bound", "seconds": 1.56}
+{"epr": 449, "sha": "dc37764058bc96a9", "horizon": 4, "status": "completed", "key": "heavyhex/star/qnn", "config": "no walk bound", "seconds": 4.1}
+{"epr": 455, "sha": "ddff00392fed7918", "horizon": 128, "status": "completed", "key": "heavyhex/star/multiplier", "config": "no walk bound", "seconds": 4.63}
+{"epr": 65, "sha": "e9613ee176905ea7", "horizon": 16, "status": "completed", "key": "main/25/ae", "config": "none of the four", "seconds": 0.17}
+{"epr": 4, "sha": "12f2d94f721db02b", "horizon": 16, "status": "completed", "key": "main/25/ghz", "config": "none of the four", "seconds": 0.01}
+{"epr": 7, "sha": "7a950f19a40db3c2", "horizon": 16, "status": "completed", "key": "main/25/graphstate", "config": "none of the four", "seconds": 0.02}
+{"epr": 74, "sha": "d63cc0429381801b", "horizon": 16, "status": "completed", "key": "main/25/qft", "config": "none of the four", "seconds": 0.22}
+{"epr": 119, "sha": "c1382cb8e0ec985b", "horizon": 16, "status": "completed", "key": "main/25/qnn", "config": "none of the four", "seconds": 0.47}
+{"epr": 393, "sha": "a0cd8b17321a49eb", "horizon": 16, "status": "completed", "key": "main/25/random", "config": "none of the four", "seconds": 1.15}
+{"epr": 547, "sha": "2c69ef25fab7542e", "horizon": 8, "status": "completed", "key": "heavyhex/star/random", "config": "no walk bound", "seconds": 10.03}
+{"epr": 6, "sha": "0f59dec9a68adda3", "horizon": 16, "status": "completed", "key": "main/64/ghz", "config": "none of the four", "seconds": 0.02}
+{"epr": 405, "sha": "22d5267d794299e7", "horizon": 8, "status": "completed", "key": "heavyhex/star/qaoa", "config": "no walk bound", "seconds": 8.49}
+{"epr": 20, "sha": "b6cff21a8c198727", "horizon": 16, "status": "completed", "key": "main/64/graphstate", "config": "none of the four", "seconds": 0.16}
+{"epr": 157, "sha": "8c02f7ba0bd7c3fc", "horizon": 128, "status": "completed", "key": "main/64/ae", "config": "none of the four", "seconds": 1.76}
+{"epr": 11040, "sha": "f9a65453a6192a9a", "horizon": 16, "status": "completed", "key": "main/80/random", "config": "no walk bound", "seconds": 71.14}
+{"epr": 638, "sha": "a625ad591e5bf912", "horizon": 8, "status": "completed", "key": "main/64/qnn_OLD_DEEP", "config": "none of the four", "seconds": 5.08}
+{"epr": 262, "sha": "c25a67a34e1e0bdd", "horizon": 16, "status": "completed", "key": "main/64/qft", "config": "none of the four", "seconds": 5.83}
+{"epr": 222, "sha": "53e20257c2405a5b", "horizon": 16, "status": "completed", "key": "main/64/qpeexact", "config": "none of the four", "seconds": 5.66}
+{"epr": 1076, "sha": "ab28fc4e85414922", "horizon": 128, "status": "completed", "key": "main/64/multiplier", "config": "none of the four", "seconds": 5.01}
+{"epr": 7, "sha": "603c2924e160d3bc", "horizon": 16, "status": "completed", "key": "main/80/ghz", "config": "none of the four", "seconds": 0.03}
+{"epr": 28, "sha": "be8333dc355e9b84", "horizon": 16, "status": "completed", "key": "main/80/graphstate", "config": "none of the four", "seconds": 0.36}
+{"epr": 737, "sha": "857b71aefd79f52f", "horizon": 16, "status": "completed", "key": "main/64/random", "config": "none of the four", "seconds": 11.39}
+{"epr": 299, "sha": "252da7d092a033d7", "horizon": 128, "status": "completed", "key": "main/80/ae", "config": "none of the four", "seconds": 3.5}
+{"epr": 446, "sha": "53318d8733f996b1", "horizon": 16, "status": "completed", "key": "main/80/qft", "config": "none of the four", "seconds": 6.08}
+{"epr": 775, "sha": "df60bdfb1ba8542d", "horizon": 8, "status": "completed", "key": "main/64/qaoa", "config": "none of the four", "seconds": 14.06}
+{"epr": 291, "sha": "63016873d66be10e", "horizon": 128, "status": "completed", "key": "main/80/qpeexact", "config": "none of the four", "seconds": 3.49}
+{"epr": 1070, "sha": "0169b6c476806616", "horizon": 4, "status": "completed", "key": "main/80/qnn_DEEP", "config": "none of the four", "seconds": 10.58}
+{"epr": 198, "sha": "71868c07d3e697f7", "horizon": 128, "status": "completed", "key": "scaleup/100/qft", "config": "none of the four", "seconds": 3.07}
+{"epr": 200, "sha": "ed678a07669b7fe9", "horizon": 128, "status": "completed", "key": "scaleup/100/qpeexact", "config": "none of the four", "seconds": 2.46}
+{"epr": 2486, "sha": "e19b22099dcb8d2e", "horizon": 128, "status": "completed", "key": "main/80/multiplier", "config": "none of the four", "seconds": 10.41}
+{"epr": 579, "sha": "f8043b9ff63e0dc4", "horizon": 128, "status": "completed", "key": "scaleup/200/qft", "config": "none of the four", "seconds": 10.69}
+{"epr": 528, "sha": "f7449c1c920280f2", "horizon": 128, "status": "completed", "key": "scaleup/200/qpeexact", "config": "none of the four", "seconds": 9.92}
+{"epr": 1122, "sha": "45cf5e21df71e04a", "horizon": 16, "status": "completed", "key": "main/80/qaoa", "config": "none of the four", "seconds": 25.24}
+{"epr": 69, "sha": "03a6b5ac7d7ad2b7", "horizon": 128, "status": "completed", "key": "heavyhex/ring/ae", "config": "none of the four", "seconds": 1.24}
+{"epr": 2, "sha": "3f564c761f5d0c63", "horizon": 16, "status": "completed", "key": "heavyhex/ring/ghz", "config": "none of the four", "seconds": 0.04}
+{"epr": 12, "sha": "a4a7c53de1402f92", "horizon": 16, "status": "completed", "key": "heavyhex/ring/graphstate", "config": "none of the four", "seconds": 0.28}
+{"epr": 109, "sha": "ceee9641becf2158", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qft", "config": "none of the four", "seconds": 1.68}
+{"epr": 240, "sha": "bb83dd7e549d0c4d", "horizon": 16, "status": "completed", "key": "heavyhex/ring/qnn", "config": "none of the four", "seconds": 3.65}
+{"epr": 1170, "sha": "1d466c7fcca494d9", "horizon": 128, "status": "completed", "key": "scaleup/360/qft", "config": "none of the four", "seconds": 21.57}
+{"epr": 465, "sha": "dc4c224a01841de2", "horizon": 8, "status": "completed", "key": "heavyhex/ring/random", "config": "none of the four", "seconds": 11.46}
+{"epr": 105, "sha": "603e8fdb042e2a83", "horizon": 128, "status": "completed", "key": "heavyhex/ring/qpeexact", "config": "none of the four", "seconds": 1.86}
+{"epr": 506, "sha": "ed3f3f4201be0483", "horizon": 16, "status": "completed", "key": "heavyhex/ring/multiplier", "config": "none of the four", "seconds": 5.07}
+{"epr": 149, "sha": "915cb576c2104fcd", "horizon": 8, "status": "completed", "key": "heavyhex/star/ae", "config": "none of the four", "seconds": 2.54}
+{"epr": 3, "sha": "fad9d4abab4e30ce", "horizon": 16, "status": "completed", "key": "heavyhex/star/ghz", "config": "none of the four", "seconds": 0.04}
+{"epr": 244, "sha": "7935b6eb8b77ba0b", "horizon": 8, "status": "completed", "key": "heavyhex/ring/qaoa", "config": "none of the four", "seconds": 8.39}
+{"epr": 16, "sha": "3b877831b4286972", "horizon": 16, "status": "completed", "key": "heavyhex/star/graphstate", "config": "none of the four", "seconds": 0.28}
+{"epr": 117, "sha": "814d37e10aa02726", "horizon": 128, "status": "completed", "key": "heavyhex/star/qft", "config": "none of the four", "seconds": 1.79}
+{"epr": 449, "sha": "dc37764058bc96a9", "horizon": 4, "status": "completed", "key": "heavyhex/star/qnn", "config": "none of the four", "seconds": 4.24}
+{"epr": 1224, "sha": "4c3b0e646eff9cc0", "horizon": 128, "status": "completed", "key": "scaleup/360/qpeexact", "config": "none of the four", "seconds": 35.79}
+{"epr": 162, "sha": "5a4f3e15419e1c05", "horizon": 16, "status": "completed", "key": "heavyhex/star/qpeexact", "config": "none of the four", "seconds": 3.41}
+{"epr": 547, "sha": "2c69ef25fab7542e", "horizon": 8, "status": "completed", "key": "heavyhex/star/random", "config": "none of the four", "seconds": 11.12}
+{"epr": 405, "sha": "22d5267d794299e7", "horizon": 8, "status": "completed", "key": "heavyhex/star/qaoa", "config": "none of the four", "seconds": 9.73}
+{"epr": 455, "sha": "ddff00392fed7918", "horizon": 128, "status": "completed", "key": "heavyhex/star/multiplier", "config": "none of the four", "seconds": 15.38}
+{"epr": 11040, "sha": "f9a65453a6192a9a", "horizon": 16, "status": "completed", "key": "main/80/random", "config": "none of the four", "seconds": 224.66}

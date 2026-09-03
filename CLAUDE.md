@@ -2651,6 +2651,33 @@ Scripts: scratchpad `determinism.py` (SHA + tie-count harness, reusable for any
 refactor), `phase2.py`, `recover.py`.
 
 
+## The four cost optimisations, measured on one basis (2026-09-03)
+
+All four toggled independently, 48 instances, shipped 3-route protocol, one
+process, so the times compare with each other rather than with numbers taken
+under different load (`paper/horizon_sweep/hz_ablate_opt.py` ->
+`optimisation_ablation.jsonl`, `report_optimisations.md`). **Every
+configuration emits the identical op stream on 48/48**, so EPR is constant at
+163.7 (365.6 over the 38 non-trivial) and only time moves.
+
+| configuration | time | vs shipped |
+|---|---|---|
+| shipped (all four) | 293.5 s | 1.00x |
+| no walk bound (per route) | 299.1 s | 1.02x |
+| no work budget (protocol) | 302.2 s | 1.03x |
+| no frontier-scan fix (per route) | 309.5 s | 1.05x |
+| **no stall guard (protocol)** | **451.7 s** | **1.54x** |
+| none of the four | 501.1 s | 1.71x |
+
+- **The stall guard is almost the whole win**; the other three are 2-5% each.
+  Together they take 41% off the protocol.
+- The two *per-route* optimisations are the walk bound and the frontier scan.
+  Both are output-preserving; neither is worth more than 5% on its own, because
+  the collector's cost is the layer peeling, not the scan.
+- **Do not quote the isolated figures measured earlier** (walk bound 1.11x,
+  frontier scan 1.09x): those came from selected fixed-horizon routes under
+  different load. On the shipped protocol over all 48 they are 1.02x and 1.05x.
+
 ## The speculative budget is deterministic now; the portfolio is priced (2026-09-03)
 
 **SHIPPED: `SPECULATIVE_WORK_FACTOR = 7.0` in `compile_porter.py`.** A
