@@ -1,0 +1,380 @@
+<title>The Horizon's Second Job</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#e9edf2; --surface:#f8fafc; --sunk:#dfe5ec;
+  --ink:#141c26; --body:#33414f; --muted:#67757f;
+  --rule:#c7d1dc; --rule-soft:#d9e1e9;
+  --signal:#1c6b76; --signal-soft:#d3e6e8;
+  --warn:#ad4a17; --warn-soft:#f2ddd0;
+  --shadow:rgba(20,28,38,.07);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#11171e; --surface:#18202a; --sunk:#0d1218;
+    --ink:#e8eef4; --body:#c0cbd6; --muted:#8998a5;
+    --rule:#2c3945; --rule-soft:#232e39;
+    --signal:#5fbcc6; --signal-soft:#16333a;
+    --warn:#e08a55; --warn-soft:#39241a;
+    --shadow:rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#11171e; --surface:#18202a; --sunk:#0d1218;
+  --ink:#e8eef4; --body:#c0cbd6; --muted:#8998a5;
+  --rule:#2c3945; --rule-soft:#232e39;
+  --signal:#5fbcc6; --signal-soft:#16333a;
+  --warn:#e08a55; --warn-soft:#39241a;
+  --shadow:rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--body);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:16.5px; line-height:1.62; margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:0 28px 96px}
+.col{max-width:66ch}
+h1,h2,h3{color:var(--ink);text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,4.4vw,3rem);font-weight:700;letter-spacing:-.028em;line-height:1.08}
+h2{font-size:1.42rem;font-weight:600;letter-spacing:-.015em;line-height:1.25}
+h3{font-size:1.02rem;font-weight:600;letter-spacing:-.005em}
+p{margin:0}
+a{color:var(--signal)}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+code{font-size:.88em;background:var(--sunk);padding:.1em .34em;border-radius:3px}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:.7rem;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+}
+
+/* ---- masthead ---- */
+header{
+  border-bottom:1px solid var(--rule);
+  padding:58px 0 34px;margin-bottom:44px;
+  display:flex;flex-direction:column;gap:20px;
+}
+.lede{font-size:1.16rem;line-height:1.55;color:var(--body);max-width:62ch}
+.lede strong{color:var(--ink);font-weight:600}
+.meta{
+  display:flex;flex-wrap:wrap;gap:10px 26px;
+  font-family:"IBM Plex Mono",monospace;font-size:.76rem;color:var(--muted);
+}
+.meta b{color:var(--ink);font-weight:600}
+
+section{margin-bottom:56px;display:flex;flex-direction:column;gap:18px}
+.sec-head{display:flex;flex-direction:column;gap:7px}
+
+/* ---- the mirror ---- */
+.mirror{
+  background:var(--surface);border:1px solid var(--rule-soft);border-radius:2px;
+  padding:30px 30px 24px;display:flex;flex-direction:column;gap:6px;
+  box-shadow:0 1px 2px var(--shadow);
+}
+.mkey{display:flex;gap:22px;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--muted);padding-top:4px}
+.mirror-cap{
+  font-family:"IBM Plex Mono",monospace;font-size:.74rem;color:var(--muted);
+  border-top:1px solid var(--rule-soft);padding-top:14px;margin-top:12px;line-height:1.5;
+}
+.mrow{display:grid;grid-template-columns:11ch 1fr;gap:16px;align-items:center}
+.mlabel{font-family:"IBM Plex Mono",monospace;font-size:.82rem;color:var(--ink);font-weight:500}
+
+/* ---- tables ---- */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule-soft);border-radius:2px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.87rem}
+th,td{padding:9px 15px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{
+  font-family:"IBM Plex Mono",monospace;font-size:.7rem;font-weight:500;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--rule);
+}
+tbody td{border-bottom:1px solid var(--rule-soft);font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:"IBM Plex Mono",monospace}
+.hi{color:var(--warn);font-weight:600}
+.ok{color:var(--signal);font-weight:600}
+tr.total td{background:var(--sunk);font-weight:600;color:var(--ink)}
+
+/* ---- small multiples ---- */
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:1px;background:var(--rule-soft);border:1px solid var(--rule-soft)}
+.cell{background:var(--surface);padding:16px 16px 10px;display:flex;flex-direction:column;gap:9px}
+.cell-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.cell-name{font-family:"IBM Plex Mono",monospace;font-size:.79rem;color:var(--ink);font-weight:500}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:2px}
+.tag.pays{color:var(--signal);background:var(--signal-soft)}
+.tag.hurts{color:var(--warn);background:var(--warn-soft)}
+
+/* ---- verdict list ---- */
+.verdicts{display:flex;flex-direction:column;gap:1px;background:var(--rule-soft);border:1px solid var(--rule-soft)}
+.verdict{background:var(--surface);padding:17px 20px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.vmark{
+  font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;
+  letter-spacing:.05em;padding:3px 8px;border-radius:2px;white-space:nowrap;margin-top:2px;
+}
+.vmark.no{color:var(--warn);background:var(--warn-soft)}
+.vmark.yes{color:var(--signal);background:var(--signal-soft)}
+.verdict p{font-size:.92rem}
+.verdict b{color:var(--ink);font-weight:600}
+
+.callout{
+  border-left:2px solid var(--signal);background:var(--surface);
+  padding:16px 22px;font-size:.96rem;
+}
+.callout b{color:var(--ink)}
+footer{border-top:1px solid var(--rule);padding-top:22px;font-size:.82rem;color:var(--muted)}
+footer .mono{font-size:.78rem}
+@media (max-width:620px){
+  .mrow{grid-template-columns:1fr;gap:4px}
+  th,td{padding:8px 11px}
+}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">PORTER · lookahead diagnostic · 2026-09-03</div>
+  <h1>The Horizon's Second Job</h1>
+  <p class="lede"><code>dag_extended_max_layers</code> is documented as how far ahead the router looks. It is also, undocumented, <strong>how heavily the future outweighs the present</strong> — because the lookahead term is a sum and the direct term is not. That second job is what makes deep horizons unpredictable, and taken to its limit it is every timeout PORTER has.</p>
+  <div class="meta">
+    <span><b>336</b> new routes</span>
+    <span><b>32</b> failures classified</span>
+    <span><b>48</b> instances</span>
+    <span><b>0</b> released numbers changed</span>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head col">
+    <div class="eyebrow">The mechanism, in one decision</div>
+    <h2>The lookahead is exactly antisymmetric</h2>
+    <p>From a frozen route — <code class="mono">main/64/qft</code> at L=128 — two plans for the same qubit, scored in the same iteration:</p>
+  </div>
+  <div class="mirror">
+    <div id="mirror-svg"></div>
+    <div id="mirror-key" class="mkey"></div>
+    <p class="mirror-cap">Reversing a move negates the lookahead term exactly: the walk collects the same gates with the same weights, and a local SWAP never changes a qubit's core. The direct term — the only part tied to actually retiring a gate — is outweighed <b>11:1</b>.</p>
+  </div>
+  <div class="col" style="display:flex;flex-direction:column;gap:16px">
+    <p>Antisymmetry alone would be harmless: the reverse of a good move scores badly. What closes the loop is that <strong>the remote stage has no null action.</strong> Every iteration it must commit to some plan. At core 2 all nine candidates scored negative, and the least-bad of them was the undo of the move just made:</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Candidate at core 2</th><th>direct</th><th>lookahead</th><th>total</th></tr></thead>
+      <tbody id="cands"></tbody>
+    </table></div>
+    <p>From core 5 the return scores <code>+12.16</code> outright. So the router shuttles: at one end the move is the best available, at the other its undo is the least bad. The traced tail is <strong>exactly periodic with period 3</strong> — one local SWAP, one teleport, nothing retired — repeated 38,741 times.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <div class="eyebrow">Question 2 · why PORTER times out</div>
+    <h2>Every failure is that shuttle</h2>
+    <p>All 32 non-completing cells of the shipped scorer, re-run with the stall guard on and traced:</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Failure mode</th><th>Cells</th><th>What the frozen window contains</th></tr></thead>
+    <tbody>
+      <tr><td>Teleport shuttle</td><td class="num hi">28</td><td style="text-align:left;color:var(--muted)">One qubit, exactly two cores, ≥99.5% of teleports</td></tr>
+      <tr><td>Local-SWAP cycle</td><td class="num">2</td><td style="text-align:left;color:var(--muted)">No teleport at all — the known Multiplier livelock</td></tr>
+      <tr><td>Multi-qubit shuttle</td><td class="num">1</td><td style="text-align:left;color:var(--muted)">Same shape, spread over several qubits</td></tr>
+      <tr><td>Not actually stuck</td><td class="num ok">1</td><td style="text-align:left;color:var(--muted)"><code>80q Random</code>@64 completes in 145 s when re-run</td></tr>
+    </tbody>
+  </table></div>
+  <div class="col"><p>The failure rate is monotone in the horizon, and across the released weight-schedule arms it tracks the lookahead's <em>magnitude</em> rather than the circuit mix — the arms whose sum saturates instead of accumulating fail eight times less often.</p></div>
+  <div id="fail-chart"></div>
+  <div class="callout col"><p><b>The compiler does not fail; candidate routes do.</b> The protocol keeps the best of four horizons, so PORTER completes 48/48 while 8.3% of individual routes do not. But the margin is thinner than it looks: 35 instances complete on all four candidates, 12 on three, and <code>80q Random</code> on only two.</p></div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <div class="eyebrow">Question 1 · when to go deeper</div>
+    <h2>No rule survives contact with the data</h2>
+    <p>Deep pays on QFT/QPEexact at scale and hurts on QAOA/QNN — but the split is not a circuit property. The same 64-qubit QFT wants L=16 on architecture H and L=256 on both heavy-hex graphs.</p>
+  </div>
+  <div class="grid3" id="curves"></div>
+  <div class="verdicts">
+    <div class="verdict"><span class="vmark no">refuted</span><p><b>Partner novelty.</b> Distinct partners per collected gate is ~0.51 for QAOA, QFT, QNN <em>and</em> the scale-up series. The deep-helps and deep-harms groups are indistinguishable.</p></div>
+    <div class="verdict"><span class="vmark no">refuted</span><p><b>Circuit depth, the best static signal.</b> Spearman <span class="mono">+0.68</span> against the deep-vs-shallow ratio (density <span class="mono">−0.60</span>, cores <span class="mono">+0.04</span>, diameter <span class="mono">+0.04</span>) — but the best <span class="mono">L*/D</span> spans <b>420×</b>.</p></div>
+    <div class="verdict"><span class="vmark no">refuted</span><p><b>Any single-threshold gate.</b> Exhaustive search over six features, both directions, every threshold: in-sample best is <span class="mono">373.3</span>, which is exactly what ungated <span class="mono">{16,128}</span> scores. The best gate the data admits never usefully fires.</p></div>
+    <div class="verdict"><span class="vmark no">refuted</span><p><b>A runtime test.</b> The domination ratio measured free on the first route correlates <span class="mono">+0.02</span> with whether deeper pays. A seven-instance eyeball looked promising; on all 38 it is noise.</p></div>
+    <div class="verdict"><span class="vmark yes">and yet</span><p><b>There is almost nothing to win.</b> The shipped four-route portfolio scores <span class="mono">361.6</span>; an oracle over all eight horizons scores <span class="mono">350.4</span>. A perfect predictor is worth <b>3.1%</b>.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <div class="eyebrow">The fix</div>
+    <h2>Divide the growth out, or forbid the undo</h2>
+    <p>Two config flags, both defaulting to shipped behaviour — with both off the op stream is byte-identical and both paper verifiers pass.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Over 336 routes</th><th>shipped <span class="mono">sum</span></th><th><span class="mono">sqrt</span> scaling</th></tr></thead>
+    <tbody>
+      <tr><td>Non-completions</td><td class="num hi">31</td><td class="num ok">5</td></tr>
+      <tr><td>Completions at L=128 (of 38)</td><td class="num">27</td><td class="num ok">36</td></tr>
+      <tr><td>Completions at L=256 (of 38)</td><td class="num">24</td><td class="num ok">37</td></tr>
+      <tr><td>main-24 gmean EPR</td><td class="num ok">175.0</td><td class="num hi">183.0</td></tr>
+      <tr><td>scale-up gmean EPR</td><td class="num ok">508.7</td><td class="num hi">518.0</td></tr>
+      <tr><td>heavy-hex ring gmean EPR</td><td class="num hi">86.1</td><td class="num ok">84.2</td></tr>
+      <tr class="total"><td>Portfolio gmean, n=38</td><td class="num">361.6</td><td class="num">371.6 (+2.8%)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="col"><p>Normalising is a <strong>completion fix that costs EPR</strong>, not an EPR win: it fixes 28 cells and breaks 2, but is 17 better / 20 worse across the portfolio, and it does not flatten the horizon enough to shrink the candidate set.</p></div>
+
+  <div class="sec-head col" style="margin-top:14px">
+    <h3>The narrower flag: forbid the undo</h3>
+    <p><code>teleport_revisit_block</code> drops a teleport that would return a qubit to a core it has already occupied since the last gate retirement. The record clears on every retirement, so it constrains only the no-progress episode it is trying to end — and between two retirements each qubit may enter each core at most once, bounding the remote stage's wasted work.</p>
+  </div>
+  <div class="verdicts" id="revisit-verdicts"></div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <div class="eyebrow">Recommendation</div>
+    <h2>What I would and would not change</h2>
+  </div>
+  <div class="verdicts">
+    <div class="verdict"><span class="vmark yes">keep</span><p><b>The four-horizon portfolio, unchanged.</b> It is within 3.1% of an eight-horizon oracle, and adding the other three horizons buys 1.3% for three more routes. Nothing in this investigation justifies touching it.</p></div>
+    <div class="verdict"><span class="vmark no">stop</span><p><b>Searching for a depth predictor.</b> Four independent families are now refuted. The 3.1% ceiling makes the whole exercise worth less than the routes it would cost to evaluate.</p></div>
+    <div class="verdict"><span class="vmark yes">record</span><p><b>That the horizon carries a hidden weight.</b> This is the missing half of §VI-A's open item — "a scale on which a resolved gate and a latent distance reduction are commensurable … would have to come from the summation". It does, and <span class="mono">sqrt</span> is that scale.</p></div>
+    <div class="verdict"><span class="vmark yes">refine</span><p><b>The completion argument.</b> §VI says a guarantee "needs a progress argument for the intra-core stage". True of the configurations the paper reports — but across the horizon grid the dominant failure is a <em>remote-stage</em> shuttle, 28 cells to 2. The remote stage has its own livelock, and unlike the intra-core one it now has an identified cause and a bound.</p></div>
+  </div>
+</section>
+
+<footer>
+  <p>Data and scripts in <span class="mono">paper/horizon_sweep/</span> — <span class="mono">hz_scale.py</span>, <span class="mono">hz_freeze.py</span>, <span class="mono">hz_revisit.py</span>, <span class="mono">hz_ratio.py</span>, <span class="mono">hz_depth.py</span>. Every completed route replay-verified. The <span class="mono">sum</span> arm reproduces the released protocol exactly on main-24 (175.0), scale-up (508.7) and heavy-hex ring (86.1).</p>
+</footer>
+</div>
+
+<script>
+const L = [4,8,16,32,64,128,256];
+const CURVES = [
+  ["scaleup/360/qft",  [2477,2702,2720,2572,2120,1170,1186], "pays"],
+  ["scaleup/100/qft",  [499,502,446,431,363,198,198],        "pays"],
+  ["main/80/qpeexact", [608,403,526,391,340,291,393],        "pays"],
+  ["main/64/qft",      [396,322,262,313,265,null,null],      "hurts"],
+  ["main/64/qaoa",     [914,775,854,915,1145,null,null],     "hurts"],
+  ["main/25/qnn",      [165,174,119,169,245,244,225],        "hurts"]
+];
+const FAILS = [[4,0],[8,2],[16,1],[32,1],[48,1],[64,2],[128,11],[256,14]];
+const CANDS = [["q30",0,-23.0],["q31",0,-25.0],["q32",0,-25.0],["q33",0,-25.0],["q34",-1,-25.5],
+               ["q39",-1,-17.0],["q42",0,-14.0],["q44",0,-12.19],["q45  ← the undo",-1,-11.16]];
+/* revisit-block outcome, filled from revisit_cells.jsonl */
+const REVISIT = [
+  ["yes","Removes the shuttle where the bound fits.","<b>18 of the 28</b> teleport shuttles complete once the undo is forbidden. It rescues <b>0 of 2</b> local-SWAP cycles — correctly, since those contain no teleport at all."],
+  ["no","It does not buy EPR.","Only <b>1 of 19</b> of the rescued routes beats what its instance's four-route portfolio already achieves. A rescued route is a valid route, not a good one — <span class=\"mono\">ring/qaoa</span>@128 completes at 1015 against a portfolio best of 244."],
+  ["yes","It is free on healthy routes.","Every one of the 47 instances routed at the configured horizon is unaffected: <b>47/47 byte-identical op streams</b>, 47/47 identical EPR. Ten controls spanning four horizons are unchanged under the stricter variant too."],
+  ["no","It is not yet a guarantee.","Between retirements the rule allows each qubit one entry per core — up to <span class=\"mono\">n·K</span> teleports, which on 80-qubit instances exceeds the stall guard's 1,000-iteration window before the bound can bite. Dropping the soft fallback rescues one more cell of four."]
+];
+
+/* revisit verdicts */
+document.getElementById("revisit-verdicts").innerHTML = REVISIT.map(v=>
+  `<div class="verdict"><span class="vmark ${v[0]}">${v[0]==="yes"?"holds":"but"}</span>`
+ +`<p><b>${v[1]}</b> ${v[2]}</p></div>`).join("");
+
+/* candidate table */
+document.getElementById("cands").innerHTML = CANDS.map((c,i)=>{
+  const tot = (c[1]+c[2]).toFixed(2);
+  const last = i===CANDS.length-1;
+  return `<tr${last?' style="background:var(--warn-soft)"':''}>
+    <td class="mono"${last?' style="color:var(--warn);font-weight:600"':''}>${c[0]}</td>
+    <td class="num">${c[1].toFixed(1)}</td>
+    <td class="num">${c[2].toFixed(2)}</td>
+    <td class="num"${last?' style="color:var(--warn);font-weight:600"':''}>${tot}</td></tr>`;
+}).join("");
+
+/* ---- the mirror: two diverging score bars ---- */
+(function(){
+  const W=860,H=186,mid=430,unit=24,BH=28;
+  const rows=[
+    {lab:"q45 · core 2 → 5", sign:-1, y:44},
+    {lab:"q45 · core 5 → 2", sign:+1, y:112}
+  ];
+  const LOOK=11.16, DIRECT=1.0, TOT=12.16;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" `
+      +`aria-label="Two mirrored plan scores for qubit 45: minus 12.16 moving core 2 to 5, plus 12.16 moving core 5 to 2">`;
+  s+=`<line x1="${mid}" y1="18" x2="${mid}" y2="${H-34}" stroke="var(--rule)" stroke-width="1"/>`;
+  s+=`<text x="${mid}" y="${H-16}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="var(--muted)">score 0</text>`;
+  rows.forEach(r=>{
+    const col  = r.sign>0 ? "var(--signal)" : "var(--warn)";
+    const soft = r.sign>0 ? "var(--signal-soft)" : "var(--warn-soft)";
+    const lw = LOOK*unit, dw = DIRECT*unit;
+    const lx = r.sign>0 ? mid : mid-lw;              // lookahead segment, inboard
+    const dx = r.sign>0 ? mid+lw : mid-lw-dw;        // direct segment, outboard
+    s+=`<rect x="${lx}" y="${r.y}" width="${lw}" height="${BH}" fill="${soft}" stroke="${col}" stroke-width="1"/>`;
+    s+=`<rect x="${dx}" y="${r.y}" width="${dw}" height="${BH}" fill="${col}"/>`;
+    s+=`<text x="${mid+r.sign*10}" y="${r.y-9}" text-anchor="${r.sign>0?'start':'end'}" `
+      +`font-family="IBM Plex Mono,monospace" font-size="12.5" font-weight="500" fill="var(--ink)">${r.lab}</text>`;
+    const tx = r.sign>0 ? mid+lw+dw+12 : mid-lw-dw-12;
+    s+=`<text x="${tx}" y="${r.y+19}" text-anchor="${r.sign>0?'start':'end'}" `
+      +`font-family="IBM Plex Mono,monospace" font-size="14" font-weight="600" fill="${col}">${r.sign>0?"+":"−"}${TOT}</text>`;
+    s+=`<text x="${lx+lw/2}" y="${r.y+19}" text-anchor="middle" `
+      +`font-family="IBM Plex Mono,monospace" font-size="11.5" fill="var(--ink)">lookahead ${r.sign>0?"+":"−"}${LOOK}</text>`;
+  });
+  s+=`</svg>`;
+  document.getElementById("mirror-svg").innerHTML=s;
+  document.getElementById("mirror-key").innerHTML =
+    `<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:13px;height:11px;background:var(--warn);display:inline-block"></span>direct gain ±1.0</span>`
+   +`<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:13px;height:11px;background:var(--warn-soft);border:1px solid var(--warn);display:inline-block"></span>lookahead ±11.16</span>`;
+})();
+
+/* ---- failure rate by horizon ---- */
+(function(){
+  const W=920,H=210,pl=46,pr=16,pt=16,pb=42;
+  const iw=W-pl-pr, ih=H-pt-pb, max=15, bw=iw/FAILS.length;
+  let s=`<div class="tablewrap" style="padding:14px 8px 4px"><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Routes that fail, by lookahead horizon: 0 at L=4 rising to 14 at L=256">`;
+  [0,5,10,15].forEach(v=>{
+    const y=pt+ih-(v/max)*ih;
+    s+=`<line x1="${pl}" y1="${y}" x2="${W-pr}" y2="${y}" stroke="var(--rule-soft)" stroke-width="1"/>`;
+    s+=`<text x="${pl-9}" y="${y+4}" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="11" fill="var(--muted)">${v}</text>`;
+  });
+  FAILS.forEach((f,i)=>{
+    const h=(f[1]/max)*ih, x=pl+i*bw+bw*0.22, w=bw*0.56;
+    const col=f[1]>=10?"var(--warn)":(f[1]===0?"var(--rule)":"var(--muted)");
+    if(h>0) s+=`<rect x="${x}" y="${pt+ih-h}" width="${w}" height="${h}" fill="${col}"/>`;
+    s+=`<text x="${x+w/2}" y="${pt+ih-h-7}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11.5" font-weight="600" fill="${f[1]>=10?'var(--warn)':'var(--ink)'}">${f[1]}</text>`;
+    s+=`<text x="${x+w/2}" y="${pt+ih+19}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11.5" fill="var(--body)">${f[0]}</text>`;
+  });
+  s+=`<text x="${pl+iw/2}" y="${H-6}" text-anchor="middle" font-family="IBM Plex Sans,sans-serif" font-size="11.5" fill="var(--muted)">lookahead horizon L (routes failed, of 48 at each)</text>`;
+  s+=`</svg></div>`;
+  document.getElementById("fail-chart").innerHTML=s;
+})();
+
+/* ---- EPR vs horizon small multiples ---- */
+(function(){
+  const W=300,H=132,pl=40,pr=12,pt=12,pb=26;
+  const iw=W-pl-pr, ih=H-pt-pb;
+  const xs=i=>pl+(i/(L.length-1))*iw;
+  document.getElementById("curves").innerHTML = CURVES.map(([name,vals,kind])=>{
+    const ok=vals.filter(v=>v!==null);
+    const lo=Math.min(...ok), hi=Math.max(...ok);
+    const ys=v=>pt+ih-((v-lo)/Math.max(hi-lo,1))*ih;
+    const col = kind==="pays" ? "var(--signal)" : "var(--warn)";
+    let path="", started=false, pts="";
+    vals.forEach((v,i)=>{
+      if(v===null) {started=false; return;}
+      path += (started?"L":"M")+xs(i)+" "+ys(v)+" "; started=true;
+      pts += `<circle cx="${xs(i)}" cy="${ys(v)}" r="2.6" fill="${col}"/>`;
+    });
+    // mark the failures
+    let fail="";
+    vals.forEach((v,i)=>{ if(v===null) fail += `<text x="${xs(i)}" y="${pt+ih/2+4}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="12" fill="var(--warn)">×</text>`; });
+    const best=Math.min(...ok), bi=vals.indexOf(best);
+    return `<div class="cell">
+      <div class="cell-head"><span class="cell-name">${name}</span><span class="tag ${kind}">${kind==="pays"?"deep pays":"deep hurts"}</span></div>
+      <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${name}: EPR from ${vals[0]} at L=4 to best ${best} at L=${L[bi]}">
+        <line x1="${pl}" y1="${pt}" x2="${W-pr}" y2="${pt}" stroke="var(--rule-soft)"/>
+        <line x1="${pl}" y1="${pt+ih}" x2="${W-pr}" y2="${pt+ih}" stroke="var(--rule-soft)"/>
+        <text x="${pl-7}" y="${pt+5}" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--muted)">${hi}</text>
+        <text x="${pl-7}" y="${pt+ih+4}" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--muted)">${lo}</text>
+        <path d="${path}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round"/>
+        ${pts}${fail}
+        <text x="${pl}" y="${H-8}" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--muted)">4</text>
+        <text x="${W-pr}" y="${H-8}" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--muted)">256</text>
+        <text x="${pl+iw/2}" y="${H-8}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--muted)">best L=${L[bi]}</text>
+      </svg></div>`;
+  }).join("");
+})();
+</script>

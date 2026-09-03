@@ -73,6 +73,10 @@ vault note `porter_adaptive_horizon_experiment_instructions.md`
   gates reachable and distinct partners seen within each horizon.
 * `report_scale.py`, `report_revisit.py` -- regenerate the tables in
   `report_lookahead_scale.md`, which is the write-up for all of the above.
+* `horizon_second_job.html` -- source of the artifact summarising that report
+  (https://claude.ai/code/artifact/a47fd707-40f4-44be-b753-752dde8789c2), the
+  same way `horizon_sweep.html` is the source of the earlier one.  It is the
+  page as authored; the platform supplies the surrounding `<head>`.
 
 Nothing here is read by `verify_paper_numbers.py`; the paper's released
 numbers are untouched.

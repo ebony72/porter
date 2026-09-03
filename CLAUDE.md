@@ -2904,7 +2904,7 @@ programme: sweep validation, portfolio search, architecture-aware selection,
 incremental collector + plan-level traces, progressive stopping, calibrated
 stopping, weight-floor factorial) was evaluated and the affordable phases
 run. Full write-up: vault `porter_adaptive_horizon_experiment_evaluation.md`.
-Data: **`paper/horizon_sweep/`** (uncommitted) -- 1,248 single forward passes
+Data: **`paper/horizon_sweep/`** (committed) -- 1,248 single forward passes
 (`selection=False`, own layout, 300 s guard, all replay-verified): 48 instances
 x {4,8,16,32,64,128} x four weight schedules, plus {48,256} for the shipped
 one; `README.md`, `MANIFEST.txt`, scripts and three generated reports.
