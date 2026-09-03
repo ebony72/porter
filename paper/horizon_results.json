@@ -1471,25 +1471,28 @@
   "sfc_on_dse_layout": 315,
   "horizon_eprs": {
    "16": 446,
+   "4": 499,
    "8": 502,
    "128": 198
   },
   "horizon_seconds": {
-   "16": 1.342,
-   "8": 1.186,
-   "128": 4.153
+   "16": 0.903,
+   "4": 0.813,
+   "8": 0.81,
+   "128": 2.402
   },
   "default_horizon": 16,
   "interaction_density": 0.3455,
   "horizons_requested": [
    16,
+   4,
    8,
    128
   ],
   "failed_horizons": {},
   "chosen_horizon": 128,
-  "layout_seconds": 0.005,
-  "seconds": 6.692,
+  "layout_seconds": 0.003,
+  "seconds": 4.937,
   "epr": 198,
   "swaps": 2407,
   "teleports": 139,
@@ -1505,25 +1508,28 @@
   "sfc_on_dse_layout": 283,
   "horizon_eprs": {
    "16": 262,
+   "4": 277,
    "8": 299,
    "128": 200
   },
   "horizon_seconds": {
-   "16": 1.377,
-   "8": 1.143,
-   "128": 2.937
+   "16": 0.911,
+   "4": 0.609,
+   "8": 0.742,
+   "128": 1.914
   },
   "default_horizon": 16,
   "interaction_density": 0.3616,
   "horizons_requested": [
    16,
+   4,
    8,
    128
   ],
   "failed_horizons": {},
   "chosen_horizon": 128,
-  "layout_seconds": 0.005,
-  "seconds": 5.467,
+  "layout_seconds": 0.003,
+  "seconds": 4.182,
   "epr": 200,
   "swaps": 2713,
   "teleports": 156,
@@ -1538,26 +1544,29 @@
   "sfc_refined": 1128,
   "sfc_on_dse_layout": 1031,
   "horizon_eprs": {
-   "16": 1128,
+   "16": 1131,
+   "4": 1011,
    "8": 1152,
    "128": 579
   },
   "horizon_seconds": {
-   "16": 3.927,
-   "8": 3.121,
-   "128": 15.576
+   "16": 2.511,
+   "4": 1.852,
+   "8": 2.137,
+   "128": 8.454
   },
   "default_horizon": 16,
   "interaction_density": 0.1814,
   "horizons_requested": [
    16,
+   4,
    8,
    128
   ],
   "failed_horizons": {},
   "chosen_horizon": 128,
-  "layout_seconds": 0.01,
-  "seconds": 22.646,
+  "layout_seconds": 0.007,
+  "seconds": 14.976,
   "epr": 579,
   "swaps": 5977,
   "teleports": 410,
@@ -1573,25 +1582,28 @@
   "sfc_on_dse_layout": 946,
   "horizon_eprs": {
    "16": 1343,
+   "4": 1084,
    "8": 1104,
    "128": 528
   },
   "horizon_seconds": {
-   "16": 5.354,
-   "8": 2.993,
-   "128": 12.792
+   "16": 3.262,
+   "4": 1.876,
+   "8": 2.048,
+   "128": 7.756
   },
   "default_horizon": 16,
   "interaction_density": 0.1905,
   "horizons_requested": [
    16,
+   4,
    8,
    128
   ],
   "failed_horizons": {},
   "chosen_horizon": 128,
-  "layout_seconds": 0.012,
-  "seconds": 21.173,
+  "layout_seconds": 0.007,
+  "seconds": 14.964,
   "epr": 528,
   "swaps": 6177,
   "teleports": 400,
@@ -1606,32 +1618,35 @@
   "sfc_refined": 2822,
   "sfc_on_dse_layout": 3266,
   "horizon_eprs": {
-   "16": 2822,
+   "16": 2720,
+   "4": 2477,
    "8": 2702,
-   "128": 1156
+   "128": 1170
   },
   "horizon_seconds": {
-   "16": 9.064,
-   "8": 7.25,
-   "128": 29.82
+   "16": 5.953,
+   "4": 4.184,
+   "8": 4.893,
+   "128": 16.706
   },
   "default_horizon": 16,
   "interaction_density": 0.1029,
   "horizons_requested": [
    16,
+   4,
    8,
    128
   ],
   "failed_horizons": {},
   "chosen_horizon": 128,
-  "layout_seconds": 0.019,
-  "seconds": 46.193,
-  "epr": 1156,
-  "swaps": 11588,
-  "teleports": 800,
+  "layout_seconds": 0.013,
+  "seconds": 31.779,
+  "epr": 1170,
+  "swaps": 11659,
+  "teleports": 777,
   "telegates": 0,
-  "packets": 356,
-  "depth": 25361,
+  "packets": 393,
+  "depth": 25023,
   "verified": true
  },
  "scaleup/360/qpeexact": {
@@ -1640,33 +1655,36 @@
   "sfc_refined": 2342,
   "sfc_on_dse_layout": 2603,
   "horizon_eprs": {
-   "16": 2342
+   "16": 2342,
+   "4": 2744,
+   "128": 1224
   },
   "horizon_seconds": {
-   "16": 8.349,
-   "8": 34.01,
-   "128": 34.028
+   "16": 5.943,
+   "4": 4.726,
+   "8": 5.121,
+   "128": 19.491
   },
   "default_horizon": 16,
   "interaction_density": 0.1082,
   "horizons_requested": [
    16,
+   4,
    8,
    128
   ],
   "failed_horizons": {
-   "8": "HorizonTimeout: exceeded 34s wall-clock share",
-   "128": "HorizonTimeout: exceeded 34s wall-clock share"
+   "8": "RuntimeError: Router retired no gate in 1000 iterations; abandoning as stalled"
   },
-  "chosen_horizon": 16,
-  "layout_seconds": 0.021,
-  "seconds": 76.414,
-  "epr": 2342,
-  "swaps": 18834,
-  "teleports": 1439,
-  "telegates": 15,
-  "packets": 888,
-  "depth": 31323,
+  "chosen_horizon": 128,
+  "layout_seconds": 0.014,
+  "seconds": 35.314,
+  "epr": 1224,
+  "swaps": 12561,
+  "teleports": 775,
+  "telegates": 5,
+  "packets": 444,
+  "depth": 26754,
   "verified": true
  }
 }

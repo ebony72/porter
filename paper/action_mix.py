@@ -8,8 +8,12 @@ opportunistic relief / tail-relief BFS), single TeleGates, and
 TeleGatePackets with their remote-CX sizes (total / mean / max), read from
 the emitted cat_entangler "packet_start" op metadata (remote_cx_count).
 
-Cross-checks every counter against paper/compare_results.json and refuses
-to emit rows that disagree (determinism guard).
+This is ONE forward pass at the configured horizon, not PORTER's
+best-of-four-horizon protocol: the table exists to support the mechanism
+ablation of Sec. V-C, whose every column is that same single pass, so the
+two have to be measured the same way.  Cross-checks the counters it shares
+with ablation_results.json (EPR, single telegates, packets) and refuses to
+emit rows that disagree (determinism guard).
 
 Output: paper/action_mix_results.json + LaTeX rows on stdout.
 """
@@ -55,9 +59,15 @@ SUITES = {
 }
 CIRCUIT_ROOT = os.path.join(os.path.dirname(_HERE), "..", "other", "telesabre", "circuits")
 
+# The single-pass reference is the ablation's `full` column, which is the
+# same protocol (default RouterConfig, temporal-locality layout, seed 0, one
+# forward pass).  compare_results*.json cannot serve here: its `sfc` leg is
+# the selected best-of-four-horizon route, a different protocol.
 reference = {
-    (r["suite"], r["circuit"]): r["sfc"]
-    for r in json.load(open(os.path.join(_HERE, "compare_results.json")))
+    (r["suite"], r["circuit"]): r["out"]["full"]
+    for r in json.load(open(os.path.join(os.path.dirname(_HERE),
+                                         "ablation_results.json")))
+    if "epr" in r["out"].get("full", {})
 }
 
 rows = []
@@ -81,12 +91,10 @@ for suite, (arch_name, qdir, files) in SUITES.items():
         ]
         assert len(packet_sizes) == s.telegate_packet_count
 
-        ref = reference[(suite, cname)]
+        ref = reference[(suite, cname.replace("_OLD_DEEP", ""))]
         for key, val in [
-            ("epr", s.epr), ("teleports_normal", s.teleport_normal_count),
-            ("teleports_blocked", s.teleport_blocked_count),
-            ("teleports_capacity_relief", s.teleport_capacity_relief_count),
-            ("telegates", s.telegate_count), ("telegate_packets", s.telegate_packet_count),
+            ("epr", s.epr), ("telegates", s.telegate_count),
+            ("packets", s.telegate_packet_count),
         ]:
             assert ref[key] == val, f"{suite}q {cname}: {key} {val} != recorded {ref[key]}"
 

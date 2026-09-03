@@ -311,14 +311,15 @@ check("pytket on the six trivial, PORTER", -36.8,
       round(100 * (_gt("sfc_pytket") / _gt("sfc") - 1), 1))
 check("pytket on the eighteen, dSABRE", 10.7,
       round(100 * (_gn("dSE_pytket") / _gn("dSE") - 1), 1))
-check("pytket on the eighteen, PORTER", 9.0,
+check("pytket on the eighteen, PORTER", 9.7,
       round(100 * (_gn("sfc_pytket") / _gn("sfc") - 1), 1))
-# "raises total EPR by 11.8% and 5.9%, worse start on fourteen of 24 for
-# both, at a median per-instance ratio of 1.03"
+# Totals are NOT quoted (V-B keeps the gmeans and the per-instance record);
+# kept as regression guards.  The per-instance record IS quoted: worse on
+# fourteen of 24 for dSABRE and fifteen for PORTER, median ratio 1.03 both.
 _tot = lambda leg: sum(r[leg]["epr"] for r in cmp_rows)
 check("pytket total EPR, dSABRE", 11.8,
       round(100 * (_tot("dSE_pytket") / _tot("dSE") - 1), 1))
-check("pytket total EPR, PORTER", 5.6,
+check("pytket total EPR, PORTER", 6.0,
       round(100 * (_tot("sfc_pytket") / _tot("sfc") - 1), 1))
 for lab, _want14 in (("dSABRE", 14), ("PORTER", 15)):
     o, q = (("dSE", "dSE_pytket") if lab == "dSABRE" else ("sfc", "sfc_pytket"))
@@ -344,7 +345,7 @@ check("appC pytket selected", 8,
 # "refinement gains 3.0% on dSABRE's layout and nothing on pytket's"
 check("refinement gain on dSE layout", 11.4,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_on_dse_layout")), 1))
-check("refinement gain on pytket layout", 6.8,
+check("refinement gain on pytket layout", 8.0,
       round(100 * (1 - _g("sfc_pytket_refined") / _g("sfc_pytket")), 1))
 # TeleSABRE's layout, on the 17 instances it covers: weakest source, and the
 # one on which refinement appears to pay.
@@ -359,7 +360,7 @@ check("TS gap is 64q Random plus six 80q", True,
       and sum(1 for m in _missing if m.startswith("80/")) == 6)
 check("TS layout routed by dSABRE", 100.9, round(_h("dSE_shared"), 1))
 check("pytket layout routed by dSABRE, same 17", 71.1, round(_h("dSE_pytket"), 1))
-check("refinement gain on TS layout", 20.1,
+check("refinement gain on TS layout", 19.9,
       round(100 * (1 - _h("sfc_shared_refined") / _h("sfc_shared")), 1))
 check("TS-layout PORTER+R beats dSABRE", True,
       _h("sfc_shared_refined") < _h("dSE_shared"))
@@ -371,7 +372,7 @@ actionmix = {
     ("25", "graphstate"): (7, 0, 0, 0, 0, 0, None, None, 7),
     ("25", "qft"):        (58, 16, 0, 0, 0, 0, None, None, 74),
     ("25", "qnn"):        (89, 30, 0, 0, 0, 0, None, None, 119),
-    ("25", "random"):     (261, 4, 0, 93, 43, 90, 2.1, 3, 401),
+    ("25", "random"):     (272, 6, 0, 81, 34, 72, 2.1, 3, 393),
     ("64", "ae"):         (100, 43, 2, 0, 32, 101, 3.2, 8, 177),
     ("64", "ghz"):        (6, 0, 0, 0, 0, 0, None, None, 6),
     ("64", "graphstate"): (20, 0, 0, 0, 0, 0, None, None, 20),
@@ -407,15 +408,15 @@ ablation = {
     ("25", "ae"):     (65, 71, 80, 8),
     ("25", "qft"):    (74, 74, 140, 0),
     ("25", "qnn"):    (119, 122, 212, 0),
-    ("25", "random"): (401, 412, 395, 43),
+    ("25", "random"): (393, 419, 396, 34),
     ("64", "ae"):     (177, 211, 327, 32),
     ("64", "qft"):    (262, 372, 382, 45),
     ("64", "qnn"):    (864, 931, 600, 240),
-    ("64", "random"): (737, 843, 789, 77),
+    ("64", "random"): (737, 843, 803, 77),
     ("80", "ae"):     (490, 688, None, 264),
     ("80", "qft"):    (446, 435, None, 209),
-    ("80", "qnn"):    (1517, 1571, None, 448),
-    ("80", "random"): (11040, 11628, None, 572),
+    ("80", "qnn"):    (1517, 1675, None, 448),
+    ("80", "random"): (11040, 11868, None, 572),
 }
 for key, (full, nopk, norel, pk) in ablation.items():
     a = abl_by[key]["out"]
@@ -433,14 +434,14 @@ teledata = {
     ("25", "ae"):     (68, False, 8, 0),
     ("25", "qft"):    (74, True, 0, 0),
     ("25", "qnn"):    (119, True, 0, 0),
-    ("25", "random"): (413, False, 43, 93),
+    ("25", "random"): (399, False, 34, 81),
     ("64", "ae"):     (198, False, 32, 0),
-    ("64", "qft"):    (216, False, 45, 1),
+    ("64", "qft"):    (205, False, 45, 1),
     ("64", "qnn"):    (694, False, 240, 5),
     ("64", "random"): (None, False, 77, 228),
     ("80", "ae"):     (354, False, 264, 15),
     ("80", "qft"):    (307, False, 209, 2),
-    ("80", "qnn"):    (926, False, 448, 30),
+    ("80", "qnn"):    (1025, False, 448, 30),
     ("80", "random"): (None, False, 572, 3538),
 }
 for key, (td, raw_ok, pk, tg) in teledata.items():
@@ -464,12 +465,12 @@ for key, (td, raw_ok, pk, tg) in teledata.items():
 td_ok = [r for r in td_rows
          if (r["out"].get("teledata_only_relief") or {}).get("epr") is not None]
 check("td gmean basis count", 21, len(td_ok))
-check("td gmean full", 131.3,
+check("td gmean full", 131.2,
       round(gmean([r["out"]["full"]["epr"] for r in td_ok]), 1))
-check("td gmean nopk", 141.6,
+check("td gmean nopk", 142.2,
       round(gmean([(abl_by[(r["suite"], r["circuit"])]["out"]["no_packets"])["epr"]
                    for r in td_ok]), 1))
-check("td gmean teledata", 120.9,
+check("td gmean teledata", 121.2,
       round(gmean([r["out"]["teledata_only_relief"]["epr"] for r in td_ok]), 1))
 # Per-suite claims in the prose, over the table's own basis rows.
 def _td_delta_pct(suite, circs):
@@ -478,9 +479,9 @@ def _td_delta_pct(suite, circs):
                         / gmean([r["out"]["full"]["epr"] for r in rs]) - 1))
 
 check("td 25q gmean delta pct", 2, _td_delta_pct("25", ("ae", "qft", "qnn", "random")))
-check("td 80q gmean delta pct", -33, _td_delta_pct("80", ("ae", "qft", "qnn")))
+check("td 80q gmean delta pct", -30, _td_delta_pct("80", ("ae", "qft", "qnn")))
 # Per-circuit deltas quoted at 64q.
-for c, want in (("qft", -18), ("qnn", -20), ("ae", 12)):
+for c, want in (("qft", -22), ("qnn", -20), ("ae", 12)):
     r = td_by[("64", c)]["out"]
     check(f"td 64q {c} delta pct", want,
           round(100 * (r["teledata_only_relief"]["epr"] / r["full"]["epr"] - 1)))
@@ -493,17 +494,17 @@ check("td raw deadlock count (of 12)", 10,
 # V-C prose, on the widened basis (every circuit of every suite).
 _ap = [r for r in abl_rows if (r["out"].get("no_packets") or {}).get("epr")]
 check("abl packets basis", 24, len(_ap))
-check("abl packets pct", 7.6,
+check("abl packets pct", 8.1,
       round(100 * (gmean([r["out"]["no_packets"]["epr"] for r in _ap])
                    / gmean([r["out"]["full"]["epr"] for r in _ap]) - 1), 1))
 _ar = [r for r in abl_rows if (r["out"].get("no_relief") or {}).get("epr")]
-check("abl relief pct", 20.2,
+check("abl relief pct", 20.5,
       round(100 * (gmean([r["out"]["no_relief"]["epr"] for r in _ar])
                    / gmean([r["out"]["full"]["epr"] for r in _ar]) - 1), 1))
 check("abl relief failures", 5, len(abl_rows) - len(_ar))
 # V-C: relief changes character with scale -- large EPR saving and no failures
 # below 80 qubits, small saving but five failures at 80.
-for _s, _want in (("25", 26.4), ("64", 24.0), ("80", 4.0)):
+for _s, _want in (("25", 26.9), ("64", 24.2), ("80", 4.0)):
     _k = [r for r in abl_rows
           if r["suite"] == _s and (r["out"].get("no_relief") or {}).get("epr")]
     check(f"abl relief {_s}q pct", _want,
@@ -536,9 +537,9 @@ _ord80 = [(c, _e(abl_by[("80", c)]["out"], "full"),
           for c in ("ae", "qft", "qnn", "random", "qpeexact", "qaoa", "multiplier")]
 _ord80 = [(c, f, n, d) for c, f, n, d in _ord80 if n is not None and d is not None]
 check("V-C 80q ordering basis", 5, len(_ord80))
-check("V-C 80q ordering holds", 4,
+check("V-C 80q ordering holds", 3,
       sum(1 for _, f, n, d in _ord80 if d < f < n))
-check("V-C 80q ordering exception is QFT", "qft",
+check("V-C 80q ordering exceptions are QFT and QAOA", "qft,qaoa",
       ",".join(c for c, f, n, d in _ord80 if not (d < f < n)))
 check("V-C 80q packets QAOA pct", 47,
       round(100 * (_ae(next(r for r in _a80 if r["circuit"] == "qaoa"), "no_packets")
@@ -553,7 +554,7 @@ check("V-C 80q packets AE pct", 40,
 # 80q value IS quoted, and CLAUDE.md records the trend as project knowledge.
 # V-C: the TeleData-only advantage grows monotonically with scale.
 _tdp = []
-for _s, _want in (("25", 1.3), ("64", -1.6), ("80", -21.4)):
+for _s, _want in (("25", 1.0), ("64", -2.2), ("80", -19.8)):
     _k = [r for r in td_rows if r["suite"] == _s
           and (r["out"].get("teledata_only_relief") or {}).get("epr")]
     _got = round(100 * (gmean([r["out"]["teledata_only_relief"]["epr"] for r in _k])
@@ -563,18 +564,24 @@ for _s, _want in (("25", 1.3), ("64", -1.6), ("80", -21.4)):
     _tdp.append(_got)
 check("td advantage is monotone in scale", True,
       _tdp[0] > _tdp[1] > _tdp[2])
-# Conclusion: at 80q the teleport-only vocabulary is "never the more expensive
-# of the two on any circuit it completes".  The conclusion used to claim 32.8%
-# here, which reproduces ONLY over the undisclosed subset {ae, qft, qnn} and
-# was inconsistent with V-C's 21.4% -- it was the one headline figure in the
-# abstract/intro/conclusion with no pin.  Both facts are pinned now.
+# V-C and Sec VI: at 80q the teleport-only vocabulary is cheaper on every
+# circuit it completes EXCEPT QAOA, which it loses by 0.6% (1129 vs 1122).
+# It was "never dearer" until the 2026-09-03 re-run against the three-term
+# selection key moved 80q QAOA's TeleData cell 1086 -> 1129; both the count
+# and the identity of the exception are pinned so the claim cannot silently
+# revert.  The conclusion used to claim 32.8% here, which reproduces ONLY over
+# the undisclosed subset {ae, qft, qnn} and was inconsistent with V-C.
 _td80 = [r for r in td_rows if r["suite"] == "80"]
 def _tdv(r):
     o = r["out"].get("teledata_only") or {}
     return o.get("epr") or (r["out"].get("teledata_only_relief") or {}).get("epr")
-check("conc 80q teledata never dearer", 0,
+check("conc 80q teledata dearer count", 1,
       sum(1 for r in _td80
           if _tdv(r) and abl_by[(r["suite"], r["circuit"])]["out"]["full"]["epr"] < _tdv(r)))
+check("conc 80q teledata dearer set", "qaoa",
+      ",".join(sorted(r["circuit"] for r in _td80
+                      if _tdv(r)
+                      and abl_by[(r["suite"], r["circuit"])]["out"]["full"]["epr"] < _tdv(r))))
 # V-C: the 64q split follows the packet count -- the three packet-heaviest
 # circuits it completes win, the three lightest lose, the two zero-packet
 # circuits tie.  This does NOT hold at 80q, which is why V-C now scopes it.
@@ -584,7 +591,7 @@ _verdict = ["W" if _tdv(r) < r["out"]["full"]["epr"]
             else ("T" if _tdv(r) == r["out"]["full"]["epr"] else "L")
             for r in _ranked]
 check("td 64q split follows packet count", "WWWLLLTT", "".join(_verdict))
-check("td 80q split does NOT follow packet count", "WWWWWTT",
+check("td 80q split does NOT follow packet count", "WLWWWTT",
       "".join("W" if _tdv(r) < r["out"]["full"]["epr"]
               else ("T" if _tdv(r) == r["out"]["full"]["epr"] else "L")
               for r in sorted([r for r in _td80 if _tdv(r)],
@@ -605,9 +612,9 @@ check("abl basis count", 19, len(full_v))
 for _s, _n in (("25", 6), ("64", 9), ("80", 9)):
     check(f"abl {_s}q suite size", _n,
           sum(1 for r in abl_rows if r["suite"] == _s))
-check("abl gmean full", 122.2, round(gmean(full_v), 1))
-check("abl gmean nopk", 130.1, round(gmean(nopk_v), 1))
-check("abl gmean norelief", 146.9, round(gmean(norel_v), 1))
+check("abl gmean full", 122.1, round(gmean(full_v), 1))
+check("abl gmean nopk", 130.2, round(gmean(nopk_v), 1))
+check("abl gmean norelief", 147.1, round(gmean(norel_v), 1))
 
 # --------------------------------------- architecture / setup / Sec III facts
 import importlib
@@ -747,7 +754,7 @@ check("scaleup dSE-layout ratio", 0.87,
 _su_fixed = [hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
              ["horizon_eprs"][str(hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
                                   ["default_horizon"])] for r in su_rows]
-check("scaleup default-horizon gmean", 1026.5, round(gmean(_su_fixed), 1))
+check("scaleup default-horizon gmean", 1020.7, round(gmean(_su_fixed), 1))
 check("scaleup default horizon loses all six", 6,
       sum(1 for r, e in zip(su_rows, _su_fixed) if e > r["dSE"]["epr"]))
 check("scaleup default-horizon ratio", 1.45,
@@ -790,14 +797,20 @@ check("star dSABRE gmean", 101.1,
 check("star PORTER wins", 2,
       sum(1 for r in _star if r["porter"]["epr"] < r["dSE"]["epr"]))
 
-# Sec IV-J: per-ROUTE cost.  PORTER's protocol is three routes, so its
-# per-route cost is its protocol time / 3 -- comparing dSABRE's per-route cost
-# against PORTER's whole protocol (as the prose once did) gives a bogus 0.08x.
+# Sec IV-J: per-ROUTE cost.  PORTER's protocol is |H| routes, so its
+# per-route cost is its protocol time / |H| -- comparing dSABRE's per-route
+# cost against PORTER's whole protocol (as the prose once did) gives a bogus
+# 0.08x.  NOT QUOTED in the paper since V-F was trimmed; kept as a regression
+# guard on the claim that PORTER is dearer per route than dSABRE.
 def _p_per_route3(r):
-    return (r["sfc"]["seconds"] - r["sfc"].get("layout_seconds", 0)) / 3
+    return ((r["sfc"]["seconds"] - r["sfc"].get("layout_seconds", 0))
+            / len(_cdr.PORTER_HORIZONS))
 _ratios3 = [_dse_per_route(r) / _p_per_route3(r) for r in _r64]
-check("64q per-route gmean (3 routes)", 0.27, round(gmean(_ratios3), 2))
-check("64q PORTER dearer per route on all nine", 9,
+check("64q per-route gmean (|H| routes)", 0.36, round(gmean(_ratios3), 2))
+# Was all nine under the three-horizon protocol; the fourth candidate route
+# divides PORTER's protocol time by 4 instead of 3, so one 64q circuit now
+# comes out cheaper per route than dSABRE.  Also unquoted.
+check("64q PORTER dearer per route", 8,
       sum(1 for x in _ratios3 if x < 1))
 
 # V-F: each schedule contains the one below it, so none can be worse.
@@ -841,8 +854,8 @@ check("appJ gamma=0.80 wins", 8,
 check("appJ all five gammas win somewhere", 5,
       len({r["sfc_search"]["best_gamma"] for r in cmp_rows}))
 # Appendix J route budget.  TWO counts are in play and the appendix states
-# both: actual invocations of the routing loop (5 phase-1 routes + 7 per
-# refinement seed = 12 or 19), and the DISTINCT-route counter the harness
+# both: actual invocations of the routing loop (5 phase-1 routes + 8 per
+# refinement seed = 13 or 21), and the DISTINCT-route counter the harness
 # records, which charges each seed's pass 1 to phase 1 because it re-routes a
 # (layout, horizon) pair phase 1 already covered.  The old "10--17" figure
 # quoted the second while the paper's terminology defines the first.
@@ -854,11 +867,11 @@ check("appJ distinct-route counter max", 19,
       max(r["sfc_search"]["routes"] for r in cmp_rows))
 check("appJ distinct-route counter min", 10,
       min(r["sfc_search"]["routes"] for r in cmp_rows))
-# One seed exactly when gamma=0.99 wins phase 1; that bounds the counter at 11.
+# One seed exactly when gamma=0.99 wins phase 1; that bounds the counter at 12.
 check("appJ one-seed instances", 5,
       sum(1 for r in cmp_rows if r["sfc_search"]["best_gamma"] == 0.99))
-check("appJ one-seed counter <= 11", True,
-      all(r["sfc_search"]["routes"] <= 11 for r in cmp_rows
+check("appJ one-seed counter <= 12", True,
+      all(r["sfc_search"]["routes"] <= 12 for r in cmp_rows
           if r["sfc_search"]["best_gamma"] == 0.99))
 check("appJ two-seed counter <= 17", False,
       all(r["sfc_search"]["routes"] <= 17 for r in cmp_rows
@@ -929,7 +942,7 @@ check("grid PORTER+R gain from dSE layout", 4.5,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_refined")), 1))
 # shared-layout figures quoted in the prose but no longer in the table.
 # These legs run PORTER's own (horizon-selecting) protocol, not one pass.
-check("shared 25q PORTER selected dTS", -41.5,
+check("shared 25q PORTER selected dTS", -41.3,
       round(100 * (gmean([r["sfc_shared"]["epr"] for r in _ts if r["suite"] == "25"])
                    / gmean([r["telesabre"]["epr"] for r in _ts if r["suite"] == "25"]) - 1), 1))
 check("shared pooled PORTER selected dTS", -37.7,
@@ -942,7 +955,7 @@ for _s, _want in (("64", -36.5), ("80", -33.1)):
     check(f"shared {_s}q PORTER selected dTS", _want,
           round(100 * (gmean([r["sfc_shared"]["epr"] for r in _ts if r["suite"] == _s])
                        / gmean([r["telesabre"]["epr"] for r in _ts if r["suite"] == _s]) - 1), 1))
-check("shared pooled PORTER selected gmean", 107.7,
+check("shared pooled PORTER selected gmean", 107.8,
       round(gmean([r["sfc_shared"]["epr"] for r in _ts]), 1))
 check("shared: dSABRE leads at 25 and 80, PORTER at 64", True,
       gmean([r["dSE_shared"]["epr"] for r in _ts if r["suite"] == "64"])
@@ -965,8 +978,8 @@ _B12 = [(su, c) for su in ("25", "64", "80")
 _relief_hurts = [k for k in _B12
                  if (abl_by[k]["out"].get("no_relief") or {}).get("epr")
                  and abl_by[k]["out"]["no_relief"]["epr"] < abl_by[k]["out"]["full"]["epr"]]
-check("abl instances where relief hurts", 2, len(_relief_hurts))
-check("abl relief-hurts set", "25/random,64/qnn",
+check("abl instances where relief hurts", 1, len(_relief_hurts))
+check("abl relief-hurts set", "64/qnn",
       ",".join(f"{a}/{b}" for a, b in sorted(_relief_hurts)))
 _pk_helps = [k for k in _B12
              if abl_by[k]["out"]["no_packets"]["epr"] < abl_by[k]["out"]["full"]["epr"]]

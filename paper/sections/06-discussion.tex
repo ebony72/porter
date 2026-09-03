@@ -32,9 +32,10 @@ we tested predicts the winner in advance.
 
 \textbf{Why \TeleData{}-only can beat the full action set.} Packets beat
 the single telegates they degrade into, yet a vocabulary with gate
-teleportation removed altogether --- \TeleData{} and nothing else --- uses
-no more EPR pairs than the full action set on any 80-qubit circuit it
-completes, and fewer on most. The cause is a currency mismatch in the scorer: a packet's gain
+teleportation removed altogether --- \TeleData{} and nothing else --- is
+$19.8\%$ cheaper than the full action set over the 80-qubit circuits it
+completes, and cheaper on every one of them but QAOA, which it loses by
+$0.6\%$. The cause is a currency mismatch in the scorer: a packet's gain
 counts remote CX gates resolved immediately, a \TeleData{} plan's a sum of
 core-distance reductions discounted over a bounded horizon. Nothing
 establishes the two are commensurate, and where a teleport repays past the

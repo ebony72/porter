@@ -275,7 +275,7 @@ it chooses is held for the remaining $P-1$ passes --- re-selecting each
 pass would multiply the count by the number of candidates to re-decide a
 property refinement does not change. That is what makes \PORTER{}+R
 contain \PORTER{}, so with the best forward pass kept it can never report
-more EPR. Total routes are $\lvert\mathcal{H}\rvert + P - 1 = 7$, and the
+more EPR. Total routes are $\lvert\mathcal{H}\rvert + P - 1 = 8$, and the
 cost is wall-clock rather than passes: a deep horizon makes a later pass
 dear, and on one instance a pass is stopped by the per-pass guard.
 
@@ -317,12 +317,12 @@ routes & selects on \\
 \midrule
 \multicolumn{6}{@{}l}{\emph{Shared layout} (RQ2) --- both compilers routed from one external layout} \\
 \dSABRE{} shared  & \TeleSABRE{}'s or pytket-dqc's & 1 & 3 & 3 & best pass \\
-\PORTER{} shared  & the identical layout & 1 & 3 & 3 & best EPR \\
-\PORTER{}+R shared& the identical layout & 1 & 5 & 7 & best forward pass \\
+\PORTER{} shared  & the identical layout & 1 & 4 & 4 & best EPR \\
+\PORTER{}+R shared& the identical layout & 1 & 5 & 8 & best forward pass \\
 \midrule
 \multicolumn{6}{@{}l}{\emph{Cross layout} (RQ2) --- each compiler on the other's own layout} \\
 \dSABRE{} on \PORTER{} & \PORTER{}'s layout & 1 & 3 & 3 & best pass \\
-\PORTER{} on \dSABRE{} & \dSABRE{}'s candidates & 3 & 3 & 9 & best EPR \\
+\PORTER{} on \dSABRE{} & \dSABRE{}'s candidates & 3 & 4 & 12 & best EPR \\
 \midrule
 \multicolumn{6}{@{}l}{\emph{Ablation} (RQ3) --- one fixed layout, one fixed horizon} \\
 \PORTER{} ablation & temporal locality-greedy & 1 & 1 & 1 & --- \\

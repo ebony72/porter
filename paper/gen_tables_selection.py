@@ -376,12 +376,12 @@ def app_pytket():
     return "\n".join(out)
 
 
-# NOTE: `tab:pytket` is deliberately NOT regenerated.  Running app_pytket()
-# against the RELEASED results file does not reproduce the released table --
-# it is missing 64q qpeexact/qaoa/multiplier and its dSABRE column differs --
-# so that table predates the current compare_results.json and its basis is
-# unclear.  Regenerating it would silently change a table on a basis nobody
-# has established.  app_pytket() is kept for whoever settles that question.
+# `tab:pytket` IS regenerated since 2026-09-03.  It used to be excluded on the
+# grounds that its basis was unclear, and that was right: its \PORTER{} EPR
+# column reproduced PORTER's OWN-layout leg on 7 of its 12 rows, not the
+# pytket-layout leg it was captioned as, and its dSABRE column was stale at
+# 64q.  With `sfc_pytket` and `dSE_pytket` now current on all 24 instances the
+# basis is settled, so the table is generated from them over all three suites.
 def app_timing():
     """tab:timing: median-of-three complete-protocol compile seconds."""
     rows = json.loads((_HERE / f"timing_results{SUFFIX}.json").read_text())
@@ -396,7 +396,7 @@ def app_timing():
 
 
 APP_TABLES = {"tab:heavyhex": app_heavyhex, "tab:shared": app_shared,
-              **APP_MAIN}
+              "tab:pytket": app_pytket, **APP_MAIN}
 
 
 def splice(tex: str, label: str, block: str) -> str:

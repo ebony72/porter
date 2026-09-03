@@ -3282,3 +3282,109 @@ The second line puts the literal `hz_revisit.py` in the waiter's own command
 line, so the bracket trick on line 1 matches it and the loop never exits. It
 sat idle ~25 min. **Wait on a PID, not a pattern**:
 `while kill -0 <pid> 2>/dev/null; do sleep 30; done`.
+
+## Every stale leg re-run; the four-value horizon set was only half-landed (2026-09-04)
+
+**The standing item is closed, and the note recording it was wrong.** CLAUDE.md
+said `sfc_shared` / `sfc_pytket` "cannot be rebuilt from the released files,
+because they need TeleSABRE's and pytket-dqc's layouts and only the EPR counts
+are stored, not the layouts". **The layouts ARE stored** ---
+`paper/shared_layouts.json` holds `phys_to_virt` per instance,
+`paper/pytket_placements.json` holds `placement` + `corner_nodes` --- and
+`rerun_porter_legs.py {shared,pytket}` already reads them. Neither external
+baseline had to run. That leg took **~8 min**, not a full `compare_routers.py`.
+
+| file / leg | why stale | cells moved |
+|---|---|---|
+| `ablation_results.json` | 2026-08-31, pre-`df034da` | 6 (2 in the 80q table) |
+| `paper/teledata_ablation_basis.json` | same | 6 (2 in the 80q table) |
+| `paper/action_mix_results.json` | 2026-08-28 | 1 of 21 (64q table unaffected) |
+| `horizon_results.json` scale-up | pre-`df034da` | 2 of 6 |
+| `sfc_shared` / `sfc_pytket` (+ `_refined`) | `df034da` | 12 of 96 |
+
+**Nothing else is stale.** `sfc`, `sfc_refined`, `sfc_search`,
+`sfc_on_dse_layout` and `sfc_on_dse_layout_refined` reproduce **exactly** on all
+24, so the abstract's $1.02\times$ / $0.91\times$ / $9.3\%$ and the conclusion's
+$11.6\%$ never moved. `porter_under_layouts_results.json`,
+`refine_on_selection_results.json` and `telesabre_config_probe.json` are read by
+no verifier and no table; `timing_results*.json` is dead (`app_timing` is not in
+`APP_TABLES`).
+
+### Two claims changed, both in the ablation
+
+- **`TeleData`-only is no longer "never dearer" at 80q.** 80q QAOA moved
+  $1086 \to 1129$ against Full's $1122$ --- it now **loses by $0.6\%$**, the one
+  exception among the seven it completes. The 80q advantage is $-19.8\%$ (was
+  $-21.4\%$), packets $+12.0\%$ (was $+10.9\%$), and V-C's ordering
+  $\text{\TeleData} < \text{Full} < \text{No packets}$ holds on **three** of five
+  rows, QFT and QAOA excepted. Fixed in V-C and Sec VI; **both the count and the
+  identity of the exception are pinned** so it cannot silently revert.
+- 25q Random's relief flip means "relief hurts" is now **one** instance
+  (64q QNN), not two.
+
+### `abb845b` landed the four-value horizon set in the code and the VERIFIER but not the PROSE
+
+`PORTER_HORIZONS = (4,8,16,128)`, so measured against HEAD: **PORTER = 4 routes,
+PORTER+R = 8, PORTER shared = 4, PORTER+R shared = 8, PORTER on dSABRE's
+candidates = 12** (3 layouts x 4). The paper said 3 / 7 / 3 / 7 / 9 in **eleven
+places** --- abstract, intro, V-A, V-B, V-F, `tab:budgets`, `tab:protocols`, two
+captions, IV-E's $\lvert\mathcal{H}\rvert + P - 1$ and Appendix J's derivation.
+`verify_paper_numbers` already pinned $|H|{=}4$ and per-seed routes $=8$, which
+is why **both verifiers passed the whole time**. Same failure mode as the
+2026-08-29 protocol migration: *a green verifier is not evidence the prose is
+current*, and here the verifier was the half that got updated.
+
+**V-B's "equal three-route budgets" broke with it.** PORTER now spends four
+routes to dSABRE's three in the layout grid, so that row is no longer
+budget-matched. Rewritten to state the real counts and note the comparison is if
+anything generous to PORTER, which still loses it --- the same discipline as
+"never call 5-vs-3 a matched budget".
+
+Also found by the same sweep: V-B said the pytket partition is the worse start
+"on fourteen of the twenty-four for both routers" while the pin already said
+**14 for dSABRE, 15 for PORTER**. Prose fixed.
+
+### The machine is ~1.7x slower than the `abb845b` timing session
+
+`sfc_refined` re-measured at **878 s over the main 24 against `abb845b`'s 475 s
+under the identical protocol**. Not contention: on a fully idle machine the
+values reproduce the run **exactly** (25q Random 6.8 s, 64q AE 10.9 s, 64q
+Multiplier 24.8 s, all within 0.1 s), and uniformly $1.6$--$1.7\times$
+`abb845b`. Wall-clock here is not comparable across sessions.
+
+**So the re-measured `seconds` were REVERTED.** `sfc_refined`, `sfc_search`,
+`sfc_on_dse_layout_refined` and `sfc_selection_and_search` are restored wholesale
+from the pre-run file --- legitimate because their **EPR is byte-identical**, so
+record and timing describe the same result --- and every published timing column
+(`tab:main`, `tab:protocols`, `tab:layoutsearch`) stays on the one `abb845b`
+session. Keeping today's +R times beside `abb845b`'s dSABRE times would have been
+exactly the mixed-session defect that killed the standalone timing table.
+**Only re-measure a timing column if you re-measure every compiler in it.**
+
+### `tab:pytket` (Appendix C) regenerated and widened to all 24
+
+It was excluded from `gen_tables_selection` as "basis unclear", and that was
+right but understated: its \PORTER{} EPR column reproduced PORTER's **own-layout**
+leg on 7 of 12 rows despite being captioned a pytket shared-layout comparison,
+its dSABRE column was stale at 64q, and its prose quoted "64q QNN at 1,031 EPR
+against dSABRE's 535", which matches nothing in any current leg. Now generated
+from `dSE_pytket` / `sfc_pytket` over all three suites (`app_pytket` registered
+in `APP_TABLES`).
+
+New reading, and it needs both aggregates: **gmean $164.1$ dSABRE against
+$167.2$ PORTER ($1.9\%$), twelve rows to eight with four ties --- but summed,
+PORTER spends $22{,}615$ against $25{,}123$, $10.0\%$ fewer**, because 80q
+Multiplier alone is $2{,}805$ against $6{,}622$. Stated both ways, claiming
+neither as the verdict. Pooled fixed-layout record is now **20 / 16 / 5**
+(was 23 / 13 / 5).
+
+### `tab:actionset` is a single forward pass, and now says so
+
+`paper/action_mix.py` calls `compile()` directly, so its \PORTER{} column is one
+pass at the configured horizon while the paper's \PORTER{} is best-of-four ---
+64q AE reads $177$ there against `tab:main`'s $157$. That is the right protocol
+(the table exists to support the ablation, which is also single-pass), so the
+**caption now discloses it** rather than the data being migrated. Its cross-check
+was against `compare_results.json`'s `sfc`, a leg that is now a different
+protocol; it reads `ablation_results.json`'s `full` column instead, which is the
+same protocol by construction.

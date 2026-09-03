@@ -109,19 +109,19 @@
   "circuit": "random",
   "out": {
    "full": {
-    "epr": 401,
-    "packets": 43,
-    "telegates": 93
+    "epr": 393,
+    "packets": 34,
+    "telegates": 81
    },
    "no_packets": {
-    "epr": 412,
+    "epr": 419,
     "packets": 0,
-    "telegates": 86
+    "telegates": 97
    },
    "no_relief": {
-    "epr": 395,
-    "packets": 45,
-    "telegates": 82
+    "epr": 396,
+    "packets": 42,
+    "telegates": 80
    }
   }
  },
@@ -245,9 +245,9 @@
     "telegates": 376
    },
    "no_relief": {
-    "epr": 789,
-    "packets": 71,
-    "telegates": 288
+    "epr": 803,
+    "packets": 80,
+    "telegates": 301
    }
   }
  },
@@ -404,9 +404,9 @@
     "telegates": 30
    },
    "no_packets": {
-    "epr": 1571,
+    "epr": 1675,
     "packets": 0,
-    "telegates": 550
+    "telegates": 693
    },
    "no_relief": {
     "error": "No legal action available.\nCurrent DAG front: ['11753:cx q15"
@@ -423,9 +423,9 @@
     "telegates": 3538
    },
    "no_packets": {
-    "epr": 11628,
+    "epr": 11868,
     "packets": 0,
-    "telegates": 4658
+    "telegates": 4948
    },
    "no_relief": {
     "error": "No legal action available.\nCurrent DAG front: ['3695:cx q56,"
