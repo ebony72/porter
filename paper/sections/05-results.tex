@@ -27,13 +27,11 @@ completion counts and complete compile time.
   drops it. The blocks differ only in which circuits they average.
   ``done'' is circuits completed and ``W/L/T'' the per-instance record
   against \dSABRE{} over all twenty-four; $t$ is complete protocol time
-  (gmean, seconds) over the whole suite. The last pair is the portfolio:
-  the lower EPR count of \dSABRE{} and the named \PORTER{} configuration
-  on each instance. It is a derived quantity, not a fifth configuration
-  --- it costs running both and predicts nothing in advance
-  (Section~\ref{sec:discussion}) --- so it is left unbold and the bold
-  entry in each row is the best single compiler. Lower is better;
-  per-circuit counts in \appTables{}.}
+  (gmean, seconds) over the whole suite. The last pair is the
+  portfolio$^{\dagger}$, a derived quantity rather than a fifth
+  configuration, so it is left unbold and the bold entry in each row is the
+  best single compiler. Lower is better; per-circuit counts in
+  \appTables{}.}
 \label{tab:main}
 \setlength{\tabcolsep}{12.5pt}
 \small
@@ -42,7 +40,7 @@ completion counts and complete compile time.
 \toprule
  & \multicolumn{2}{c}{\TeleSABRE{}} & \multicolumn{2}{c}{\dSABRE{}}
  & \multicolumn{2}{c}{\PORTER{}} & \multicolumn{2}{c}{\PORTER{}$+$R}
- & \multicolumn{2}{c}{best of \dSABRE{} with} \\
+ & \multicolumn{2}{c}{best of \dSABRE{} with$^{\dagger}$} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
 Suite & EPR & $t$ & EPR & $t$ & EPR & $t$ & EPR & $t$
       & \PORTER{} & $+$R \\
@@ -67,6 +65,20 @@ W/L/T   & \multicolumn{2}{c}{---} & \multicolumn{2}{c}{---}
 \bottomrule
 \end{tabular}%
 }
+\begin{minipage}{\textwidth}\vspace{3pt}\footnotesize
+$^{\dagger}$ \textbf{Portfolio.} For each instance, the lower of
+\dSABRE{}'s EPR count and the named \PORTER{} configuration's, each
+compiler under its own protocol and its own initial layout: no layout is
+shared here, and neither router is given the other's mapping --- for that
+control see Table~\ref{tab:shared}. The cell is the geometric mean of those
+per-instance minima over the row's circuits, which is why it can fall below
+\emph{both} compilers' means: they lose on different circuits. At 64 qubits
+\dSABRE{} is cheaper on six of the nine and \PORTER{} on two, and
+\PORTER{}'s $1{,}076$ against $1{,}285$ on Multiplier is what carries the
+pair to $168.8$, under \dSABRE{}'s own $173.1$. Realising it costs both
+compile budgets, and no rule we tested predicts the per-instance winner in
+advance (Section~\ref{sec:discussion}).
+\end{minipage}
 \end{table*}
 
 

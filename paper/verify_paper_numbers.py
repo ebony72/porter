@@ -252,6 +252,21 @@ check("portfolio gain at 64q", -2.5,
       round(100 * (_best("sfc", _s64) / gmean([r["dSE"]["epr"] for r in _s64]) - 1), 1))
 check("80q PORTER record", "4/5", "%d/%d" % _wlt("sfc", _s80))
 check("64q dSABRE wins six of nine", 6, _wlt("sfc", _s64)[1])
+# tab:main's portfolio FOOTNOTE quotes the 64q split and the instance that
+# carries the pair below dSABRE's own mean.  Pinned because the footnote is
+# prose: the table cells themselves are checked by verify_tex_tables.
+check("64q PORTER wins two of nine", 2, _wlt("sfc", _s64)[0])
+_m64 = next(r for r in cmp_rows
+            if r["suite"] == "64" and r["circuit"] == "multiplier")
+check("footnote 64q Multiplier dSABRE", 1285, _m64["dSE"]["epr"])
+check("footnote 64q Multiplier PORTER", 1076, _m64["sfc"]["epr"])
+check("footnote 64q portfolio", 168.8, round(_best("sfc", _s64), 1))
+check("footnote 64q dSABRE gmean", 173.1,
+      round(gmean([r["dSE"]["epr"] for r in _s64]), 1))
+# The footnote's whole point: the pair beats BOTH columns at 64q.
+check("footnote 64q portfolio beats both", True,
+      _best("sfc", _s64) < min(gmean([r["dSE"]["epr"] for r in _s64]),
+                               gmean([r["sfc"]["epr"] for r in _s64])))
 
 # V-B block (b): the same grid without GHZ and Graphstate, whose EPR counts
 # are 1-2 orders of magnitude below the rest and so dominate an unweighted
