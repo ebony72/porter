@@ -1,0 +1,386 @@
+{
+ "25/ae": {
+  "epr": 65,
+  "seconds": 0.4,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   65,
+   74,
+   65
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 65,
+  "released_refined": 65,
+  "dSE": 65
+ },
+ "25/ghz": {
+  "epr": 4,
+  "seconds": 0.0,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   4,
+   4,
+   4
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 4,
+  "released_refined": 4,
+  "dSE": 5
+ },
+ "25/graphstate": {
+  "epr": 4,
+  "seconds": 0.0,
+  "passes_run": 5,
+  "chosen_pass": 3,
+  "forward_eprs": [
+   7,
+   4,
+   4
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 7,
+  "released_refined": 4,
+  "dSE": 6
+ },
+ "25/qft": {
+  "epr": 74,
+  "seconds": 0.5,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   74,
+   137,
+   122
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 74,
+  "released_refined": 74,
+  "dSE": 81
+ },
+ "25/qnn": {
+  "epr": 116,
+  "seconds": 0.9,
+  "passes_run": 5,
+  "chosen_pass": 5,
+  "forward_eprs": [
+   119,
+   128,
+   116
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 119,
+  "released_refined": 116,
+  "dSE": 143
+ },
+ "25/random": {
+  "epr": 383,
+  "seconds": 2.2,
+  "passes_run": 5,
+  "chosen_pass": 5,
+  "forward_eprs": [
+   401,
+   399,
+   383
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 401,
+  "released_refined": 383,
+  "dSE": 411
+ },
+ "64/ae": {
+  "epr": 177,
+  "seconds": 1.6,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   177,
+   308,
+   252
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 157,
+  "released_refined": 157,
+  "dSE": 165
+ },
+ "64/ghz": {
+  "epr": 6,
+  "seconds": 0.0,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   6,
+   6,
+   6
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 6,
+  "released_refined": 6,
+  "dSE": 6
+ },
+ "64/graphstate": {
+  "epr": 16,
+  "seconds": 0.2,
+  "passes_run": 5,
+  "chosen_pass": 5,
+  "forward_eprs": [
+   20,
+   18,
+   16
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 20,
+  "released_refined": 16,
+  "dSE": 15
+ },
+ "64/qft": {
+  "epr": 262,
+  "seconds": 2.1,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   262,
+   326,
+   301
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 262,
+  "released_refined": 262,
+  "dSE": 179
+ },
+ "64/qnn_OLD_DEEP": {
+  "epr": 537,
+  "seconds": 10.3,
+  "passes_run": 5,
+  "chosen_pass": 5,
+  "forward_eprs": [
+   864,
+   606,
+   537
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 638,
+  "released_refined": 638,
+  "dSE": 538
+ },
+ "64/random": {
+  "epr": 737,
+  "seconds": 13.5,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   737,
+   796,
+   787
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 737,
+  "released_refined": 737,
+  "dSE": 732
+ },
+ "64/qpeexact": {
+  "epr": 222,
+  "seconds": 5.0,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   222,
+   256,
+   362
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 222,
+  "released_refined": 222,
+  "dSE": 187
+ },
+ "64/qaoa": {
+  "epr": 607,
+  "seconds": 11.6,
+  "passes_run": 5,
+  "chosen_pass": 3,
+  "forward_eprs": [
+   854,
+   607,
+   632
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 775,
+  "released_refined": 586,
+  "dSE": 555
+ },
+ "64/multiplier": {
+  "epr": 763,
+  "seconds": 7.0,
+  "passes_run": 5,
+  "chosen_pass": 5,
+  "forward_eprs": [
+   1358,
+   1905,
+   763
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 1076,
+  "released_refined": 1076,
+  "dSE": 1285
+ },
+ "80/ae": {
+  "epr": 490,
+  "seconds": 3.5,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   490,
+   563,
+   515
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 299,
+  "released_refined": 299,
+  "dSE": 332
+ },
+ "80/ghz": {
+  "epr": 7,
+  "seconds": 0.0,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   7,
+   7,
+   7
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 7,
+  "released_refined": 7,
+  "dSE": 13
+ },
+ "80/graphstate": {
+  "epr": 24,
+  "seconds": 0.4,
+  "passes_run": 5,
+  "chosen_pass": 3,
+  "forward_eprs": [
+   28,
+   24,
+   24
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 28,
+  "released_refined": 24,
+  "dSE": 20
+ },
+ "80/qft": {
+  "epr": 393,
+  "seconds": 3.0,
+  "passes_run": 5,
+  "chosen_pass": 5,
+  "forward_eprs": [
+   446,
+   572,
+   393
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 446,
+  "released_refined": 393,
+  "dSE": 322
+ },
+ "80/qnn": {
+  "epr": 1181,
+  "seconds": 31.1,
+  "passes_run": 5,
+  "chosen_pass": 5,
+  "forward_eprs": [
+   1517,
+   1236,
+   1181
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 1070,
+  "released_refined": 918,
+  "dSE": 807
+ },
+ "80/random": {
+  "epr": 11040,
+  "seconds": 216.2,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   11040,
+   11182,
+   11233
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 11040,
+  "released_refined": 11040,
+  "dSE": 10551
+ },
+ "80/qpeexact": {
+  "epr": 526,
+  "seconds": 3.5,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   526,
+   623,
+   645
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 291,
+  "released_refined": 291,
+  "dSE": 347
+ },
+ "80/qaoa": {
+  "epr": 1122,
+  "seconds": 22.3,
+  "passes_run": 5,
+  "chosen_pass": 1,
+  "forward_eprs": [
+   1122,
+   1290,
+   1358
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 1122,
+  "released_refined": 1122,
+  "dSE": 862
+ },
+ "80/multiplier": {
+  "epr": 2699,
+  "seconds": 12.4,
+  "passes_run": 5,
+  "chosen_pass": 3,
+  "forward_eprs": [
+   3501,
+   2699,
+   3347
+  ],
+  "routes": null,
+  "verified": true,
+  "released_sfc": 2411,
+  "released_refined": 2132,
+  "dSE": 4841
+ }
+}

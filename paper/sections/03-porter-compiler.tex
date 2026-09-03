@@ -4,12 +4,19 @@
 
 Given a circuit and an initial layout $\ell_0$ (which \PORTER{} builds
 itself, Section~\ref{sec:sfc-layout}), \PORTER{} repeats the following
-loop (Algorithm~\ref{alg:sfc}) until every gate has been emitted or a
-configurable iteration budget is exhausted. Algorithm~\ref{alg:sfc}
+loop (Algorithm~\ref{alg:sfc}) until every gate has been emitted, a
+configurable iteration budget is exhausted, or \chg{a configurable number
+of iterations passes with no gate retired --- a no-progress guard that
+abandons a stalled route without waiting for the budget}. Algorithm~\ref{alg:sfc}
 \chg{charts the routing pass}; lines 11--19 are the plan-first remote stage that
 distinguishes \PORTER{} from compilers deciding at single-action
 granularity, and \appExample{} walks through them on a concrete front
-where they change the outcome.
+where they change the outcome. \chg{This section specifies one routing
+pass, at a fixed teleport-lookahead horizon $L_\mathrm{tp}$. \PORTER{}'s
+own protocol routes at three candidate horizons and keeps the lowest-EPR
+result; because that invokes this loop repeatedly rather than changing
+it, it is defined with the other operating protocols in
+Section~\ref{sec:horizon}.}
 
 
 \begin{algorithm}[t]
@@ -18,7 +25,7 @@ where they change the outcome.
 \begin{algorithmic}[1]
 \STATE $\ell \leftarrow \ell_0$; initialise DAG active \chg{and front} sets from $C$
 \WHILE{DAG has active gates}
-  \STATE $F \leftarrow$ DAG front (bounded by \texttt{dag\_front\_limit})
+  \STATE $F \leftarrow$ DAG front
   \STATE classify $F$ into singles, direct-local CX, local-CX-needing-SWAP,
          adjacent-remote CX, non-adjacent-remote CX \hfill\textit{(Sec.~\ref{sec:sfc-classify})}
   \IF{singles or direct-local CX present}
@@ -122,10 +129,7 @@ otherwise; a CX whose operands lie in different cores is
 \emph{non-adjacent-remote} otherwise. Directly executable gates drain
 first and completely, intra-core SWAPs are exhausted next, and
 remote-stage decisions are taken only once no front gate is
-intra-core. A cost guard caps the front at $96$ gates. It binds only on the three
-largest QPEexact instances, and is output-neutral there: truncation is by
-ascending gate index and executable gates drain before any routing
-decision.
+intra-core.
 
 \subsection{Intra-Core SWAP Scoring}
 \label{sec:sfc-intra}
@@ -170,8 +174,7 @@ Formally, a plan is a tuple
 with $\pi\in\{\TeleData{},\TeleGate{},\TeleGatePacket{}\}$ the primitive,
 $\mathrm{dir}$ its orientation, $c_\mathrm{src}$ and $c_\mathrm{dst}$ the
 cores, and $\Pi(\pln{p})$ the ports it reserves. \chg{Every field is static:
-a plan is fixed once generated, which is what makes committing to one
-meaningful. Readiness is not a field but a predicate derived from a plan and
+a plan is fixed once generated, so commitment has a fixed object. Readiness is not a field but a predicate derived from a plan and
 a layout, $\mathrm{ready}(\pln{p},\ell)$, holding when $\pln{p}$ can fire
 under $\ell$; preparation changes $\ell$ and so changes the predicate, never
 the plan.}
@@ -189,8 +192,8 @@ only to break ties; and the \emph{preparation policy} that chooses those
 local SWAPs after $\pln{p}$ is committed. Two design decisions follow:
 utility never includes readiness cost, and once a plan is committed
 \PORTER{} works only on that plan --- it generates no other plan and
-scores no alternative --- until the plan fires or is abandoned because no
-preparation SWAP improves its readiness.
+scores no alternative --- until the plan fires or is abandoned because its
+preparation policy offers no move.
 
 The second is the \emph{commitment rule}, and we adopt it on structural
 grounds rather than measured ones. A preparation SWAP has no meaning
@@ -198,8 +201,8 @@ except relative to the plan it prepares, so a router that reopens the
 choice part-way through preparation can leave the layout carrying moves
 made towards an action it then abandons; committing makes preparation and
 the action it serves one unit, and gives \chg{the abandonment test below
---- no preparation SWAP improves readiness --- something well defined to
-fire on}. It also
+--- no local SWAP on an unsatisfied side serves the plan --- something
+well defined to fire on}. It also
 fixes the granularity at which the plan set is derived --- once per
 committed action rather than once per router iteration. What it does
 \emph{not} come with is an experiment: no result in
@@ -277,54 +280,51 @@ the scored plans are ordered by one lexicographic key, smallest first:
 \begin{equation}
   \mathrm{key}(\pln{p}) = \bigl(
      -\mathrm{total},\,
-      \neg\mathrm{ready},\,
       \mathrm{prep},\,
-      \mathrm{rank},\,
-      \mathrm{cap},\,
-     -\mathrm{lookahead}\bigr),
+     -f_\mathrm{dst}\bigr),
   \label{eq:sfc-key}
 \end{equation}
-each component evaluated at $\pln{p}$. The order is the design, so we
-take the components in turn.
+each component evaluated at $\pln{p}$, with a stable plan identifier
+resolving anything still tied. The order is the design, so we take the
+components in turn.
 
 \textbf{$\mathrm{total}$} is the estimated gate progress the plan buys,
 negated so that more progress sorts first. It decides almost every
-comparison; the five components after it only break ties. Preparation
+comparison; the two components after it only break ties. Preparation
 cost is not part of it, so a plan that happens to be cheap to prepare
 cannot displace one that buys more progress --- the property that
 separates this scorer from \dSABRE{}'s, where staging cost is additive
 (Section~\ref{sec:related}).
 
-\textbf{$\mathrm{ready}$} is the predicate of
-Section~\ref{sec:sfc-plan-first}: the plan can fire under the current
-layout with no further local work. Ready plans sort ahead of equally
-valuable unready ones.
-
 \textbf{$\mathrm{prep}$} is the readiness cost --- how far the current
-layout is from satisfying $\mathrm{ready}$, measured as intra-core
-distance from each endpoint to the port it must reach. It ranks third,
-below progress and readiness.
+layout is from satisfying the $\mathrm{ready}$ predicate of
+Section~\ref{sec:sfc-plan-first}, measured as intra-core distance from
+each endpoint to the port it must reach. It is zero exactly when the
+plan is ready, so it subsumes readiness itself: among plans of equal
+value, one that can fire now precedes one that cannot, and two unready
+plans are ordered by how much local work each still needs.
 
-\textbf{$\mathrm{rank}$} orders the primitives, \TeleData{} $(0)$ before
-\TeleGatePacket{} $(1)$ before \TeleGate{} $(2)$: among plans equal in
-value, readiness and preparation cost, the one that also improves the
-layout is kept.
+\textbf{$-f_\mathrm{dst}$} is the free capacity of the destination core,
+negated, so between plans of equal value and preparation cost the one
+leaving more room wins. Only a \TeleData{} consumes a destination slot;
+every other primitive scores zero here, so this component also carries a
+preference for the plan that improves the layout. It is computed
+alongside the score, never added to it.
 
-\textbf{$\mathrm{cap}(\pln{p}) = 1/\max(1,f_\mathrm{dst}-1)$} grows as
-the destination approaches the capacity floor, so between otherwise
-identical plans the one leaving more room wins. It is computed alongside
-the score, never added to it.
-
-\textbf{$\mathrm{lookahead}$}, negated, is the discounted part of
-$\mathrm{total}$: among plans tied on everything above, the one whose
-value reaches further into the circuit is preferred, and a stable plan
-identifier resolves anything still tied. Its depth is the horizon
-$L_\mathrm{tp}$, counted in DAG layers --- a companion cap
-$N_\mathrm{tp}$ on the gate count cannot bind while
-$N_\mathrm{tp}\ge L_\mathrm{tp}$, since a qubit contributes at most one
-gate per layer (\appTables{}). $L_\mathrm{tp}$ is the one parameter
-\PORTER{} does not fix by constant; Section~\ref{sec:horizon} chooses it
-per circuit.
+\chg{Three further coordinates --- a readiness flag, a three-way ordering
+of the primitives, and a trailing $-\mathrm{lookahead}$ --- were part of
+an earlier form of this key and are provably unreachable or implied by
+the three above. A \TeleGate{} scores $\mathrm{total}{=}1$ and a
+\TeleGatePacket{} is only generated carrying at least two straddling
+gates, so $-\mathrm{total}$ always separates those two primitives and
+only the \TeleData{}-first half of a plan-kind ordering was ever
+reachable; $-f_\mathrm{dst}$ now carries it. And since $\mathrm{total}$
+is the sum of the realised and discounted gains, a trailing
+$-\mathrm{lookahead}$ could separate two plans only where those two parts
+traded in exactly compensating amounts --- once in $24{,}494$ rankings
+over the benchmark suites, where it preferred the plan with the
+\emph{smaller} realised gain. Removing all three leaves the emitted
+circuit bit-for-bit identical on every instance but two.}
 
 That leaves $\mathrm{total}$, which the rest of this subsection computes,
 taking the three primitives in turn.
@@ -371,7 +371,12 @@ $\kappa'$:
 \item $A_k(\pln{p})$, the CX gates on $q$ found by continuing past that
   stopping front, in simulated layer $k \le L_\mathrm{tp}$, discounted by
   $w_k = \max(w_\mathrm{min}, w_0\gamma^{k-1})$ with $w_0{=}0.9$,
-  $\gamma{=}0.9$, $w_\mathrm{min}{=}0.5$. These are prediction.
+  $\gamma{=}0.9$, $w_\mathrm{min}{=}0.5$. These are prediction. The depth
+  $L_\mathrm{tp}$ is counted in DAG layers; a companion cap
+  $N_\mathrm{tp}$ on the gate count cannot bind while
+  $N_\mathrm{tp}\ge L_\mathrm{tp}$, since a qubit contributes at most one
+  gate per layer (\appTables{}). $L_\mathrm{tp}$ is the one parameter
+  \PORTER{} does not fix by constant (Section~\ref{sec:horizon}).
 \end{itemize}
 Only here does the score split, into a certain part and a discounted one:
 $\mathrm{total} = \mathrm{direct} + \mathrm{lookahead}$, where
@@ -398,7 +403,7 @@ $c_t$, since those execute freely while the cat resource is live.
 Collection stops at the first unproductive layer or at the size cap. The
 window counts simulated layers rather than collected CXs, so it is a cost
 guard rather than a tuning knob, and because the simulation reaches past
-the current front a packet may contain gates a front-limited scan could
+the current front a packet may contain gates a front-only scan could
 not. One heuristic here is unablated: stopping at the first unproductive
 layer can miss a packet separated by harmless intervening work.
 

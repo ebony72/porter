@@ -1,35 +1,33 @@
 %% 00-abstract.tex --- included by ../sfc.tex
 \begin{abstract}
 A distributed quantum computer runs one circuit across several small cores
-joined by links that distribute entanglement on demand. Under the usual
-cost model the compiler's objective is to spend as few
-Einstein--Podolsky--Rosen (EPR) pairs as possible on gates that straddle
-cores. Existing routers choose among inter-core actions while
-simultaneously staging them, so an action's apparent value depends on the
-layout the compiler happens to occupy. We present \PORTER{}, a compiler
-that instead scores a complete inter-core \emph{plan} --- which primitive
-fires, which gates it resolves, and which readiness conditions it needs
---- before any preparation SWAP for it exists, commits to one, and only
-then prepares it. \PORTER{} supports \chg{the three inter-core primitives
-studied under this cost model}, including cat-entangler packets that amortise one pair over a
+joined by links that distribute entanglement on demand; under the usual
+cost model the compiler minimises the Einstein--Podolsky--Rosen (EPR)
+pairs spent on gates that straddle cores. Some existing routers fold into an inter-core action's score
+the preparation the current layout demands for it, so its apparent value
+depends on the layout the compiler happens to occupy. We present \PORTER{}, which instead
+ranks complete inter-core \emph{plans} --- which primitive fires, which
+gates it resolves, which readiness conditions it needs --- on the gate
+progress each buys, letting preparation cost only break ties, then commits
+to one and prepares it. It supports \chg{the three inter-core primitives studied under this
+cost model}, including cat-entangler packets that amortise one pair over a
 run of remote gates sharing a control, and adds capacity-aware relief, a
 deterministic initial layout, and a per-circuit choice of
 teleport-lookahead horizon. On MQT-Bench suites at 25, 64 and 80 logical
 qubits \PORTER{} uses $59.6\%$, $41.6\%$ and $68.2\%$ fewer EPR pairs in
 geometric mean than published \TeleSABRE{} at three routes each\chg{, over
-the instances both complete}, and completes all twenty-four instances where
-\TeleSABRE{} completes seventeen. Against \dSABRE{} it is competitive at the sizes both target
---- $1.02\times$ its pooled EPR at $0.91\times$ its compile time under
-each compiler's own protocol --- and pulls ahead as the machine grows,
-using $0.72\times$ its EPR pairs on a $100$--$360$-qubit scale-up series
-\chg{of QFT and QPEexact}.
-The two prove complementary rather than ranked: neither wins more than
-eleven of the twenty-four instances, and taking the better of the two per
-instance \chg{--- an oracle over both, costing both --- }uses $9.3\%$ fewer
-pairs than \dSABRE{} alone, so the designs reach different circuits rather
-than re-deriving each other.
-\chg{Controlled experiments assess relief, vocabulary, layout and
-horizon; the plan abstraction and commitment rule remain unisolated.}
+the instances both complete}, and completes all twenty-four instances to
+\TeleSABRE{}'s seventeen. Against \dSABRE{} it is competitive on those suites
+--- $1.02\times$ its pooled EPR at $0.91\times$ its compile time, each
+under its own protocol --- and pulls ahead as the machine grows, using
+$0.72\times$ its pairs on a $100$--$360$-qubit \chg{QFT and QPEexact}
+scale-up series.
+The two prove complementary rather than ranked, and taking the better of
+the two per instance uses $9.3\%$ fewer pairs than \dSABRE{} alone.
+\chg{Controlled experiments separate the contributions of capacity
+relief, the set of primitives, the initial layout and the horizon; relief
+earns its place on completion rather than cost, five of nine 80-qubit
+circuits failing outright without it.}
 The implementation, harness and raw results are public.
 \end{abstract}
 

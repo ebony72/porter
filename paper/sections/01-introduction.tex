@@ -27,10 +27,11 @@ becomes executable only after its own preparation --- the right operand
 beside the right communication port, that port free, the destination
 holding a spare slot --- and a compiler performs that work only for the
 alternative it selects. Scoring an action together with the preparation
-it currently needs therefore confuses two things: it ranks candidates by
-the layout the compiler happens to occupy rather than by the progress
-they buy, and staging a candidate that then loses still perturbs the
-layout.
+it currently needs confuses what remote work is worth doing with how far
+the layout is from doing it: candidates are ranked by the layout the
+compiler happens to occupy rather than by the progress they buy, and a
+router that reopens the choice mid-preparation can be left carrying SWAPs
+towards an action it abandons.
 
 \PORTER{} --- a \emph{Plan-Oriented Router for Teleportation-Enabled
 aRchitectures} --- separates the two questions. Its unit of choice is a
@@ -55,7 +56,7 @@ among them an 80-qubit, $23{,}381$-CX circuit.
 
 The second comparison is with \dSABRE{}~\cite{lidsabre}, concurrent work
 on the same problem and the closest point of reference we have. \PORTER{}
-is competitive at the sizes both target, spending $1.02\times$ its pooled
+is competitive on the three benchmark suites, spending $1.02\times$ its pooled
 EPR for $0.91\times$ its compile time under each compiler's own protocol,
 and pulls ahead as the machine grows: on the scale-up series it uses
 $0.72\times$ \dSABRE{}'s pairs and wins every instance.

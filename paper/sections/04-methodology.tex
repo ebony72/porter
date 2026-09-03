@@ -45,8 +45,7 @@ them here and use no synonyms.
   routes per layout.
 \item A \textbf{protocol} is a layout source, a route budget and a
   selection rule; Table~\ref{tab:budgets} names the ones used in the
-  main results. We avoid ``attempt'', which the baselines use for both
-  meanings.
+  main results. 
 \item A \textbf{candidate horizon} is one value of $L_\mathrm{tp}$ offered
   to horizon selection; selecting among them costs one route each.
 \item \textbf{Complete compile cost} is the wall-clock time of an entire
@@ -62,8 +61,8 @@ positions); a front CX is \emph{local}, \emph{adjacent-remote} or
 does so in one of four ways, distinguished throughout: a capacity
 \emph{deadlock} leaves no legal plan and no relief path, and raises a
 diagnostic; a \emph{livelock} makes local progress indefinitely while
-retired gates and EPR count stand still, and is stopped by the iteration
-guard; a \emph{timeout} exceeds the wall-clock cap; and an
+retired gates and EPR count stand still, and is stopped by the
+no-progress guard; a \emph{timeout} exceeds the wall-clock cap; and an
 \emph{infeasible input} is one the machine has no spare capacity for,
 refused before routing begins (Section~\ref{sec:sfc-progress}).
 
@@ -78,17 +77,7 @@ generator, so one route on a fixed circuit and hardware emits a
 byte-identical stream across runs. Horizon selection is the exception,
 its speculative routes sharing a wall-clock budget, so the protocol is
 reproducible only up to that budget and the horizon each run selected is
-recorded with its result. \chg{One instance sits close enough to that
-boundary to cross it. Each speculative candidate gets
-$\max(5, \lceil 4\,t_\mathrm{first}\rceil)$ seconds, derived from the
-first route's own wall time; on 360-qubit QPEexact its first route takes
-$3.5$\,s for a share of $14$\,s, and the $L_\mathrm{tp}{=}128$ route, which
-reaches $1{,}224$ pairs, takes $14.4$--$14.9$\,s across our runs. The instance therefore returns either
-$1{,}224$ or the configured horizon's $2{,}342$ depending on the machine,
-and note the share widens as the machine slows. We report the selected
-result and flag the instance rather than raising the factor, which would
-change every selected route in the paper; the released
-\texttt{probe\_horizon\_budget.py} measures all three quantities.} Every reported \PORTER{} route is certified by
+recorded with its result. Every reported \PORTER{} route is certified by
 a replay verifier written separately from the router, which re-derives
 gate coverage, dependency order and physical legality from the emitted
 stream alone and is itself tested by fault injection
@@ -182,8 +171,8 @@ other's own layout, which closes the remaining cell of the design.
 Section~\ref{sec:sfc} defines one routing pass. We evaluate two protocols
 built on it. \PORTER{} routes its own layout once at each of three
 candidate lookahead horizons --- $L_\mathrm{tp}\in\{4,8,16\}$ for a
-circuit whose interaction graph is near all-to-all and $\{8,16,128\}$
-otherwise, a choice of set made by the single density coefficient $\rho$
+circuit whose interaction density $\rho$ reaches $0.80$ and
+$\{8,16,128\}$ otherwise, $\rho$ being the single coefficient defined
 below --- and keeps the lowest-EPR result; \PORTER{}+R refines backward
 from that selected route. Both are
 deterministic and both keep the best result by EPR, so neither can return
@@ -207,7 +196,13 @@ logical qubits appearing in at least one CX, of the distinct partners
 each shares a CX with anywhere in the circuit, divided by $n-1$: one
 scalar summarising the whole circuit, not a per-qubit or horizon-limited
 quantity. So $\rho\to1$ is all-to-all and a linear CX chain gives
-$\rho\approx2/(n-1)$. Near $\rho{=}1$ a long
+$\rho\approx2/(n-1)$. \chg{It is measured on the transpiled benchmark
+rather than the textbook algorithm, and the two can differ sharply:
+optimisation level 3 drops the controlled-phase rotations whose angle
+underflows its tolerance, which leaves QFT between $30$ and $37$ partners
+per qubit at every width above $25$, so its $\rho$ falls from $0.92$ at
+$25$ qubits to $0.10$ at $360$. A circuit family need not stay on one
+side of the threshold as it scales.} Near $\rho{=}1$ a long
 horizon finds the moving qubit wanted in every core at once, the gain
 estimate degenerates into noise, and short horizons win; where $\rho$ is
 small the signal is coherent and long horizons win. It is not a usable

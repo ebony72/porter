@@ -2789,10 +2789,18 @@ Nothing in it is read by the verifiers; released numbers are untouched.
     A guard at 1,000 iterations is 59x above healthy, 5x below stuck, and
     classifies all 96 correctly: it **never fired** on 10 healthy routes
     (streams byte-identical) and abandoned 6 frozen routes in **4-73 s instead
-    of 300 s**. Being an iteration count it is **machine-independent**, so it
-    also removes the reason IV-C must disclose that 360q QPEexact and 200q QFT
-    flip with machine load, and it catches star/Multiplier deterministically
-    instead of burning `max_iterations`.
+    of 300 s**. Being an iteration count it is **machine-independent**, so
+    *abandonment* is now reproducible, and it catches star/Multiplier
+    deterministically instead of burning `max_iterations`.
+    **CORRECTION (same day): it does NOT fix the speculative wall-clock
+    share.** An earlier note here claimed it removed the reason IV-C discloses
+    the load-dependent 360q QPEexact / 200q QFT results. It does not: those are
+    *healthy* routes racing their time share (both complete with a
+    no-retirement gap of 12-13), so the guard never fires on them. It shortens
+    360q QPEexact's protocol time 32.6 -> 20.3 s only by abandoning that
+    instance's frozen L=8 candidate, and the share for L=128 is derived from
+    the FIRST route, so the 1,224-vs-2,342 flip is untouched. Making the
+    *budget* deterministic is still open.
     - **SHIPPED (2026-09-03): `RouterConfig.max_iterations_without_progress`
     = 1_000.** `compile()` tracks a watermark on `len(state.dag_active)` (which
     only shrinks) and raises `RuntimeError('Router retired no gate in N
@@ -2822,6 +2830,20 @@ Nothing in it is read by the verifiers; released numbers are untouched.
     away from its future partners.** This explains the floor result and both
     earlier refutations: the gate budget and the slow decay each discard the
     distant penalties.
+- **Backward refinement at a FIXED horizon (measured 2026-09-02, recovered from
+  a session that could not commit).** `+R` with `selection=False`, 5 passes, the
+  isolation of what refinement contributes without horizon selection under it:
+  main-24 gmean **171.4**, heavy-hex ring **82.3** (9), star **89.8** (8 of 9 --
+  star/Multiplier fails), scale-up **773.4** (5 of 6 -- 360q QPEexact exceeds
+  the 900 s per-pass guard). Read against dSABRE (171.9 / 85.2 / 101.1 / 705.7)
+  refinement alone **leads below ~108 physical qubits** (ring 82.3 vs 85.2) and
+  **collapses above 150** (773.4 vs selection's 507.7). Data:
+  `paper/horizon_sweep/refine_fixed_horizon_{main,rest}.json`.
+  This is the fixed-horizon `+R`, NOT the shipped one (which selects the horizon
+  on pass 1); do not quote it against `tab:protocols`.
+- `paper/horizon_sweep/gate_budget_sweep.json` is the refuted per-qubit gate
+  budget (`teleport_lookahead_cx_count` k in {16..64} at `dag_extended_max_layers`
+  512), the evidence base `horizon_open_question.md` cites as `phase2.json`.
 - Grid was routed from a snapshot carrying the **uncommitted three-term
   selection key**; the shipped schedule was re-run as the control arm, so all
   comparisons are same-key. vs the old-key sweep, 24/271 fixed-horizon cells

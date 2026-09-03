@@ -619,7 +619,6 @@ _cfg = _porter.RouterConfig()
 # Every parameter Section III quotes must equal the shipped default.
 for _attr, _want, _lbl in (
         ("min_free_before_teleport", 2, "f_min"),
-        ("dag_front_limit", 96, "front cap"),
         ("local_swap_extended_weight", 0.8, "lambda_loc"),
         ("local_swap_extended_cx_count", 20, "N_loc"),
         ("local_swap_extended_max_layers", 12, "L_loc"),
@@ -644,6 +643,33 @@ import inspect as _inspect
 for _fn in ("run_refinement_passes", "run_layout_search"):
     check(f"{_fn} selects a horizon", True,
           _inspect.signature(getattr(_cdr, _fn)).parameters["selection"].default)
+# IV-E: rho is measured on the TRANSPILED benchmark, so QFT is not all-to-all
+# above 25 qubits -- opt3 drops the controlled-phase rotations whose angle
+# underflows its tolerance.  Both quoted rho values and the partner range.
+from pathlib import Path as _Path
+_CIRC = _Path(BASE).parent / "other" / "telesabre" / "circuits"
+def _qft_stats(suite):
+    _f = sorted((_CIRC / f"qasm_{suite}").glob("qft_*.qasm"))[0]
+    _g, _n = _cdr.parse_qasm2(_f)
+    _part = {}
+    for _gate in _g:
+        if not _gate.is_cx():
+            continue
+        _a, _b = _gate.qubits
+        _part.setdefault(_a, set()).add(_b)
+        _part.setdefault(_b, set()).add(_a)
+    _mp = sum(len(v) for v in _part.values()) / len(_part)
+    return _mp, _mp / (_n - 1)
+if _CIRC.exists():
+    _mp25, _rho25 = _qft_stats("25")
+    _mp360, _rho360 = _qft_stats("360")
+    check("IV-E qft25 rho", 0.92, round(_rho25, 2))
+    check("IV-E qft360 rho", 0.10, round(_rho360, 2))
+    # "between 30 and 37 partners per qubit at every width above 25"
+    for _s in ("64", "80", "100", "200", "360"):
+        _mp, _ = _qft_stats(_s)
+        check(f"IV-E qft{_s} partners in [30,37]", True, 30 <= round(_mp) <= 37)
+
 # Architectures as described in Setup.
 for _name, _cores, _per, _links in (("A", 4, 9, 4), ("H", 6, 16, 7)):
     _, _hw = _cdr.hardware_for_name(_name)

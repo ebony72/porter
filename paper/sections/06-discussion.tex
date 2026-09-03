@@ -70,11 +70,20 @@ twenty-four instances here.
 The other three: a horizon that scales with the core count $K$ ---
 $L_\mathrm{tp}$ is an absolute gate count, so a plan at twenty cores is
 scored over proportionally less of the circuit than at four, and every
-scale-up instance picks the longest candidate offered; an out-of-sample
-validation of that selection rule, fitted on the corpus it is measured
-on; and a comparator that weighs a resolved gate against a latent
+scale-up instance picks the longest candidate offered; \chg{a circuit
+statistic that predicts the horizon rather than merely pruning it, since
+$\rho$ averages over every qubit and the whole circuit where the horizon
+acts on one moving qubit over a bounded depth --- a per-qubit or
+horizon-limited density is the obvious candidate and is untried, and
+without one the selection rule stays a portfolio fitted on the corpus it
+is measured on (Section~\ref{sec:horizon});} and a comparator that weighs a resolved gate against a latent
 distance reduction on one scale, which the vocabulary result indicates the
-present one does not.
+present one does not. \chg{The mismatch is confined to
+$\mathrm{total}$ itself: the selection key of
+Section~\ref{sec:sfc-scoring} no longer carries a separate discounted
+term, so a scale on which a resolved gate and a latent distance
+reduction are commensurable would have to come from the summation, not
+from a tie-break.}
 
 \textbf{Beyond EPR count.} The trace \PORTER{} emits is unscheduled, so a
 lower pair count does not by itself imply a shorter makespan or a

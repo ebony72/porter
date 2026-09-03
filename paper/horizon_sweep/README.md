@@ -19,6 +19,12 @@ vault note `porter_adaptive_horizon_experiment_instructions.md`
 * `guard_validation.jsonl` -- the stall guard checked on all 48 instances under
   the shipped protocol (`hz_guard_validate.py`): op-stream SHA, EPR, SWAPs,
   depth, tie count and the selected horizon, guard off against guard on.
+* `gate_budget_sweep.json` -- the refuted per-qubit gate budget
+  (`teleport_lookahead_cx_count` k in {16..64} with `dag_extended_max_layers`
+  512); `paper/horizon_open_question.md` cites this as `phase2.json`.
+* `refine_fixed_horizon_{main,rest}.json` -- backward refinement at the FIXED
+  default horizon (`selection=False`, 5 passes), isolating what refinement
+  contributes without horizon selection beneath it.  Not the shipped `+R`.
 * `stall_gaps.json` -- longest run of router iterations retiring no gate, for
   all 48 instances at L=16 and L=128; the basis for the stall-guard threshold.
 * `sweep_2026-09-01_*.json` -- the earlier sweep under the OLD six-term

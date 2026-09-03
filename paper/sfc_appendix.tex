@@ -744,8 +744,8 @@ $g_5$, whose partner $\logi{6}$ stays in $c_0$ --- but $c_1$ fails the
 $f_\mathrm{min}$ test, so it lands in $\mathcal{B}$; its gain
 ${\approx}2.1$ does not exceed the packet's $3.0$ by
 $m_\mathrm{assist}{=}5$, so no capacity relief pre-empts. Plans are
-ranked by gain first --- readiness is only a tie-break --- so the
-\emph{unready} packet (gain $3$) beats the \emph{ready} telegate for
+ranked by gain first --- preparation cost is only a tie-break --- so
+the \emph{unready} packet (gain $3$) beats the \emph{ready} telegate for
 $g_4$ (gain $1$). \PORTER{} commits the packet, generates its one
 preparation SWAP ($\logi{0}$ next to the port), then emits one
 cat-entangler, three cat-CXs (each target routed beside the port in
@@ -754,8 +754,9 @@ The packet's completion exposes $g_4$ and $g_5$ together; the
 locality-first stage drains the now-local $g_5$ first (one SWAP plus
 a local CX), and the remote stage then re-generates plans for $g_4$:
 the single telegate and \TeleData{}($\logi{5}\!\to\!c_0$) now tie at
-gain $1$, and the plan-kind tie-break (\TeleData{} $\succ$
-\TeleGate{}, Section~\ref{main-sec:sfc-scoring}) commits the teleport ---
+gain $1$, and the capacity tie-break --- negative for the \TeleData{},
+zero for the \TeleGate{} (Section~\ref{main-sec:sfc-scoring}) --- commits
+the teleport ---
 $\logi{5}$ lands on $c_0$'s port and $g_4$ finishes as a local CX.
 Two EPR pairs for the whole fragment. This is not a stylised
 trace: it is exactly the operation stream the implementation emits
@@ -887,7 +888,6 @@ Max packet size (remote CX)        & --                      & 8 \\
 TeleData lookahead max layers      & $L_\mathrm{tp}$         & $\{4,8,16\}$ or $\{8,16,128\}$\rlap{$^\dagger$} \\
 TeleData lookahead max CX          & $N_\mathrm{tp}$         & 50\rlap{$^\ddagger$} \\
 Lookahead weight / decay / floor   & $w_0,\gamma,w_\mathrm{min}$ & 0.9, 0.9, 0.5 \\
-DAG front cap (gates)              & --                      & 96 \\
 \bottomrule
 \end{tabular}%
 }
