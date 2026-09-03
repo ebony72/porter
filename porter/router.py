@@ -319,10 +319,7 @@ class PorterRouter:
             if front_info.local_cx_need_swap:
                 local_actions = self._generate_local_swap_actions(state, front_info)
                 if local_actions:
-                    if self.cfg.local_per_core_parallel:
-                        self._apply_local_swaps_per_core(local_actions, state)
-                    else:
-                        self._apply_action(self._choose_best_action(local_actions, state, 'local_swap'), state)
+                    self._apply_action(self._choose_best_action(local_actions, state, 'local_swap'), state)
                     layout_dirty = True
                     continue
 
@@ -337,20 +334,6 @@ class PorterRouter:
 
         self._sync_remaining(state)
         raise RuntimeError('Router exceeded max_iterations; possible oscillation or deadlock')
-
-    def _apply_local_swaps_per_core(self, actions: List[Action], state: RouterState) -> None:
-        """Apply the best SWAP of every active core, as dSABRE does.
-
-        Candidates in distinct cores act on disjoint physical qubits and their
-        scores were computed against their own core alone, so applying one
-        core's choice leaves every other core's score valid -- the moves
-        commute and need no re-scoring.
-        """
-        by_core: Dict[CoreId, List[Action]] = {}
-        for action in actions:
-            by_core.setdefault(action.metadata.get("core", -1), []).append(action)
-        for core in sorted(by_core):
-            self._apply_action(self._choose_best_action(by_core[core], state, 'local_swap'), state)
 
     @staticmethod
     def _validate_circuit(gates: List[Gate], num_logical: int) -> None:
@@ -723,17 +706,12 @@ class PorterRouter:
                 layout.logical_to_core[v1] = self.hw.phys_to_core[p1]
 
     def _generate_local_swap_actions(self, state: RouterState, info: FrontInfo) -> List[Action]:
+        actions: List[Action] = []
         front_gates = [g for g in info.local_cx_need_swap if g.is_cx()]
         if not front_gates:
             return []
-        if self.cfg.local_score_per_core or self.cfg.local_per_core_parallel:
-            return self._generate_local_swap_actions_per_core(state, front_gates)
 
-        actions: List[Action] = []
-        extended = self._local_swap_extended_local_cx_gates(state, state.layout, set(g.gid for g in front_gates))
-        extended_gates = [g for g, _d in extended]
-        # decay == 1.0 keeps the original unweighted average, bit for bit.
-        decay = float(self.cfg.local_ext_decay)
+        extended_gates = self._local_swap_extended_local_cx_gates(state, state.layout, set(g.gid for g in front_gates))
         front_phys: Set[PhysicalQubit] = set()
         for g in front_gates:
             for q in g.qubits:
@@ -758,10 +736,7 @@ class PorterRouter:
                 p1,
                 lambda sim: (
                     self._local_cx_distance_average(front_gates, sim),
-                    self._local_cx_distance_average(extended_gates, sim)
-                    if decay == 1.0
-                    else self._local_cx_weighted_distance_sum(extended, sim, decay)
-                    / max(len(extended_gates), 1),
+                    self._local_cx_distance_average(extended_gates, sim),
                 ),
             )
             local_sabre_score = after_front + self.cfg.local_swap_extended_weight * after_extended
@@ -782,123 +757,12 @@ class PorterRouter:
             )
         return self._dedupe_actions(actions)
 
-    def _generate_local_swap_actions_per_core(
-        self, state: RouterState, front_gates: List[Gate]
-    ) -> List[Action]:
-        """dSABRE's intra-core SWAP scoring: one independent problem per core.
-
-        Core `c`'s candidates are scored on ``dH_f/|F_c| + w_e * dH_e/|E_c|``
-        with the sums, the normalisers and the extended set all restricted to
-        `c`, and each extended gate discounted by ``local_ext_decay ** depth``.
-        A SWAP inside `c` cannot change any distance outside it, so restricting
-        the sums drops only constant terms -- what actually changes is the
-        normalisers, which no longer count gates the candidate cannot move.
-
-        Scores are deltas rather than post-swap averages so that the tie
-        tolerance applies to the same quantity dSABRE compares.  Actions carry
-        their core in ``metadata['core']`` for the parallel applier.
-        """
-        layout = state.layout
-        decay = float(self.cfg.local_ext_decay)
-        w_e = self.cfg.local_swap_extended_weight
-
-        by_core: Dict[CoreId, List[Gate]] = {}
-        for g in front_gates:
-            by_core.setdefault(layout.core_of(g.qubits[0]), []).append(g)
-
-        extended = self._local_swap_extended_local_cx_gates(state, layout, set(g.gid for g in front_gates))
-        ext_by_core: Dict[CoreId, List[Tuple[Gate, int]]] = {}
-        for g, depth in extended:
-            ext_by_core.setdefault(layout.core_of(g.qubits[0]), []).append((g, depth))
-
-        actions: List[Action] = []
-        for core in sorted(by_core):
-            local_front = by_core[core]
-            local_ext = ext_by_core.get(core, [])
-            n_f = max(len(local_front), 1)
-            n_e = max(len(local_ext), 1)
-
-            before_front = self._local_cx_distance_sum(local_front, layout)
-            before_ext = self._local_cx_weighted_distance_sum(local_ext, layout, decay)
-
-            candidate_edges: Set[Edge] = set()
-            for g in local_front:
-                for q in g.qubits:
-                    p = layout.phys_of(q)
-                    for n in self.hw.local_neighbors(p):
-                        if self.hw.phys_to_core[n] == self.hw.phys_to_core[p]:
-                            candidate_edges.add(canonical_edge(p, n))
-
-            for edge in sorted(candidate_edges):
-                p0, p1 = edge
-                if self.hw.phys_to_core[p0] != self.hw.phys_to_core[p1]:
-                    continue
-                if layout.is_phys_free(p0) and layout.is_phys_free(p1):
-                    continue
-
-                after_front, after_ext = self._score_with_temp_swap(
-                    layout,
-                    p0,
-                    p1,
-                    lambda sim: (
-                        self._local_cx_distance_sum(local_front, sim),
-                        self._local_cx_weighted_distance_sum(local_ext, sim, decay),
-                    ),
-                )
-                delta_front = after_front - before_front
-                score = delta_front / n_f + w_e * (after_ext - before_ext) / n_e
-
-                actions.append(
-                    Action(
-                        kind="local_swap",
-                        gate=local_front[0],
-                        swap=edge,
-                        metadata={
-                            "reason": "local_route",
-                            "local_sabre_score": score,
-                            "after_front_local_distance": delta_front / n_f,
-                            "core": core,
-                        },
-                    )
-                )
-        return self._dedupe_actions(actions)
-
-    def _local_cx_distance_sum(self, gates: List[Gate], layout: Layout) -> float:
-        """Total intra-core distance over `gates`, unnormalised."""
-        total = 0.0
-        for g in gates:
-            if not g.is_cx():
-                continue
-            q0, q1 = g.qubits
-            c = layout.core_of(q0)
-            if c != layout.core_of(q1):
-                continue
-            d = self.hw.local_distance(c, layout.phys_of(q0), layout.phys_of(q1))
-            total += 100.0 if math.isinf(d) else float(d)
-        return total
-
-    def _local_cx_weighted_distance_sum(
-        self, gates: List[Tuple[Gate, int]], layout: Layout, decay: float
-    ) -> float:
-        """`_local_cx_distance_sum` with each gate discounted by decay**depth."""
-        total = 0.0
-        for g, depth in gates:
-            if not g.is_cx():
-                continue
-            q0, q1 = g.qubits
-            c = layout.core_of(q0)
-            if c != layout.core_of(q1):
-                continue
-            d = self.hw.local_distance(c, layout.phys_of(q0), layout.phys_of(q1))
-            total += (decay ** depth) * (100.0 if math.isinf(d) else float(d))
-        return total
-
     def _local_swap_extended_local_cx_gates(
         self,
         state: RouterState,
         layout: Layout,
         exclude_gate_ids: Optional[Set[GateId]] = None,
-    ) -> List[Tuple[Gate, int]]:
+    ) -> List[Gate]:
         exclude_gate_ids = exclude_gate_ids or set()
         max_cx = int(getattr(self.cfg, "local_swap_extended_cx_count", 20))
         max_layers = int(getattr(self.cfg, "local_swap_extended_max_layers", 8))
@@ -911,7 +775,7 @@ class PorterRouter:
             state.dag_predecessor_count,
             frontier=state.dag_frontier,
         )
-        out: List[Tuple[Gate, int]] = []
+        out: List[Gate] = []
         seen: Set[GateId] = set()
 
         for layer in range(max_layers):
@@ -927,10 +791,7 @@ class PorterRouter:
                         continue
                     q0, q1 = g.qubits
                     if layout.core_of(q0) == layout.core_of(q1):
-                        # `layer` is the gate's DAG distance past the front,
-                        # matching dSABRE's dep(g): the first admitted layer
-                        # is 1.  Unused unless local_ext_decay != 1.0.
-                        out.append((g, layer))
+                        out.append(g)
                         seen.add(gid)
                         if len(out) >= max_cx:
                             break

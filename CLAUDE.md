@@ -3108,10 +3108,18 @@ SABRE-style recently-used-qubit decay): dSABRE applies the best SWAP of
 scores against core `c`'s own front and its own slice of `E`, normalised by
 those counts, where PORTER sums and normalises chip-wide; and it discounts an
 extended gate by `decay^depth` where PORTER weights the local set flat.  Each
-is now a `RouterConfig` flag defaulting to PORTER's choice ---
+was implemented as a `RouterConfig` flag defaulting to PORTER's choice ---
 `local_per_core_parallel`, `local_score_per_core`, `local_ext_decay` --- and
-all three defaults leave the shipped stream **byte-identical** (SHA256 +
+all three defaults left the shipped stream **byte-identical** (SHA256 +
 `seeded_tie_break_count`, 6 circuits).
+
+**The flags are REVERTED (author's call): PORTER's local stage stands as it
+was, with no ablation knob for it.** They exist only in commit `3dee83e`;
+`git checkout 3dee83e -- porter/` to re-run `ablate_local.py`. The two probes
+instrument the shipped router and still run against HEAD. After the revert the
+same six stream SHAs reproduce and 60/60 fuzz passes, so `porter/` is
+bit-for-bit its pre-experiment self --- do NOT re-add the knobs to "keep the
+ablation runnable".
 
 **ANSWER: it does not help.** Under the shipped best-of-4-horizon protocol,
 all 48 completing, the faithful full port is **+1.3%** EPR (17W/20L/11T) and

@@ -19,10 +19,17 @@ complete set.
 | score scope | core `c`'s own front and its own slice of `E`, normalised by those counts | every local CX on the chip, normalised by the chip-wide counts |
 | extended weighting | `decay^depth`, decay $=0.9$ | flat |
 
-Each is a `RouterConfig` flag, defaulting to PORTER's choice:
-`local_per_core_parallel`, `local_score_per_core`, `local_ext_decay`.
-All three defaults leave the shipped op stream byte-identical (SHA256 over the
-serialized stream plus `seeded_tie_break_count`, 6 circuits).
+Each was implemented as a `RouterConfig` flag defaulting to PORTER's choice:
+`local_per_core_parallel`, `local_score_per_core`, `local_ext_decay`. All three
+defaults left the shipped op stream byte-identical (SHA256 over the serialized
+stream plus `seeded_tie_break_count`, 6 circuits).
+
+> **The flags are REVERTED.** The measurement below refuted them, so
+> `porter/` keeps its own local stage with no ablation knob for it. The three
+> flags and the per-core scorer live only in commit `3dee83e`; to re-run
+> `ablate_local.py` check that commit out (`git checkout 3dee83e -- porter/`),
+> or cherry-pick it. `probe_cores.py` and `probe_ext.py` only instrument the
+> shipped router and still run against HEAD.
 
 ## Why the per-core *unit* has nothing to work with
 
@@ -110,5 +117,8 @@ already peels a bounded number of layers.
 
 ## Verification
 
-Default streams byte-identical on 6 circuits; 40/40 fuzz; fault injection
-100 caught; both paper verifiers pass; released numbers reproduce.
+With the flags in place (`3dee83e`): default streams byte-identical on 6
+circuits, 40/40 fuzz, fault injection 100 caught, both paper verifiers pass,
+released numbers reproduce. After the revert the same six SHAs reproduce and
+40/40 fuzz passes, so `porter/` is bit-for-bit what it was before the
+experiment.
