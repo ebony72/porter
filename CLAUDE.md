@@ -2793,7 +2793,23 @@ Nothing in it is read by the verifiers; released numbers are untouched.
     also removes the reason IV-C must disclose that 360q QPEexact and 200q QFT
     flip with machine load, and it catches star/Multiplier deterministically
     instead of burning `max_iterations`.
-  - **(Q5) you cannot cut earlier -- and the deep term is a PENALTY.** At L=128
+    - **SHIPPED (2026-09-03): `RouterConfig.max_iterations_without_progress`
+    = 1_000.** `compile()` tracks a watermark on `len(state.dag_active)` (which
+    only shrinks) and raises `RuntimeError('Router retired no gate in N
+    iterations; abandoning as stalled')` once that many iterations pass with no
+    gate retired. **Validated on all 48 instances under the shipped protocol**
+    (`paper/horizon_sweep/hz_guard_validate.py` ->
+    `guard_validation.jsonl`): op-stream SHA, EPR, SWAPs, depth,
+    `seeded_tie_break_count` AND the selected horizon are **identical 48/48**,
+    and the same 13 candidate horizons are abandoned during selection either
+    way -- so it changes only how long a doomed route runs. Protocol wall time
+    over the 48 falls **509.8 s -> 323.1 s (1.58x)**, concentrated in
+    80q Random (236 -> 71 s), 360q QPEexact (33 -> 20 s) and star/Multiplier
+    (14.5 -> 4.7 s). 60/60 fuzz, both paper verifiers pass, and the
+    single-pass stream is byte-identical on 25q AE, 64q AE/QFT/Multiplier and
+    80q QPEexact. **Do not raise the limit without re-deriving the separation**
+    -- it rests on max healthy gap 17 vs min stuck gap 5,084.
+- **(Q5) you cannot cut earlier -- and the deep term is a PENALTY.** At L=128
     on scale-up, layers 65-128 carry **53%** of the total |gain| and 90% is only
     reached at **layer 108** (95% at 117, 99% at 126). Truncating at 64 discards
     half the signal. Why: **every core graph in the corpus is bipartite**

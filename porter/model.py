@@ -213,6 +213,14 @@ class RouterConfig:
     seeded_tie_break_enabled: bool = True
     tie_score_epsilon: float = 1e-9
     max_iterations: int = 200_000
+    # Abandon a route that has stopped retiring gates.  Measured over 96 routes
+    # (48 instances x L in {16,128}): every route that completes has a longest
+    # no-retirement run of at most 17 iterations, and every route that does not
+    # complete exceeds 5,084 -- a 299x separation with nothing in between.  So a
+    # limit of 1,000 sits 59x above healthy behaviour and 5x below every observed
+    # stall.  Being an iteration count rather than a wall-clock share, it
+    # abandons a stalled route reproducibly.  0 disables the guard.
+    max_iterations_without_progress: int = 1_000
     # Hard bound on preparation SWAPs applied while committing one remote
     # plan.  The decision-state cycle check includes the RNG state, so an
     # oscillating trajectory that consumes randomness on every round would

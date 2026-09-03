@@ -275,11 +275,30 @@ class PorterRouter:
         front_dirty = True
         layout_dirty = True
 
+        # Stall guard: `dag_active` only shrinks, so a run of iterations that
+        # never shrinks it is a router doing work that retires no gate.
+        stall_limit = int(getattr(self.cfg, "max_iterations_without_progress", 0) or 0)
+        active_watermark = len(state.dag_active)
+        stalled_iterations = 0
+
         for _ in range(self.cfg.max_iterations):
             if not state.dag_active:
                 self._sync_remaining(state)
                 self._finalize_depth_stats(state)
                 return state
+
+            if stall_limit:
+                active_now = len(state.dag_active)
+                if active_now < active_watermark:
+                    active_watermark = active_now
+                    stalled_iterations = 0
+                else:
+                    stalled_iterations += 1
+                    if stalled_iterations > stall_limit:
+                        self._sync_remaining(state)
+                        raise RuntimeError(
+                            f'Router retired no gate in {stall_limit} iterations; '
+                            'abandoning as stalled')
 
             if front_dirty:
                 front = self._current_dag_front(state)

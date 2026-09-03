@@ -16,6 +16,9 @@ vault note `porter_adaptive_horizon_experiment_instructions.md`
   livelock.
 * `timeout_reruns.jsonl` -- seven timed-out cells re-run at a 900 s guard with a
   progress trace on the single gate-retirement point.
+* `guard_validation.jsonl` -- the stall guard checked on all 48 instances under
+  the shipped protocol (`hz_guard_validate.py`): op-stream SHA, EPR, SWAPs,
+  depth, tie count and the selected horizon, guard off against guard on.
 * `stall_gaps.json` -- longest run of router iterations retiring no gate, for
   all 48 instances at L=16 and L=128; the basis for the stall-guard threshold.
 * `sweep_2026-09-01_*.json` -- the earlier sweep under the OLD six-term
