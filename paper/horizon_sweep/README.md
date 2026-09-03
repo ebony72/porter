@@ -4,14 +4,20 @@ Data behind `paper/horizon_open_question.md`'s sweep and the evaluation of the
 vault note `porter_adaptive_horizon_experiment_instructions.md`
 (evaluation: vault `porter_adaptive_horizon_experiment_evaluation.md`).
 
-* `horizon_grid.jsonl` / `horizon_grid.csv` -- 2,256 single forward passes
+* `horizon_grid.jsonl` / `horizon_grid.csv` -- 3,120 single forward passes
   (`selection=False`, PORTER's own deterministic layout, 300 s SIGALRM guard,
   every completed route replay-verified): all 48 instances x
-  {4,8,16,32,64,128} x seven lookahead weight schedules, plus {48,256} for the
+  {4,8,16,32,64,128} x ten lookahead weight schedules, plus {48,256} for the
   shipped one and {256} for the slow-decay ones.  Schedules are (w_min, gamma):
   `base` (0.5, 0.9) = shipped, `floor0` (0, 0.9), `floor25` (0.25, 0.9),
   `flat` (0.9, 0.9) = no decay, `slow95` (0, 0.95), `slow97` (0, 0.97),
-  `slow99` (0, 0.99).  `status` is completed / timeout / livelock.
+  `slow99` (0, 0.99), and a gamma sweep at the shipped floor `g85` (0.5, 0.85),
+  `g95` (0.5, 0.95), `g99` (0.5, 0.99).  `status` is completed / timeout /
+  livelock.
+* `timeout_reruns.jsonl` -- seven timed-out cells re-run at a 900 s guard with a
+  progress trace on the single gate-retirement point.
+* `stall_gaps.json` -- longest run of router iterations retiring no gate, for
+  all 48 instances at L=16 and L=128; the basis for the stall-guard threshold.
 * `sweep_2026-09-01_*.json` -- the earlier sweep under the OLD six-term
   selection key (348 routes).  24 of 271 jointly completed cells differ from
   the `base` arm; 3 at the 3-route protocol.

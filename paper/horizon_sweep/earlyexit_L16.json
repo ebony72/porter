@@ -1,0 +1,378 @@
+[
+ {
+  "key": "main/25/ae",
+  "calls": 546,
+  "cap": 9,
+  "dag": 2,
+  "budget": 534,
+  "deepest": 16
+ },
+ {
+  "key": "main/25/ghz",
+  "calls": 10,
+  "cap": 0,
+  "dag": 9,
+  "budget": 1,
+  "deepest": 1
+ },
+ {
+  "key": "main/25/graphstate",
+  "calls": 56,
+  "cap": 0,
+  "dag": 56,
+  "budget": 0,
+  "deepest": 0
+ },
+ {
+  "key": "main/25/qft",
+  "calls": 742,
+  "cap": 2,
+  "dag": 183,
+  "budget": 557,
+  "deepest": 16
+ },
+ {
+  "key": "main/25/qnn",
+  "calls": 1052,
+  "cap": 0,
+  "dag": 5,
+  "budget": 1047,
+  "deepest": 15
+ },
+ {
+  "key": "main/25/random",
+  "calls": 3112,
+  "cap": 2,
+  "dag": 3,
+  "budget": 3097,
+  "deepest": 16
+ },
+ {
+  "key": "main/64/ae",
+  "calls": 2425,
+  "cap": 13,
+  "dag": 3,
+  "budget": 2263,
+  "deepest": 16
+ },
+ {
+  "key": "main/64/ghz",
+  "calls": 14,
+  "cap": 0,
+  "dag": 3,
+  "budget": 11,
+  "deepest": 1
+ },
+ {
+  "key": "main/64/graphstate",
+  "calls": 330,
+  "cap": 0,
+  "dag": 330,
+  "budget": 0,
+  "deepest": 0
+ },
+ {
+  "key": "main/64/qft",
+  "calls": 3830,
+  "cap": 6,
+  "dag": 184,
+  "budget": 3636,
+  "deepest": 16
+ },
+ {
+  "key": "main/64/qnn_OLD_DEEP",
+  "calls": 11395,
+  "cap": 0,
+  "dag": 5,
+  "budget": 11390,
+  "deepest": 16
+ },
+ {
+  "key": "main/64/random",
+  "calls": 11264,
+  "cap": 12,
+  "dag": 36,
+  "budget": 11121,
+  "deepest": 16
+ },
+ {
+  "key": "main/64/qpeexact",
+  "calls": 3018,
+  "cap": 35,
+  "dag": 2,
+  "budget": 2660,
+  "deepest": 16
+ },
+ {
+  "key": "main/64/qaoa",
+  "calls": 13335,
+  "cap": 40,
+  "dag": 2,
+  "budget": 13244,
+  "deepest": 16
+ },
+ {
+  "key": "main/64/multiplier",
+  "calls": 8816,
+  "cap": 0,
+  "dag": 6,
+  "budget": 8588,
+  "deepest": 16
+ },
+ {
+  "key": "main/80/ae",
+  "calls": 4965,
+  "cap": 13,
+  "dag": 3,
+  "budget": 4342,
+  "deepest": 16
+ },
+ {
+  "key": "main/80/ghz",
+  "calls": 16,
+  "cap": 0,
+  "dag": 3,
+  "budget": 13,
+  "deepest": 1
+ },
+ {
+  "key": "main/80/graphstate",
+  "calls": 780,
+  "cap": 0,
+  "dag": 780,
+  "budget": 0,
+  "deepest": 0
+ },
+ {
+  "key": "main/80/qft",
+  "calls": 4307,
+  "cap": 18,
+  "dag": 1,
+  "budget": 3626,
+  "deepest": 16
+ },
+ {
+  "key": "main/80/qnn_DEEP",
+  "calls": 23834,
+  "cap": 0,
+  "dag": 4,
+  "budget": 23830,
+  "deepest": 16
+ },
+ {
+  "key": "main/80/random",
+  "calls": 216910,
+  "cap": 11,
+  "dag": 10,
+  "budget": 216829,
+  "deepest": 16
+ },
+ {
+  "key": "main/80/qpeexact",
+  "calls": 5229,
+  "cap": 18,
+  "dag": 24,
+  "budget": 4655,
+  "deepest": 16
+ },
+ {
+  "key": "main/80/qaoa",
+  "calls": 19728,
+  "cap": 18,
+  "dag": 4,
+  "budget": 19678,
+  "deepest": 16
+ },
+ {
+  "key": "main/80/multiplier",
+  "calls": 21277,
+  "cap": 4,
+  "dag": 6,
+  "budget": 20085,
+  "deepest": 16
+ },
+ {
+  "key": "scaleup/100/qft",
+  "calls": 5242,
+  "cap": 65,
+  "dag": 2,
+  "budget": 3744,
+  "deepest": 16
+ },
+ {
+  "key": "scaleup/100/qpeexact",
+  "calls": 5530,
+  "cap": 87,
+  "dag": 2,
+  "budget": 4016,
+  "deepest": 16
+ },
+ {
+  "key": "scaleup/200/qft",
+  "calls": 16852,
+  "cap": 169,
+  "dag": 1,
+  "budget": 13004,
+  "deepest": 16
+ },
+ {
+  "key": "scaleup/200/qpeexact",
+  "calls": 19450,
+  "cap": 111,
+  "dag": 4,
+  "budget": 12851,
+  "deepest": 16
+ },
+ {
+  "key": "scaleup/360/qft",
+  "calls": 38956,
+  "cap": 342,
+  "dag": 2,
+  "budget": 25960,
+  "deepest": 16
+ },
+ {
+  "key": "scaleup/360/qpeexact",
+  "calls": 29488,
+  "cap": 174,
+  "dag": 1,
+  "budget": 20091,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/ring/ae",
+  "calls": 2158,
+  "cap": 69,
+  "dag": 2,
+  "budget": 1357,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/ring/ghz",
+  "calls": 4,
+  "cap": 0,
+  "dag": 3,
+  "budget": 1,
+  "deepest": 0
+ },
+ {
+  "key": "heavyhex/ring/graphstate",
+  "calls": 156,
+  "cap": 0,
+  "dag": 156,
+  "budget": 0,
+  "deepest": 0
+ },
+ {
+  "key": "heavyhex/ring/qft",
+  "calls": 3356,
+  "cap": 2,
+  "dag": 1192,
+  "budget": 2142,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/ring/qnn",
+  "calls": 4642,
+  "cap": 0,
+  "dag": 1,
+  "budget": 4641,
+  "deepest": 15
+ },
+ {
+  "key": "heavyhex/ring/random",
+  "calls": 7656,
+  "cap": 0,
+  "dag": 46,
+  "budget": 7610,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/ring/qpeexact",
+  "calls": 2158,
+  "cap": 69,
+  "dag": 2,
+  "budget": 1499,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/ring/qaoa",
+  "calls": 4890,
+  "cap": 22,
+  "dag": 2,
+  "budget": 4802,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/ring/multiplier",
+  "calls": 5182,
+  "cap": 0,
+  "dag": 1,
+  "budget": 4803,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/star/ae",
+  "calls": 1230,
+  "cap": 15,
+  "dag": 2,
+  "budget": 1132,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/star/ghz",
+  "calls": 6,
+  "cap": 0,
+  "dag": 5,
+  "budget": 1,
+  "deepest": 1
+ },
+ {
+  "key": "heavyhex/star/graphstate",
+  "calls": 180,
+  "cap": 0,
+  "dag": 180,
+  "budget": 0,
+  "deepest": 0
+ },
+ {
+  "key": "heavyhex/star/qft",
+  "calls": 4370,
+  "cap": 18,
+  "dag": 429,
+  "budget": 3743,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/star/qnn",
+  "calls": 7520,
+  "cap": 0,
+  "dag": 5,
+  "budget": 7515,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/star/random",
+  "calls": 9354,
+  "cap": 34,
+  "dag": 14,
+  "budget": 9039,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/star/qpeexact",
+  "calls": 1372,
+  "cap": 12,
+  "dag": 2,
+  "budget": 1326,
+  "deepest": 16
+ },
+ {
+  "key": "heavyhex/star/qaoa",
+  "calls": 7852,
+  "cap": 11,
+  "dag": 3,
+  "budget": 7832,
+  "deepest": 16
+ }
+]

@@ -1,0 +1,758 @@
+[
+ {
+  "key": "main/25/ae",
+  "L": 16,
+  "status": "completed",
+  "epr": 65,
+  "iters": 1329,
+  "worst_gap": 5
+ },
+ {
+  "key": "main/25/ghz",
+  "L": 16,
+  "status": "completed",
+  "epr": 4,
+  "iters": 47,
+  "worst_gap": 4
+ },
+ {
+  "key": "main/25/graphstate",
+  "L": 16,
+  "status": "completed",
+  "epr": 7,
+  "iters": 86,
+  "worst_gap": 5
+ },
+ {
+  "key": "main/25/qft",
+  "L": 16,
+  "status": "completed",
+  "epr": 74,
+  "iters": 1380,
+  "worst_gap": 6
+ },
+ {
+  "key": "main/25/qnn",
+  "L": 16,
+  "status": "completed",
+  "epr": 119,
+  "iters": 2441,
+  "worst_gap": 5
+ },
+ {
+  "key": "main/25/random",
+  "L": 16,
+  "status": "completed",
+  "epr": 393,
+  "iters": 3619,
+  "worst_gap": 5
+ },
+ {
+  "key": "main/64/ae",
+  "L": 16,
+  "status": "completed",
+  "epr": 177,
+  "iters": 4936,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/64/ghz",
+  "L": 16,
+  "status": "completed",
+  "epr": 6,
+  "iters": 134,
+  "worst_gap": 6
+ },
+ {
+  "key": "main/64/graphstate",
+  "L": 16,
+  "status": "completed",
+  "epr": 20,
+  "iters": 233,
+  "worst_gap": 8
+ },
+ {
+  "key": "main/64/qft",
+  "L": 16,
+  "status": "completed",
+  "epr": 262,
+  "iters": 4749,
+  "worst_gap": 8
+ },
+ {
+  "key": "main/64/qnn_OLD_DEEP",
+  "L": 16,
+  "status": "completed",
+  "epr": 864,
+  "iters": 15771,
+  "worst_gap": 8
+ },
+ {
+  "key": "main/64/random",
+  "L": 16,
+  "status": "completed",
+  "epr": 737,
+  "iters": 5438,
+  "worst_gap": 9
+ },
+ {
+  "key": "main/64/qpeexact",
+  "L": 16,
+  "status": "completed",
+  "epr": 222,
+  "iters": 4886,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/64/qaoa",
+  "L": 16,
+  "status": "completed",
+  "epr": 854,
+  "iters": 7747,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/64/multiplier",
+  "L": 16,
+  "status": "completed",
+  "epr": 1358,
+  "iters": 35194,
+  "worst_gap": 9
+ },
+ {
+  "key": "main/80/ae",
+  "L": 16,
+  "status": "completed",
+  "epr": 490,
+  "iters": 5143,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/80/ghz",
+  "L": 16,
+  "status": "completed",
+  "epr": 7,
+  "iters": 170,
+  "worst_gap": 6
+ },
+ {
+  "key": "main/80/graphstate",
+  "L": 16,
+  "status": "completed",
+  "epr": 28,
+  "iters": 300,
+  "worst_gap": 11
+ },
+ {
+  "key": "main/80/qft",
+  "L": 16,
+  "status": "completed",
+  "epr": 446,
+  "iters": 5561,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/80/qnn_DEEP",
+  "L": 16,
+  "status": "completed",
+  "epr": 1517,
+  "iters": 24348,
+  "worst_gap": 8
+ },
+ {
+  "key": "main/80/random",
+  "L": 16,
+  "status": "completed",
+  "epr": 11040,
+  "iters": 73584,
+  "worst_gap": 11
+ },
+ {
+  "key": "main/80/qpeexact",
+  "L": 16,
+  "status": "completed",
+  "epr": 526,
+  "iters": 5182,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/80/qaoa",
+  "L": 16,
+  "status": "completed",
+  "epr": 1122,
+  "iters": 12779,
+  "worst_gap": 10
+ },
+ {
+  "key": "main/80/multiplier",
+  "L": 16,
+  "status": "completed",
+  "epr": 3501,
+  "iters": 54481,
+  "worst_gap": 8
+ },
+ {
+  "key": "scaleup/100/qft",
+  "L": 16,
+  "status": "completed",
+  "epr": 446,
+  "iters": 7808,
+  "worst_gap": 8
+ },
+ {
+  "key": "scaleup/100/qpeexact",
+  "L": 16,
+  "status": "completed",
+  "epr": 262,
+  "iters": 8650,
+  "worst_gap": 8
+ },
+ {
+  "key": "scaleup/200/qft",
+  "L": 16,
+  "status": "completed",
+  "epr": 1131,
+  "iters": 15625,
+  "worst_gap": 9
+ },
+ {
+  "key": "scaleup/200/qpeexact",
+  "L": 16,
+  "status": "completed",
+  "epr": 1343,
+  "iters": 15805,
+  "worst_gap": 10
+ },
+ {
+  "key": "scaleup/360/qft",
+  "L": 16,
+  "status": "completed",
+  "epr": 2720,
+  "iters": 28156,
+  "worst_gap": 14
+ },
+ {
+  "key": "scaleup/360/qpeexact",
+  "L": 16,
+  "status": "completed",
+  "epr": 2342,
+  "iters": 27254,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/ring/ae",
+  "L": 16,
+  "status": "completed",
+  "epr": 116,
+  "iters": 6191,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/ring/ghz",
+  "L": 16,
+  "status": "completed",
+  "epr": 2,
+  "iters": 254,
+  "worst_gap": 10
+ },
+ {
+  "key": "heavyhex/ring/graphstate",
+  "L": 16,
+  "status": "completed",
+  "epr": 12,
+  "iters": 364,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/ring/qft",
+  "L": 16,
+  "status": "completed",
+  "epr": 141,
+  "iters": 5868,
+  "worst_gap": 13
+ },
+ {
+  "key": "heavyhex/ring/qnn",
+  "L": 16,
+  "status": "completed",
+  "epr": 240,
+  "iters": 20079,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/ring/random",
+  "L": 16,
+  "status": "completed",
+  "epr": 506,
+  "iters": 7001,
+  "worst_gap": 14
+ },
+ {
+  "key": "heavyhex/ring/qpeexact",
+  "L": 16,
+  "status": "completed",
+  "epr": 116,
+  "iters": 6448,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/ring/qaoa",
+  "L": 16,
+  "status": "completed",
+  "epr": 248,
+  "iters": 11204,
+  "worst_gap": 13
+ },
+ {
+  "key": "heavyhex/ring/multiplier",
+  "L": 16,
+  "status": "completed",
+  "epr": 506,
+  "iters": 39079,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/star/ae",
+  "L": 16,
+  "status": "completed",
+  "epr": 161,
+  "iters": 5001,
+  "worst_gap": 13
+ },
+ {
+  "key": "heavyhex/star/ghz",
+  "L": 16,
+  "status": "completed",
+  "epr": 3,
+  "iters": 255,
+  "worst_gap": 10
+ },
+ {
+  "key": "heavyhex/star/graphstate",
+  "L": 16,
+  "status": "completed",
+  "epr": 16,
+  "iters": 374,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/star/qft",
+  "L": 16,
+  "status": "completed",
+  "epr": 124,
+  "iters": 5565,
+  "worst_gap": 16
+ },
+ {
+  "key": "heavyhex/star/qnn",
+  "L": 16,
+  "status": "completed",
+  "epr": 535,
+  "iters": 19347,
+  "worst_gap": 13
+ },
+ {
+  "key": "heavyhex/star/random",
+  "L": 16,
+  "status": "completed",
+  "epr": 609,
+  "iters": 6266,
+  "worst_gap": 15
+ },
+ {
+  "key": "heavyhex/star/qpeexact",
+  "L": 16,
+  "status": "completed",
+  "epr": 162,
+  "iters": 4938,
+  "worst_gap": 10
+ },
+ {
+  "key": "heavyhex/star/qaoa",
+  "L": 16,
+  "status": "completed",
+  "epr": 473,
+  "iters": 10093,
+  "worst_gap": 13
+ },
+ {
+  "key": "heavyhex/star/multiplier",
+  "L": 16,
+  "status": "RuntimeError",
+  "iters": 200000,
+  "worst_gap": 165762
+ },
+ {
+  "key": "main/25/ae",
+  "L": 128,
+  "status": "completed",
+  "epr": 90,
+  "iters": 1095,
+  "worst_gap": 5
+ },
+ {
+  "key": "main/25/ghz",
+  "L": 128,
+  "status": "completed",
+  "epr": 4,
+  "iters": 47,
+  "worst_gap": 4
+ },
+ {
+  "key": "main/25/graphstate",
+  "L": 128,
+  "status": "completed",
+  "epr": 7,
+  "iters": 86,
+  "worst_gap": 5
+ },
+ {
+  "key": "main/25/qft",
+  "L": 128,
+  "status": "completed",
+  "epr": 119,
+  "iters": 827,
+  "worst_gap": 4
+ },
+ {
+  "key": "main/25/qnn",
+  "L": 128,
+  "status": "completed",
+  "epr": 244,
+  "iters": 2129,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/25/random",
+  "L": 128,
+  "status": "completed",
+  "epr": 508,
+  "iters": 3257,
+  "worst_gap": 6
+ },
+ {
+  "key": "main/64/ae",
+  "L": 128,
+  "status": "completed",
+  "epr": 157,
+  "iters": 4468,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/64/ghz",
+  "L": 128,
+  "status": "completed",
+  "epr": 6,
+  "iters": 134,
+  "worst_gap": 6
+ },
+ {
+  "key": "main/64/graphstate",
+  "L": 128,
+  "status": "completed",
+  "epr": 20,
+  "iters": 233,
+  "worst_gap": 8
+ },
+ {
+  "key": "main/64/qft",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 25863,
+  "worst_gap": 24604
+ },
+ {
+  "key": "main/64/qnn_OLD_DEEP",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 10303,
+  "worst_gap": 7149
+ },
+ {
+  "key": "main/64/random",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 7108,
+  "worst_gap": 6095
+ },
+ {
+  "key": "main/64/qpeexact",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 18859,
+  "worst_gap": 16653
+ },
+ {
+  "key": "main/64/qaoa",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 16476,
+  "worst_gap": 14901
+ },
+ {
+  "key": "main/64/multiplier",
+  "L": 128,
+  "status": "completed",
+  "epr": 1076,
+  "iters": 34437,
+  "worst_gap": 6
+ },
+ {
+  "key": "main/80/ae",
+  "L": 128,
+  "status": "completed",
+  "epr": 299,
+  "iters": 5511,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/80/ghz",
+  "L": 128,
+  "status": "completed",
+  "epr": 7,
+  "iters": 170,
+  "worst_gap": 6
+ },
+ {
+  "key": "main/80/graphstate",
+  "L": 128,
+  "status": "completed",
+  "epr": 28,
+  "iters": 300,
+  "worst_gap": 11
+ },
+ {
+  "key": "main/80/qft",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 24935,
+  "worst_gap": 22008
+ },
+ {
+  "key": "main/80/qnn_DEEP",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 11789,
+  "worst_gap": 7480
+ },
+ {
+  "key": "main/80/random",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 7405,
+  "worst_gap": 6072
+ },
+ {
+  "key": "main/80/qpeexact",
+  "L": 128,
+  "status": "completed",
+  "epr": 291,
+  "iters": 5213,
+  "worst_gap": 7
+ },
+ {
+  "key": "main/80/qaoa",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 7074,
+  "worst_gap": 5084
+ },
+ {
+  "key": "main/80/multiplier",
+  "L": 128,
+  "status": "completed",
+  "epr": 2486,
+  "iters": 53278,
+  "worst_gap": 9
+ },
+ {
+  "key": "scaleup/100/qft",
+  "L": 128,
+  "status": "completed",
+  "epr": 198,
+  "iters": 7578,
+  "worst_gap": 9
+ },
+ {
+  "key": "scaleup/100/qpeexact",
+  "L": 128,
+  "status": "completed",
+  "epr": 200,
+  "iters": 7827,
+  "worst_gap": 8
+ },
+ {
+  "key": "scaleup/200/qft",
+  "L": 128,
+  "status": "completed",
+  "epr": 579,
+  "iters": 16028,
+  "worst_gap": 10
+ },
+ {
+  "key": "scaleup/200/qpeexact",
+  "L": 128,
+  "status": "completed",
+  "epr": 528,
+  "iters": 16276,
+  "worst_gap": 11
+ },
+ {
+  "key": "scaleup/360/qft",
+  "L": 128,
+  "status": "completed",
+  "epr": 1170,
+  "iters": 28800,
+  "worst_gap": 13
+ },
+ {
+  "key": "scaleup/360/qpeexact",
+  "L": 128,
+  "status": "completed",
+  "epr": 1224,
+  "iters": 29168,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/ring/ae",
+  "L": 128,
+  "status": "completed",
+  "epr": 69,
+  "iters": 5431,
+  "worst_gap": 11
+ },
+ {
+  "key": "heavyhex/ring/ghz",
+  "L": 128,
+  "status": "completed",
+  "epr": 2,
+  "iters": 254,
+  "worst_gap": 10
+ },
+ {
+  "key": "heavyhex/ring/graphstate",
+  "L": 128,
+  "status": "completed",
+  "epr": 12,
+  "iters": 364,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/ring/qft",
+  "L": 128,
+  "status": "completed",
+  "epr": 109,
+  "iters": 5348,
+  "worst_gap": 14
+ },
+ {
+  "key": "heavyhex/ring/qnn",
+  "L": 128,
+  "status": "completed",
+  "epr": 289,
+  "iters": 19992,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/ring/random",
+  "L": 128,
+  "status": "completed",
+  "epr": 556,
+  "iters": 6212,
+  "worst_gap": 14
+ },
+ {
+  "key": "heavyhex/ring/qpeexact",
+  "L": 128,
+  "status": "completed",
+  "epr": 105,
+  "iters": 6120,
+  "worst_gap": 13
+ },
+ {
+  "key": "heavyhex/ring/qaoa",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 12696,
+  "worst_gap": 8252
+ },
+ {
+  "key": "heavyhex/ring/multiplier",
+  "L": 128,
+  "status": "completed",
+  "epr": 573,
+  "iters": 38348,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/star/ae",
+  "L": 128,
+  "status": "completed",
+  "epr": 190,
+  "iters": 4917,
+  "worst_gap": 17
+ },
+ {
+  "key": "heavyhex/star/ghz",
+  "L": 128,
+  "status": "completed",
+  "epr": 3,
+  "iters": 255,
+  "worst_gap": 10
+ },
+ {
+  "key": "heavyhex/star/graphstate",
+  "L": 128,
+  "status": "completed",
+  "epr": 16,
+  "iters": 374,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/star/qft",
+  "L": 128,
+  "status": "completed",
+  "epr": 117,
+  "iters": 5340,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/star/qnn",
+  "L": 128,
+  "status": "completed",
+  "epr": 318,
+  "iters": 19957,
+  "worst_gap": 14
+ },
+ {
+  "key": "heavyhex/star/random",
+  "L": 128,
+  "status": "completed",
+  "epr": 578,
+  "iters": 6018,
+  "worst_gap": 13
+ },
+ {
+  "key": "heavyhex/star/qpeexact",
+  "L": 128,
+  "status": "completed",
+  "epr": 240,
+  "iters": 5076,
+  "worst_gap": 12
+ },
+ {
+  "key": "heavyhex/star/qaoa",
+  "L": 128,
+  "status": "HorizonTimeout",
+  "iters": 9811,
+  "worst_gap": 7339
+ },
+ {
+  "key": "heavyhex/star/multiplier",
+  "L": 128,
+  "status": "completed",
+  "epr": 455,
+  "iters": 38603,
+  "worst_gap": 12
+ }
+]

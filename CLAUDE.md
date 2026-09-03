@@ -2740,6 +2740,72 @@ Nothing in it is read by the verifiers; released numbers are untouched.
     budget needs redesigning, not scaling, and compile time would go from
     0.91x dSABRE to ~1.8x. Interaction with +R untested.
   - Search: `paper/horizon_sweep/hz_joint.py` -> `report_single_set.md`.
+- **Five questions settled before the portfolio decision (2026-09-03).** Probes
+  released as `paper/horizon_sweep/hz_probe.py`, `hz_timeout.py`, `hz_stall.py`;
+  reports `report_mechanism.md`, `report_earlyexit.md`, `report_gamma.md`,
+  `report_timeout.md`, `report_stall.md`.
+  - **(Q1) III-D's plan tuple under-determines 15.6% of plans.** Instrumented:
+    7,710 plans -> only 6,507 distinct `(pi, G(p), dir, c_src, c_dst, Pi(p))`
+    keys; **1,203 collisions, all TeleData**. Cause: `G(p)` is EMPTY for a
+    TeleData, so the tuple names no gate, and `dir` is defined relative to the
+    seed gate it therefore does not identify -- two teleports moving different
+    qubits between the same core pair are identical tuples. Also **`dir` is
+    never read** (write-only metadata) and **`Pi(p)` is a function of
+    (c_src,c_dst)** since `Core.ports` has one port per neighbour. Suggested
+    tuple: `(pi, g, G(p), q_move, c_src, c_dst, mode)` = `plan_id()`; `mode`
+    matters because `router.py` branches on it in three places.
+  - **(Q2) gamma is a weak knob; keep 0.90.** At the shipped floor gamma only
+    sets WHERE the floor bites (layer 5/7/14/59 for 0.85/0.90/0.95/0.99).
+    3 arms x 288 cells: vs 0.90 the 3-route rule gives **+0.8% / +2.8% / +2.7%**
+    for 0.85/0.95/0.99 and the horizon oracle **-0.1% / +2.4% / +2.9%**. No
+    setting beats 0.90; only 0.85 ties it (13W/13L). **An order of magnitude
+    weaker than the floor** (3.4% max vs 62%). Sign flips with horizon: at L=16
+    faster decay wins monotonically (401.6/415.8/426.3/429.0), at L=128 0.90 is
+    best. 0.95 helps only completion at L=128 (30/38 vs 27/38). At L=4 three
+    arms give IDENTICAL gmeans -- ranking is insensitive to the weight profile
+    at shallow horizons.
+  - **(Q3) exact early exit exists but prunes little; the cost is the walk.**
+    A route that never stops on the LAYER BUDGET proves every deeper horizon is
+    byte-identical (`cap` and `dag`, the other two stop reasons, cannot be
+    relieved by a larger L). Fires on **all 5 graphstate instances (0%
+    budget-bound)** and nothing else; **GHZ is not caught** (10-25%
+    budget-bound though horizon-invariant), so it is sound but not complete.
+    Corpus median 88% budget-bound. **The collector is 68% of route time at
+    L=128.** Two wins: (i) the inner loop's `sorted(dag.frontier)` is
+    unnecessary -- a qubit has at most one frontier gate, so the sort cannot
+    change what is found; dropping it is **1.09x, byte-identical on 7
+    instances**; (ii) 12-14 walks run per decision and **48% re-walk a qubit
+    already walked in that decision**, so within-decision sharing caps at
+    ~1.5x, ~1.6x combined (untested).
+  - **(Q4) timeouts are FROZEN routes, not slow ones.** 7 timed-out cells
+    re-run at 900s (3x): **7/7 froze, 0 completed**. Gate retirement stops after
+    a median of **6 s** and the router spins for the remaining ~99% of the
+    guard with EPR/SWAPs still climbing. More time never helps, so the grid's
+    timeout cells are genuine failures.
+  - **(Q4 consequence) a DETERMINISTIC stall guard.** Over **all 96 routes**
+    (48 instances x L=16,128) the longest run of iterations retiring no gate is
+    **max 17 (median 10) on the 84 that complete** and **min 5,084 (max
+    165,762) on the 12 that do not** -- a **299x gap with nothing in between**.
+    A guard at 1,000 iterations is 59x above healthy, 5x below stuck, and
+    classifies all 96 correctly: it **never fired** on 10 healthy routes
+    (streams byte-identical) and abandoned 6 frozen routes in **4-73 s instead
+    of 300 s**. Being an iteration count it is **machine-independent**, so it
+    also removes the reason IV-C must disclose that 360q QPEexact and 200q QFT
+    flip with machine load, and it catches star/Multiplier deterministically
+    instead of burning `max_iterations`.
+  - **(Q5) you cannot cut earlier -- and the deep term is a PENALTY.** At L=128
+    on scale-up, layers 65-128 carry **53%** of the total |gain| and 90% is only
+    reached at **layer 108** (95% at 117, 99% at 126). Truncating at 64 discards
+    half the signal. Why: **every core graph in the corpus is bipartite**
+    (grids, the 4-cycle ring, the star tree), so for adjacent src/dst the two
+    distances differ in parity and **|Delta| = 1 on 100% of collected gates**
+    (verified on 4 instances). Past layer 7 the lookahead term is therefore
+    exactly `0.5 * (#closer - #farther)`, a signed count -- and at scale it is
+    overwhelmingly negative (100q QFT: 10,605 closer vs 60,548 farther; 80q
+    QPEexact 21,442 vs 70,263). **Deep lookahead discourages moving a qubit
+    away from its future partners.** This explains the floor result and both
+    earlier refutations: the gate budget and the slow decay each discard the
+    distant penalties.
 - Grid was routed from a snapshot carrying the **uncommitted three-term
   selection key**; the shipped schedule was re-run as the control arm, so all
   comparisons are same-key. vs the old-key sweep, 24/271 fixed-horizon cells
