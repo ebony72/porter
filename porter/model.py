@@ -125,6 +125,10 @@ class RouterState:
     # Bounds how many of a qubit's gates a lookahead walk can still find, so
     # the walk can stop instead of peeling layers that cannot yield anything.
     active_cx_by_qubit: Dict[LogicalQubit, int] = field(default_factory=dict)
+    # Cores each logical qubit has occupied since the last gate retirement,
+    # for RouterConfig.teleport_revisit_block.  Cleared on every retirement,
+    # so it is empty except during a no-progress episode.
+    teleport_visits: Dict[LogicalQubit, Set[CoreId]] = field(default_factory=dict)
     gate_by_id: Dict[GateId, Gate] = field(default_factory=dict)
     dag_edge_count: int = 0
 
@@ -179,6 +183,58 @@ class RouterConfig:
     teleport_latent_direct_weight: float = 1.0
     teleport_lookahead_decay: float = 0.9
     teleport_lookahead_weight_floor: float = 0.5
+
+    # Scaling of the teleport lookahead term relative to the realised
+    # (direct) gain it is added to.
+    #
+    # The lookahead term is a SUM over the gates the walk collects, and the
+    # walk collects up to min(dag_extended_max_layers,
+    # teleport_lookahead_cx_count) of them, while the direct term counts only
+    # front and latent-direct gates and does not grow with the horizon.  Every
+    # core graph in this evaluation is bipartite, so each collected gate
+    # contributes +-w(layer); past the weight floor the term is therefore a
+    # signed count, and its magnitude grows roughly linearly in the horizon.
+    # Deepening the horizon consequently does two things at once: it samples
+    # more of the future, and it silently re-weights the objective away from
+    # retiring gates now.  `mean` and `sqrt` separate those, dividing the sum
+    # by the total weight it accumulated (or its square root) so the horizon
+    # controls only how much future is sampled; `coefficient` then sets the
+    # weight explicitly.
+    #
+    # `sum` with coefficient 1.0 is the shipped scorer and leaves the emitted
+    # op stream byte-identical.
+    teleport_lookahead_scaling: str = "sum"          # sum | mean | sqrt
+    teleport_lookahead_coefficient: float = 1.0
+
+    # Progress rule for the remote stage.
+    #
+    # Every non-completing route observed in this evaluation is the same
+    # cycle: one logical qubit teleports back and forth between two cores
+    # while no gate retires.  It is driven by the lookahead term being
+    # antisymmetric under reversing a move -- whichever core the qubit sits
+    # on, the other scores better -- so an intervening preparation SWAP is
+    # enough to make each side prefer the other indefinitely.
+    #
+    # With this flag a teleport plan is dropped when it would return its
+    # moving qubit to a core that qubit has already occupied since the last
+    # gate retirement.  The record is cleared whenever a gate retires, so it
+    # constrains only the no-progress episode it is trying to end, and the
+    # filter is skipped entirely if it would leave no plan at all, so it can
+    # never turn an available action into a deadlock.  Between two
+    # retirements each qubit may then enter each core at most once, which
+    # bounds the remote stage's no-progress work by num_logical * num_cores
+    # teleports.
+    #
+    # Default False: the shipped op stream is unaffected.
+    teleport_revisit_block: bool = False
+    # With the soft rule above, a filter that would leave no plan at all is
+    # skipped, so the shuttle can resume once every candidate is blocked.
+    # Strict mode keeps the empty set instead: the remote stage falls through
+    # to capacity relief and, failing that, raises the ordinary deadlock
+    # error.  That makes the no-progress teleport budget a hard bound
+    # (num_logical * num_cores) at the cost of turning a state the soft rule
+    # would have muddled through into an explicit failure.
+    teleport_revisit_block_strict: bool = False
 
     # Capacity constraints and recovery.
     #

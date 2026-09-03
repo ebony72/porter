@@ -263,6 +263,12 @@ class PorterRouter:
         """Route ``circuit`` from ``initial_layout`` and return the final state."""
         self._rng = random.Random(self.cfg.random_seed)
         state = RouterState(layout=initial_layout.clone(), remaining=assign_gate_ids(circuit))
+        if self.cfg.teleport_lookahead_scaling not in ("sum", "mean", "sqrt"):
+            raise ValueError(
+                f"unknown teleport_lookahead_scaling "
+                f"{self.cfg.teleport_lookahead_scaling!r} "
+                "(expected 'sum', 'mean' or 'sqrt')"
+            )
         self._validate_tie_break_config()
         self._validate_circuit(state.remaining, initial_layout.num_logical)
         if self.cfg.repair_full_cores:
@@ -288,14 +294,15 @@ class PorterRouter:
                 self._finalize_depth_stats(state)
                 return state
 
-            if stall_limit:
+            if stall_limit or self.cfg.teleport_revisit_block:
                 active_now = len(state.dag_active)
                 if active_now < active_watermark:
                     active_watermark = active_now
                     stalled_iterations = 0
+                    state.teleport_visits.clear()
                 else:
                     stalled_iterations += 1
-                    if stalled_iterations > stall_limit:
+                    if stall_limit and stalled_iterations > stall_limit:
                         self._sync_remaining(state)
                         raise RuntimeError(
                             f'Router retired no gate in {stall_limit} iterations; '
@@ -823,6 +830,7 @@ class PorterRouter:
     def _execute_plan_first_remote_stage(self, state: RouterState, info: FrontInfo) -> Optional[bool]:
         min_free = self.cfg.min_free_before_teleport
         normal_plans = self._generate_remote_plans(state, info, min_free)
+        normal_plans = self._filter_revisiting_teleports(normal_plans, state)
         blocked_plans = self._generate_blocked_teleport_plans(state, info, min_free)
 
         normal_plan, normal_scores = self._select_ready_or_preparable_remote_plan(
@@ -889,6 +897,27 @@ class PorterRouter:
             min_free,
             prep_stage='capacity_relief_bfs_prep',
         )
+
+    def _filter_revisiting_teleports(
+        self, plans: List[RemotePlan], state: RouterState
+    ) -> List[RemotePlan]:
+        """Drop teleports that would return a qubit to a core it has already
+        occupied since the last gate retirement (RouterConfig.
+        teleport_revisit_block).  Skipped when it would empty the plan set, so
+        the filter can remove choices but never the last one."""
+        if not self.cfg.teleport_revisit_block or not state.teleport_visits:
+            return plans
+        kept = [
+            p for p in plans
+            if not (
+                p.kind == "teleport"
+                and p.moving_qubit is not None
+                and p.dst_core in state.teleport_visits.get(p.moving_qubit, ())
+            )
+        ]
+        if kept or self.cfg.teleport_revisit_block_strict:
+            return kept
+        return plans
 
     def _commit_remote_plan(
         self,
@@ -1460,6 +1489,7 @@ class PorterRouter:
         direct_gain = front_direct_gain + latent_weight * latent_direct_gain
 
         lookahead_gain = 0.0
+        weight_total = 0.0
         initial_weight = float(getattr(self.cfg, "teleport_lookahead_weight", 0.9))
         decay = float(getattr(self.cfg, "teleport_lookahead_decay", 0.9))
         weight_floor = float(getattr(self.cfg, "teleport_lookahead_weight_floor", 0.5))
@@ -1467,6 +1497,19 @@ class PorterRouter:
             decay_power = max(0, int(layer) - 1)
             layer_weight = max(weight_floor, initial_weight * (decay ** decay_power))
             lookahead_gain += layer_weight * delta(g)
+            weight_total += layer_weight
+        # `sum` leaves the term a signed count whose magnitude grows with the
+        # horizon; `mean` and `sqrt` divide out that growth so the horizon sets
+        # only how much of the future is sampled.  See RouterConfig.
+        scaling = getattr(self.cfg, "teleport_lookahead_scaling", "sum")
+        if scaling != "sum" and weight_total > 0.0:
+            if scaling == "mean":
+                lookahead_gain /= weight_total
+            elif scaling == "sqrt":
+                lookahead_gain /= math.sqrt(weight_total)
+        coefficient = float(getattr(self.cfg, "teleport_lookahead_coefficient", 1.0))
+        if coefficient != 1.0:
+            lookahead_gain *= coefficient
         return direct_gain, lookahead_gain
 
     def _collect_teleport_direct_latent_and_lookahead(
@@ -2242,6 +2285,10 @@ class PorterRouter:
             )
             state.stats.epr += 1
             state.stats.teleport_count += 1
+            if self.cfg.teleport_revisit_block:
+                seen = state.teleport_visits.setdefault(q, set())
+                seen.add(action.src_core)
+                seen.add(action.dst_core)
             plan_mode = action.metadata.get("plan_mode", "")
             if plan_mode == "capacity_relief_bfs":
                 # Tail relief: no normal plan existed at all, so a fresh BFS

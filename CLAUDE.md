@@ -3164,3 +3164,121 @@ basis: **1.03x**; under the protocol 608 s vs 611 s. dSABRE's per-core
 traversal is a real saving *in dSABRE*, whose intra-core stage is `Theta(N_r)`
 per call; PORTER's local stage is only 9-33% of route time and already peels a
 bounded number of layers.
+
+## The horizon sets sampling AND weight; that is both the depth question and the timeouts (2026-09-03)
+
+Full write-up and data: `paper/horizon_sweep/report_lookahead_scale.md`,
+`scale_cells.jsonl` (336 routes), `freeze_modes.jsonl` (all 32 failures
+classified), `revisit_cells.jsonl`, `domination.jsonl`, `depth_features.json`.
+Scripts: `hz_scale.py`, `hz_freeze.py`, `hz_revisit.py`, `hz_ratio.py`,
+`hz_depth.py`, `report_scale.py`.
+
+**`total = direct_gain + lookahead_gain` mixes two units.** `direct_gain`
+counts front/latent-direct gates, O(1). `lookahead_gain` is a SUM over up to
+`min(L, N_tp=50)` collected gates, each ±w(layer) with w floored at 0.5. So
+`dag_extended_max_layers` widens the view AND multiplies the future's weight.
+Measured mean |lookahead|/|direct|: **0.2-1.8 at L=16, 1.4-28.5 at L=128**;
+the lookahead reverses the direct-only ranking on 1.7-40% of decisions at
+L=16 and **33-99%** at L=128.
+
+- **The "53% of magnitude beyond layer 65" figure is not special to scale-up.**
+  The floor makes a layer-8 gate and a layer-128 gate count the same, so any
+  circuit whose walks reach deep carries most of its magnitude there. What
+  differs is whether the magnitude is information or pressure.
+
+**THERE IS NO RULE FOR WHEN TO GO DEEPER, and the search is now exhausted.**
+- Identical circuits pick different horizons on different machines (64q QFT:
+  L=16 on H, L=256 on both heavy-hex graphs), so no circuit-only feature can work.
+- Partner novelty is flat (~0.51) across every family -- refuted.
+- Best static signal is circuit ASAP depth (Spearman **+0.68** with deep-gain;
+  rho **-0.60**, K +0.04, diameter +0.04), but `L*/D` spans **420x**.
+- **No feature gate beats not gating**: exhaustive single-threshold search over
+  {depth, rho, CX, n, cx-depth, physical} in both directions reaches 373.3,
+  exactly the ungated `{16,128}` score. Held out: 373.3 / 378.5.
+- **Runtime features fail too**: domination ratio at L=16 vs deep-gain is
+  Spearman **+0.02** (flip rate -0.11, gates collected -0.41). A 7-instance
+  eyeball looked promising; on 38 it is noise.
+- **Nothing left to win**: shipped best-of-4 = 361.6, oracle over 8 horizons
+  = 350.4 -- a perfect predictor is worth **3.1%**.
+
+**Every timeout is one pathology.** All 32 non-completing cells classified:
+**28 teleport shuttles**, 2 local-SWAP cycles (ring/star Multiplier -- the
+known intra-core livelock, no teleport in the window), 2 other. All 28
+shuttles span **exactly 2 cores** with one qubit making >=99.5% of the
+teleports. 10 of 11 failures at L=128 and 14 of 14 at L=256.
+- Mechanism, traced on `main/64/qft`@128: period-3 cycle (local SWAP,
+  teleport, nothing retired) x 38,741. `q45 2->5` scores direct -1.0 /
+  lookahead **-11.16**; `q45 5->2` scores +1.0 / **+11.16**. The lookahead is
+  **exactly antisymmetric** under reversing a move -- same collected set, same
+  weights, and local SWAPs do not change any qubit's core. The remote stage
+  has **no null action**, so at core 2 where every plan is negative it takes
+  the least negative, which is the undo. From core 5 the return is positive
+  outright.
+- Independent confirmation from released data: failure rate is monotone in
+  horizon (**0% at L=4 -> 23% at 128 -> 29% at 256**) and by weight schedule
+  tracks lookahead MAGNITUDE, not circuit mix: `floor0` (true decay, sum
+  saturates) **1.0%** vs shipped `base` **8.3%**.
+- **`main/80/random`@64 is not a failure**: re-run it completes in 145 s. The
+  grid's 300 s wall-clock guard cut off a slow route. Wall clock cannot tell
+  slow from stuck -- which is why the iteration-based stall guard exists.
+- Portfolio margin: of 48 instances, 35 complete on all four shipped
+  candidates, 12 on three, and **80q Random on only two** (L=4, L=16).
+
+**Two default-off `RouterConfig` flags added; both leave the shipped stream
+byte-identical** (SHA256 + tie count + SWAPs + depth on 8 routes over 4
+horizons; 60/60 fuzz; both paper verifiers pass; released JSONs untouched).
+
+1. `teleport_lookahead_scaling` = `sum` (shipped) | `mean` | `sqrt`, with
+   `teleport_lookahead_coefficient`. Divides the sum by the weight it
+   accumulated (or its square root) so the horizon sets sampling only. Swept
+   all 48 x 7 horizons (`scale_cells.jsonl`, 336 routes, all replay-verified):
+   **non-completions 31 -> 5**, L=128 completions 27 -> 36, L=256 24 -> 37 --
+   but portfolio EPR **+2.8%** (17 better / 20 worse), main-24 175.0 -> 183.0,
+   scale-up 508.7 -> 518.0, ring 86.1 -> **84.2**. **A completion fix that
+   costs EPR, not an EPR win.** It does NOT flatten the horizon (best-of-2
+   395.3, best-of-4 371.6, best-of-7 356.8), so it buys no smaller portfolio,
+   and it adds one NEW failure (`scaleup/360/qft`@16). `mean` is too weak;
+   `sqrt` at coefficient 4-8 fails again -- 1-2 is the only stable region.
+2. `teleport_revisit_block` (+`_strict`): drop a teleport returning a qubit to
+   a core it has occupied since the last retirement; record clears on every
+   retirement, so between retirements each qubit enters each core at most once
+   (bound: `n x K` teleports). Rescues **19 of the 32** failing cells --
+   **18 of 28 shuttles**, 0 of 2 local-SWAP cycles (correctly: no teleport in
+   their windows). **The rescued routes are bad**: only **1 of 19** beats its
+   instance's shipped-protocol result (ring/qaoa@128 completes at 1015 against
+   a portfolio best of 244), so it buys completion, never EPR -- and since the
+   stall guard already abandons a failed candidate cheaply, it costs time.
+   The 13 it misses are the widest instances (7 of them 80q): `n x K` is up to
+   480 teleports at 80q and each costs several iterations, so the bound
+   exceeds the stall guard's 1,000-iteration window before it bites.
+   **Free on healthy routes: 47/47 instances routed at the configured horizon
+   emit a byte-identical op stream.** The strict variant (no soft fallback)
+   rescues one more of four probed and leaves ten controls byte-identical too.
+
+**REFINES A PAPER CLAIM.** Sec VI says the guarantee "needs a progress
+argument for the intra-core stage, not a stronger capacity transaction",
+citing star/Multiplier as "the one failure we observe". True of the
+configurations the paper reports -- but over the horizon grid the dominant
+failure is a **remote-stage shuttle, 28 cells to 2**. The remote stage has its
+own livelock; unlike the intra-core one it now has an identified cause
+(antisymmetric lookahead + forced move) and a bound.
+
+**Recommendation: change nothing in the shipped protocol.** The portfolio is
+within 3.1% of an eight-horizon oracle; the stall guard already makes a failed
+candidate cost a median 36.9 s; and both fixes buy completion at an EPR cost.
+Adopt the revisit block only if the completeness story is wanted for its own
+sake. Do NOT spend more routes on horizon search.
+
+**Waiter trap, second variant (hit again 2026-09-03).** The recorded fix for
+the self-matching waiter is the `[h]z_scale.py` bracket trick, and it works ---
+until the waiter *also contains the command it is waiting for*:
+
+```bash
+until ! ps aux | grep -q "[h]z_rev""isit.py"; do sleep 20; done
+python3 paper/horizon_sweep/hz_revisit.py --cells completed ...   # <- self-match
+```
+
+The second line puts the literal `hz_revisit.py` in the waiter's own command
+line, so the bracket trick on line 1 matches it and the loop never exits. It
+sat idle ~25 min. **Wait on a PID, not a pattern**:
+`while kill -0 <pid> 2>/dev/null; do sleep 30; done`.

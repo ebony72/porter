@@ -53,6 +53,26 @@ vault note `porter_adaptive_horizon_experiment_instructions.md`
   is what would replace the rho branch).
 * `hz_common.py`, `hz_run.py` -- loader and harness (runs against the repo
   root when no `snap/` directory is present).
+* `scale_cells.jsonl` -- the lookahead-scaling sweep (`hz_scale.py`): all 48
+  instances x 7 horizons under `teleport_lookahead_scaling="sqrt"`, every
+  completed route replay-verified.  The shipped `sum` arm to compare it
+  against is `horizon_grid.jsonl`'s `base`.
+* `freeze_modes.jsonl` -- every non-completing cell of that `base` arm re-run
+  with the stall guard on and traced (`hz_freeze.py`), classified as a
+  teleport shuttle, a local-SWAP cycle or neither.
+* `revisit_cells.jsonl`, `revisit_healthy16.jsonl` -- `hz_revisit.py` with and
+  without `teleport_revisit_block`, on the cells the shipped scorer fails and
+  on every instance at the configured horizon.  The second file carries op-
+  stream hashes, so it is the control for whether the flag perturbs a healthy
+  route.
+* `domination.jsonl` -- per-instance |lookahead| / |direct| over every scored
+  teleport candidate at L=16, plus how often the lookahead flips the winner
+  (`hz_ratio.py`).  Tested as a runtime predictor of whether a deeper horizon
+  pays; it is not one.
+* `depth_features.json` -- static DAG features per instance (`hz_depth.py`):
+  gates reachable and distinct partners seen within each horizon.
+* `report_scale.py`, `report_revisit.py` -- regenerate the tables in
+  `report_lookahead_scale.md`, which is the write-up for all of the above.
 
 Nothing here is read by `verify_paper_numbers.py`; the paper's released
 numbers are untouched.
