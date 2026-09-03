@@ -48,15 +48,15 @@ Suite & EPR & $t$ & EPR & $t$ & EPR & $t$ & EPR & $t$
       & \PORTER{} & $+$R \\
 \midrule
 \multicolumn{11}{@{}l}{\emph{(a)} over the circuits \emph{all four} complete} \\
-25q (6) & 106.6 & 0.51 & 45.8 & 0.23 & 43.1 & \textbf{0.11} & \textbf{38.8} & 0.26 & 42.0 & 38.8 \\
+25q (6) & 106.6 & 0.51 & 45.8 & 0.23 & 43.0 & \textbf{0.11} & \textbf{38.8} & 0.26 & 41.9 & 38.8 \\
 64q (8) & 284.5 & 11.89 & \textbf{144.6} & \textbf{1.77} & 166.2 & 1.98 & 156.1 & 4.00 & 140.5 & 140.5 \\
 80q (3) & 121.0 & 5.11 & 44.9 & \textbf{3.57} & 38.5 & 3.95 & \textbf{36.6} & 14.04 & 34.4 & 34.4 \\
 \midrule
 \multicolumn{11}{@{}l}{\emph{(b)} over \emph{every} circuit in the suite; \TeleSABRE{} omitted} \\
-25q (6) & --- & --- & 45.8 & 0.23 & 43.1 & \textbf{0.11} & \textbf{38.8} & 0.26 & 42.0 & 38.8 \\
+25q (6) & --- & --- & 45.8 & 0.23 & 43.0 & \textbf{0.11} & \textbf{38.8} & 0.26 & 41.9 & 38.8 \\
 64q (9) & --- & --- & \textbf{173.1} & \textbf{1.77} & 196.1 & 1.98 & 185.5 & 4.00 & 168.8 & 168.8 \\
-80q (9) & --- & --- & 412.1 & \textbf{3.57} & 396.7 & 3.95 & \textbf{372.9} & 14.04 & 345.1 & 340.4 \\
-all (24) & --- & --- & 171.9 & 1.38 & 174.9 & \textbf{1.25} & \textbf{163.0} & 3.22 & 155.9 & 152.1 \\
+80q (9) & --- & --- & 412.1 & \textbf{3.57} & 398.0 & 3.95 & \textbf{372.9} & 14.04 & 346.3 & 340.4 \\
+all (24) & --- & --- & 171.9 & 1.38 & 175.0 & \textbf{1.25} & \textbf{163.0} & 3.22 & 156.0 & 152.1 \\
 \midrule
 done    & \multicolumn{2}{c}{17 / 24} & \multicolumn{2}{c}{24 / 24}
         & \multicolumn{2}{c}{24 / 24} & \multicolumn{2}{c}{24 / 24}
@@ -92,7 +92,7 @@ is the basis since both complete everything. At three routes to \dSABRE{}'s
 nine, \PORTER{} takes the geometric mean at 25 qubits ($0.94\times$) and at
 80 ($0.96\times$) and trails at 64 ($196.1$ against $173.1$, $1.13\times$),
 winning ten instances, losing twelve and tying two; pooled it is within
-$2\%$, $174.9$ against $171.9$. Refinement takes the lead pooled ($163.0$)
+$2\%$, $175.0$ against $171.9$. Refinement takes the lead pooled ($163.0$)
 at seven routes and narrows 64 qubits to $1.07\times$, so the one suite
 \PORTER{} loses under its own protocol is also the one extra routes largely
 close. Its largest saving is 80q~Multiplier, $2{,}132$ against $4{,}841$;
@@ -125,13 +125,13 @@ geometric-mean EPR over all twenty-four instances.
 Initial layout & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
 \midrule
 \multicolumn{4}{@{}l}{\emph{(a)} all twenty-four instances} \\
-\dSABRE{}'s \texttt{SabreLayout}     & 171.9 & 175.2 & 158.5 \\
-\PORTER{}'s temporal locality-greedy & 171.2 & 174.9 & 163.0 \\
+\dSABRE{}'s \texttt{SabreLayout}     & 171.9 & 175.4 & 158.5 \\
+\PORTER{}'s temporal locality-greedy & 171.2 & 175.0 & 163.0 \\
 \texttt{pytket-dqc}'s partition      & \textbf{164.1} & \textbf{166.4} & \textbf{155.2} \\
 \midrule
 \multicolumn{4}{@{}l}{\emph{(b)} the eighteen excluding GHZ and Graphstate} \\
-\dSABRE{}'s \texttt{SabreLayout}     & \textbf{452.5} & 466.1 & \textbf{434.3} \\
-\PORTER{}'s temporal locality-greedy & 473.9 & \textbf{464.6} & 445.6 \\
+\dSABRE{}'s \texttt{SabreLayout}     & \textbf{452.5} & 466.6 & \textbf{434.3} \\
+\PORTER{}'s temporal locality-greedy & 473.9 & \textbf{464.9} & 445.6 \\
 \texttt{pytket-dqc}'s partition      & 501.1 & 506.7 & 467.3 \\
 \bottomrule
 \end{tabular}
@@ -144,7 +144,7 @@ layout only where it converges (Section~\ref{sec:rq1}).
 
 \textbf{Changing the routing loop moves less than changing the
 layout.} Across any row of Table~\ref{tab:shared}, from the same layout at
-three routes each, the two land within $3\%$ of one another ---
+three routes each, the two land within \chg{$3.2\%$} of one another ---
 \dSABRE{} ahead in all three rows of block \emph{(a)} and in two of three
 of \emph{(b)}, \PORTER{} taking its own layout there. This is the
 controlled test and \PORTER{} does not win it. The spread down a column
@@ -175,7 +175,7 @@ network more permissive than the device~\cite{lidsabre}.
 \textbf{Refinement pays from every starting layout, once the horizon is
 free to move.} \PORTER{}+R gains $9.5\%$ over \PORTER{} on \dSABRE{}'s
 layout ($175.2 \to 158.5$) and $6.8\%$ on both the others
-($174.9 \to 163.0$, $166.4 \to 155.2$), overtaking \dSABRE{}'s own
+($175.0 \to 163.0$, $166.4 \to 155.2$), overtaking \dSABRE{}'s own
 protocol from all three at seven routes to its nine. 
 
 \subsection{RQ3: Mechanism Ablation}
@@ -304,14 +304,14 @@ complete compile time.
 \cmidrule(lr){3-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
 Circuit & CX & $n$ & $N_\mathrm{phys}$ & $K$ & EPR & $t$ & EPR & $t$ \\
 \midrule
-QFT      &   3{,}420 & 100 & 150 &  6 &  200 &   3.6 & \textbf{198} &   2.8 \\
-QPEexact &   3{,}579 & 100 & 150 &  6 &  246 &   4.3 & \textbf{200} &   2.2 \\
-QFT      &   7{,}220 & 200 & 300 & 12 &  765 &  13.9 & \textbf{579} &   9.5 \\
-QPEexact &   7{,}579 & 200 & 300 & 12 &  896 &  13.9 & \textbf{528} &   8.9 \\
-QFT      &  13{,}300 & 360 & 500 & 20 & 1890 &  53.9 & \textbf{1156} &  19.5 \\
-QPEexact &  13{,}979 & 360 & 500 & 20 & 1938 &  83.1 & \textbf{1224}$^{\dagger}$ &  33.1 \\
+QFT      &   3{,}420 & 100 & 150 &  6 &  200 &   3.6 & \textbf{198} &   2.5 \\
+QPEexact &   3{,}579 & 100 & 150 &  6 &  246 &   4.3 & \textbf{200} &   2.1 \\
+QFT      &   7{,}220 & 200 & 300 & 12 &  765 &  13.9 & \textbf{579} &   8.0 \\
+QPEexact &   7{,}579 & 200 & 300 & 12 &  896 &  13.9 & \textbf{528} &   8.1 \\
+QFT      &  13{,}300 & 360 & 500 & 20 & 1890 &  53.9 & \textbf{1170} &  16.6 \\
+QPEexact &  13{,}979 & 360 & 500 & 20 & 1938 &  83.1 & \textbf{1224}$^{\dagger}$ &  18.4 \\
 \midrule
-\textbf{gmean} (6) & & & & & 705.7 & 15.4 & \textbf{507.7} & \textbf{8.4} \\
+\textbf{gmean} (6) & & & & & 705.7 & 15.4 & \textbf{508.7} & \textbf{6.9} \\
 \bottomrule
 \end{tabular}%
 }
@@ -330,10 +330,10 @@ widening margin: $0.90\times$ at 100 logical qubits, $0.67\times$ at
 200, $0.62\times$ at 360, for $0.72\times$ overall. One entry is
 budget-sensitive: should 360-qubit QPEexact fall back to the configured
 horizon (Section~\ref{sec:setup}), the series reads $565.7$ rather than
-$507.7$, $0.80\times$ rather than $0.72\times$, and five wins rather than
+$508.7$, $0.80\times$ rather than $0.72\times$, and five wins rather than
 six. The figures quoted here are the selected outcome, and the horizon
 comparison below holds across the range. It does so at
-$0.54\times$ \dSABRE{}'s complete compile cost ($8.4$\,s against
+$0.45\times$ \dSABRE{}'s complete compile cost ($6.9$\,s against
 $15.4$\,s), routing three times where \dSABRE{} routes nine.
 
 The horizon is what makes that difference, and the comparison is
@@ -341,7 +341,7 @@ available directly. Routing the same six instances from the same layouts
 at the configured horizon alone --- one route, no selection --- gives a
 geometric mean of $1{,}026.5$ pairs against \dSABRE{}'s $705.7$, which
 is $1.45\times$ and loses all six. Selection changes nothing else about
-the compiler and reaches $507.7$, which is $0.72\times$ and wins all
+the compiler and reaches $508.7$, which is $0.72\times$ and wins all
 six. Every instance selects $L_\mathrm{tp}{=}128$, the longest candidate
 offered, and none selects the configured $16$: at these widths a plan's
 value is realised further into the circuit than the default horizon can

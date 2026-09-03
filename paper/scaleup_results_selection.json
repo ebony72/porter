@@ -30,9 +30,9 @@
       "telegate_packets": 59,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 2.809,
+      "seconds": 2.522,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.807,
+      "seconds_best_attempt": 2.52,
       "layout_seconds": 0.002,
       "n_candidates": 1
     },
@@ -72,8 +72,8 @@
       "telegates": 0,
       "telegate_packets": 66,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 4.2,
-      "seconds": 13.739,
+      "seconds_best_attempt": 3.177,
+      "seconds": 10.274,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -98,6 +98,25 @@
       ],
       "seconds_best_attempt": 3.297,
       "n_candidates": 3
+    },
+    "sfc_selection_and_search": {
+      "epr": 163,
+      "swaps": 2240,
+      "depth": 5479,
+      "intercore_depth": 5240,
+      "teleports": 113,
+      "teleports_normal": 76,
+      "teleports_blocked": 37,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 50,
+      "seconds": 14.869,
+      "chosen_schedule": "search",
+      "routes": 13,
+      "selection_epr": 198,
+      "chosen_horizon": 128,
+      "search_epr": 163,
+      "best_gamma": 0.99
     }
   },
   {
@@ -131,9 +150,9 @@
       "telegate_packets": 44,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 2.242,
+      "seconds": 2.082,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.24,
+      "seconds_best_attempt": 2.08,
       "layout_seconds": 0.002,
       "n_candidates": 1
     },
@@ -173,8 +192,8 @@
       "telegates": 0,
       "telegate_packets": 68,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 3.34,
-      "seconds": 12.815,
+      "seconds_best_attempt": 2.74,
+      "seconds": 10.8,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -199,6 +218,25 @@
       ],
       "seconds_best_attempt": 3.297,
       "n_candidates": 3
+    },
+    "sfc_selection_and_search": {
+      "epr": 154,
+      "swaps": 2446,
+      "depth": 5878,
+      "intercore_depth": 5668,
+      "teleports": 98,
+      "teleports_normal": 79,
+      "teleports_blocked": 19,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 56,
+      "seconds": 14.4,
+      "chosen_schedule": "search",
+      "routes": 13,
+      "selection_epr": 200,
+      "chosen_horizon": 128,
+      "search_epr": 154,
+      "best_gamma": 0.99
     }
   },
   {
@@ -232,10 +270,10 @@
       "telegate_packets": 166,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 9.48,
+      "seconds": 8.039,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 9.476,
-      "layout_seconds": 0.004,
+      "seconds_best_attempt": 8.034,
+      "layout_seconds": 0.005,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -263,19 +301,19 @@
       "layout_seconds": 0.007
     },
     "sfc_on_dse_layout": {
-      "epr": 1031,
-      "swaps": 7644,
-      "depth": 16105,
-      "intercore_depth": 16035,
-      "teleports": 568,
-      "teleports_normal": 411,
-      "teleports_blocked": 138,
-      "teleports_capacity_relief": 19,
-      "telegates": 4,
-      "telegate_packets": 459,
-      "chosen_horizon": 16,
-      "seconds_best_attempt": 11.37,
-      "seconds": 37.102,
+      "epr": 748,
+      "swaps": 6772,
+      "depth": 15101,
+      "intercore_depth": 15017,
+      "teleports": 473,
+      "teleports_normal": 268,
+      "teleports_blocked": 204,
+      "teleports_capacity_relief": 1,
+      "telegates": 2,
+      "telegate_packets": 273,
+      "chosen_horizon": 128,
+      "seconds_best_attempt": 9.62,
+      "seconds": 31.127,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -300,6 +338,25 @@
       ],
       "seconds_best_attempt": 10.621,
       "n_candidates": 3
+    },
+    "sfc_selection_and_search": {
+      "epr": 477,
+      "swaps": 5552,
+      "depth": 13035,
+      "intercore_depth": 12745,
+      "teleports": 335,
+      "teleports_normal": 225,
+      "teleports_blocked": 110,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 142,
+      "seconds": 73.924,
+      "chosen_schedule": "search",
+      "routes": 19,
+      "selection_epr": 579,
+      "chosen_horizon": 128,
+      "search_epr": 477,
+      "best_gamma": 1.0
     }
   },
   {
@@ -333,10 +390,10 @@
       "telegate_packets": 128,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 8.877,
+      "seconds": 8.064,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 8.87,
-      "layout_seconds": 0.007,
+      "seconds_best_attempt": 8.059,
+      "layout_seconds": 0.005,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -364,19 +421,19 @@
       "layout_seconds": 0.007
     },
     "sfc_on_dse_layout": {
-      "epr": 765,
-      "swaps": 7463,
-      "depth": 14826,
-      "intercore_depth": 14755,
-      "teleports": 482,
-      "teleports_normal": 301,
-      "teleports_blocked": 170,
-      "teleports_capacity_relief": 11,
-      "telegates": 6,
-      "telegate_packets": 277,
+      "epr": 602,
+      "swaps": 6426,
+      "depth": 13763,
+      "intercore_depth": 13692,
+      "teleports": 398,
+      "teleports_normal": 264,
+      "teleports_blocked": 131,
+      "teleports_capacity_relief": 3,
+      "telegates": 1,
+      "telegate_packets": 203,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 13.941,
-      "seconds": 34.59,
+      "seconds_best_attempt": 8.541,
+      "seconds": 30.044,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -401,6 +458,25 @@
       ],
       "seconds_best_attempt": 9.806,
       "n_candidates": 3
+    },
+    "sfc_selection_and_search": {
+      "epr": 433,
+      "swaps": 5527,
+      "depth": 12864,
+      "intercore_depth": 12605,
+      "teleports": 292,
+      "teleports_normal": 184,
+      "teleports_blocked": 108,
+      "teleports_capacity_relief": 0,
+      "telegates": 0,
+      "telegate_packets": 141,
+      "seconds": 77.955,
+      "chosen_schedule": "search",
+      "routes": 19,
+      "selection_epr": 528,
+      "chosen_horizon": 128,
+      "search_epr": 433,
+      "best_gamma": 1.0
     }
   },
   {
@@ -422,22 +498,22 @@
       "n_candidates": 3
     },
     "sfc": {
-      "epr": 1156,
-      "swaps": 11588,
-      "depth": 25361,
-      "intercore_depth": 25311,
-      "teleports": 800,
-      "teleports_normal": 539,
-      "teleports_blocked": 233,
+      "epr": 1170,
+      "swaps": 11659,
+      "depth": 25023,
+      "intercore_depth": 24956,
+      "teleports": 777,
+      "teleports_normal": 515,
+      "teleports_blocked": 234,
       "teleports_capacity_relief": 28,
       "telegates": 0,
-      "telegate_packets": 356,
+      "telegate_packets": 393,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 19.532,
+      "seconds": 16.614,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 19.521,
-      "layout_seconds": 0.011,
+      "seconds_best_attempt": 16.605,
+      "layout_seconds": 0.009,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -464,19 +540,19 @@
       "layout_seconds": 0.013
     },
     "sfc_on_dse_layout": {
-      "epr": 1791,
-      "swaps": 14710,
-      "depth": 29143,
-      "intercore_depth": 29053,
-      "teleports": 1007,
-      "teleports_normal": 535,
-      "teleports_blocked": 458,
-      "teleports_capacity_relief": 14,
-      "telegates": 2,
-      "telegate_packets": 782,
+      "epr": 1774,
+      "swaps": 15070,
+      "depth": 29271,
+      "intercore_depth": 29208,
+      "teleports": 1144,
+      "teleports_normal": 675,
+      "teleports_blocked": 459,
+      "teleports_capacity_relief": 10,
+      "telegates": 5,
+      "telegate_packets": 625,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 29.982,
-      "seconds": 108.645,
+      "seconds_best_attempt": 24.567,
+      "seconds": 71.833,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -501,6 +577,25 @@
       ],
       "seconds_best_attempt": 24.992,
       "n_candidates": 3
+    },
+    "sfc_selection_and_search": {
+      "epr": 1020,
+      "swaps": 10671,
+      "depth": 25229,
+      "intercore_depth": 25118,
+      "teleports": 725,
+      "teleports_normal": 464,
+      "teleports_blocked": 255,
+      "teleports_capacity_relief": 6,
+      "telegates": 0,
+      "telegate_packets": 295,
+      "seconds": 94.56,
+      "chosen_schedule": "search",
+      "routes": 13,
+      "selection_epr": 1170,
+      "chosen_horizon": 128,
+      "search_epr": 1020,
+      "best_gamma": 0.99
     }
   },
   {
@@ -534,10 +629,10 @@
       "telegate_packets": 444,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 33.124,
+      "seconds": 18.421,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 33.113,
-      "layout_seconds": 0.011,
+      "seconds_best_attempt": 18.411,
+      "layout_seconds": 0.01,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -563,19 +658,19 @@
       "layout_seconds": 0.014
     },
     "sfc_on_dse_layout": {
-      "epr": 1444,
-      "swaps": 13699,
-      "depth": 27662,
-      "intercore_depth": 27592,
-      "teleports": 931,
-      "teleports_normal": 572,
-      "teleports_blocked": 335,
+      "epr": 1369,
+      "swaps": 13676,
+      "depth": 27080,
+      "intercore_depth": 27015,
+      "teleports": 930,
+      "teleports_normal": 581,
+      "teleports_blocked": 325,
       "teleports_capacity_relief": 24,
-      "telegates": 12,
-      "telegate_packets": 501,
+      "telegates": 3,
+      "telegate_packets": 436,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 26.763,
-      "seconds": 83.57,
+      "seconds_best_attempt": 21.459,
+      "seconds": 67.847,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -600,6 +695,25 @@
       ],
       "seconds_best_attempt": 26.372,
       "n_candidates": 3
+    },
+    "sfc_selection_and_search": {
+      "epr": 1009,
+      "swaps": 11665,
+      "depth": 25395,
+      "intercore_depth": 25335,
+      "teleports": 683,
+      "teleports_normal": 489,
+      "teleports_blocked": 192,
+      "teleports_capacity_relief": 2,
+      "telegates": 1,
+      "telegate_packets": 325,
+      "seconds": 178.327,
+      "chosen_schedule": "search",
+      "routes": 18,
+      "selection_epr": 1224,
+      "chosen_horizon": 128,
+      "search_epr": 1009,
+      "best_gamma": 0.95
     }
   }
 ]

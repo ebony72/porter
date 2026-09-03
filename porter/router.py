@@ -1613,15 +1613,19 @@ class PorterRouter:
                 break
 
             sim.remove_gate_ids(dag, current)
-            for gid in sorted(dag.frontier):
-                if len(out) >= cap:
-                    break
+            # Two gates sharing a qubit are ordered by that qubit's own chain,
+            # so at most one frontier gate can involve `moving_qubit`.  The
+            # scan therefore has a unique answer and needs neither an ordering
+            # nor a full pass: sorting the whole frontier once per peeled layer
+            # was the single largest cost in this walk.
+            for gid in dag.frontier:
                 if gid in seen:
                     continue
                 g = state.gate_by_id.get(gid)
                 if g is not None and g.is_cx() and moving_qubit in g.qubits:
                     out.append((g, layer))
                     seen.add(gid)
+                    break
 
         return out
 

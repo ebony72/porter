@@ -18,7 +18,7 @@
       "packets": 20,
       "depth": 3941,
       "chosen_horizon": 128,
-      "seconds": 1.119
+      "seconds": 0.959
     },
     "porter_refined": {
       "epr": 62,
@@ -43,8 +43,8 @@
       "telegates": 0,
       "telegate_packets": 24,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 1.187,
-      "seconds": 3.756,
+      "seconds_best_attempt": 0.994,
+      "seconds": 3.276,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -90,7 +90,7 @@
       "packets": 0,
       "depth": 169,
       "chosen_horizon": 16,
-      "seconds": 0.036
+      "seconds": 0.034
     },
     "porter_refined": {
       "epr": 2,
@@ -188,7 +188,7 @@
       "telegate_packets": 0,
       "chosen_horizon": 16,
       "seconds_best_attempt": 0.081,
-      "seconds": 0.314,
+      "seconds": 0.31,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -234,7 +234,7 @@
       "packets": 19,
       "depth": 3425,
       "chosen_horizon": 128,
-      "seconds": 1.532
+      "seconds": 1.497
     },
     "porter_refined": {
       "epr": 99,
@@ -259,8 +259,8 @@
       "telegates": 0,
       "telegate_packets": 20,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 1.605,
-      "seconds": 4.955,
+      "seconds_best_attempt": 1.411,
+      "seconds": 4.684,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -306,7 +306,7 @@
       "packets": 0,
       "depth": 11248,
       "chosen_horizon": 16,
-      "seconds": 3.325
+      "seconds": 3.289
     },
     "porter_refined": {
       "epr": 240,
@@ -331,8 +331,8 @@
       "telegates": 0,
       "telegate_packets": 13,
       "chosen_horizon": 4,
-      "seconds_best_attempt": 3.356,
-      "seconds": 9.075,
+      "seconds_best_attempt": 3.3,
+      "seconds": 8.984,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -378,7 +378,7 @@
       "packets": 32,
       "depth": 5419,
       "chosen_horizon": 8,
-      "seconds": 11.158
+      "seconds": 11.124
     },
     "porter_refined": {
       "epr": 430,
@@ -403,8 +403,8 @@
       "telegates": 49,
       "telegate_packets": 32,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 8.548,
-      "seconds": 27.285,
+      "seconds_best_attempt": 8.473,
+      "seconds": 26.998,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -450,7 +450,7 @@
       "packets": 7,
       "depth": 3881,
       "chosen_horizon": 128,
-      "seconds": 1.731
+      "seconds": 1.382
     },
     "porter_refined": {
       "epr": 68,
@@ -475,8 +475,8 @@
       "telegates": 0,
       "telegate_packets": 19,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 1.182,
-      "seconds": 4.435,
+      "seconds_best_attempt": 1.077,
+      "seconds": 3.858,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -522,7 +522,7 @@
       "packets": 4,
       "depth": 5590,
       "chosen_horizon": 8,
-      "seconds": 7.164
+      "seconds": 7.128
     },
     "porter_refined": {
       "epr": 240,
@@ -547,8 +547,8 @@
       "telegates": 0,
       "telegate_packets": 2,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 7.037,
-      "seconds": 22.317,
+      "seconds_best_attempt": 7.069,
+      "seconds": 21.095,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -594,7 +594,7 @@
       "packets": 10,
       "depth": 33173,
       "chosen_horizon": 16,
-      "seconds": 4.73
+      "seconds": 4.41
     },
     "porter_refined": {
       "epr": 397,
@@ -619,8 +619,8 @@
       "telegates": 127,
       "telegate_packets": 23,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 4.49,
-      "seconds": 12.623,
+      "seconds_best_attempt": 3.829,
+      "seconds": 11.633,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -665,7 +665,7 @@
       "packets": 59,
       "depth": 4831,
       "chosen_horizon": 8,
-      "seconds": 2.484
+      "seconds": 2.07
     },
     "porter_refined": {
       "epr": 87,
@@ -690,8 +690,8 @@
       "telegates": 1,
       "telegate_packets": 38,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 1.816,
-      "seconds": 5.253,
+      "seconds_best_attempt": 1.519,
+      "seconds": 4.269,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -737,7 +737,7 @@
       "packets": 0,
       "depth": 182,
       "chosen_horizon": 16,
-      "seconds": 0.04
+      "seconds": 0.036
     },
     "porter_refined": {
       "epr": 3,
@@ -762,8 +762,8 @@
       "telegates": 0,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.015,
-      "seconds": 0.044,
+      "seconds_best_attempt": 0.014,
+      "seconds": 0.041,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -809,7 +809,7 @@
       "packets": 0,
       "depth": 95,
       "chosen_horizon": 16,
-      "seconds": 0.253
+      "seconds": 0.248
     },
     "porter_refined": {
       "epr": 14,
@@ -834,8 +834,8 @@
       "telegates": 0,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.085,
-      "seconds": 0.287,
+      "seconds_best_attempt": 0.084,
+      "seconds": 0.279,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -881,7 +881,7 @@
       "packets": 20,
       "depth": 3486,
       "chosen_horizon": 128,
-      "seconds": 1.645
+      "seconds": 1.561
     },
     "porter_refined": {
       "epr": 117,
@@ -906,8 +906,8 @@
       "telegates": 0,
       "telegate_packets": 11,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 2.826,
-      "seconds": 7.567,
+      "seconds_best_attempt": 2.38,
+      "seconds": 6.43,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -953,7 +953,7 @@
       "packets": 175,
       "depth": 15043,
       "chosen_horizon": 4,
-      "seconds": 4.294
+      "seconds": 3.969
     },
     "porter_refined": {
       "epr": 354,
@@ -978,8 +978,8 @@
       "telegates": 2,
       "telegate_packets": 55,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 2.933,
-      "seconds": 10.601,
+      "seconds_best_attempt": 2.825,
+      "seconds": 10.165,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -1025,7 +1025,7 @@
       "packets": 70,
       "depth": 7351,
       "chosen_horizon": 8,
-      "seconds": 9.99
+      "seconds": 9.787
     },
     "porter_refined": {
       "epr": 537,
@@ -1050,8 +1050,8 @@
       "telegates": 141,
       "telegate_packets": 28,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 9.897,
-      "seconds": 29.455,
+      "seconds_best_attempt": 9.763,
+      "seconds": 28.027,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -1097,7 +1097,7 @@
       "packets": 75,
       "depth": 4710,
       "chosen_horizon": 16,
-      "seconds": 3.617
+      "seconds": 2.78
     },
     "porter_refined": {
       "epr": 162,
@@ -1122,8 +1122,8 @@
       "telegates": 0,
       "telegate_packets": 28,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 1.753,
-      "seconds": 5.868,
+      "seconds_best_attempt": 1.499,
+      "seconds": 4.736,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -1169,7 +1169,7 @@
       "packets": 179,
       "depth": 8506,
       "chosen_horizon": 8,
-      "seconds": 9.69
+      "seconds": 9.497
     },
     "porter_refined": {
       "epr": 239,
@@ -1194,8 +1194,8 @@
       "telegates": 0,
       "telegate_packets": 0,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 7.083,
-      "seconds": 22.464,
+      "seconds_best_attempt": 7.157,
+      "seconds": 22.622,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {
@@ -1241,7 +1241,7 @@
       "packets": 23,
       "depth": 32635,
       "chosen_horizon": 128,
-      "seconds": 14.846
+      "seconds": 4.142
     },
     "porter_refined": {
       "epr": 455,
@@ -1266,8 +1266,8 @@
       "telegates": 102,
       "telegate_packets": 13,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 4.691,
-      "seconds": 18.319,
+      "seconds_best_attempt": 4.207,
+      "seconds": 12.828,
       "n_candidates": 3
     },
     "porter_on_dse_refined": {

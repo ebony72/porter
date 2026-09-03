@@ -168,12 +168,20 @@ handed to the machinery that works out \emph{how}.
 
 Formally, a plan is a tuple
 \[
-  \pln{p} \;=\; \bigl(\pi,\; G(\pln{p}),\; \mathrm{dir},\; c_\mathrm{src},\;
-                c_\mathrm{dst},\; \Pi(\pln{p})\bigr),
+  \pln{p} \;=\; \bigl(\pi,\; g,\; G(\pln{p}),\; q,\; c_\mathrm{src},\;
+                c_\mathrm{dst},\; \mathrm{mode},\; \Pi(\pln{p})\bigr),
 \]
 with $\pi\in\{\TeleData{},\TeleGate{},\TeleGatePacket{}\}$ the primitive,
-$\mathrm{dir}$ its orientation, $c_\mathrm{src}$ and $c_\mathrm{dst}$ the
-cores, and $\Pi(\pln{p})$ the ports it reserves. Every field is static:
+\chg{$g$ the front CX that seeds it, $q$ the qubit a \TeleData{} moves
+($\bot$ for the \TeleGate{} family), $c_\mathrm{src}$ and $c_\mathrm{dst}$
+the cores, $\mathrm{mode}$ the generating rule --- localise onto an adjacent
+core, reduce distance by one hop, or relieve capacity --- and $\Pi(\pln{p})$
+the inter-core link it reserves. The seed and the moving qubit are what
+individuate a \TeleData{}: its $G(\pln{p})$ is empty, so without them two
+plans moving different qubits between the same pair of cores would be the
+same tuple. On the single-link interconnect assumed here $\Pi(\pln{p})$
+follows from the two cores, and it becomes an independent choice exactly
+when a core pair is joined by more than one link.} Every field is static:
 a plan is fixed once generated, \chg{so commitment has a fixed object. Readiness is not a field but a predicate derived from a plan and}
 a layout, $\mathrm{ready}(\pln{p},\ell)$, holding when $\pln{p}$ can fire
 under $\ell$; preparation changes $\ell$ and so changes the predicate, never
@@ -311,10 +319,7 @@ every other primitive scores zero here, so this component also carries a
 preference for the plan that improves the layout. It is computed
 alongside the score, never added to it.}
 
-\chg{Three further coordinates --- a readiness flag, a three-way ordering
-of the primitives, and a trailing $-\mathrm{lookahead}$ --- were part of
-an earlier form of this key and are provably unreachable or implied by
-the three above. A \TeleGate{} scores $\mathrm{total}{=}1$ and a
+\chg{ A \TeleGate{} scores $\mathrm{total}{=}1$ and a
 \TeleGatePacket{} is only generated carrying at least two straddling
 gates, so $-\mathrm{total}$ always separates those two primitives and
 only the \TeleData{}-first half of a plan-kind ordering was ever

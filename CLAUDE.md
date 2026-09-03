@@ -2651,6 +2651,54 @@ Scripts: scratchpad `determinism.py` (SHA + tie-count harness, reusable for any
 refactor), `phase2.py`, `recover.py`.
 
 
+## Released results re-run against HEAD's router (2026-09-03)
+
+The three-term selection key (`df034da`) and the stall guard (`01b8be8`) left
+the released `*_results*.json` disagreeing with the code. Closed by re-running
+**only PORTER's legs** and overlaying them on the released files, so every
+non-PORTER leg is byte-identical.
+
+**`rerun_porter_legs.py` has two traps that cost a wasted run:**
+1. **Its main section silently skips everything.** It prints `[key] cached` and
+   carries the old values whenever `compare_results_selection.json` already has
+   all three PORTER legs -- which it always does. The first full re-run
+   therefore left the main suite untouched, and the diff looked reassuringly
+   small for the wrong reason.
+2. **Its main section uses the RETIRED layout family.** Line 281 calls
+   `cr.sabre_two_corner_layout`; the 2026-08-31 decision moved dSABRE to its own
+   `cr.dsabre_layout_candidates`, which the scaleup section (line 75) already
+   uses. Re-running main through the script as written would regress
+   `sfc_on_dse_layout` to a family the paper no longer reports.
+3. **Its scaleup/heavyhex sections read the PRE-selection file as their base**,
+   so they revert any later leg. The run reverted dSABRE's scale-up time from
+   the current $15.4$ s to the pre-2026-08-31 $41.1$ s. Always overlay PORTER's
+   legs onto the released file rather than adopting the script's output whole.
+
+**What actually moved: 16 leg values, and heavy-hex not at all.**
+
+| | released | re-run |
+|---|---|---|
+| 25q Random `sfc` | 401 | **393** |
+| 80q Multiplier `sfc` | 2411 | **2486** |
+| 360q QFT `sfc` | 1156 | **1170** |
+| main-24 `sfc` gmean | 174.9 | **175.0** |
+| scale-up `sfc` gmean | 507.7 | **508.7** |
+| scale-up `sfc_on_dse_layout` gmean | 678.9 | **611.9** (ratio $0.96\to0.87$) |
+| scale-up complete cost | 8.4 s, $0.54\times$ | **6.9 s, $0.45\times$** |
+| heavy-hex ring / star | 86.1 / 122.3 | **unchanged** |
+
+`sfc_selection_and_search` is now populated on the six scale-up rows (it was
+`None`); no table reads it, and the paper still reports no scale-up $+$S leg.
+
+**One qualitative claim flipped.** V-B's "the two land within $3\%$ on every
+row" is false after the re-run: block \emph{(b)}'s dSABRE-layout row is now
+$3.12\%$. Prose and pin both say $3.2\%$. **The `within 3%` pin was the only
+thing that caught it** -- every other consequence was a number, this one was a
+bound.
+
+37 pins moved in `verify_paper_numbers.py`; both verifiers pass, the generator
+is idempotent, and both documents build at 15 and 8 pages with zero errors.
+
 ## Adaptive-horizon programme evaluated; weight floor is load-bearing (2026-09-03)
 
 The vault's `porter_adaptive_horizon_experiment_instructions.md` (a 7-phase

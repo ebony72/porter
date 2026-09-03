@@ -1039,8 +1039,8 @@ Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\
 25q & graphstate  &         21 &     6 &     7 &     4 &   $-81.0$ \\
 25q & qft         &        138 &    81 &    74 &    74 &   $-46.4$ \\
 25q & qnn         &        515 &   143 &   119 &   116 &   $-77.5$ \\
-25q & random      &        636 &   411 &   401 &   383 &   $-39.8$ \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & 45.8 & 43.1 & \textbf{38.8} & $\mathbf{-63.6}$ \\
+25q & random      &        636 &   411 &   393 &   383 &   $-39.8$ \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 106.6 & 45.8 & 43.0 & \textbf{38.8} & $\mathbf{-63.6}$ \\
 \midrule
 64q & ae          &        353 &   165 &   157 &   157 &   $-55.5$ \\
 64q & ghz         &         16 &     6 &     6 &     6 &   $-62.5$ \\
@@ -1061,7 +1061,7 @@ Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\
 80q & random      &  $^{\ast}$ & 10551 & 11040 & 11040 &       --- \\
 80q & qpeexact    &        784 &   347 &   291 &   291 &   $-62.9$ \\
 80q & qaoa        &  $^{\ast}$ &   862 &  1122 &  1122 &       --- \\
-80q & multiplier  &  $^{\ast}$ &  4841 &  2411 &  2132 &       --- \\
+80q & multiplier  &  $^{\ast}$ &  4841 &  2486 &  2132 &       --- \\
 \multicolumn{2}{@{}l}{\quad\textbf{gmean} (3)} & 121.0 & 44.9 & 38.5 & \textbf{36.6} & $\mathbf{-69.8}$ \\
 \bottomrule
 \end{tabular}%
@@ -1199,8 +1199,8 @@ Suite & Circuit & \PORTER{} & $+$R & $+$S & $\Delta$\,\% &
 25q & graphstate &     7 &     4 &     4 &      --- & 0.80 &     0.0 &     0.1 \\
 25q & qft        &    74 &    74 &    74 &      --- & 0.99 &     0.6 &     1.0 \\
 25q & qnn        &   119 &   116 &   116 &      --- & 0.80 &     1.2 &     3.2 \\
-25q & random     &   401 &   383 &   379 &   $-1.0$ & 0.80 &     2.7 &     7.7 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 43.1 & 38.8 & \textbf{38.4} & $\mathbf{-1.0}$ & & 0.26 & 0.65 \\
+25q & random     &   393 &   383 &   379 &   $-1.0$ & 0.80 &     2.7 &     7.7 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 43.0 & 38.8 & \textbf{38.4} & $\mathbf{-1.0}$ & & 0.26 & 0.65 \\
 \midrule
 64q & ae         &   157 &   157 &   149 &   $-5.1$ & 0.95 &     8.4 &    16.3 \\
 64q & ghz        &     6 &     6 &     6 &      --- & 0.80 &     0.0 &     0.1 \\
@@ -1221,10 +1221,10 @@ Suite & Circuit & \PORTER{} & $+$R & $+$S & $\Delta$\,\% &
 80q & random     & 11040 & 11040 & 10836 &   $-1.8$ & 1.00 &   357.5 &  1957.6 \\
 80q & qpeexact   &   291 &   291 &   291 &      --- & 0.95 &   908.7 &   943.1 \\
 80q & qaoa       &  1122 &  1122 &  1122 &      --- & 0.99 &    41.4 &    62.4 \\
-80q & multiplier &  2411 &  2132 &  2132 &      --- & 0.95 &    25.2 &    64.1 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 396.7 & 372.9 & \textbf{368.3} & $\mathbf{-1.2}$ & & 14.04 & 50.23 \\
+80q & multiplier &  2486 &  2132 &  2132 &      --- & 0.95 &    25.2 &    64.1 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 398.0 & 372.9 & \textbf{368.3} & $\mathbf{-1.2}$ & & 14.04 & 50.23 \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{gmean, all} (24)} & 174.9 & 163.0 & \textbf{159.1} & $\mathbf{-2.4}$ & & 3.22 & 9.01 \\
+\multicolumn{2}{@{}l}{\textbf{gmean, all} (24)} & 175.0 & 163.0 & \textbf{159.1} & $\mathbf{-2.4}$ & & 3.22 & 9.01 \\
 \bottomrule
 \end{tabular}%
 }

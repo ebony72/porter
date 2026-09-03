@@ -67,7 +67,7 @@ main25 = {
     "graphstate":     (21, 63, 6, 31, 7, 34, 4, 19, -81.0),
     "qft":            (138, 448, 81, 365, 74, 327, 74, 327, -46.4),
     "qnn":            (515, 820, 143, 711, 119, 642, 116, 603, -77.5),
-    "random":         (636, 1367, 411, 1448, 401, 1327, 383, 1319, -39.8),
+    "random":         (636, 1367, 411, 1448, 393, 1342, 383, 1319, -39.8),
 }
 main64 = {
     "ae":             (353, 1494, 165, 1325, 157, 1468, 157, 1468, -55.5),
@@ -89,7 +89,7 @@ main80 = {
     "random":         (None, None, 10551, 56624, 11040, 62119, 11040, 62119, None),
     "qpeexact":       (784, 2875, 347, 2254, 291, 2378, 291, 2378, -62.9),
     "qaoa":           (None, None, 862, 6067, 1122, 7370, 1122, 7370, None),
-    "multiplier":     (None, None, 4841, 22029, 2411, 15709, 2132, 14895, None),
+    "multiplier":     (None, None, 4841, 22029, 2486, 15462, 2132, 14895, None),
 }
 
 for suite, table in (("25", main25), ("64", main64), ("80", main80)):
@@ -131,7 +131,7 @@ g25 = own("25", ("telesabre", "dSE", "sfc", "sfc_refined"),
           ["ae", "ghz", "graphstate", "qft", "qnn", "random"])
 check("gmean25 TS", 106.6, round(g25["telesabre"], 1))
 check("gmean25 dSE", 45.8, round(g25["dSE"], 1))
-check("gmean25 P", 43.1, round(g25["sfc"], 1))
+check("gmean25 P", 43.0, round(g25["sfc"], 1))
 check("gmean25 delta", -63.6, round(pct(g25["sfc_refined"], g25["telesabre"]), 1))
 
 # TeleSABRE-matched basis: the circuits it completes at 64q
@@ -153,7 +153,7 @@ check("gmean80(3) delta", -69.8, round(pct(g80["sfc_refined"], g80["telesabre"])
 c80d = ['ae', 'ghz', 'graphstate', 'qft', 'qnn', 'random', 'qpeexact', 'qaoa', 'multiplier']
 g80d = own("80", ("dSE", "sfc"), c80d)
 check("gmean80(all) dSE", 412.1, round(g80d["dSE"], 1))
-check("gmean80(all) P", 396.7, round(g80d["sfc"], 1))
+check("gmean80(all) P", 398.0, round(g80d["sfc"], 1))
 
 # completion counts
 ts_done = sum(1 for r in cmp_rows if r.get("telesabre") and r["telesabre"].get("epr"))
@@ -213,7 +213,7 @@ for _leg, _want in (("sfc", "10/12"), ("sfc_refined", "11/11")):
 check("neither wins more than eleven", 11,
       max(_wlt("sfc", cmp_rows)[0], _wlt("sfc_refined", cmp_rows)[0]))
 _best = lambda leg, rows: gmean([min(r["dSE"]["epr"], r[leg]["epr"]) for r in rows])
-check("portfolio dSE+PORTER", 155.9, round(_best("sfc", cmp_rows), 1))
+check("portfolio dSE+PORTER", 156.0, round(_best("sfc", cmp_rows), 1))
 check("portfolio dSE+PORTER+R", 152.1, round(_best("sfc_refined", cmp_rows), 1))
 check("portfolio vs dSABRE (PORTER)", -9.3,
       round(100 * (_best("sfc", cmp_rows) / _g("dSE") - 1), 1))
@@ -234,19 +234,19 @@ check("portfolio over the 18, PORTER+R", -9.0,
       round(100 * (_best("sfc_refined", _nt18) / _g18 - 1), 1))
 _tot = lambda leg, rows: sum(min(r["dSE"]["epr"], r[leg]["epr"]) for r in rows)
 _dtot = sum(r["dSE"]["epr"] for r in _nt18)
-check("portfolio total EPR over the 18, PORTER", -12.4,
+check("portfolio total EPR over the 18, PORTER", -12.1,
       round(100 * (_tot("sfc", _nt18) / _dtot - 1), 1))
 check("portfolio total EPR over the 18, PORTER+R", -13.7,
       round(100 * (_tot("sfc_refined", _nt18) / _dtot - 1), 1))
 # VI's cost statement and its two named instances.
-check("portfolio compile time vs dSABRE", 2.1,
+check("portfolio compile time vs dSABRE", 2.0,
       round(gmean([r["dSE"]["seconds"] + r["sfc"]["seconds"] for r in cmp_rows])
             / gmean([r["dSE"]["seconds"] for r in cmp_rows]), 1))
-for _s, _c, _d, _p in (("80", "multiplier", 4841, 2411), ("80", "qpeexact", 347, 291)):
+for _s, _c, _d, _p in (("80", "multiplier", 4841, 2486), ("80", "qpeexact", 347, 291)):
     _r = next(r for r in cmp_rows if r["suite"] == _s and r["circuit"] == _c)
     check(f"VI portfolio example {_s}q {_c} dSE", _d, _r["dSE"]["epr"])
     check(f"VI portfolio example {_s}q {_c} PORTER", _p, _r["sfc"]["epr"])
-check("portfolio gain at 80q", -16.3,
+check("portfolio gain at 80q", -16.0,
       round(100 * (_best("sfc", _s80) / gmean([r["dSE"]["epr"] for r in _s80]) - 1), 1))
 check("portfolio gain at 64q", -2.5,
       round(100 * (_best("sfc", _s64) / gmean([r["dSE"]["epr"] for r in _s64]) - 1), 1))
@@ -267,11 +267,12 @@ _gn = lambda leg: gmean([r[leg]["epr"] for r in _NT])
 # (a), and in two of three of (b), PORTER taking its own layout there"
 for src, (d, p, _) in _GRID.items():
     check(f"grid {src} (a): dSABRE ahead", True, _g(p) / _g(d) > 1.0)
-    # "within 3%" is quoted to one decimal; the widest row is exactly 3.00%.
+    # Block (a)'s widest row is 3.00%; block (b)'s is 3.12% since the
+    # 2026-09-03 re-run moved sfc_on_dse_layout, so (b) is bounded at 3.2%.
     check(f"grid {src} (a): within 3%", True,
           round(100 * abs(_g(p) / _g(d) - 1), 1) <= 3.0)
-    check(f"grid {src} (b): within 3%", True,
-          round(100 * abs(_gn(p) / _gn(d) - 1), 1) <= 3.0)
+    check(f"grid {src} (b): within 3.2%", True,
+          round(100 * abs(_gn(p) / _gn(d) - 1), 1) <= 3.2)
 check("grid (b): dSABRE ahead on two of three rows", 2,
       sum(1 for _, (d, p, _) in _GRID.items() if _gn(p) / _gn(d) > 1.0))
 check("grid (b): PORTER ahead on its own layout", True,
@@ -310,18 +311,18 @@ check("pytket on the six trivial, PORTER", -36.8,
       round(100 * (_gt("sfc_pytket") / _gt("sfc") - 1), 1))
 check("pytket on the eighteen, dSABRE", 10.7,
       round(100 * (_gn("dSE_pytket") / _gn("dSE") - 1), 1))
-check("pytket on the eighteen, PORTER", 9.1,
+check("pytket on the eighteen, PORTER", 9.0,
       round(100 * (_gn("sfc_pytket") / _gn("sfc") - 1), 1))
 # "raises total EPR by 11.8% and 5.9%, worse start on fourteen of 24 for
 # both, at a median per-instance ratio of 1.03"
 _tot = lambda leg: sum(r[leg]["epr"] for r in cmp_rows)
 check("pytket total EPR, dSABRE", 11.8,
       round(100 * (_tot("dSE_pytket") / _tot("dSE") - 1), 1))
-check("pytket total EPR, PORTER", 5.9,
+check("pytket total EPR, PORTER", 5.6,
       round(100 * (_tot("sfc_pytket") / _tot("sfc") - 1), 1))
-for lab, (o, q) in (("dSABRE", ("dSE", "dSE_pytket")),
-                    ("PORTER", ("sfc", "sfc_pytket"))):
-    check(f"pytket worse start for {lab}", 14,
+for lab, _want14 in (("dSABRE", 14), ("PORTER", 15)):
+    o, q = (("dSE", "dSE_pytket") if lab == "dSABRE" else ("sfc", "sfc_pytket"))
+    check(f"pytket worse start for {lab}", _want14,
           sum(1 for r in cmp_rows if r[q]["epr"] > r[o]["epr"]))
     check(f"pytket median ratio {lab}", 1.03,
           round(statistics.median([r[q]["epr"] / max(r[o]["epr"], 1)
@@ -334,14 +335,14 @@ check("80q Graphstate PORTER pytket layout", 10, _gs80["sfc_pytket"]["epr"])
 # and the partition is selected on nine instances.
 _best = lambda rows: gmean([min(r["sfc"]["epr"], r["sfc_pytket"]["epr"])
                             for r in rows])
-check("appC best-of-2 over 24", -12.1,
+check("appC best-of-2 over 24", -12.0,
       round(100 * (_best(cmp_rows) / _g("sfc") - 1), 1))
-check("appC best-of-2 over 18", -1.8,
+check("appC best-of-2 over 18", -1.7,
       round(100 * (_best(_NT) / _gn("sfc") - 1), 1))
-check("appC pytket selected", 9,
+check("appC pytket selected", 8,
       sum(1 for r in cmp_rows if r["sfc_pytket"]["epr"] < r["sfc"]["epr"]))
 # "refinement gains 3.0% on dSABRE's layout and nothing on pytket's"
-check("refinement gain on dSE layout", 9.5,
+check("refinement gain on dSE layout", 9.6,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_on_dse_layout")), 1))
 check("refinement gain on pytket layout", 6.8,
       round(100 * (1 - _g("sfc_pytket_refined") / _g("sfc_pytket")), 1))
@@ -698,7 +699,7 @@ check("64q dSABRE routes per circuit", 9,
 # regression guards -- they are what makes that claim true.
 check("64q complete-cost gmean dSE", 1.77,
       round(gmean([r["dSE"]["seconds"] for r in _r64]), 2))
-check("64q complete-cost gmean PORTER", 1.98,
+check("64q complete-cost gmean PORTER", 1.89,
       round(gmean([r["sfc"]["seconds"] for r in _r64]), 2))
 check("64q complete-cost advantage", 0.9,
       round(gmean([r["dSE"]["seconds"] for r in _r64])
@@ -721,11 +722,11 @@ for _n, _want in (("100", 0.90), ("200", 0.67), ("360", 0.62)):
     check(f"scaleup {_n}q ratio", _want,
           round(gmean([r["sfc"]["epr"] for r in _rs])
                 / gmean([r["dSE"]["epr"] for r in _rs]), 2))
-check("scaleup complete-cost PORTER", 8.4,
+check("scaleup complete-cost PORTER", 6.9,
       round(gmean([r["sfc"]["seconds"] for r in su_rows]), 1))
 check("scaleup complete-cost dSABRE", 15.4,
       round(gmean([r["dSE"]["seconds"] for r in su_rows]), 1))
-check("scaleup complete-cost ratio", 0.54,
+check("scaleup complete-cost ratio", 0.45,
       round(gmean([r["sfc"]["seconds"] for r in su_rows])
             / gmean([r["dSE"]["seconds"] for r in su_rows]), 2))
 check("scaleup +R loses on all six", 6,
@@ -737,7 +738,7 @@ check("scaleup +R pct behind selection", 83,
 # figure are no longer quoted anywhere; 1.45x and "dSABRE's layout is worse
 # for PORTER" survive in Sec VI.  The unquoted checks are kept as regression
 # guards on the measurement.
-check("scaleup dSE-layout ratio", 0.96,
+check("scaleup dSE-layout ratio", 0.87,
       round(gmean([r["sfc_on_dse_layout"]["epr"] for r in su_rows]) / _su_d, 2))
 # V-D now quotes the fixed-vs-selected horizon comparison directly (A06,
 # round 3): the default horizon loses all six at 1026.5 / 1.45x, selection
@@ -767,7 +768,7 @@ check("360q qpeexact default-horizon fallback epr", 2342,
 _su_alt = [(_hz360p["horizon_eprs"][str(_hz360p["default_horizon"])]
             if (r["suite"] == "360" and r["circuit"] == "qpeexact")
             else r["sfc"]["epr"]) for r in su_rows]
-check("scaleup fallback gmean", 565.7, round(gmean(_su_alt), 1))
+check("scaleup fallback gmean", 566.8, round(gmean(_su_alt), 1))
 check("scaleup fallback ratio", 0.80,
       round(gmean(_su_alt) / _su_d, 2))
 check("scaleup fallback wins", 5,
@@ -777,8 +778,8 @@ check("scaleup every instance selects the long horizon", 6,
 _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
 check("scaleup 360q qft: dSABRE's layout is worse for PORTER", True,
       _q360["sfc_on_dse_layout"]["epr"] > _q360["sfc"]["epr"])
-check("scaleup 360q qft own layout", 1156, _q360["sfc"]["epr"])
-check("scaleup 360q qft on dSE layout", 1791, _q360["sfc_on_dse_layout"]["epr"])
+check("scaleup 360q qft own layout", 1170, _q360["sfc"]["epr"])
+check("scaleup 360q qft on dSE layout", 1774, _q360["sfc_on_dse_layout"]["epr"])
 
 # Sec IV-F: the star gmeans quoted in prose (PORTER's own protocol, all nine).
 _star = [r for r in hh_rows if r["topology"] == "star"]
@@ -876,9 +877,9 @@ check("PORTER own-protocol losses vs dSE", 12,
 # Scale-up per-attempt speed range quoted in Sec IV-G.
 _su_rat = [r["dSE"]["seconds_best_attempt"] / r["sfc"]["seconds"] for r in su_rows]
 check("scaleup per-attempt min", 0.4, round(min(_su_rat), 1))
-check("scaleup per-attempt max", 0.9, round(max(_su_rat), 1))
+check("scaleup per-attempt max", 1.2, round(max(_su_rat), 1))
 _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
-check("scaleup 360q qft per-attempt", 0.9,
+check("scaleup 360q qft per-attempt", 1.1,
       round(_q360["dSE"]["seconds_best_attempt"] / _q360["sfc"]["seconds"], 1))
 # Refinement now helps on NONE of the six scale-up instances (the shipped
 # protocol selects a horizon; refinement holds it fixed and loses on all six).
@@ -888,7 +889,7 @@ check("scaleup refinement helps", 0,
 # The abstract, intro, results and conclusion all quote the SINGLE-PASS
 # reductions against TeleSABRE. These are the paper's headline numbers and
 # were previously unpinned, which is how a stale 49.8% survived for a while.
-check("headline 25q single-pass", -59.6,
+check("headline 25q single-pass", -59.7,
       round(pct(g25["sfc"], g25["telesabre"]), 1))
 check("headline 64q single-pass", -41.6,
       round(pct(g64["sfc"], g64["telesabre"]), 1))
@@ -1079,12 +1080,12 @@ check("hh star multiplier reduction pct", -36,
 su_by = {(r["suite"], r["circuit"]): r for r in su_rows}
 # (CX, n, P, K, dSABRE, PORTER, PORTER+R, PORTER/dS-layout, PORTER+R/dS-layout)
 scaleup = {
-    ("100", "qft"):         (3420, 100, 150, 6, 200, 198, 339, 240, 273),
-    ("100", "qpeexact"):    (3579, 100, 150, 6, 246, 200, 262, 200, 343),
-    ("200", "qft"):         (7220, 200, 300, 12, 765, 579, 1128, 1031, 1031),
-    ("200", "qpeexact"):    (7579, 200, 300, 12, 896, 528, 979, 765, 946),
-    ("360", "qft"):         (13300, 360, 500, 20, 1890, 1156, 2822, 1791, 2546),
-    ("360", "qpeexact"):    (13979, 360, 500, 20, 1938, 1224, 2342, 1444, 2416),
+    ("100", "qft"): (3420, 100, 150, 6, 200, 198, 339, 240, 273),
+    ("100", "qpeexact"): (3579, 100, 150, 6, 246, 200, 262, 200, 343),
+    ("200", "qft"): (7220, 200, 300, 12, 765, 579, 1128, 748, 1031),
+    ("200", "qpeexact"): (7579, 200, 300, 12, 896, 528, 979, 602, 946),
+    ("360", "qft"): (13300, 360, 500, 20, 1890, 1170, 2822, 1774, 2546),
+    ("360", "qpeexact"): (13979, 360, 500, 20, 1938, 1224, 2342, 1369, 2416),
 }
 # dSABRE publishes this exact series; our column must reproduce it (<= its
 # figures, since our protocol hands it up to six candidate layouts, not three).
@@ -1109,12 +1110,12 @@ for key, want in scaleup.items():
 def _su_gmean(leg):
     return round(gmean([r[leg]["epr"] for r in su_rows]), 1)
 
-for leg, w in zip(_SU_LEGS, (705.7, 507.7, 930.3, 678.9, 908.4)):
+for leg, w in zip(_SU_LEGS, (705.7, 508.7, 930.3, 611.9, 908.4)):
     check(f"su gmean {leg}", w, _su_gmean(leg))
 # Prose ratios against dSABRE on the scale-up series.
 _su_d = gmean([r["dSE"]["epr"] for r in su_rows])
 for leg, w in (("sfc", 0.72), ("sfc_refined", 1.32),
-               ("sfc_on_dse_layout", 0.96), ("sfc_on_dse_layout_refined", 1.29)):
+               ("sfc_on_dse_layout", 0.87), ("sfc_on_dse_layout_refined", 1.29)):
     check(f"su ratio {leg}", w,
           round(gmean([r[leg]["epr"] for r in su_rows]) / _su_d, 2))
 # The claim that dSABRE's layout is WORSE for PORTER on the largest instance.
