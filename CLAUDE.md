@@ -2757,10 +2757,16 @@ Re-run `sfc_refined`, `sfc_on_dse_layout_refined`, `sfc_search` and
 - **Appendix J changed materially**: +S improves on **6** instances now, not
   ten, ties on 18, and costs **2.1x** +R rather than 2.9x. 80q AE's 62x
   becomes 4x and returns nothing, since +R already reaches 277.
-- **STILL STALE: `sfc_shared_refined` and `sfc_pytket_refined`** (and the
-  `sfc_shared` / `sfc_pytket` legs themselves). They need TeleSABRE's and
-  pytket-dqc's layouts, which the results file does not store, so they require
-  a full `compare_routers.py` run. `tab:shared` reads them.
+- **STILL STALE, AND THE ONE OUTSTANDING ITEM IN THE REPO: `sfc_shared`,
+  `sfc_pytket` and their `_refined` variants.** They are now stale for TWO
+  reasons -- the three-term selection key (`df034da`) and the four-value horizon
+  set (`abb845b`) -- and cannot be rebuilt from the released files, because they
+  need TeleSABRE's and pytket-dqc's layouts and only the EPR counts are stored,
+  not the layouts. Closing this needs a full `compare_routers.py` run, which
+  also re-runs the external baselines. **`tab:shared` (Table III) and
+  Appendix C read these legs**, so until that run happens Table III's PORTER
+  columns describe a protocol the code no longer implements. Every other leg in
+  every released file reproduces from HEAD.
 
 ## The four cost optimisations, measured on one basis (2026-09-03)
 
