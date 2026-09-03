@@ -1,0 +1,48 @@
+{"epr": 4, "status": "completed", "routes": null, "forward_eprs": [4, 4, 4], "key": "main/25/ghz", "horizons": [4, 8, 16, 128], "seconds": 0.01}
+{"epr": 4, "status": "completed", "routes": null, "forward_eprs": [7, 4, 4], "key": "main/25/graphstate", "horizons": [4, 8, 16, 128], "seconds": 0.03}
+{"epr": 65, "status": "completed", "routes": null, "forward_eprs": [65, 74, 65], "key": "main/25/ae", "horizons": [4, 8, 16, 128], "seconds": 0.72}
+{"epr": 74, "status": "completed", "routes": null, "forward_eprs": [74, 137, 122], "key": "main/25/qft", "horizons": [4, 8, 16, 128], "seconds": 0.95}
+{"epr": 6, "status": "completed", "routes": null, "forward_eprs": [6, 6, 6], "key": "main/64/ghz", "horizons": [4, 8, 16, 128], "seconds": 0.04}
+{"epr": 16, "status": "completed", "routes": null, "forward_eprs": [20, 18, 16], "key": "main/64/graphstate", "horizons": [4, 8, 16, 128], "seconds": 0.39}
+{"epr": 116, "status": "completed", "routes": null, "forward_eprs": [119, 128, 116], "key": "main/25/qnn", "horizons": [4, 8, 16, 128], "seconds": 2.05}
+{"epr": 389, "status": "completed", "routes": null, "forward_eprs": [393, 389, 423], "key": "main/25/random", "horizons": [4, 8, 16, 128], "seconds": 4.31}
+{"epr": 262, "status": "completed", "routes": null, "forward_eprs": [262, 326, 301], "key": "main/64/qft", "horizons": [4, 8, 16, 128], "seconds": 5.14}
+{"epr": 157, "status": "completed", "routes": null, "forward_eprs": [157, 161, 166], "key": "main/64/ae", "horizons": [4, 8, 16, 128], "seconds": 6.98}
+{"epr": 222, "status": "completed", "routes": null, "forward_eprs": [222, 256, 362], "key": "main/64/qpeexact", "horizons": [4, 8, 16, 128], "seconds": 4.47}
+{"epr": 638, "status": "completed", "routes": null, "forward_eprs": [638, 789, 876], "key": "main/64/qnn_OLD_DEEP", "horizons": [4, 8, 16, 128], "seconds": 20.18}
+{"epr": 732, "status": "completed", "routes": null, "forward_eprs": [737, 787, 732], "key": "main/64/random", "horizons": [4, 8, 16, 128], "seconds": 23.14}
+{"epr": 7, "status": "completed", "routes": null, "forward_eprs": [7, 7, 7], "key": "main/80/ghz", "horizons": [4, 8, 16, 128], "seconds": 0.06}
+{"epr": 1076, "status": "completed", "routes": null, "forward_eprs": [1076, 1416, 1402], "key": "main/64/multiplier", "horizons": [4, 8, 16, 128], "seconds": 16.3}
+{"epr": 24, "status": "completed", "routes": null, "forward_eprs": [28, 24, 24], "key": "main/80/graphstate", "horizons": [4, 8, 16, 128], "seconds": 0.78}
+{"epr": 586, "status": "completed", "routes": null, "forward_eprs": [775, 586, 707], "key": "main/64/qaoa", "horizons": [4, 8, 16, 128], "seconds": 21.46}
+{"epr": 393, "status": "completed", "routes": null, "forward_eprs": [446, 572, 393], "key": "main/80/qft", "horizons": [4, 8, 16, 128], "seconds": 5.92}
+{"epr": 277, "status": "completed", "routes": null, "forward_eprs": [299, 330, 277], "key": "main/80/ae", "horizons": [4, 8, 16, 128], "seconds": 12.83}
+{"epr": 291, "status": "completed", "routes": null, "forward_eprs": [291, 351], "key": "main/80/qpeexact", "horizons": [4, 8, 16, 128], "seconds": 16.09}
+{"epr": 918, "status": "completed", "routes": null, "forward_eprs": [1070, 1849, 918], "key": "main/80/qnn_DEEP", "horizons": [4, 8, 16, 128], "seconds": 40.39}
+{"epr": 1122, "status": "completed", "routes": null, "forward_eprs": [1122, 1290, 1443], "key": "main/80/qaoa", "horizons": [4, 8, 16, 128], "seconds": 44.23}
+{"epr": 2313, "status": "completed", "routes": null, "forward_eprs": [2486, 2313, 2446], "key": "main/80/multiplier", "horizons": [4, 8, 16, 128], "seconds": 30.11}
+{"epr": 11013, "status": "completed", "routes": null, "forward_eprs": [11040, 11013], "key": "main/80/random", "horizons": [4, 8, 16, 128], "seconds": 242.46}
+{"epr": 4, "status": "completed", "routes": null, "forward_eprs": [4, 4, 4], "key": "main/25/ghz", "horizons": [4, 16, 64, 128], "seconds": 0.01}
+{"epr": 4, "status": "completed", "routes": null, "forward_eprs": [7, 4, 4], "key": "main/25/graphstate", "horizons": [4, 16, 64, 128], "seconds": 0.03}
+{"epr": 65, "status": "completed", "routes": null, "forward_eprs": [65, 74, 65], "key": "main/25/ae", "horizons": [4, 16, 64, 128], "seconds": 0.91}
+{"epr": 74, "status": "completed", "routes": null, "forward_eprs": [74, 137, 122], "key": "main/25/qft", "horizons": [4, 16, 64, 128], "seconds": 1.07}
+{"epr": 6, "status": "completed", "routes": null, "forward_eprs": [6, 6, 6], "key": "main/64/ghz", "horizons": [4, 16, 64, 128], "seconds": 0.04}
+{"epr": 16, "status": "completed", "routes": null, "forward_eprs": [20, 18, 16], "key": "main/64/graphstate", "horizons": [4, 16, 64, 128], "seconds": 0.38}
+{"epr": 116, "status": "completed", "routes": null, "forward_eprs": [119, 128, 116], "key": "main/25/qnn", "horizons": [4, 16, 64, 128], "seconds": 2.44}
+{"epr": 389, "status": "completed", "routes": null, "forward_eprs": [393, 389, 423], "key": "main/25/random", "horizons": [4, 16, 64, 128], "seconds": 4.87}
+{"epr": 262, "status": "completed", "routes": null, "forward_eprs": [262, 326, 301], "key": "main/64/qft", "horizons": [4, 16, 64, 128], "seconds": 6.06}
+{"epr": 157, "status": "completed", "routes": null, "forward_eprs": [157, 161, 166], "key": "main/64/ae", "horizons": [4, 16, 64, 128], "seconds": 7.53}
+{"epr": 222, "status": "completed", "routes": null, "forward_eprs": [222, 256, 362], "key": "main/64/qpeexact", "horizons": [4, 16, 64, 128], "seconds": 5.16}
+{"epr": 989, "status": "completed", "routes": null, "forward_eprs": [989, 1190, 1207], "key": "main/64/multiplier", "horizons": [4, 16, 64, 128], "seconds": 13.65}
+{"epr": 658, "status": "completed", "routes": null, "forward_eprs": [658, 762, 658], "key": "main/64/qnn_OLD_DEEP", "horizons": [4, 16, 64, 128], "seconds": 25.21}
+{"epr": 7, "status": "completed", "routes": null, "forward_eprs": [7, 7, 7], "key": "main/80/ghz", "horizons": [4, 16, 64, 128], "seconds": 0.05}
+{"epr": 24, "status": "completed", "routes": null, "forward_eprs": [28, 24, 24], "key": "main/80/graphstate", "horizons": [4, 16, 64, 128], "seconds": 0.75}
+{"epr": 732, "status": "completed", "routes": null, "forward_eprs": [737, 787, 732], "key": "main/64/random", "horizons": [4, 16, 64, 128], "seconds": 27.3}
+{"epr": 607, "status": "completed", "routes": null, "forward_eprs": [854, 607, 748], "key": "main/64/qaoa", "horizons": [4, 16, 64, 128], "seconds": 28.58}
+{"epr": 369, "status": "completed", "routes": null, "forward_eprs": [369, 541, 488], "key": "main/80/qft", "horizons": [4, 16, 64, 128], "seconds": 10.55}
+{"epr": 277, "status": "completed", "routes": null, "forward_eprs": [299, 330, 277], "key": "main/80/ae", "horizons": [4, 16, 64, 128], "seconds": 13.01}
+{"epr": 291, "status": "completed", "routes": null, "forward_eprs": [291, 351], "key": "main/80/qpeexact", "horizons": [4, 16, 64, 128], "seconds": 15.75}
+{"epr": 2313, "status": "completed", "routes": null, "forward_eprs": [2486, 2313, 2446], "key": "main/80/multiplier", "horizons": [4, 16, 64, 128], "seconds": 30.04}
+{"epr": 918, "status": "completed", "routes": null, "forward_eprs": [1070, 1849, 918], "key": "main/80/qnn_DEEP", "horizons": [4, 16, 64, 128], "seconds": 56.36}
+{"epr": 1122, "status": "completed", "routes": null, "forward_eprs": [1122, 1290, 1443], "key": "main/80/qaoa", "horizons": [4, 16, 64, 128], "seconds": 55.17}
+{"epr": 11013, "status": "completed", "routes": null, "forward_eprs": [11040, 11013], "key": "main/80/random", "horizons": [4, 16, 64, 128], "seconds": 363.31}

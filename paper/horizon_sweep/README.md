@@ -34,6 +34,12 @@ vault note `porter_adaptive_horizon_experiment_instructions.md`
   independently over all 48 instances in one process (`hz_ablate_opt.py`), so
   the times are comparable with each other; every configuration emits the
   identical op stream, which is the point.
+* `four_horizon_cells.jsonl`, `four_horizon_refined.jsonl` -- every horizon in
+  {4,8,16,32,48,64,128} at the shipped weight schedule on all 48 instances, and
+  PORTER+R over two candidate four-value sets (`hz_four.py`).  This is the
+  evidence for replacing the density branch with one fixed set.
+* `portfolio_refined.jsonl` -- PORTER+R over a (schedule, horizon) portfolio
+  (`hz_portfolio_r.py`), the appendix-only result.
 * `stall_gaps.json` -- longest run of router iterations retiring no gate, for
   all 48 instances at L=16 and L=128; the basis for the stall-guard threshold.
 * `sweep_2026-09-01_*.json` -- the earlier sweep under the OLD six-term

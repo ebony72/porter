@@ -2651,6 +2651,45 @@ Scripts: scratchpad `determinism.py` (SHA + tie-count harness, reusable for any
 refactor), `phase2.py`, `recover.py`.
 
 
+## The density branch can be replaced by ONE four-value set (2026-09-03)
+
+The author's objection: selecting three horizons by $\rho$ is a fitted rule with
+no justification beyond the corpus. Measured every horizon in
+{4,8,16,32,48,64,128} at the shipped schedule on all 48 instances
+(`paper/horizon_sweep/hz_four.py` -> `four_horizon_cells.jsonl`), then every
+4-subset containing 16, each candidate budgeted the way the protocol budgets it.
+
+**Three routes are not enough; four are.** The best three-set is `+0.3%` against
+the branch at 1.31x its time. Every one of the top four 4-sets matches or beats
+it:
+
+| four-value set | main 24 | vs branch | all 48 | time (main) |
+|---|---|---|---|---|
+| {4,16,48,128} | 173.3 | -0.9% | 159.1 (-0.7%) | 2.12x |
+| {4,16,64,128} | 173.9 | -0.6% | 158.6 (**-1.0%**) | 2.52x |
+| {4,16,32,128} | 174.8 | -0.1% | 158.9 (-0.8%) | 1.95x |
+| **{4,8,16,128}** | **175.0 (parity)** | **0.0%** | 159.9 (-0.2%) | **1.58x** |
+
+- **{4,8,16,128} is the union of the two sets the branch chooses between**, so
+  adopting it introduces NO horizon value the paper does not already use, no
+  threshold and no new fitted quantity. The sets that beat it on EPR do so by
+  adding 32/48/64, each a new fitted value -- the same objection one level down.
+- **Under +R it is identical to the shipped protocol on all 24 instances**
+  (0 better, 0 worse, 24 tied, 163.1 either way) at 1.29x the time: refinement
+  washes the horizon choice out entirely. {4,16,64,128} trades two wins for two
+  losses for 0.6 EPR at 1.7x.
+- Price of removing $\rho$: **1.58x compile time single-pass, 1.29x for +R**.
+  PORTER would go 0.90x -> ~1.4x dSABRE, so V-F's compile-time claim becomes
+  four routes against nine rather than a wall-clock advantage.
+- **NOT LANDED.** Constants, re-runs and IV-E's rewrite await the author's call.
+
+**The (schedule, horizon) portfolio is appendix-only, by the author's decision**
+("I will not adopt the 3x2"). Kept for the record in
+`report_schedule_portfolio.md` / `portfolio_refined.jsonl`: as a single pass the
+six-pair set is -0.9% on the main suite for 3.74x but **-10.8% on heavy-hex
+star and -6.8% on scale-up with no regressions**; as +R's base it reaches 157.4
+and turns 64q from 1.07x into **1.00x** dSABRE, at 7.9x dSABRE's time.
+
 ## The refined and search legs were stale too; re-run (2026-09-03)
 
 **`rerun_porter_legs.py` skips every `*_refined` leg on a rationale that does

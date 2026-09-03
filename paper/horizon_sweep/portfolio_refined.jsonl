@@ -1,0 +1,48 @@
+{"epr": 4, "status": "completed", "forward_eprs": [4, 4, 4], "key": "main/25/ghz", "portfolio": "six", "pair": "w=0.25,L=4", "pass1_epr": 4, "routes": 10, "seconds": 0.01}
+{"epr": 4, "status": "completed", "forward_eprs": [7, 4, 4], "key": "main/25/graphstate", "portfolio": "six", "pair": "w=0.25,L=4", "pass1_epr": 7, "routes": 10, "seconds": 0.08}
+{"epr": 65, "status": "completed", "forward_eprs": [65, 74, 65], "key": "main/25/ae", "portfolio": "six", "pair": "w=0.5,L=16", "pass1_epr": 65, "routes": 10, "seconds": 1.09}
+{"epr": 74, "status": "completed", "forward_eprs": [74, 137, 122], "key": "main/25/qft", "portfolio": "six", "pair": "w=0.5,L=16", "pass1_epr": 74, "routes": 10, "seconds": 1.43}
+{"epr": 6, "status": "completed", "forward_eprs": [6, 6, 6], "key": "main/64/ghz", "portfolio": "six", "pair": "w=0.25,L=4", "pass1_epr": 6, "routes": 10, "seconds": 0.08}
+{"epr": 16, "status": "completed", "forward_eprs": [20, 18, 16], "key": "main/64/graphstate", "portfolio": "six", "pair": "w=0.25,L=4", "pass1_epr": 20, "routes": 10, "seconds": 0.51}
+{"epr": 116, "status": "completed", "forward_eprs": [119, 128, 116], "key": "main/25/qnn", "portfolio": "six", "pair": "w=0.5,L=16", "pass1_epr": 119, "routes": 10, "seconds": 4.11}
+{"epr": 389, "status": "completed", "forward_eprs": [393, 389, 423], "key": "main/25/random", "portfolio": "six", "pair": "w=0.5,L=16", "pass1_epr": 393, "routes": 10, "seconds": 8.2}
+{"epr": 157, "status": "completed", "forward_eprs": [157, 161, 166], "key": "main/64/ae", "portfolio": "six", "pair": "w=0.5,L=128", "pass1_epr": 157, "routes": 10, "seconds": 8.89}
+{"epr": 206, "status": "completed", "forward_eprs": [206, 342, 277], "key": "main/64/qpeexact", "portfolio": "six", "pair": "w=0.25,L=16", "pass1_epr": 206, "routes": 10, "seconds": 20.14}
+{"epr": 214, "status": "completed", "forward_eprs": [250, 250, 214], "key": "main/64/qft", "portfolio": "six", "pair": "w=0.25,L=128", "pass1_epr": 250, "routes": 10, "seconds": 21.04}
+{"epr": 453, "status": "completed", "forward_eprs": [653, 453, 641], "key": "main/64/qnn_OLD_DEEP", "portfolio": "six", "pair": "w=0.25,L=16", "pass1_epr": 653, "routes": 10, "seconds": 86.13}
+{"epr": 732, "status": "completed", "forward_eprs": [737, 787, 732], "key": "main/64/random", "portfolio": "six", "pair": "w=0.5,L=16", "pass1_epr": 737, "routes": 10, "seconds": 80.03}
+{"epr": 7, "status": "completed", "forward_eprs": [7, 7, 7], "key": "main/80/ghz", "portfolio": "six", "pair": "w=0.25,L=4", "pass1_epr": 7, "routes": 10, "seconds": 0.09}
+{"epr": 24, "status": "completed", "forward_eprs": [28, 24, 24], "key": "main/80/graphstate", "portfolio": "six", "pair": "w=0.25,L=4", "pass1_epr": 28, "routes": 10, "seconds": 1.29}
+{"epr": 607, "status": "completed", "forward_eprs": [854, 607, 748], "key": "main/64/qaoa", "portfolio": "six", "pair": "w=0.5,L=16", "pass1_epr": 854, "routes": 10, "seconds": 98.45}
+{"epr": 1007, "status": "completed", "forward_eprs": [1007, 1269, 1068], "key": "main/64/multiplier", "portfolio": "six", "pair": "w=0.25,L=128", "pass1_epr": 1007, "routes": 10, "seconds": 22.28}
+{"epr": 277, "status": "completed", "forward_eprs": [299, 330, 277], "key": "main/80/ae", "portfolio": "six", "pair": "w=0.5,L=128", "pass1_epr": 299, "routes": 10, "seconds": 18.35}
+{"epr": 320, "status": "completed", "forward_eprs": [381, 320, 373], "key": "main/80/qft", "portfolio": "six", "pair": "w=0.25,L=128", "pass1_epr": 381, "routes": 10, "seconds": 29.77}
+{"epr": 918, "status": "completed", "forward_eprs": [1070, 1849, 918], "key": "main/80/qnn_DEEP", "portfolio": "six", "pair": "w=0.25,L=4", "pass1_epr": 1070, "routes": 10, "seconds": 131.46}
+{"epr": 291, "status": "completed", "forward_eprs": [291, 351], "key": "main/80/qpeexact", "portfolio": "six", "pair": "w=0.5,L=128", "pass1_epr": 291, "routes": 10, "seconds": 20.94}
+{"epr": 62, "status": "completed", "forward_eprs": [65, 107, 62], "key": "main/25/ae", "portfolio": "nine", "pair": "w=0.0,L=16", "pass1_epr": 65, "routes": 13, "seconds": 1.5}
+{"epr": 4, "status": "completed", "forward_eprs": [4, 4, 4], "key": "main/25/ghz", "portfolio": "nine", "pair": "w=0.0,L=4", "pass1_epr": 4, "routes": 13, "seconds": 0.01}
+{"epr": 4, "status": "completed", "forward_eprs": [7, 4, 4], "key": "main/25/graphstate", "portfolio": "nine", "pair": "w=0.0,L=4", "pass1_epr": 7, "routes": 13, "seconds": 0.1}
+{"epr": 74, "status": "completed", "forward_eprs": [74, 137, 122], "key": "main/25/qft", "portfolio": "nine", "pair": "w=0.5,L=16", "pass1_epr": 74, "routes": 13, "seconds": 1.91}
+{"epr": 116, "status": "completed", "forward_eprs": [119, 128, 116], "key": "main/25/qnn", "portfolio": "nine", "pair": "w=0.5,L=16", "pass1_epr": 119, "routes": 13, "seconds": 5.26}
+{"epr": 389, "status": "completed", "forward_eprs": [393, 389, 423], "key": "main/25/random", "portfolio": "nine", "pair": "w=0.5,L=16", "pass1_epr": 393, "routes": 13, "seconds": 10.66}
+{"epr": 157, "status": "completed", "forward_eprs": [157, 161, 166], "key": "main/64/ae", "portfolio": "nine", "pair": "w=0.5,L=128", "pass1_epr": 157, "routes": 13, "seconds": 10.56}
+{"epr": 6, "status": "completed", "forward_eprs": [6, 6, 6], "key": "main/64/ghz", "portfolio": "nine", "pair": "w=0.0,L=4", "pass1_epr": 6, "routes": 13, "seconds": 0.11}
+{"epr": 16, "status": "completed", "forward_eprs": [20, 18, 16], "key": "main/64/graphstate", "portfolio": "nine", "pair": "w=0.0,L=4", "pass1_epr": 20, "routes": 13, "seconds": 0.66}
+{"epr": 1122, "status": "completed", "forward_eprs": [1122, 1290, 1443], "key": "main/80/qaoa", "portfolio": "six", "pair": "w=0.5,L=16", "pass1_epr": 1122, "routes": 10, "seconds": 171.61}
+{"epr": 2313, "status": "completed", "forward_eprs": [2486, 2313, 2446], "key": "main/80/multiplier", "portfolio": "six", "pair": "w=0.5,L=128", "pass1_epr": 2486, "routes": 10, "seconds": 45.42}
+{"epr": 214, "status": "completed", "forward_eprs": [250, 250, 214], "key": "main/64/qft", "portfolio": "nine", "pair": "w=0.25,L=128", "pass1_epr": 250, "routes": 13, "seconds": 23.67}
+{"epr": 196, "status": "completed", "forward_eprs": [196, 211, 284], "key": "main/64/qpeexact", "portfolio": "nine", "pair": "w=0.0,L=128", "pass1_epr": 196, "routes": 13, "seconds": 27.49}
+{"epr": 732, "status": "completed", "forward_eprs": [737, 787, 732], "key": "main/64/random", "portfolio": "nine", "pair": "w=0.5,L=16", "pass1_epr": 737, "routes": 13, "seconds": 96.91}
+{"epr": 560, "status": "completed", "forward_eprs": [679, 560, 600], "key": "main/64/qaoa", "portfolio": "nine", "pair": "w=0.0,L=16", "pass1_epr": 679, "routes": 13, "seconds": 116.29}
+{"epr": 1007, "status": "completed", "forward_eprs": [1007, 1269, 1068], "key": "main/64/multiplier", "portfolio": "nine", "pair": "w=0.25,L=128", "pass1_epr": 1007, "routes": 13, "seconds": 28.8}
+{"epr": 7, "status": "completed", "forward_eprs": [7, 7, 7], "key": "main/80/ghz", "portfolio": "nine", "pair": "w=0.0,L=4", "pass1_epr": 7, "routes": 13, "seconds": 0.12}
+{"epr": 24, "status": "completed", "forward_eprs": [28, 24, 24], "key": "main/80/graphstate", "portfolio": "nine", "pair": "w=0.0,L=4", "pass1_epr": 28, "routes": 13, "seconds": 1.73}
+{"epr": 277, "status": "completed", "forward_eprs": [299, 330, 277], "key": "main/80/ae", "portfolio": "nine", "pair": "w=0.5,L=128", "pass1_epr": 299, "routes": 13, "seconds": 21.64}
+{"epr": 368, "status": "completed", "forward_eprs": [368, 431, 610], "key": "main/80/qft", "portfolio": "nine", "pair": "w=0.0,L=128", "pass1_epr": 368, "routes": 13, "seconds": 34.45}
+{"epr": 552, "status": "completed", "forward_eprs": [585, 605, 552], "key": "main/64/qnn_OLD_DEEP", "portfolio": "nine", "pair": "w=0.0,L=128", "pass1_epr": 585, "routes": 13, "seconds": 134.92}
+{"epr": 918, "status": "completed", "forward_eprs": [1070, 1849, 918], "key": "main/80/qnn_DEEP", "portfolio": "nine", "pair": "w=0.0,L=4", "pass1_epr": 1070, "routes": 13, "seconds": 172.48}
+{"epr": 291, "status": "completed", "forward_eprs": [291, 351], "key": "main/80/qpeexact", "portfolio": "nine", "pair": "w=0.5,L=128", "pass1_epr": 291, "routes": 13, "seconds": 24.43}
+{"epr": 1122, "status": "completed", "forward_eprs": [1122, 1290, 1443], "key": "main/80/qaoa", "portfolio": "nine", "pair": "w=0.5,L=16", "pass1_epr": 1122, "routes": 13, "seconds": 214.46}
+{"epr": 2313, "status": "completed", "forward_eprs": [2486, 2313, 2446], "key": "main/80/multiplier", "portfolio": "nine", "pair": "w=0.5,L=128", "pass1_epr": 2486, "routes": 13, "seconds": 57.59}
+{"epr": 10921, "status": "completed", "forward_eprs": [10921], "key": "main/80/random", "portfolio": "nine", "pair": "w=0.0,L=16", "pass1_epr": 10921, "routes": 13, "seconds": 895.03}
+{"epr": 11013, "status": "completed", "forward_eprs": [11040, 11013], "key": "main/80/random", "portfolio": "six", "pair": "w=0.5,L=16", "pass1_epr": 11040, "routes": 10, "seconds": 673.18}
