@@ -14,7 +14,7 @@
 \usepackage{booktabs}
 
 %% ---- Round-3 revision highlighting -------------------------------------
-%% \chg{...} marks text changed in the round-3 revision.  Flip the \newif to
+%% ... marks text changed in the round-3 revision.  Flip the \newif to
 %% \revisionhighlightfalse to typeset a clean, unmarked copy; the macro then
 %% expands to its argument and nothing else changes.
 \newif\ifrevisionhighlight
@@ -744,8 +744,8 @@ $g_5$, whose partner $\logi{6}$ stays in $c_0$ --- but $c_1$ fails the
 $f_\mathrm{min}$ test, so it lands in $\mathcal{B}$; its gain
 ${\approx}2.1$ does not exceed the packet's $3.0$ by
 $m_\mathrm{assist}{=}5$, so no capacity relief pre-empts. Plans are
-ranked by gain first --- preparation cost is only a tie-break --- so
-the \emph{unready} packet (gain $3$) beats the \emph{ready} telegate for
+ranked by gain first --- \chg{preparation cost is only a tie-break --- so
+the \emph{unready} packet (gain $3$) beats the \emph{ready} telegate for}
 $g_4$ (gain $1$). \PORTER{} commits the packet, generates its one
 preparation SWAP ($\logi{0}$ next to the port), then emits one
 cat-entangler, three cat-CXs (each target routed beside the port in
@@ -754,9 +754,9 @@ The packet's completion exposes $g_4$ and $g_5$ together; the
 locality-first stage drains the now-local $g_5$ first (one SWAP plus
 a local CX), and the remote stage then re-generates plans for $g_4$:
 the single telegate and \TeleData{}($\logi{5}\!\to\!c_0$) now tie at
-gain $1$, and the capacity tie-break --- negative for the \TeleData{},
+gain $1$, and the \chg{capacity tie-break --- negative for the \TeleData{},
 zero for the \TeleGate{} (Section~\ref{main-sec:sfc-scoring}) --- commits
-the teleport ---
+the teleport ---}
 $\logi{5}$ lands on $c_0$'s port and $g_4$ finishes as a local CX.
 Two EPR pairs for the whole fragment. This is not a stylised
 trace: it is exactly the operation stream the implementation emits
@@ -1069,14 +1069,14 @@ Suite & Circuit & \TeleSABRE{} & \dSABRE{} & \PORTER{} & \PORTER{}+R & $\Delta_\
 \end{table}
 
 Table~\ref{tab:mainswaps} gives the intra-core SWAP counts for the runs of
-\chg{Table~\ref{tab:maineprs}}, in the same row order. Both baselines and
+Table~\ref{tab:maineprs}, in the same row order. Both baselines and
 \PORTER{} count intra-core SWAPs only; inter-core movement is charged in
 EPR pairs.
 
 \begin{table}[h]
 \centering
 \caption{Local SWAP counts, own protocol. Row order and the
-  $^{\ast}$ non-convergence marker match \chg{Table~\ref{tab:maineprs}}.}
+  $^{\ast}$ non-convergence marker match Table~\ref{tab:maineprs}.}
 \label{tab:mainswaps}
 \setlength{\tabcolsep}{4pt}
 \small
@@ -1128,7 +1128,7 @@ $O(|F|)$; intra-core SWAP scoring evaluates $O(M)$ candidate edges,
 each at $O(|F_\mathrm{loc}| + N_\mathrm{loc})$ over one DAG snapshot
 reused across candidates; remote-plan scoring evaluates $O(n)$
 candidates at $O(N_\mathrm{tp})$ over the same snapshot. Free-slot
-queues are $O(1)$ amortised per layout mutation. \chg{Writing
+queues are $O(1)$ amortised per layout mutation. Writing
 $C_\mathrm{iter} = O(\lvert F\rvert + M(\lvert F_\mathrm{loc}\rvert +
 N_\mathrm{loc}) + n N_\mathrm{tp})$ for that per-iteration cost, a route
 of $I$ iterations costs $T_\mathrm{pre} + O(I \cdot C_\mathrm{iter})$.
@@ -1141,7 +1141,7 @@ distributed compilers~\cite{lidsabre,russo2025telesabre}. This is an
 operation count for \emph{one} route, and it is not what the reported
 timings measure: those are complete protocol time over several routes
 (\mainProtocols{}), so they neither validate this bound nor are bounded by
-it.}
+it.
 
 \section{The Layout-Discount Search (\PORTER{}+S)}
 \label{app:layoutsearch}

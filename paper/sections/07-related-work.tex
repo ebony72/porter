@@ -5,7 +5,7 @@
 \textbf{\TeleSABRE{}}~\cite{russo2025telesabre} is the published state of
 the art for this cost model, supporting teledata and gate teleportation
 on \SABRE{}'s extended-set scoring. The two differ chiefly in decision
-structure. \chg{\TeleSABRE{} admits an inter-core candidate only when it is
+structure. \TeleSABRE{} \chg{admits an inter-core candidate only when it is
 already executable --- operand adjacent to a free communication port, a
 spare slot at the destination --- and scores it by the layout energy it
 leaves behind, a contracted-communication-graph Dijkstra distance over
@@ -33,9 +33,9 @@ rather than a design choice, and it runs \dSABRE{}'s way: its safe mode
 carries a termination-with-success proof under stated architectural
 hypotheses, so it guarantees \emph{completion}, where \PORTER{} guarantees
 only correctness and termination by construction
-(Section~\ref{sec:sfc-progress}) and has completion empirically, \chg{no
+(Section~\ref{sec:sfc-progress}) and has completion empirically, no
 instance being left unrouted under the selected-horizon protocol of
-Section~\ref{sec:horizon}}.
+Section~\ref{sec:horizon}.
 
 
 

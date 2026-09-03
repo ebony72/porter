@@ -142,15 +142,15 @@ The three sources are those that place all twenty-four circuits.
 \TeleSABRE{} is not among them: it converges on seventeen and emits a
 layout only where it converges (Section~\ref{sec:rq1}).
 
-\textbf{\chg{Changing the routing loop moves less than changing the
-layout.}} Across any row of Table~\ref{tab:shared}, from the same layout at
+\textbf{Changing the routing loop moves less than changing the
+layout.} Across any row of Table~\ref{tab:shared}, from the same layout at
 three routes each, the two land within $3\%$ of one another ---
 \dSABRE{} ahead in all three rows of block \emph{(a)} and in two of three
 of \emph{(b)}, \PORTER{} taking its own layout there. This is the
 controlled test and \PORTER{} does not win it. The spread down a column
-is two to four times the spread across a row in both blocks, \chg{so the
+is two to four times the spread across a row in both blocks, so the
 initial layout is the larger source of variation in both compilers, and
-the component in which each has more to gain}. That much is stable.
+the component in which each has more to gain. That much is stable.
 
 \textbf{Which layout is best is not, and \PORTER{} does not adopt the
 partition.} Over all twenty-four instances \texttt{pytket-dqc}'s
@@ -283,14 +283,14 @@ complete compile time.
 \caption{Scale-up suite: QFT and QPEexact at 100, 200 and 360 logical
   qubits, EPR pairs, each compiler under its own layout and protocol.
   Architectures follow \dSABRE{}'s scalability protocol ($5{\times}5$ cores,
-  \chg{$N_\mathrm{phys}$ physical qubits in $K = 6 \to 12 \to 20$ cores}),
+  $N_\mathrm{phys}$ physical qubits in $K = 6 \to 12 \to 20$ cores),
   read from its own device files; our \dSABRE{}
   column reproduces its published series~\cite{lidsabre}
   ($201/246/766/896/1890/1938$). ``$t$'' is complete protocol time: nine
   routes for \dSABRE{}, three for \PORTER{}, which selects
-  $L_\mathrm{tp}{=}128$ on all six. \chg{$^{\dagger}$Machine-dependent: this
+  $L_\mathrm{tp}{=}128$ on all six. $^{\dagger}$Machine-dependent: this
   route's cost sits at the speculative wall-clock share
-  (Section~\ref{sec:setup}); the resulting range is given below.}
+  (Section~\ref{sec:setup}); the resulting range is given below.
   \texttt{pytket-dqc} is omitted --- its
   partitioner does not finish at these widths. Lower is better.}
 \label{tab:scaleup}
@@ -327,16 +327,16 @@ inter-core traffic with it --- \dSABRE{}'s own cost rises $200 \to 765
 
 \PORTER{} uses fewer EPR pairs than \dSABRE{} on all six instances, by a
 widening margin: $0.90\times$ at 100 logical qubits, $0.67\times$ at
-200, $0.62\times$ at 360, for $0.72\times$ overall. \chg{One entry is
+200, $0.62\times$ at 360, for $0.72\times$ overall. One entry is
 budget-sensitive: should 360-qubit QPEexact fall back to the configured
 horizon (Section~\ref{sec:setup}), the series reads $565.7$ rather than
 $507.7$, $0.80\times$ rather than $0.72\times$, and five wins rather than
 six. The figures quoted here are the selected outcome, and the horizon
-comparison below holds across the range.} It does so at
+comparison below holds across the range. It does so at
 $0.54\times$ \dSABRE{}'s complete compile cost ($8.4$\,s against
 $15.4$\,s), routing three times where \dSABRE{} routes nine.
 
-\chg{The horizon is what makes that difference, and the comparison is
+The horizon is what makes that difference, and the comparison is
 available directly. Routing the same six instances from the same layouts
 at the configured horizon alone --- one route, no selection --- gives a
 geometric mean of $1{,}026.5$ pairs against \dSABRE{}'s $705.7$, which
@@ -345,7 +345,7 @@ the compiler and reaches $507.7$, which is $0.72\times$ and wins all
 six. Every instance selects $L_\mathrm{tp}{=}128$, the longest candidate
 offered, and none selects the configured $16$: at these widths a plan's
 value is realised further into the circuit than the default horizon can
-see.}
+see.
 
 \subsection{RQ4: Heavy-Hex Cores and Non-Grid Core Graphs}
 \label{sec:heavyhex}
@@ -459,6 +459,6 @@ against \dSABRE{}'s nine.
 All times are \emph{complete} compile costs --- layout generation plus
 every route over every candidate, not the winning route alone --- and
 \PORTER{}'s advantage there is in the count of routes, not their price.
-\chg{Pooled over all twenty-four \PORTER{} is the faster of the two, at
+Pooled over all twenty-four \PORTER{} is the faster of the two, at
 $0.91\times$ \dSABRE{}'s complete compile time; it spends $1.02\times$ its
-EPR pairs to get there, so the cheap operating point remains \PORTER{}'s.}
+EPR pairs to get there, so the cheap operating point remains \PORTER{}'s.

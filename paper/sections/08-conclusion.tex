@@ -12,19 +12,19 @@ teleport-lookahead horizon.
 Three conclusions are supported. First, on the evaluated MQT-Bench suites
 \PORTER{} uses substantially fewer ($>40\%$) EPR pairs than published \TeleSABRE{} and completes all twenty-four
 instances, including the seven on which \TeleSABRE{} does not converge. Second,
-against \dSABRE{} it is competitive on those same suites,
+against \dSABRE{} it is competitive \chg{on those same suites,}
 $1.02\times$ its pooled EPR at $0.91\times$ its compile time under each
 compiler's own protocol, and its advantage grows with the machine,
 reaching $0.72\times$ on the $100$--$360$-qubit scale-up series. Third,
-\chg{controlled experiments locate where these results come from rather
+controlled experiments locate where these results come from rather
 than leaving them to the system as a whole, each by its own kind of
 evidence: an ablation shows capacity relief is what lets a
 deterministic-greedy design complete in practice; holding the initial
 layout fixed shows it, not the routing loop, accounts for most of the
-spread between the two compilers on those suites; and routing the
+spread between the two compilers \chg{on those suites; and routing the}
 scale-up series at a fixed horizon instead of a selected one turns
 $0.72\times$ into $1.45\times$, which is what carries \PORTER{} past
-\dSABRE{} as the machine grows}. The two compilers also
+\dSABRE{} as the machine grows. The two compilers also
 prove complementary rather than ranked: neither wins more than eleven of
 the twenty-four instances, and taking the better of the two per instance
 reaches $11.6\%$ below \dSABRE{} alone (Section~\ref{sec:discussion}).

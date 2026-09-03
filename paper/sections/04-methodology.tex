@@ -61,8 +61,8 @@ positions); a front CX is \emph{local}, \emph{adjacent-remote} or
 does so in one of four ways, distinguished throughout: a capacity
 \emph{deadlock} leaves no legal plan and no relief path, and raises a
 diagnostic; a \emph{livelock} makes local progress indefinitely while
-retired gates and EPR count stand still, and is stopped by the
-no-progress guard; a \emph{timeout} exceeds the wall-clock cap; and an
+retired gates and EPR count stand still, and is stopped by \chg{the
+no-progress guard; a \emph{timeout} exceeds the wall-clock cap; and an}
 \emph{infeasible input} is one the machine has no spare capacity for,
 refused before routing begins (Section~\ref{sec:sfc-progress}).
 
@@ -77,7 +77,7 @@ generator, so one route on a fixed circuit and hardware emits a
 byte-identical stream across runs. Horizon selection is the exception,
 its speculative routes sharing a wall-clock budget, so the protocol is
 reproducible only up to that budget and the horizon each run selected is
-recorded with its result. Every reported \PORTER{} route is certified by
+recorded with its result. \chg{Every reported \PORTER{} route is certified by}
 a replay verifier written separately from the router, which re-derives
 gate coverage, dependency order and physical legality from the emitted
 stream alone and is itself tested by fault injection
@@ -171,8 +171,8 @@ other's own layout, which closes the remaining cell of the design.
 Section~\ref{sec:sfc} defines one routing pass. We evaluate two protocols
 built on it. \PORTER{} routes its own layout once at each of three
 candidate lookahead horizons --- $L_\mathrm{tp}\in\{4,8,16\}$ for a
-circuit whose interaction density $\rho$ reaches $0.80$ and
-$\{8,16,128\}$ otherwise, $\rho$ being the single coefficient defined
+circuit whose interaction \chg{density $\rho$ reaches $0.80$ and
+$\{8,16,128\}$ otherwise, $\rho$ being the single coefficient defined}
 below --- and keeps the lowest-EPR result; \PORTER{}+R refines backward
 from that selected route. Both are
 deterministic and both keep the best result by EPR, so neither can return
@@ -202,7 +202,7 @@ optimisation level 3 drops the controlled-phase rotations whose angle
 underflows its tolerance, which leaves QFT between $30$ and $37$ partners
 per qubit at every width above $25$, so its $\rho$ falls from $0.92$ at
 $25$ qubits to $0.10$ at $360$. A circuit family need not stay on one
-side of the threshold as it scales.} Near $\rho{=}1$ a long
+side of the threshold as it scales. Near $\rho{=}1$ a long}
 horizon finds the moving qubit wanted in every core at once, the gain
 estimate degenerates into noise, and short horizons win; where $\rho$ is
 small the signal is coherent and long horizons win. It is not a usable
@@ -218,9 +218,9 @@ untried.
 \PORTER{} therefore uses $\rho$ to \emph{prune}, not to choose. A circuit
 with $\rho\ge0.80$ is routed at $L_\mathrm{tp}\in\{4,8,16\}$, every other
 circuit at $\{8,16,128\}$, and the lowest-EPR route is kept --- three
-routes over one layout. \chg{No instance above the threshold has an offline optimum beyond $16$, so
+routes over one layout. No instance above the threshold has an offline optimum beyond $16$, so
 dropping $128$ from its candidate set costs no EPR while removing the
-dominant compile-time term, a long horizon that fails to converge.} Two rules bound
+dominant compile-time term, a long horizon that fails to converge. Two rules bound
 the cost: the configured horizon --- $L_\mathrm{tp}{=}16$, the default of
 Section~\ref{sec:sfc-scoring}, which lies in both candidate sets --- is
 routed first, unguarded, and wins ties; the other two share a wall-clock
