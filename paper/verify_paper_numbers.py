@@ -239,6 +239,20 @@ check("portfolio total EPR over the 18, PORTER", -12.1,
 check("portfolio total EPR over the 18, PORTER+R", -13.0,
       round(100 * (_tot("sfc_refined", _nt18) / _dtot - 1), 1))
 # VI's cost statement and its two named instances.
+# Abstract / intro / conclusion / V-F: PORTER's complete compile cost against
+# dSABRE's.  UNPINNED BY BOTH VERIFIERS UNTIL 2026-09-04, which is how the
+# three-horizon figure 0.91x survived into the abstract after abb845b made the
+# protocol four routes; the data says 1.18x.  gmean_raw semantics: times are
+# routinely sub-second and the clamped mean would inflate them.
+_graw = lambda v: math.exp(sum(math.log(x) for x in v) / len(v))
+_dse_t = _graw([r["dSE"]["seconds"] for r in cmp_rows])
+check("PORTER complete time vs dSABRE", 1.18,
+      round(_graw([r["sfc"]["seconds"] for r in cmp_rows]) / _dse_t, 2))
+check("PORTER+R complete time vs dSABRE", 2.10,
+      round(_graw([r["sfc_refined"]["seconds"] for r in cmp_rows]) / _dse_t, 2))
+# ... and PORTER is SLOWER end to end on the main suite, which V-F now states.
+check("PORTER is slower than dSABRE on the main suite", True,
+      _graw([r["sfc"]["seconds"] for r in cmp_rows]) > _dse_t)
 check("portfolio compile time vs dSABRE", 2.3,
       round(gmean([r["dSE"]["seconds"] + r["sfc"]["seconds"] for r in cmp_rows])
             / gmean([r["dSE"]["seconds"] for r in cmp_rows]), 1))
@@ -785,8 +799,14 @@ check("360q qpeexact selected epr", 1224, _q360p["sfc"]["epr"])
 check("360q qpeexact selected horizon", 128, _q360p["sfc"].get("chosen_horizon"))
 check("360q qpeexact default-horizon fallback epr", 2342,
       _hz360p["horizon_eprs"][str(_hz360p["default_horizon"])])
-# V-D quotes the budget-sensitive range (round 3, N02): if 360q QPEexact falls
-# back to the configured horizon the series reads 565.7 / 0.80x / 5-of-6.
+# NO LONGER QUOTED.  V-D used to hedge that 360q QPEexact might fall back to
+# the configured horizon, because its L=128 route sat just inside a
+# speculative WALL-CLOCK share.  SPECULATIVE_WORK_FACTOR replaced that share
+# with a budget in DAG layers peeled, so the selection is deterministic --
+# verified 3/3 at 1224 (and 200q QFT 3/3 at 579) on a machine measured 1.7x
+# slower than the session that produced the table.  The hypothetical series is
+# kept as a regression guard: if the wall clock is ever reinstated these are
+# the numbers V-D would have to carry again.
 _su_alt = [(_hz360p["horizon_eprs"][str(_hz360p["default_horizon"])]
             if (r["suite"] == "360" and r["circuit"] == "qpeexact")
             else r["sfc"]["epr"]) for r in su_rows]
@@ -797,6 +817,12 @@ check("scaleup fallback wins", 5,
       sum(1 for r, e in zip(su_rows, _su_alt) if e < r["dSE"]["epr"]))
 check("scaleup every instance selects the long horizon", 6,
       sum(1 for r in su_rows if r["sfc"].get("chosen_horizon") == 128))
+# The property the removed hedge depended on: a nonzero work factor makes
+# run_horizon_selection withhold the wall clock, so a speculative route is
+# bounded by peeled DAG layers and the selected horizon cannot depend on load.
+# IV-C and the appendix's timing threat both assert this.
+check("speculative budget is deterministic (work factor set)", True,
+      bool(_cdr.SPECULATIVE_WORK_FACTOR))
 _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
 check("scaleup 360q qft: dSABRE's layout is worse for PORTER", True,
       _q360["sfc_on_dse_layout"]["epr"] > _q360["sfc"]["epr"])

@@ -3388,3 +3388,89 @@ pass at the configured horizon while the paper's \PORTER{} is best-of-four ---
 was against `compare_results.json`'s `sfc`, a leg that is now a different
 protocol; it reads `ablation_results.json`'s `full` column instead, which is the
 same protocol by construction.
+
+## Consistency audit after the four-value horizon set (2026-09-04)
+
+Triggered by the author spotting `tab:scaleup` still saying "three routes for
+\PORTER{}". It was not one slip: `abb845b` changed the protocol in the code and
+in the **verifiers**, and the prose was updated in only two places. Every
+finding below is that same shape --- **a green verifier is not evidence the
+prose is current, and here the verifier was the half that got updated.**
+
+### Route counts: eleven places, now checked against the live constants
+
+Measured by counting `PorterRouter.compile` calls: **\PORTER{} $=4$,
+\PORTER{}$+$R $=8$, \PORTER{} shared $=4$, $+$R shared $=8$, \PORTER{} on
+\dSABRE{}'s candidates $=12$** ($3$ layouts $\times |H|$). The paper said
+3/7/3/7/9. Fixed in the abstract, intro, V-A, V-B, V-D, V-F, `tab:budgets`,
+`tab:protocols`, two captions, IV-E's $|H|+P-1$ and Appendix J's derivation
+($5{+}8{=}13$ or $5{+}8{+}8{=}21$ nominal, distinct counter $12$/$19$,
+observed $10$--$19$). Sec VI's portfolio budget went **twelve routes to nine
+$\to$ thirteen**.
+
+### THE BIG ONE: `tab:main`'s and `tab:protocols`' time columns were stale, and unchecked
+
+`verify_tex_tables` checked only `tab:main`'s EPR cells, and **did not parse
+`tab:protocols` at all**; `verify_paper_numbers` never pinned the compile-time
+ratio. So **every \PORTER{} $t$ cell was still the three-horizon measurement
+while both baselines were current**:
+
+| | tex said | data says |
+|---|---|---|
+| `tab:main` 25q / 64q / 80q / all, \PORTER{} | 0.11 / 1.98 / 3.95 / 1.25 | **0.20 / 2.24 / 4.74 / 1.63** |
+| `tab:main` same rows, $+$R | 0.26 / 4.00 / 14.04 / 3.22 | **0.36 / 3.84 / 8.84 / 2.90** |
+| `tab:protocols` \PORTER{} | 174.9, 1.25 s, $0.91\times$ | **175.0, 1.63 s, $1.18\times$** |
+| `tab:protocols` $+$R | 163.0, 3.22 s, $2.34\times$ | **163.1, 2.90 s, $2.10\times$** |
+
+**The abstract's "$0.91\times$ its compile time" was wrong: it is
+$1.18\times$.** \PORTER{} is the *slower* compiler end to end on the main
+suite --- four routes to \dSABRE{}'s nine, but dearer ones. Corrected in the
+abstract, intro, conclusion and V-F, and V-F no longer claims \PORTER{} is
+"the faster of the two"; it says compile time is not an argument for \PORTER{}
+on these suites and points at V-D, where the same four routes really do run in
+$0.45\times$ \dSABRE{}'s cost. The data was never wrong --- `sfc` totals
+$247.2$ s, `sfc_refined` $474.9$ s, `sfc_search` $921.2$ s, matching `abb845b`
+exactly.
+
+**Guards added, and confirmed non-vacuous**: `verify_tex_tables` now checks
+`tab:main`'s $t$ column (with `gmean_raw`, and TeleSABRE on its own completion
+basis) plus its bold-is-fastest rule, and parses `tab:protocols` end to end
+with routes taken from the live constants; `verify_paper_numbers` pins both
+time ratios and the bare fact that \PORTER{} is slower.
+
+### The `tab:scaleup` machine-dependence footnote was obsolete
+
+`SPECULATIVE_WORK_FACTOR = 7.0` makes `run_horizon_selection` pass
+`clock = None`, so no wall-clock guard is ever installed. Verified: 360q
+QPEexact **3/3 at 1224** and 200q QFT **3/3 at 579**, on a machine measured
+$1.7\times$ slower than the session that produced the table --- the two
+instances CLAUDE.md previously recorded as fragile. The dagger, the caption's
+"Machine-dependent" note, V-D's "should it fall back ... $565.7$" hedge and the
+appendix threat's wall-clock wording are all gone; the threat now warns about
+**cross-session** timing instead. (V-D's $565.7$ disagreed with its own pin's
+$566.8$ anyway.)
+
+### Prose/pin drift found by reading them against each other
+
+Five figures where the pin had been updated and the sentence had not:
+V-B "worse start on fourteen of 24 **for both**" (pin: 14 dSABRE, **15**
+\PORTER{}); Sec VI $152.1 \to 152.2$, $11.6\% \to 11.5\%$ (also the
+conclusion), $9.0\% \to 8.9\%$, and $2.1\times \to 2.3\times$ for the
+portfolio's compile cost. **When a pin moves, grep the prose for its value.**
+
+### `tab:pytkettime` re-measured end to end
+
+Its \PORTER{} column was the three-route protocol, so relabelling it "four"
+would have made it lie. Re-measured **all three columns in one session**
+(partition, layout build, \PORTER{} protocol). Partition times reproduce
+closely ($0.6$/$3.2$/$7.3$/$20.5$ s); \PORTER{} moved on every row, and 80q
+Random *fell* $206.5 \to 116.5$ s despite the extra route, because the stall
+guard now abandons its frozen candidate. Partition is dearer on **seven** of
+eight rows (was six) --- 64q Random the exception. Two prose errors fixed
+alongside: the CX growth from 25q AE to 80q Random is **$42\times$, not
+$80\times$**, and V-B's partition range is $0.6$--$627$ s against
+$0.3$--$9.0$ ms.
+
+**Whenever a table is hand-maintained, check that a verifier parses it.**
+`tab:main`'s $t$ column, `tab:protocols` and `tab:pytkettime` were all
+hand-maintained and all three were stale.

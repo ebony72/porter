@@ -134,6 +134,16 @@ for cols in rows_m:
             continue
         chk(f"tab:main {lab} {leg}", got,
             round(gmean([BY[k][leg]["epr"] for k in basis]), 1))
+        # The t column was UNCHECKED until 2026-09-04, and every PORTER cell
+        # in it had gone stale at the three-horizon protocol while the two
+        # baselines stayed current -- which is how "0.91x dSABRE's compile
+        # time" survived into the abstract when the data says 1.18x.  Times
+        # use gmean_raw: the clamped mean silently inflates sub-second cells.
+        # TeleSABRE's time is over the circuits it completes, the rest over
+        # the whole suite, matching the caption.
+        t_basis = matched if leg == "telesabre" else pool
+        chk(f"tab:main {lab} {leg} t", num(cols[2 + 2 * j]),
+            round(gmean_raw([BY[k][leg]["seconds"] for k in t_basis]), 2))
     # The two portfolio columns: per-instance min of dSABRE and the named
     # PORTER configuration, on whatever basis the row uses.
     chk(f"tab:main {lab} column count", 11, len(cols))
@@ -147,6 +157,12 @@ for cols in rows_m:
     for _j in (9, 10):
         chk(f"tab:main {lab} portfolio col {_j} unbold", False,
             "textbf" in cols[_j])
+    # Bold in the t column marks the fastest compiler in the row.
+    _t = [cols[i] for i in (2, 4, 6, 8)]
+    _tlive = [(i, num(c)) for i, c in enumerate(_t) if num(c) is not None]
+    chk(f"tab:main {lab} bold t is fastest",
+        [i for i, c in enumerate(_t) if "textbf" in c],
+        [i for i, v in _tlive if v == min(v for _, v in _tlive)])
     for j, leg in enumerate(("sfc", "sfc_refined")):
         chk(f"tab:main {lab} portfolio {leg}", num(cols[9 + j]),
             round(gmean([min(BY[k]["dSE"]["epr"], BY[k][leg]["epr"])
@@ -205,6 +221,30 @@ if _m:
         l = sum(1 for r in CMP if r[_leg]["epr"] > r["dSE"]["epr"])
         chk(f"tab:main W/L/T {_leg}", _cell,
             f"{w} / {l} / {len(CMP) - w - l}")
+
+# ----------------------------------------------------------- tab:protocols
+# NOT parsed until 2026-09-04.  Its PORTER EPR and time cells had drifted from
+# the data (174.9/1.25/0.91 against 175.0/1.63/1.18), and the compile-time
+# ratio in it was quoted verbatim by the abstract, the intro and the
+# conclusion.  Routes are checked against the live constants, not the tex.
+_seg_pr, _rows_pr = rows_of("tab:protocols", r"^\\(dSABRE|PORTER)")
+chk("tab:protocols row count", 3, len(_rows_pr))
+_d_e = gmean([r["dSE"]["epr"] for r in CMP])
+_d_t = gmean_raw([r["dSE"]["seconds"] for r in CMP])
+import importlib
+sys.path.insert(0, str(_HERE.parent))
+_cdr_t = importlib.import_module("compile_porter")
+_cr_t = importlib.import_module("compare_routers")
+_H = len(_cdr_t.PORTER_HORIZONS)
+for cols, (leg, routes) in zip(_rows_pr, (
+        ("dSE", 9), ("sfc", _H), ("sfc_refined", _H + _cr_t.PORTER_REFINE_PASSES - 1))):
+    e = gmean([r[leg]["epr"] for r in CMP])
+    t = gmean_raw([r[leg]["seconds"] for r in CMP])
+    chk(f"tab:protocols {leg} routes", cell(cols[1]), routes)
+    chk(f"tab:protocols {leg} EPR", num(cols[2]), round(e, 1))
+    chk(f"tab:protocols {leg} EPR ratio", num(cols[3]), round(e / _d_e, 2))
+    chk(f"tab:protocols {leg} t", num(cols[4]), round(t, 2))
+    chk(f"tab:protocols {leg} t ratio", num(cols[5]), round(t / _d_t, 2))
 
 # -------------------------------------------------------------- tab:shared
 # The layout-by-router grid: three layout sources x three routers, every cell

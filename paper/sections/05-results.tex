@@ -46,15 +46,15 @@ Suite & EPR & $t$ & EPR & $t$ & EPR & $t$ & EPR & $t$
       & \PORTER{} & $+$R \\
 \midrule
 \multicolumn{11}{@{}l}{\emph{(a)} over the circuits \emph{all four} complete} \\
-25q (6) & 106.6 & 0.51 & 45.8 & 0.23 & 43.0 & \textbf{0.11} & \textbf{38.9} & 0.26 & 41.9 & 38.9 \\
-64q (8) & 284.5 & 11.89 & \textbf{144.6} & \textbf{1.77} & 166.2 & 1.98 & 156.1 & 4.00 & 140.5 & 140.5 \\
-80q (3) & 121.0 & 5.11 & 44.9 & \textbf{3.57} & 38.5 & 3.95 & \textbf{36.6} & 14.04 & 34.4 & 34.4 \\
+25q (6) & 106.6 & 0.51 & 45.8 & 0.23 & 43.0 & \textbf{0.20} & \textbf{38.9} & 0.36 & 41.9 & 38.9 \\
+64q (8) & 284.5 & 11.89 & \textbf{144.6} & \textbf{1.77} & 166.2 & 2.24 & 156.1 & 3.84 & 140.5 & 140.5 \\
+80q (3) & 121.0 & 5.11 & 44.9 & \textbf{3.57} & 38.5 & 4.74 & \textbf{36.6} & 8.84 & 34.4 & 34.4 \\
 \midrule
 \multicolumn{11}{@{}l}{\emph{(b)} over \emph{every} circuit in the suite; \TeleSABRE{} omitted} \\
-25q (6) & --- & --- & 45.8 & 0.23 & 43.0 & \textbf{0.11} & \textbf{38.9} & 0.26 & 41.9 & 38.9 \\
-64q (9) & --- & --- & \textbf{173.1} & \textbf{1.77} & 196.1 & 1.98 & 185.3 & 4.00 & 168.8 & 168.8 \\
-80q (9) & --- & --- & 412.1 & \textbf{3.57} & 398.0 & 3.95 & \textbf{373.0} & 14.04 & 346.3 & 340.6 \\
-all (24) & --- & --- & 171.9 & 1.38 & 175.0 & \textbf{1.25} & \textbf{163.1} & 3.22 & 156.0 & 152.2 \\
+25q (6) & --- & --- & 45.8 & 0.23 & 43.0 & \textbf{0.20} & \textbf{38.9} & 0.36 & 41.9 & 38.9 \\
+64q (9) & --- & --- & \textbf{173.1} & \textbf{1.77} & 196.1 & 2.24 & 185.3 & 3.84 & 168.8 & 168.8 \\
+80q (9) & --- & --- & 412.1 & \textbf{3.57} & 398.0 & 4.74 & \textbf{373.0} & 8.84 & 346.3 & 340.6 \\
+all (24) & --- & --- & 171.9 & \textbf{1.38} & 175.0 & 1.63 & \textbf{163.1} & 2.90 & 156.0 & 152.2 \\
 \midrule
 done    & \multicolumn{2}{c}{17 / 24} & \multicolumn{2}{c}{24 / 24}
         & \multicolumn{2}{c}{24 / 24} & \multicolumn{2}{c}{24 / 24}
@@ -178,7 +178,7 @@ ratio of $1.03$ for both. Its
 gain is real but confined to the two structurally simplest families,
 whose interaction graphs a partitioner cuts almost perfectly and whose
 absolute cost is least. It is also expensive: best-of-three KaHyPar seeds
-costs $0.6$--$650$\,s against $0.3$--$9.6$\,ms for \PORTER{}'s
+costs $0.6$--$627$\,s against $0.3$--$9.0$\,ms for \PORTER{}'s
 construction, on most circuits more than \PORTER{}'s whole four-route
 protocol, and it does not finish at the widths of
 Section~\ref{sec:scaleup}. Cost and confinement are why \PORTER{} keeps
@@ -305,11 +305,8 @@ complete compile time.
   read from its own device files; our \dSABRE{}
   column reproduces its published series~\cite{lidsabre}
   ($201/246/766/896/1890/1938$). ``$t$'' is complete protocol time: nine
-  routes for \dSABRE{}, three for \PORTER{}, which selects
-  $L_\mathrm{tp}{=}128$ on all six. $^{\dagger}$Machine-dependent: this
-  route's cost sits at the speculative wall-clock share
-  (Section~\ref{sec:setup}); the resulting range is given below.
-  \texttt{pytket-dqc} is omitted --- its
+  routes for \dSABRE{}, four for \PORTER{}, which selects
+  $L_\mathrm{tp}{=}128$ on all six. \texttt{pytket-dqc} is omitted --- its
   partitioner does not finish at these widths. Lower is better.}
 \label{tab:scaleup}
 \setlength{\tabcolsep}{5pt}
@@ -327,7 +324,7 @@ QPEexact &   3{,}579 & 100 & 150 &  6 &  246 &   4.3 & \textbf{200} &   2.5 \\
 QFT      &   7{,}220 & 200 & 300 & 12 &  765 &  13.9 & \textbf{579} &   9.2 \\
 QPEexact &   7{,}579 & 200 & 300 & 12 &  896 &  13.9 & \textbf{528} &   8.8 \\
 QFT      &  13{,}300 & 360 & 500 & 20 & 1890 &  53.9 & \textbf{1170} &  18.5 \\
-QPEexact &  13{,}979 & 360 & 500 & 20 & 1938 &  83.1 & \textbf{1224}$^{\dagger}$ &  20.2 \\
+QPEexact &  13{,}979 & 360 & 500 & 20 & 1938 &  83.1 & \textbf{1224} &  20.2 \\
 \midrule
 \textbf{gmean} (6) & & & & & 705.7 & 15.4 & \textbf{508.7} & \textbf{7.8} \\
 \bottomrule
@@ -345,14 +342,9 @@ inter-core traffic with it --- \dSABRE{}'s own cost rises $200 \to 765
 
 \PORTER{} uses fewer EPR pairs than \dSABRE{} on all six instances, by a
 widening margin: $0.90\times$ at 100 logical qubits, $0.67\times$ at
-200, $0.62\times$ at 360, for $0.72\times$ overall. One entry is
-budget-sensitive: should 360-qubit QPEexact fall back to the configured
-horizon (Section~\ref{sec:setup}), the series reads $565.7$ rather than
-\chg{$508.7$, $0.80\times$ rather than $0.72\times$, and five wins rather than}
-six. The figures quoted here are the selected outcome, and the horizon
-comparison below holds across the range. It does so at
-\chg{$0.45\times$ \dSABRE{}'s complete compile cost ($6.9$\,s against}
-$15.4$\,s), routing three times where \dSABRE{} routes nine.
+200, $0.62\times$ at 360, for $0.72\times$ overall. It does so at
+$0.45\times$ \dSABRE{}'s complete compile cost ($6.9$\,s against
+$15.4$\,s), routing four times where \dSABRE{} routes nine.
 
 The horizon is what makes that difference, and the comparison is
 available directly. Routing the same six instances from the same layouts
@@ -453,9 +445,9 @@ from being read as a general one.
 \toprule
 Protocol & routes & EPR & vs.\ \dSABRE{} & time (s) & vs.\ \dSABRE{} \\
 \midrule
-\dSABRE{}                 &      9 & 171.9 & $1.00$ &  1.38 & $1.00$ \\
-\PORTER{}                 &      4 & 174.9 & $1.02$ &  1.25 & $\mathbf{0.91}$ \\
-\PORTER{}+R               &      8 & \textbf{163.0} & $\mathbf{0.95}$ &  3.22 & $2.34$ \\
+\dSABRE{}                 &      9 & 171.9 & $1.00$ &  1.38 & $\mathbf{1.00}$ \\
+\PORTER{}                 &      4 & 175.0 & $1.02$ &  1.63 & $1.18$ \\
+\PORTER{}+R               &      8 & \textbf{163.1} & $\mathbf{0.95}$ &  2.90 & $2.10$ \\
 \bottomrule
 \end{tabular}%
 }
@@ -470,13 +462,18 @@ best result by EPR, the column is monotone by construction, and neither
 can report more EPR than routing once at the configured horizon.
 
 The trade is time against EPR pairs. \PORTER{} costs $1.02\times$
-\dSABRE{}'s EPR at $0.91\times$ its compile time; refinement takes the
-lead at $0.95\times$ the EPR for $2.34\times$ the time, on eight routes
-against \dSABRE{}'s nine.
+\dSABRE{}'s EPR at $1.18\times$ its compile time; refinement buys the EPR
+lead, $0.95\times$, for $2.10\times$ the time, on eight routes against
+\dSABRE{}'s nine.
 
 All times are \emph{complete} compile costs --- layout generation plus
-every route over every candidate, not the winning route alone --- and
-\PORTER{}'s advantage there is in the count of routes, not their price.
-Pooled over all twenty-four \PORTER{} is the faster of the two, at
-$0.91\times$ \dSABRE{}'s complete compile time; it spends $1.02\times$ its
-EPR pairs to get there, so the cheap operating point remains \PORTER{}'s.
+every route over every candidate, not the winning route alone. \PORTER{}
+routes fewer times than \dSABRE{} at every operating point, four against
+nine and eight against nine, and is still the slower of the two: its
+routes are the dearer ones, because each enumerates whole plans, forward-
+simulates packets and searches two tiers of capacity relief. Compile time
+is therefore not an argument for \PORTER{} on these suites --- we report
+it because the EPR figures are only meaningful beside the budget that
+produced them. It does become one at scale, where the same four routes
+run in $0.45\times$ \dSABRE{}'s complete cost
+(Section~\ref{sec:scaleup}).

@@ -308,10 +308,11 @@ best-of-three KaHyPar partition against \PORTER{}'s own layout
 construction and against \PORTER{}'s complete four-route protocol, on
 the same machine as every other measurement in this paper. The partition
 is three to five orders of magnitude dearer than the layout it would
-replace, and on six of the eight circuits shown it costs more than
-routing the circuit three times. It also scales worse than the routing
-does: an $80\times$ increase in CX count from 25q~AE to 80q~Random buys a
-$200\times$ increase in partition time, and at the widths of
+replace, and on seven of the eight circuits shown it costs more than
+routing the circuit four times --- 64q~Random the exception. It also
+scales worse than the routing does: a $42\times$ increase in CX count from
+25q~AE to 80q~Random buys a $196\times$ increase in partition time, and at
+the widths of
 \mainScaleup{} it does not finish at all.
 
 \begin{table}[h]
@@ -328,16 +329,16 @@ $200\times$ increase in partition time, and at the widths of
 \toprule
  & & & \multicolumn{2}{c}{partition} & \PORTER{} \\
 \cmidrule(lr){4-5}
-Suite & Circuit & CX & time & vs.\ layout & 3 routes \\
+Suite & Circuit & CX & time & vs.\ layout & 4 routes \\
 \midrule
-80q & graphstate &    80 &   $0.6$\,s & $1{,}100\times$ &   $0.3$\,s \\
-25q & ae         &   558 &   $3.2$\,s & $10{,}767\times$ &  $0.2$\,s \\
-25q & random     & 1{,}124 &   $7.3$\,s & $14{,}540\times$ &  $1.1$\,s \\
-64q & random     & 1{,}627 &  $12.1$\,s & $12{,}140\times$ & $11.2$\,s \\
-64q & ae         & 1{,}962 &  $14.2$\,s & $11{,}817\times$ &  $1.6$\,s \\
-80q & ae         & 2{,}780 &  $20.5$\,s & $13{,}633\times$ &  $3.2$\,s \\
-64q & qnn        & 8{,}126 & $122.2$\,s & $39{,}403\times$ &  $4.8$\,s \\
-80q & random     & 23{,}381 & $649.8$\,s & $67{,}685\times$ & $206.5$\,s \\
+80q & graphstate &    80 &   $0.6$\,s & $2{,}000\times$ &   $0.5$\,s \\
+25q & ae         &   558 &   $3.2$\,s & $10{,}225\times$ &  $0.5$\,s \\
+25q & random     & 1{,}124 &   $7.3$\,s & $11{,}968\times$ &  $2.4$\,s \\
+64q & random     & 1{,}627 &  $11.9$\,s & $11{,}856\times$ & $13.2$\,s \\
+64q & ae         & 1{,}962 &  $14.9$\,s & $13{,}820\times$ &  $1.8$\,s \\
+80q & ae         & 2{,}780 &  $20.5$\,s & $13{,}521\times$ &  $3.1$\,s \\
+64q & qnn        & 8{,}126 & $110.8$\,s & $35{,}309\times$ & $19.2$\,s \\
+80q & random     & 23{,}381 & $626.9$\,s & $64{,}184\times$ & $116.5$\,s \\
 \bottomrule
 \end{tabular}%
 }
@@ -1042,7 +1043,8 @@ Table~\ref{main-tab:main} of the main paper.
   Table~\ref{main-tab:main} of the main paper. \TeleSABRE{} and
   \dSABRE{} report the best of three seeds; \PORTER{} routes one
   deterministic layout at each of \chg{four candidate lookahead horizons; and}
-  \PORTER{}+R spends five routes on backward refinement instead.
+  \PORTER{}+R spends eight routes over a five-pass backward-refinement
+  schedule instead.
   $\Delta_\mathrm{TS}$ is the EPR change of whichever \PORTER{} column is
   stronger on that row, against \TeleSABRE{} (\%); negative is better,
   and the bolded \PORTER{} column is that stronger one.
@@ -1339,7 +1341,7 @@ qubits the stock binary leaves unplaced, and architecture~H is unchanged
 --- we have not audited its effect.
 
 \textbf{Unequal native budgets.} The own-protocol comparison gives
-\dSABRE{} nine routes to \PORTER{}'s three. That is each compiler's own
+\dSABRE{} nine routes to \PORTER{}'s four. That is each compiler's own
 convention, not a controlled budget --- hence the shared-layout experiment,
 and hence compile time throughout.
 
@@ -1352,11 +1354,12 @@ bases.
 
 \textbf{Implementation and timing.} \PORTER{} and \dSABRE{} are Python and
 \TeleSABRE{} is C, so per-route times compare implementations as much as
-algorithms, and all are wall-clock on one machine. Horizon selection
-guards its speculative routes with a wall-clock budget, so a loaded
-machine may abandon a candidate that would otherwise have won: the
-protocol is reproducible only up to that budget, each individual route
-exactly.
+algorithms, and all are wall-clock on one machine. Times from different
+measurement sessions are not comparable --- the same protocol on this
+machine has measured $1.7\times$ apart between sessions --- so every timing
+column reported here comes from a single run. \emph{Results} do not depend
+on load: horizon selection budgets a speculative route in DAG layers peeled
+rather than seconds (\mainSetup{}).
 
 \textbf{Cost model.} One EPR pair per inter-core action, independent of
 hop count and generation protocol; link contention, entanglement latency

@@ -232,14 +232,15 @@ def tab_scaleup():
         # route and is not comparable with PORTER's three-route protocol.
         td = (r.get("dSE") or {}).get("seconds")
         tp = (r.get("sfc") or {}).get("seconds")
-        # 360q QPEexact selects L=128 for 1224, but that route costs marginally
-        # more than the speculative share derived from its own first route, so
-        # the value is machine-dependent (IV-C, probe_horizon_budget.py).  Mark
-        # it, and let V-D quote the resulting range.
-        mark = "$^{\\dagger}$" if (n == "360" and r["circuit"] == "qpeexact") else ""
+        # 360q QPEexact used to carry a machine-dependence dagger: its L=128
+        # route sat just inside the speculative WALL-CLOCK share, so a slower
+        # run fell back to 2342.  SPECULATIVE_WORK_FACTOR replaced that share
+        # with a budget in DAG layers peeled, and the value is now
+        # deterministic (verified 3/3 at 1224, and 200q QFT 3/3 at 579, on a
+        # machine 1.7x slower than the session that produced the table).
         out.append(f"{r['circuit'].upper().replace('QPEEXACT','QPEexact'):<8} & {cx:>9} & "
                    f"{n:>3} & {P:>3} & {K:>2} & {epr(r, 'dSE'):>4} & {td:>5.1f} & "
-                   f"\\textbf{{{epr(r, 'sfc')}}}{mark} & {tp:>5.1f} \\\\")
+                   f"\\textbf{{{epr(r, 'sfc')}}} & {tp:>5.1f} \\\\")
     g = {k: gmean(v) for k, v in cols.items()}
     tds = gmean([(r.get("dSE") or {}).get("seconds") for r in rows])
     tps = gmean([(r.get("sfc") or {}).get("seconds") for r in rows])
