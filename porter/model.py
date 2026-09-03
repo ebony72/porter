@@ -139,6 +139,28 @@ class RouterConfig:
     local_swap_extended_max_layers: int = 12
     local_swap_extended_cx_count: int = 20
 
+    # Intra-core routing strategy.  dSABRE and PORTER differ in three
+    # decisions inside the local stage, independently toggled here.  All three
+    # default to PORTER's choice, so the shipped op stream is unchanged.
+    #
+    #   local_score_per_core   -- dSABRE scores a candidate SWAP in core c
+    #       against core c's own front gates and its own slice of the extended
+    #       set, normalising by those counts.  PORTER sums and normalises over
+    #       every local CX on the chip; the out-of-core terms are constant and
+    #       so do not move the argmin, but they inflate the normalisers and
+    #       thereby dilute the extended term (measured 1.0-2.2x).
+    #   local_per_core_parallel -- dSABRE applies the best SWAP of *every*
+    #       active core in one iteration; PORTER applies one chip-wide.  Local
+    #       SWAPs in distinct cores touch disjoint physical qubits, so the
+    #       moves commute and per-core scores stay valid.  Implies per-core
+    #       scoring.
+    #   local_ext_decay        -- dSABRE discounts an extended gate by
+    #       decay^depth (0.9), depth being its DAG layer past the front.
+    #       PORTER weights the local extended set flat.  1.0 reproduces that.
+    local_score_per_core: bool = False
+    local_per_core_parallel: bool = False
+    local_ext_decay: float = 1.0
+
     # Packet construction.
     extended_packet_window: int = 120
     remote_gate_limit: int = 20

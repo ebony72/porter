@@ -3095,3 +3095,64 @@ Nothing in it is read by the verifiers; released numbers are untouched.
   comparisons are same-key. vs the old-key sweep, 24/271 fixed-horizon cells
   differ, 3 at the protocol (25q Random 401->393, 80q Multiplier 2411->2486,
   360q QFT 1156->1170).
+
+## dSABRE's intra-core routing strategy: ported, measured, REFUTED (2026-09-03)
+
+Full write-up and data: `paper/local_routing/` (README, `ablate_local.py` ->
+`local_routing_ablation.jsonl`, `report_local.py`, two probes). 768 routes,
+every completing stream replay-verified.
+
+**The three differences, which are the complete set** (dSABRE has no
+SABRE-style recently-used-qubit decay): dSABRE applies the best SWAP of
+**every** active core per iteration where PORTER applies one chip-wide; it
+scores against core `c`'s own front and its own slice of `E`, normalised by
+those counts, where PORTER sums and normalises chip-wide; and it discounts an
+extended gate by `decay^depth` where PORTER weights the local set flat.  Each
+is now a `RouterConfig` flag defaulting to PORTER's choice ---
+`local_per_core_parallel`, `local_score_per_core`, `local_ext_decay` --- and
+all three defaults leave the shipped stream **byte-identical** (SHA256 +
+`seeded_tie_break_count`, 6 circuits).
+
+**ANSWER: it does not help.** Under the shipped best-of-4-horizon protocol,
+all 48 completing, the faithful full port is **+1.3%** EPR (17W/20L/11T) and
+**+2.6%** on the paper's main-24 basis (179.6 vs 175.0). The per-core score
+alone is +0.4% / +0.9%. The control arm reproduces the released `sfc` main-24
+gmean of **175.0 exactly**, so the harness is measuring the real protocol.
+
+**The trap: at a FIXED horizon the per-core score looks like a 5% win.**
+Single pass, 44-instance common basis: per-core score **147.2 vs 154.9
+(-5.0%)**, 17W/8L/20T. It does not survive the portfolio --- per-instance the
+change is large in *both* directions (80q QFT 446->321, 64q QAOA 775->652
+against star/Multiplier 455->721, 80q Multiplier 2486->3222) and nets to
+nothing. **Same pattern as every other lookahead-scoring axis measured here:
+the four-horizon portfolio already collects that spread.** Do not report a
+fixed-horizon local-scoring result without re-running it under selection.
+
+**The per-core *unit* has nothing to work with in PORTER.** Measured
+(`probe_cores.py`): **92-99% of local-stage calls have exactly ONE active
+core**, mean local front 1.03-1.18 gates, because the locality-first loop
+drains local work every iteration. dSABRE's parallelism is a real speedup in
+dSABRE and a no-op here by construction. Added on top of the per-core score it
+*costs* 3.7 points (-5.0% -> -1.3%).
+
+**The per-core score is a REWEIGHTING, not a structure.** A local SWAP in core
+`c` cannot change a distance outside `c`, so PORTER's out-of-core terms are
+constant and cancel in the ranking; what changes is the normaliser, `|E_c|`
+instead of `|E|`, measured at **1.02-2.22x** (`probe_ext.py`). Confirmed
+directly: raising the chip-wide weight alone recovers most of the gain
+(40-instance basis, `w_e` 0.8/1.2/1.6/2.4 -> 135.5/132.5/133.3/132.7 against
+per-core 130.9), and **per-core at `w_e=1.6` is back to baseline (135.3)**, so
+`w_e=0.8` is already near that axis's optimum. dSABRE's own `weight_extended=0.25`
+is *worse* under per-core normalisation (156.0, +0.8%).
+
+**The axis trades fixed-horizon EPR for robustness.** Single-pass completions
+of 48 fall to 46 (per-core), 44 (`w_e=1.6`), 41 (`w_e=2.4`); PORTER's 0.8
+loses only star/Multiplier. Every arm recovers to 48/48 under the portfolio.
+
+**NOT a compile-time win either, and an early 2x reading was an artefact** of
+summing wall time over each arm's *own* completing set --- PORTER completes two
+expensive instances (80q Random, 360q QFT) that per-core does not. Common
+basis: **1.03x**; under the protocol 608 s vs 611 s. dSABRE's per-core
+traversal is a real saving *in dSABRE*, whose intra-core stage is `Theta(N_r)`
+per call; PORTER's local stage is only 9-33% of route time and already peels a
+bounded number of layers.
