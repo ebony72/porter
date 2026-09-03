@@ -810,7 +810,20 @@ def run_refinement_passes(
 # collects only CXs of the one moving qubit, and a qubit has at most one
 # zero-predecessor gate at a time, so the collected count can never exceed
 # the layer budget and that knob is inert at any value >= this one.
-PORTER_HORIZONS: Tuple[int, ...] = (8, 16, 128)
+# ONE fixed set, applied to every circuit.  It is the union of the two sets the
+# retired density branch chose between (dense {4,8,16}, sparse {8,16,128}), so
+# it introduces no horizon value the compiler did not already use, no threshold
+# and no circuit statistic.  Measured on all 48 instances: parity with the
+# branch on the main suite (175.0 either way), 0.2% better pooled over 48, and
+# under backward refinement identical on every one of the 24 main instances --
+# refinement washes the horizon choice out entirely.  It costs 1.58x the
+# branch's compile time single-pass and 1.29x with refinement.  Other four-value
+# sets do about as well: {4,16,32,128}, {4,16,48,128} and {4,16,64,128} are all
+# within a percent, the last of them slightly better pooled; this one is chosen
+# because every value in it is already in use, not because it is uniquely best.
+# Three values are NOT enough -- the best three-set is 0.3% worse than the
+# branch at 1.31x its time, which is what the branch was buying.
+PORTER_HORIZONS: Tuple[int, ...] = (4, 8, 16, 128)
 
 # How much wall clock a speculative (non-default) horizon may spend, as a
 # multiple of what the default horizon took, and a floor for fast circuits.
@@ -839,20 +852,13 @@ SPECULATIVE_MIN_SECONDS: int = 5
 # always runs unguarded and wins ties.  Set to 0 to fall back on the clock.
 SPECULATIVE_WORK_FACTOR: float = 7.0
 
-# Which horizons are worth trying depends on the circuit's interaction-graph
-# density -- the mean fraction of the other logical qubits each qubit shares a
-# CX with.  When that approaches 1 (near all-to-all: QNN, and Random at 80
-# qubits) a long horizon reports the moving qubit as "needed" in every core at
-# once, so the lookahead gain is noise; measured over 48 instances, NO circuit
-# at density >= DENSE_INTERACTION_THRESHOLD ever selected the long horizon
-# (25q ae/qft/qnn/random, 64q QNN, 80q QNN and 80q Random all chose 8 or 16),
-# while the long horizon is exactly where those circuits burn their whole
-# speculative time budget without converging.  Dropping it there costs no EPR
-# and removes the single largest compile-time sink; the freed slot goes to a
-# shorter horizon, which is what 80q QNN actually wants (1070 at L=4 against
-# 1517 at the default).
-PORTER_HORIZONS_DENSE: Tuple[int, ...] = (4, 8, 16)
-DENSE_INTERACTION_THRESHOLD: float = 0.80
+# Retired 2026-09-03: the density branch.  `PORTER_HORIZONS_DENSE` and
+# `DENSE_INTERACTION_THRESHOLD` selected between two three-value sets by the
+# circuit's interaction density.  That rule was fitted on the same corpus the
+# paper reports on and had no justification beyond it, and the single set above
+# matches it without one.  `circuit_interaction_density` is kept: it is still
+# recorded per route as a diagnostic, and it is what the density discussion in
+# the paper is about -- it just no longer decides anything.
 
 
 def circuit_interaction_density(circuit: List[porter.Gate], num_logical: int) -> float:
@@ -881,13 +887,15 @@ def select_horizons(
     circuit: List[porter.Gate],
     num_logical: int,
     *,
-    sparse: Tuple[int, ...] = PORTER_HORIZONS,
-    dense: Tuple[int, ...] = PORTER_HORIZONS_DENSE,
-    threshold: float = DENSE_INTERACTION_THRESHOLD,
+    horizons: Tuple[int, ...] = PORTER_HORIZONS,
 ) -> Tuple[Tuple[int, ...], float]:
-    """Pick the horizon candidate set for a circuit.  Returns (horizons, density)."""
-    density = circuit_interaction_density(circuit, num_logical)
-    return (dense if density >= threshold else sparse), density
+    """The horizon candidate set, which no longer depends on the circuit.
+
+    Returns ``(horizons, density)``.  The density is computed and returned for
+    the record only -- callers store it alongside the route -- and selects
+    nothing; see the note on ``PORTER_HORIZONS`` above.
+    """
+    return horizons, circuit_interaction_density(circuit, num_logical)
 
 
 class HorizonTimeout(Exception):
@@ -1022,9 +1030,15 @@ def run_horizon_selection(
             max_lookahead_layers=(0 if position == 0 or not SPECULATIVE_WORK_FACTOR
                                   else work_budget))
         started = time.perf_counter()
-        # The first horizon establishes the time budget, so it runs unguarded.
+        # The first horizon establishes the budget, so it runs unguarded.  When
+        # the work budget is active it REPLACES the wall-clock share rather than
+        # supplementing it: leaving both in place would keep the protocol's
+        # output dependent on machine load, which is the thing the work counter
+        # exists to remove.  The clock is kept only as the fallback for
+        # SPECULATIVE_WORK_FACTOR = 0.
+        clock = None if (position == 0 or SPECULATIVE_WORK_FACTOR) else budget
         outcome = _route(porter.PorterRouter(hw, attempt_cfg), circuit,
-                         initial_layout, None if position == 0 else budget)
+                         initial_layout, clock)
         elapsed = time.perf_counter() - started
         info["horizon_seconds"][horizon] = round(elapsed, 3)
         if position == 0 and not isinstance(outcome, BaseException):

@@ -14,7 +14,7 @@ import re, subprocess, sys, difflib
 from pathlib import Path
 
 REPO = Path("/Users/sanjiangli/Documents/pyzoo/SFC")
-BASE = "8de4379"
+BASE = "ffa9b25"   # the end of round 4; bump this when a new round starts
 FILES = sorted(p.relative_to(REPO).as_posix() for p in (REPO / "paper/sections").glob("*.tex"))
 FILES.append("paper/sfc_appendix.tex")
 
@@ -54,8 +54,22 @@ def balanced(lines) -> bool:
     return d == 0
 
 
+# A table data row: cells separated by & and terminated by \\.  Every existing
+# mark in this manuscript sits in prose, never inside a row, and the table
+# verifier parses those rows with regexes that a \chg{} wrapper would break.
+# Any line carrying an unescaped alignment tab belongs to a tabular -- including
+# a row continued across several source lines, which has no trailing \\ to
+# recognise it by.  Marks stay in prose: that is the manuscript's own
+# convention, and the table verifier parses those rows with regexes a \chg{}
+# wrapper would break.
+def has_alignment_tab(line: str) -> bool:
+    return any(c == "&" and (i == 0 or line[i-1] != "\\")
+               for i, c in enumerate(line))
+
+
 def wrappable(line: str) -> bool:
-    return bool(line.strip()) and not STRUCT.match(line)
+    return (bool(line.strip()) and not STRUCT.match(line)
+            and not has_alignment_tab(line))
 
 
 def mark(old: str, new: str, path: str):

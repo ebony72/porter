@@ -17,10 +17,12 @@
 \usepackage{xcolor}
 \usepackage{booktabs}
 
-%% ---- Round-4 revision highlighting -------------------------------------
-%% \chg{...} marks text changed in the round-4 revision, measured against
-%% commit 8de4379 (the end of round 3); the round-3 marks were retired when
-%% these were added, so exactly one round is ever highlighted.  Flip the \newif to
+%% ---- Round-5 revision highlighting -------------------------------------
+%% \chg{...} marks text changed in the round-5 revision, measured against
+%% commit ffa9b25 (the end of round 4); each round's marks are retired when the
+%% next round's are added, so exactly one round is ever highlighted.  Marks sit
+%% in prose only -- table cells are checked against the released results by
+%% paper/verify_tex_tables.py, which parses those rows.  Flip the \newif to
 %% \revisionhighlightfalse to typeset a clean, unmarked copy; the macro then
 %% expands to its argument and nothing else changes.
 \newif\ifrevisionhighlight

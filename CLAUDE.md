@@ -2651,6 +2651,42 @@ Scripts: scratchpad `determinism.py` (SHA + tie-count harness, reusable for any
 refactor), `phase2.py`, `recover.py`.
 
 
+## ADOPTED: one fixed four-value horizon set; the density branch is retired (2026-09-03)
+
+`PORTER_HORIZONS = (4, 8, 16, 128)`, applied to every circuit.
+`PORTER_HORIZONS_DENSE` and `DENSE_INTERACTION_THRESHOLD` are **deleted**;
+`select_horizons` still returns `(horizons, density)` but the density is
+recorded as a diagnostic and selects nothing, and
+`circuit_interaction_density` is kept because IV-E still discusses it.
+
+**Nothing moved on the main suite.** All 24 instances re-run on all three
+protocols: `sfc`, `sfc_refined` and `sfc_search` are **EPR-identical**, 175.0 /
+163.1 / 160.1. Only time moved: 165 -> 247 s, 386 -> 475 s, 796 -> 921 s
+(1.50x / 1.23x / 1.16x). Scale-up is unchanged in EPR too.
+
+**Five heavy-hex star cells moved** (`porter` random 547->510, qaoa 405->401;
+`porter_on_dse` qft 108->98, random 478->466, qaoa 245->243), so the star
+own-protocol gmean is **121.2** (was 122.3) and on dSABRE's layouts **97.1**
+(was 98.5). Ring is unchanged.
+
+**The wall-clock guard now YIELDS to the work budget.** Both were active, so
+the protocol was still machine-dependent and IV-C's determinism sentence was
+false. `run_horizon_selection` passes the clock only when
+`SPECULATIVE_WORK_FACTOR = 0`. Cost of that fix: 64q QFT's
+`sfc_on_dse_layout` 238 -> 253, a candidate the clock admitted and the
+deterministic budget rejects. **Do not re-enable both at once.**
+
+**V-B's row-spread bound moved again**: block (b)'s widest row is now
+$3.47\%$, so prose and pin say $3.5\%$ (was 3.2%, was 3%). That bound has
+caught every one of these re-runs -- keep it.
+
+**Highlighting is round 5**, baselined at `ffa9b25`, and
+`paper/remark_highlights.py` now refuses to mark **any line carrying an
+unescaped `&`**. The previous rule only skipped rows ending in `\\`, so a row
+continued across source lines got wrapped and broke the build with
+`Missing } inserted`. Marks are prose-only by the manuscript's own convention,
+and `verify_tex_tables.py` parses table rows with regexes a wrapper would break.
+
 ## The density branch can be replaced by ONE four-value set (2026-09-03)
 
 The author's objection: selecting three horizons by $\rho$ is a fitted rule with

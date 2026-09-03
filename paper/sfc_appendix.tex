@@ -744,8 +744,8 @@ $g_5$, whose partner $\logi{6}$ stays in $c_0$ --- but $c_1$ fails the
 $f_\mathrm{min}$ test, so it lands in $\mathcal{B}$; its gain
 ${\approx}2.1$ does not exceed the packet's $3.0$ by
 $m_\mathrm{assist}{=}5$, so no capacity relief pre-empts. Plans are
-ranked by gain first --- \chg{preparation cost is only a tie-break --- so
-the \emph{unready} packet (gain $3$) beats the \emph{ready} telegate for}
+ranked by gain first --- preparation cost is only a tie-break --- so
+the \emph{unready} packet (gain $3$) beats the \emph{ready} telegate for
 $g_4$ (gain $1$). \PORTER{} commits the packet, generates its one
 preparation SWAP ($\logi{0}$ next to the port), then emits one
 cat-entangler, three cat-CXs (each target routed beside the port in
@@ -754,9 +754,9 @@ The packet's completion exposes $g_4$ and $g_5$ together; the
 locality-first stage drains the now-local $g_5$ first (one SWAP plus
 a local CX), and the remote stage then re-generates plans for $g_4$:
 the single telegate and \TeleData{}($\logi{5}\!\to\!c_0$) now tie at
-gain $1$, and the \chg{capacity tie-break --- negative for the \TeleData{},
+gain $1$, and the capacity tie-break --- negative for the \TeleData{},
 zero for the \TeleGate{} (Section~\ref{main-sec:sfc-scoring}) --- commits
-the teleport ---}
+the teleport ---
 $\logi{5}$ lands on $c_0$'s port and $g_4$ finishes as a local CX.
 Two EPR pairs for the whole fragment. This is not a stylised
 trace: it is exactly the operation stream the implementation emits
@@ -885,7 +885,7 @@ Local extended-set max layers      & $L_\mathrm{loc}$        & 12 \\
 Local extended-set max CX          & $N_\mathrm{loc}$        & 20 \\
 Packet collection window (layers)  & --                      & 120 \\
 Max packet size (remote CX)        & --                      & 8 \\
-TeleData lookahead max layers      & $L_\mathrm{tp}$         & $\{4,8,16\}$ or $\{8,16,128\}$\rlap{$^\dagger$} \\
+TeleData lookahead max layers      & $L_\mathrm{tp}$         & $\{4,8,16,128\}$\rlap{$^\dagger$} \\
 TeleData lookahead max CX          & $N_\mathrm{tp}$         & 50\rlap{$^\ddagger$} \\
 Lookahead weight / decay / floor   & $w_0,\gamma,w_\mathrm{min}$ & 0.9, 0.9, 0.5 \\
 \bottomrule
@@ -894,8 +894,8 @@ Lookahead weight / decay / floor   & $w_0,\gamma,w_\mathrm{min}$ & 0.9, 0.9, 0.5
 \begin{minipage}{\columnwidth}\vspace{2pt}\footnotesize
 $^\dagger$ The teleport-lookahead horizon is not a fixed constant:
 \PORTER{} routes the circuit once per candidate value and keeps the
-lowest-EPR result, taking the short candidate set when the interaction
-graph is near all-to-all and the long one otherwise
+lowest-EPR \chg{result. The set is the same for every circuit; $16$ is the
+configured value, routed first and winning ties}
 (Section~\ref{main-sec:horizon}).\\
 $^\ddagger$ Inert at this value. The lookahead admits at most one gate on
 the moving qubit per simulated layer, so the collected count cannot exceed
@@ -944,13 +944,13 @@ ring  & multiplier  &   451 &   506 &   416 \\
 star  & ae          &   118 &   149 &   104 \\
 star  & ghz         &     3 &     3 &     4 \\
 star  & graphstate  &    10 &    16 &    11 \\
-star  & qft         &   125 &   117 &   108 \\
+star  & qft         &   125 &   117 &    98 \\
 star  & qnn         &   241 &   449 &   321 \\
-star  & random      &   475 &   547 &   478 \\
+star  & random      &   475 &   510 &   466 \\
 star  & qpeexact    &   120 &   162 &   102 \\
-star  & qaoa        &   251 &   405 &   245 \\
+star  & qaoa        &   251 &   401 &   243 \\
 star  & multiplier  &   722 &   455 &   462 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 101.1 & 122.3 & \textbf{98.5} \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 101.1 & 121.2 & \textbf{97.1} \\
 \bottomrule
 \end{tabular}%
 }
@@ -1018,7 +1018,7 @@ Table~\ref{main-tab:main} of the main paper.
 \caption{Per-circuit EPR counts, own protocol --- the detail behind
   Table~\ref{main-tab:main} of the main paper. \TeleSABRE{} and
   \dSABRE{} report the best of three seeds; \PORTER{} routes one
-  deterministic layout at each of three candidate lookahead horizons; and
+  deterministic layout at each of \chg{four candidate lookahead horizons; and}
   \PORTER{}+R spends five routes on backward refinement instead.
   $\Delta_\mathrm{TS}$ is the EPR change of whichever \PORTER{} column is
   stronger on that row, against \TeleSABRE{} (\%); negative is better,
@@ -1194,52 +1194,52 @@ seed.
 Suite & Circuit & \PORTER{} & $+$R & $+$S & $\Delta$\,\% &
   $\gamma^{\ast}$ & $+$R & $+$S \\
 \midrule
-25q & ae         &    65 &    65 &    62 &    $-4.6$ & 0.8 &     0.4 &     1.3 \\
+25q & ae         &    65 &    65 &    62 &    $-4.6$ & 0.8 &     0.7 &     1.8 \\
 25q & ghz        &     4 &     4 &     4 &       --- & 0.8 &     0.0 &     0.0 \\
 25q & graphstate &     7 &     4 &     4 &       --- & 0.8 &     0.0 &     0.1 \\
-25q & qft        &    74 &    74 &    74 &       --- & 0.99 &     0.7 &     1.1 \\
-25q & qnn        &   119 &   116 &   116 &       --- & 0.8 &     1.1 &     3.2 \\
-25q & random     &   393 &   389 &   389 &       --- & 0.99 &     2.7 &     4.8 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 43.0 & 38.9 & \textbf{38.6} & $\mathbf{-0.8}$ & & 0.25 & 0.61 \\
+25q & qft        &    74 &    74 &    74 &       --- & 0.99 &     0.9 &     1.4 \\
+25q & qnn        &   119 &   116 &   116 &       --- & 0.8 &     1.9 &     4.4 \\
+25q & random     &   393 &   389 &   389 &       --- & 0.99 &     4.5 &     6.1 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (6)} & 43.0 & 38.9 & \textbf{38.6} & $\mathbf{-0.8}$ & & 0.36 & 0.77 \\
 \midrule
-64q & ae         &   157 &   157 &   157 &       --- & 0.95 &     6.3 &    14.7 \\
+64q & ae         &   157 &   157 &   157 &       --- & 0.95 &     6.3 &    15.3 \\
 64q & ghz        &     6 &     6 &     6 &       --- & 0.8 &     0.0 &     0.1 \\
-64q & graphstate &    20 &    16 &    16 &       --- & 0.8 &     0.3 &     0.9 \\
-64q & qft        &   262 &   262 &   262 &       --- & 0.99 &     4.9 &     6.8 \\
-64q & qnn        &   638 &   638 &   604 &    $-5.3$ & 1 &    10.2 &    34.5 \\
-64q & random     &   737 &   732 &   664 &    $-9.3$ & 0.9 &    20.7 &    49.3 \\
-64q & qpeexact   &   222 &   222 &   197 &   $-11.3$ & 1 &     4.1 &     9.1 \\
-64q & qaoa       &   775 &   586 &   586 &       --- & 0.9 &    18.3 &    45.1 \\
-64q & multiplier &  1076 &  1076 &   998 &    $-7.2$ & 0.9 &    13.6 &    33.4 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 196.1 & 185.3 & \textbf{178.3} & $\mathbf{-3.8}$ & & 3.45 & 8.35 \\
+64q & graphstate &    20 &    16 &    16 &       --- & 0.8 &     0.4 &     1.0 \\
+64q & qft        &   262 &   262 &   262 &       --- & 0.99 &     4.6 &     7.2 \\
+64q & qnn        &   638 &   638 &   604 &    $-5.3$ & 1 &    19.2 &    52.0 \\
+64q & random     &   737 &   732 &   664 &    $-9.3$ & 0.9 &    20.7 &    51.7 \\
+64q & qpeexact   &   222 &   222 &   197 &   $-11.3$ & 1 &     4.1 &     9.7 \\
+64q & qaoa       &   775 &   586 &   586 &       --- & 0.9 &    19.3 &    47.6 \\
+64q & multiplier &  1076 &  1076 &   998 &    $-7.2$ & 0.9 &    14.6 &    35.9 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 196.1 & 185.3 & \textbf{178.3} & $\mathbf{-3.8}$ & & 3.84 & 9.35 \\
 \midrule
-80q & ae         &   299 &   277 &   277 &       --- & 0.9 &    11.1 &    40.0 \\
+80q & ae         &   299 &   277 &   277 &       --- & 0.9 &    11.4 &    41.2 \\
 80q & ghz        &     7 &     7 &     7 &       --- & 0.8 &     0.0 &     0.1 \\
-80q & graphstate &    28 &    24 &    24 &       --- & 0.8 &     0.6 &     1.8 \\
-80q & qft        &   446 &   393 &   377 &    $-4.1$ & 1 &     5.2 &    11.8 \\
-80q & qnn        &  1070 &   918 &   918 &       --- & 1 &    18.5 &    65.8 \\
-80q & random     & 11040 & 11013 & 11013 &       --- & 0.99 &   188.6 &   321.0 \\
-80q & qpeexact   &   291 &   291 &   291 &       --- & 0.95 &    13.9 &    35.6 \\
-80q & qaoa       &  1122 &  1122 &  1122 &       --- & 0.99 &    39.4 &    59.2 \\
-80q & multiplier &  2486 &  2313 &  2313 &       --- & 0.95 &    25.6 &    56.3 \\
-\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 398.0 & 373.0 & \textbf{371.2} & $\mathbf{-0.5}$ & & 7.46 & 18.55 \\
+80q & graphstate &    28 &    24 &    24 &       --- & 0.8 &     0.7 &     2.0 \\
+80q & qft        &   446 &   393 &   377 &    $-4.1$ & 1 &     5.4 &    12.6 \\
+80q & qnn        &  1070 &   918 &   918 &       --- & 1 &    37.5 &   101.4 \\
+80q & random     & 11040 & 11013 & 11013 &       --- & 0.99 &   238.6 &   370.4 \\
+80q & qpeexact   &   291 &   291 &   291 &       --- & 0.95 &    14.4 &    36.6 \\
+80q & qaoa       &  1122 &  1122 &  1122 &       --- & 0.99 &    41.1 &    61.5 \\
+80q & multiplier &  2486 &  2313 &  2313 &       --- & 0.95 &    28.5 &    61.0 \\
+\multicolumn{2}{@{}l}{\quad\textbf{gmean} (9)} & 398.0 & 373.0 & \textbf{371.2} & $\mathbf{-0.5}$ & & 8.84 & 20.90 \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{gmean, all} (24)} & 175.0 & 163.1 & \textbf{160.1} & $\mathbf{-1.8}$ & & 2.40 & 5.85 \\
+\multicolumn{2}{@{}l}{\textbf{gmean, all} (24)} & 175.0 & 163.1 & \textbf{160.1} & $\mathbf{-1.8}$ & & 2.90 & 6.76 \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
 \textbf{What it buys.} Table~\ref{tab:layoutsearch} gives the result.
-Pooled over the twenty-four instances \PORTER{}+S reaches \chg{$160.1$} EPR
-pairs against \PORTER{}+R's \chg{$163.1$}, a \chg{$1.8\%$} reduction, and
+Pooled over the twenty-four instances \PORTER{}+S reaches \chg{$160.1$ EPR
+pairs against \PORTER{}+R's $163.1$, a $1.8\%$ reduction, and}
 $0.93\times$ \dSABRE{}'s $171.9$ against \PORTER{}+R's $0.95\times$. It
-improves on \chg{six} instances, ties on \chg{eighteen} and --- being a superset
+improves on \chg{six instances, ties on eighteen and --- being a superset}
 schedule --- loses on none. Its one qualitative effect is at 64 qubits,
 the single suite \PORTER{} loses under its own protocol: the ratio
-against \dSABRE{} falls from \PORTER{}+R's $1.07\times$ to \chg{$1.03\times$}.
+against \dSABRE{} falls from \PORTER{}+R's $1.07\times$ to \chg{$1.03\times$.}
 
-\textbf{What it costs.} \chg{The same twenty-four instances take $796$\,s
+\textbf{What it costs.} The same twenty-four instances take \chg{$796$\,s
 against \PORTER{}+R's $386$\,s --- $2.1\times$ the wall clock, and
 $4\times$ \dSABRE{}'s complete protocol cost of $182$\,s. The
 expenditure is badly distributed: the 80-qubit suite consumes $592$

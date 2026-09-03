@@ -37,9 +37,9 @@
       "telegate_packets": 8,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.163,
+      "seconds": 0.379,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.162,
+      "seconds_best_attempt": 0.379,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -54,7 +54,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 8,
-      "seconds": 0.448,
+      "seconds": 0.678,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -78,7 +78,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 9,
-      "seconds": 1.336,
+      "seconds": 1.786,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.8,
@@ -89,7 +89,7 @@
         "0.99": 65,
         "1.0": 62
       },
-      "routes": 17,
+      "routes": 18,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -104,8 +104,8 @@
       "telegates": 0,
       "telegate_packets": 4,
       "chosen_horizon": 4,
-      "seconds_best_attempt": 0.244,
-      "seconds": 0.631,
+      "seconds_best_attempt": 0.485,
+      "seconds": 1.314,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -119,7 +119,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 4,
-      "seconds": 1.553,
+      "seconds": 2.243,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -128,7 +128,7 @@
         96,
         107
       ],
-      "seconds_best_attempt": 0.4,
+      "seconds_best_attempt": 0.644,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -231,9 +231,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 9,
-      "seconds": 1.492,
+      "seconds": 2.17,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 21,
       "selection_epr": 65,
       "chosen_horizon": 16,
       "search_epr": 62,
@@ -278,9 +278,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.006,
+      "seconds": 0.008,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.006,
+      "seconds_best_attempt": 0.008,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -295,7 +295,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.011,
+      "seconds": 0.013,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -319,7 +319,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.031,
+      "seconds": 0.035,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.8,
@@ -330,7 +330,7 @@
         "0.99": 4,
         "1.0": 4
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -345,8 +345,8 @@
       "telegates": 2,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.003,
-      "seconds": 0.01,
+      "seconds_best_attempt": 0.004,
+      "seconds": 0.014,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -360,7 +360,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 2,
       "telegate_packets": 0,
-      "seconds": 0.02,
+      "seconds": 0.024,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -369,7 +369,7 @@
         3,
         3
       ],
-      "seconds_best_attempt": 0.006,
+      "seconds_best_attempt": 0.008,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -472,9 +472,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.036,
+      "seconds": 0.042,
       "chosen_schedule": "selection",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 4,
       "chosen_horizon": 16,
       "search_epr": 4,
@@ -519,9 +519,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.014,
+      "seconds": 0.019,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.014,
+      "seconds_best_attempt": 0.019,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -536,7 +536,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.026,
+      "seconds": 0.032,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -560,7 +560,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.076,
+      "seconds": 0.087,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.8,
@@ -571,7 +571,7 @@
         "0.99": 7,
         "1.0": 7
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -586,8 +586,8 @@
       "telegates": 2,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.018,
-      "seconds": 0.045,
+      "seconds_best_attempt": 0.023,
+      "seconds": 0.057,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -601,7 +601,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.086,
+      "seconds": 0.158,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -610,7 +610,7 @@
         4,
         4
       ],
-      "seconds_best_attempt": 0.03,
+      "seconds_best_attempt": 0.035,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -713,9 +713,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.09,
+      "seconds": 0.106,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 7,
       "chosen_horizon": 16,
       "search_epr": 4,
@@ -760,9 +760,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.201,
+      "seconds": 0.463,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.201,
+      "seconds_best_attempt": 0.463,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -777,7 +777,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.669,
+      "seconds": 0.869,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -801,7 +801,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 1.08,
+      "seconds": 1.36,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.99,
@@ -827,8 +827,8 @@
       "telegates": 0,
       "telegate_packets": 18,
       "chosen_horizon": 4,
-      "seconds_best_attempt": 0.226,
-      "seconds": 0.716,
+      "seconds_best_attempt": 0.623,
+      "seconds": 1.864,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -842,7 +842,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 1,
       "telegate_packets": 13,
-      "seconds": 1.524,
+      "seconds": 2.702,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -851,7 +851,7 @@
         90,
         86
       ],
-      "seconds_best_attempt": 0.472,
+      "seconds_best_attempt": 0.975,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -954,9 +954,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 1.216,
+      "seconds": 1.759,
       "chosen_schedule": "selection",
-      "routes": 13,
+      "routes": 14,
       "selection_epr": 74,
       "chosen_horizon": 16,
       "search_epr": 74,
@@ -1001,9 +1001,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.442,
+      "seconds": 1.141,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.442,
+      "seconds_best_attempt": 1.141,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -1018,7 +1018,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 1.127,
+      "seconds": 1.857,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -1042,7 +1042,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 3.157,
+      "seconds": 4.449,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.8,
@@ -1068,8 +1068,8 @@
       "telegates": 0,
       "telegate_packets": 6,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.523,
-      "seconds": 1.438,
+      "seconds_best_attempt": 1.146,
+      "seconds": 3.614,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1083,7 +1083,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 3.696,
+      "seconds": 5.88,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -1092,7 +1092,7 @@
         116,
         149
       ],
-      "seconds_best_attempt": 1.292,
+      "seconds_best_attempt": 2.038,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -1195,9 +1195,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 3.61,
+      "seconds": 5.615,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 20,
       "selection_epr": 119,
       "chosen_horizon": 16,
       "search_epr": 116,
@@ -1242,9 +1242,9 @@
       "telegate_packets": 34,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 1.039,
+      "seconds": 2.264,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 1.039,
+      "seconds_best_attempt": 2.263,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -1259,7 +1259,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 80,
       "telegate_packets": 43,
-      "seconds": 2.664,
+      "seconds": 4.468,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -1283,7 +1283,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 80,
       "telegate_packets": 43,
-      "seconds": 4.752,
+      "seconds": 6.114,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.99,
@@ -1309,8 +1309,8 @@
       "telegates": 75,
       "telegate_packets": 38,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.928,
-      "seconds": 2.945,
+      "seconds_best_attempt": 2.363,
+      "seconds": 7.41,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1324,7 +1324,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 75,
       "telegate_packets": 38,
-      "seconds": 7.551,
+      "seconds": 11.847,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -1333,7 +1333,7 @@
         414,
         414
       ],
-      "seconds_best_attempt": 2.692,
+      "seconds_best_attempt": 4.011,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -1436,9 +1436,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 80,
       "telegate_packets": 43,
-      "seconds": 5.662,
+      "seconds": 8.458,
       "chosen_schedule": "search",
-      "routes": 13,
+      "routes": 14,
       "selection_epr": 393,
       "chosen_horizon": 16,
       "search_epr": 389,
@@ -1483,9 +1483,9 @@
       "telegate_packets": 38,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 1.423,
+      "seconds": 1.641,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 1.421,
+      "seconds_best_attempt": 1.64,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -1500,7 +1500,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 38,
-      "seconds": 6.33,
+      "seconds": 6.278,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -1524,7 +1524,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 38,
-      "seconds": 14.714,
+      "seconds": 15.26,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.95,
@@ -1535,7 +1535,7 @@
         "0.99": 177,
         "1.0": 180
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -1550,8 +1550,8 @@
       "telegates": 1,
       "telegate_packets": 68,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 1.728,
-      "seconds": 5.409,
+      "seconds_best_attempt": 2.231,
+      "seconds": 6.521,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1565,7 +1565,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 1,
       "telegate_packets": 68,
-      "seconds": 21.422,
+      "seconds": 21.889,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -1574,7 +1574,7 @@
         221,
         228
       ],
-      "seconds_best_attempt": 7.244,
+      "seconds_best_attempt": 7.372,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -1677,9 +1677,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 38,
-      "seconds": 16.22,
+      "seconds": 16.826,
       "chosen_schedule": "selection",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 157,
       "chosen_horizon": 128,
       "search_epr": 157,
@@ -1724,9 +1724,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.018,
+      "seconds": 0.031,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.018,
+      "seconds_best_attempt": 0.031,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -1741,7 +1741,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.033,
+      "seconds": 0.038,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -1765,7 +1765,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.097,
+      "seconds": 0.114,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.8,
@@ -1776,7 +1776,7 @@
         "0.99": 6,
         "1.0": 6
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -1791,8 +1791,8 @@
       "telegates": 0,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.013,
-      "seconds": 0.039,
+      "seconds_best_attempt": 0.022,
+      "seconds": 0.062,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -1806,7 +1806,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.081,
+      "seconds": 0.092,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -1815,7 +1815,7 @@
         6,
         6
       ],
-      "seconds_best_attempt": 0.028,
+      "seconds_best_attempt": 0.031,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -1918,9 +1918,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.117,
+      "seconds": 0.136,
       "chosen_schedule": "selection",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 6,
       "chosen_horizon": 16,
       "search_epr": 6,
@@ -1965,9 +1965,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.149,
+      "seconds": 0.28,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.148,
+      "seconds_best_attempt": 0.28,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -1982,7 +1982,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.316,
+      "seconds": 0.359,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -2006,7 +2006,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.874,
+      "seconds": 0.975,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.8,
@@ -2017,7 +2017,7 @@
         "0.99": 20,
         "1.0": 20
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -2032,8 +2032,8 @@
       "telegates": 2,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.067,
-      "seconds": 0.302,
+      "seconds_best_attempt": 0.088,
+      "seconds": 0.486,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2047,7 +2047,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.699,
+      "seconds": 0.764,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -2056,7 +2056,7 @@
         16,
         14
       ],
-      "seconds_best_attempt": 0.227,
+      "seconds_best_attempt": 0.255,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -2159,9 +2159,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 1.023,
+      "seconds": 1.173,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 20,
       "chosen_horizon": 16,
       "search_epr": 16,
@@ -2206,9 +2206,9 @@
       "telegate_packets": 45,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 5.698,
+      "seconds": 3.359,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 5.697,
+      "seconds_best_attempt": 3.358,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -2223,7 +2223,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 1,
       "telegate_packets": 45,
-      "seconds": 4.891,
+      "seconds": 4.609,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -2247,7 +2247,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 1,
       "telegate_packets": 45,
-      "seconds": 6.823,
+      "seconds": 7.194,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.99,
@@ -2258,23 +2258,23 @@
         "0.99": 262,
         "1.0": 343
       },
-      "routes": 10,
+      "routes": 11,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
-      "epr": 238,
-      "swaps": 1806,
-      "depth": 4151,
-      "intercore_depth": 4147,
-      "teleports": 174,
-      "teleports_normal": 123,
-      "teleports_blocked": 51,
-      "teleports_capacity_relief": 0,
-      "telegates": 1,
-      "telegate_packets": 63,
-      "chosen_horizon": 128,
-      "seconds_best_attempt": 2.074,
-      "seconds": 7.28,
+      "epr": 253,
+      "swaps": 1802,
+      "depth": 4190,
+      "intercore_depth": 4190,
+      "teleports": 192,
+      "teleports_normal": 144,
+      "teleports_blocked": 42,
+      "teleports_capacity_relief": 6,
+      "telegates": 16,
+      "telegate_packets": 45,
+      "chosen_horizon": 16,
+      "seconds_best_attempt": 2.769,
+      "seconds": 8.136,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2288,7 +2288,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 3,
       "telegate_packets": 79,
-      "seconds": 17.188,
+      "seconds": 17.313,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -2297,7 +2297,7 @@
         233,
         314
       ],
-      "seconds_best_attempt": 8.999,
+      "seconds_best_attempt": 8.959,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -2400,9 +2400,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 1,
       "telegate_packets": 45,
-      "seconds": 9.488,
+      "seconds": 10.205,
       "chosen_schedule": "selection",
-      "routes": 12,
+      "routes": 14,
       "selection_epr": 262,
       "chosen_horizon": 16,
       "search_epr": 262,
@@ -2447,10 +2447,10 @@
       "telegate_packets": 69,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 4.632,
+      "seconds": 13.681,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 4.629,
-      "layout_seconds": 0.003,
+      "seconds_best_attempt": 13.677,
+      "layout_seconds": 0.004,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -2464,7 +2464,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 1,
       "telegate_packets": 69,
-      "seconds": 10.207,
+      "seconds": 19.242,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -2488,7 +2488,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 3,
       "telegate_packets": 45,
-      "seconds": 34.466,
+      "seconds": 51.993,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 1.0,
@@ -2514,8 +2514,8 @@
       "telegates": 1,
       "telegate_packets": 122,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 4.548,
-      "seconds": 15.138,
+      "seconds_best_attempt": 12.536,
+      "seconds": 45.319,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2529,7 +2529,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 33,
-      "seconds": 35.119,
+      "seconds": 65.107,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -2538,7 +2538,7 @@
         590,
         831
       ],
-      "seconds_best_attempt": 14.015,
+      "seconds_best_attempt": 22.984,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -2641,9 +2641,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 3,
       "telegate_packets": 45,
-      "seconds": 39.395,
+      "seconds": 65.528,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 20,
       "selection_epr": 638,
       "chosen_horizon": 8,
       "search_epr": 604,
@@ -2678,9 +2678,9 @@
       "telegate_packets": 77,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 10.059,
+      "seconds": 10.94,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 10.057,
+      "seconds_best_attempt": 10.939,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -2695,7 +2695,7 @@
       "teleports_capacity_relief": 10,
       "telegates": 279,
       "telegate_packets": 68,
-      "seconds": 20.748,
+      "seconds": 20.667,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -2719,7 +2719,7 @@
       "teleports_capacity_relief": 4,
       "telegates": 140,
       "telegate_packets": 46,
-      "seconds": 49.253,
+      "seconds": 51.716,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.9,
@@ -2730,7 +2730,7 @@
         "0.99": 737,
         "1.0": 714
       },
-      "routes": 15,
+      "routes": 17,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -2745,8 +2745,8 @@
       "telegates": 157,
       "telegate_packets": 39,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 15.195,
-      "seconds": 44.332,
+      "seconds_best_attempt": 16.061,
+      "seconds": 47.24,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2760,7 +2760,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 157,
       "telegate_packets": 39,
-      "seconds": 64.949,
+      "seconds": 66.635,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -2769,7 +2769,7 @@
         726,
         784
       ],
-      "seconds_best_attempt": 20.863,
+      "seconds_best_attempt": 20.596,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -2834,9 +2834,9 @@
       "teleports_capacity_relief": 4,
       "telegates": 140,
       "telegate_packets": 46,
-      "seconds": 61.661,
+      "seconds": 63.953,
       "chosen_schedule": "search",
-      "routes": 17,
+      "routes": 20,
       "selection_epr": 737,
       "chosen_horizon": 16,
       "search_epr": 664,
@@ -2881,9 +2881,9 @@
       "telegate_packets": 42,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 5.583,
+      "seconds": 2.532,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 5.582,
+      "seconds_best_attempt": 2.53,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -2898,7 +2898,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 3,
       "telegate_packets": 42,
-      "seconds": 4.127,
+      "seconds": 4.119,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -2922,7 +2922,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 0,
       "telegate_packets": 32,
-      "seconds": 9.096,
+      "seconds": 9.731,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 1.0,
@@ -2933,7 +2933,7 @@
         "0.99": 222,
         "1.0": 197
       },
-      "routes": 15,
+      "routes": 17,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -2948,8 +2948,8 @@
       "telegates": 4,
       "telegate_packets": 82,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.256,
-      "seconds": 7.105,
+      "seconds_best_attempt": 2.667,
+      "seconds": 8.194,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -2963,7 +2963,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 35,
-      "seconds": 31.258,
+      "seconds": 30.96,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -2972,7 +2972,7 @@
         248,
         178
       ],
-      "seconds_best_attempt": 9.319,
+      "seconds_best_attempt": 9.156,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -3074,9 +3074,9 @@
       "teleports_capacity_relief": 2,
       "telegates": 0,
       "telegate_packets": 32,
-      "seconds": 11.274,
+      "seconds": 12.265,
       "chosen_schedule": "search",
-      "routes": 17,
+      "routes": 20,
       "selection_epr": 222,
       "chosen_horizon": 16,
       "search_epr": 197,
@@ -3121,9 +3121,9 @@
       "telegate_packets": 162,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 12.591,
+      "seconds": 13.643,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 12.59,
+      "seconds_best_attempt": 13.641,
       "layout_seconds": 0.002,
       "n_candidates": 1
     },
@@ -3138,7 +3138,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 2,
       "telegate_packets": 76,
-      "seconds": 18.252,
+      "seconds": 19.295,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -3162,7 +3162,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 2,
       "telegate_packets": 76,
-      "seconds": 45.104,
+      "seconds": 47.646,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.9,
@@ -3173,7 +3173,7 @@
         "0.99": 854,
         "1.0": 897
       },
-      "routes": 15,
+      "routes": 17,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -3188,8 +3188,8 @@
       "telegates": 1,
       "telegate_packets": 44,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 10.019,
-      "seconds": 31.153,
+      "seconds_best_attempt": 11.13,
+      "seconds": 34.602,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -3203,7 +3203,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 1,
       "telegate_packets": 44,
-      "seconds": 47.028,
+      "seconds": 48.19,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -3212,7 +3212,7 @@
         727,
         631
       ],
-      "seconds_best_attempt": 15.397,
+      "seconds_best_attempt": 16.501,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -3315,9 +3315,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 2,
       "telegate_packets": 76,
-      "seconds": 58.613,
+      "seconds": 62.198,
       "chosen_schedule": "search",
-      "routes": 17,
+      "routes": 20,
       "selection_epr": 775,
       "chosen_horizon": 8,
       "search_epr": 586,
@@ -3362,9 +3362,9 @@
       "telegate_packets": 75,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 4.401,
+      "seconds": 5.729,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 4.396,
+      "seconds_best_attempt": 5.724,
       "layout_seconds": 0.005,
       "n_candidates": 1
     },
@@ -3379,7 +3379,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 379,
       "telegate_packets": 75,
-      "seconds": 13.587,
+      "seconds": 14.588,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -3403,7 +3403,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 345,
       "telegate_packets": 54,
-      "seconds": 33.351,
+      "seconds": 35.86,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.9,
@@ -3414,7 +3414,7 @@
         "0.99": 1358,
         "1.0": 1546
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -3429,8 +3429,8 @@
       "telegates": 260,
       "telegate_packets": 57,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 4.158,
-      "seconds": 13.948,
+      "seconds_best_attempt": 5.322,
+      "seconds": 17.871,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -3444,14 +3444,14 @@
       "teleports_capacity_relief": 0,
       "telegates": 260,
       "telegate_packets": 57,
-      "seconds": 34.192,
+      "seconds": 38.044,
       "passes": 5,
       "passes_run": 2,
       "chosen_pass": 1,
       "forward_eprs": [
         773
       ],
-      "seconds_best_attempt": 10.521,
+      "seconds_best_attempt": 11.651,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -3554,9 +3554,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 345,
       "telegate_packets": 54,
-      "seconds": 38.601,
+      "seconds": 42.351,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 1076,
       "chosen_horizon": 128,
       "search_epr": 998,
@@ -3591,10 +3591,10 @@
       "telegate_packets": 131,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 2.7,
+      "seconds": 3.009,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.699,
-      "layout_seconds": 0.001,
+      "seconds_best_attempt": 3.008,
+      "layout_seconds": 0.002,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -3608,7 +3608,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 10,
       "telegate_packets": 111,
-      "seconds": 11.096,
+      "seconds": 11.426,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -3632,7 +3632,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 10,
       "telegate_packets": 111,
-      "seconds": 39.978,
+      "seconds": 41.206,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.9,
@@ -3643,7 +3643,7 @@
         "0.99": 490,
         "1.0": 460
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -3658,8 +3658,8 @@
       "telegates": 58,
       "telegate_packets": 154,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 3.544,
-      "seconds": 12.05,
+      "seconds_best_attempt": 4.085,
+      "seconds": 12.295,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -3673,7 +3673,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 9,
       "telegate_packets": 89,
-      "seconds": 35.823,
+      "seconds": 36.332,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -3682,7 +3682,7 @@
         348,
         294
       ],
-      "seconds_best_attempt": 12.33,
+      "seconds_best_attempt": 12.791,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -3747,9 +3747,9 @@
       "teleports_capacity_relief": 2,
       "telegates": 10,
       "telegate_packets": 111,
-      "seconds": 42.739,
+      "seconds": 44.385,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 299,
       "chosen_horizon": 128,
       "search_epr": 277,
@@ -3794,9 +3794,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.024,
+      "seconds": 0.092,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.024,
+      "seconds_best_attempt": 0.092,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -3811,7 +3811,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.042,
+      "seconds": 0.049,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -3835,7 +3835,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.125,
+      "seconds": 0.142,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.8,
@@ -3846,7 +3846,7 @@
         "0.99": 7,
         "1.0": 7
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -3861,8 +3861,8 @@
       "telegates": 9,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.022,
-      "seconds": 0.067,
+      "seconds_best_attempt": 0.03,
+      "seconds": 0.089,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -3876,7 +3876,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 8,
       "telegate_packets": 0,
-      "seconds": 0.137,
+      "seconds": 0.158,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -3885,7 +3885,7 @@
         11,
         11
       ],
-      "seconds_best_attempt": 0.046,
+      "seconds_best_attempt": 0.052,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -3988,9 +3988,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 0,
-      "seconds": 0.148,
+      "seconds": 0.175,
       "chosen_schedule": "selection",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 7,
       "chosen_horizon": 16,
       "search_epr": 7,
@@ -4035,9 +4035,9 @@
       "telegate_packets": 0,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 0.335,
+      "seconds": 0.446,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.334,
+      "seconds_best_attempt": 0.446,
       "layout_seconds": 0.0,
       "n_candidates": 1
     },
@@ -4052,7 +4052,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 4,
       "telegate_packets": 0,
-      "seconds": 0.6,
+      "seconds": 0.712,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -4076,7 +4076,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 4,
       "telegate_packets": 0,
-      "seconds": 1.762,
+      "seconds": 2.001,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.8,
@@ -4087,7 +4087,7 @@
         "0.99": 28,
         "1.0": 28
       },
-      "routes": 17,
+      "routes": 19,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -4102,8 +4102,8 @@
       "telegates": 5,
       "telegate_packets": 0,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 0.144,
-      "seconds": 0.472,
+      "seconds_best_attempt": 0.19,
+      "seconds": 0.622,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4117,7 +4117,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 2,
       "telegate_packets": 0,
-      "seconds": 1.184,
+      "seconds": 1.32,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -4126,7 +4126,7 @@
         20,
         19
       ],
-      "seconds_best_attempt": 0.367,
+      "seconds_best_attempt": 0.411,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -4229,9 +4229,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 4,
       "telegate_packets": 0,
-      "seconds": 2.09,
+      "seconds": 2.449,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 22,
       "selection_epr": 28,
       "chosen_horizon": 16,
       "search_epr": 24,
@@ -4266,9 +4266,9 @@
       "telegate_packets": 209,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 5.88,
+      "seconds": 3.203,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 5.879,
+      "seconds_best_attempt": 3.202,
       "layout_seconds": 0.001,
       "n_candidates": 1
     },
@@ -4283,7 +4283,7 @@
       "teleports_capacity_relief": 10,
       "telegates": 1,
       "telegate_packets": 149,
-      "seconds": 5.222,
+      "seconds": 5.443,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -4307,7 +4307,7 @@
       "teleports_capacity_relief": 19,
       "telegates": 2,
       "telegate_packets": 99,
-      "seconds": 11.818,
+      "seconds": 12.582,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 1.0,
@@ -4318,7 +4318,7 @@
         "0.99": 446,
         "1.0": 383
       },
-      "routes": 15,
+      "routes": 17,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -4333,8 +4333,8 @@
       "telegates": 8,
       "telegate_packets": 234,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.869,
-      "seconds": 9.509,
+      "seconds_best_attempt": 3.33,
+      "seconds": 10.704,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4348,7 +4348,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 0,
       "telegate_packets": 150,
-      "seconds": 37.311,
+      "seconds": 38.871,
       "passes": 5,
       "passes_run": 4,
       "chosen_pass": 3,
@@ -4356,7 +4356,7 @@
         409,
         323
       ],
-      "seconds_best_attempt": 19.696,
+      "seconds_best_attempt": 20.357,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -4419,9 +4419,9 @@
       "teleports_capacity_relief": 19,
       "telegates": 2,
       "telegate_packets": 99,
-      "seconds": 14.673,
+      "seconds": 15.864,
       "chosen_schedule": "search",
-      "routes": 17,
+      "routes": 20,
       "selection_epr": 446,
       "chosen_horizon": 16,
       "search_epr": 377,
@@ -4456,9 +4456,9 @@
       "telegate_packets": 161,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 9.528,
+      "seconds": 28.693,
       "chosen_horizon": 4,
-      "seconds_best_attempt": 9.522,
+      "seconds_best_attempt": 28.688,
       "layout_seconds": 0.006,
       "n_candidates": 1
     },
@@ -4473,7 +4473,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 5,
       "telegate_packets": 61,
-      "seconds": 18.482,
+      "seconds": 37.52,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -4497,7 +4497,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 5,
       "telegate_packets": 61,
-      "seconds": 65.832,
+      "seconds": 101.394,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 1.0,
@@ -4523,8 +4523,8 @@
       "telegates": 8,
       "telegate_packets": 179,
       "chosen_horizon": 4,
-      "seconds_best_attempt": 8.782,
-      "seconds": 26.282,
+      "seconds_best_attempt": 24.726,
+      "seconds": 73.327,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4538,7 +4538,7 @@
       "teleports_capacity_relief": 0,
       "telegates": 3,
       "telegate_packets": 59,
-      "seconds": 60.825,
+      "seconds": 108.743,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -4547,7 +4547,7 @@
         924,
         1160
       ],
-      "seconds_best_attempt": 18.814,
+      "seconds_best_attempt": 34.996,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -4612,9 +4612,9 @@
       "teleports_capacity_relief": 0,
       "telegates": 5,
       "telegate_packets": 61,
-      "seconds": 77.892,
+      "seconds": 129.947,
       "chosen_schedule": "search",
-      "routes": 19,
+      "routes": 20,
       "selection_epr": 1070,
       "chosen_horizon": 4,
       "search_epr": 918,
@@ -4649,10 +4649,10 @@
       "telegate_packets": 572,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 65.688,
+      "seconds": 116.391,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 65.673,
-      "layout_seconds": 0.015,
+      "seconds_best_attempt": 116.374,
+      "layout_seconds": 0.017,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -4666,7 +4666,7 @@
       "teleports_capacity_relief": 106,
       "telegates": 3617,
       "telegate_packets": 519,
-      "seconds": 188.611,
+      "seconds": 238.6,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -4689,7 +4689,7 @@
       "teleports_capacity_relief": 106,
       "telegates": 3617,
       "telegate_packets": 519,
-      "seconds": 321.025,
+      "seconds": 370.369,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.99,
@@ -4715,8 +4715,8 @@
       "telegates": 3593,
       "telegate_packets": 525,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 65.185,
-      "seconds": 214.165,
+      "seconds_best_attempt": 150.077,
+      "seconds": 428.084,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4730,7 +4730,7 @@
       "teleports_capacity_relief": 124,
       "telegates": 2900,
       "telegate_packets": 454,
-      "seconds": 495.089,
+      "seconds": 703.319,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -4739,7 +4739,7 @@
         10942,
         10870
       ],
-      "seconds_best_attempt": 163.19,
+      "seconds_best_attempt": 226.693,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -4804,9 +4804,9 @@
       "teleports_capacity_relief": 106,
       "telegates": 3617,
       "telegate_packets": 519,
-      "seconds": 389.071,
+      "seconds": 494.292,
       "chosen_schedule": "search",
-      "routes": 12,
+      "routes": 13,
       "selection_epr": 11040,
       "chosen_horizon": 16,
       "search_epr": 11013,
@@ -4851,10 +4851,10 @@
       "telegate_packets": 122,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 2.676,
+      "seconds": 3.223,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 2.674,
-      "layout_seconds": 0.001,
+      "seconds_best_attempt": 3.221,
+      "layout_seconds": 0.002,
       "n_candidates": 1
     },
     "sfc_refined": {
@@ -4868,7 +4868,7 @@
       "teleports_capacity_relief": 7,
       "telegates": 0,
       "telegate_packets": 122,
-      "seconds": 13.892,
+      "seconds": 14.392,
       "passes": 5,
       "passes_run": 4,
       "chosen_pass": 1,
@@ -4878,7 +4878,7 @@
       ],
       "layout": "temporal_locality",
       "seed": 0,
-      "layout_seconds": 0.002
+      "layout_seconds": 0.001
     },
     "sfc_search": {
       "epr": 291,
@@ -4891,7 +4891,7 @@
       "teleports_capacity_relief": 7,
       "telegates": 0,
       "telegate_packets": 122,
-      "seconds": 35.586,
+      "seconds": 36.643,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.95,
@@ -4902,7 +4902,7 @@
         "0.99": 526,
         "1.0": 406
       },
-      "routes": 16,
+      "routes": 18,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -4917,8 +4917,8 @@
       "telegates": 4,
       "telegate_packets": 158,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 3.342,
-      "seconds": 10.352,
+      "seconds_best_attempt": 3.918,
+      "seconds": 11.729,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -4932,7 +4932,7 @@
       "teleports_capacity_relief": 1,
       "telegates": 6,
       "telegate_packets": 121,
-      "seconds": 34.576,
+      "seconds": 35.799,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 5,
@@ -4941,7 +4941,7 @@
         390,
         293
       ],
-      "seconds_best_attempt": 12.335,
+      "seconds_best_attempt": 12.657,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -5042,9 +5042,9 @@
       "teleports_capacity_relief": 7,
       "telegates": 0,
       "telegate_packets": 122,
-      "seconds": 38.429,
+      "seconds": 39.924,
       "chosen_schedule": "selection",
-      "routes": 18,
+      "routes": 21,
       "selection_epr": 291,
       "chosen_horizon": 128,
       "search_epr": 291,
@@ -5079,9 +5079,9 @@
       "telegate_packets": 303,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 22.361,
+      "seconds": 24.394,
       "chosen_horizon": 16,
-      "seconds_best_attempt": 22.359,
+      "seconds_best_attempt": 24.392,
       "layout_seconds": 0.003,
       "n_candidates": 1
     },
@@ -5096,7 +5096,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 15,
       "telegate_packets": 303,
-      "seconds": 39.375,
+      "seconds": 41.123,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -5120,7 +5120,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 15,
       "telegate_packets": 303,
-      "seconds": 59.199,
+      "seconds": 61.525,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.99,
@@ -5131,7 +5131,7 @@
         "0.99": 1122,
         "1.0": 1260
       },
-      "routes": 10,
+      "routes": 11,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -5146,8 +5146,8 @@
       "telegates": 5,
       "telegate_packets": 123,
       "chosen_horizon": 8,
-      "seconds_best_attempt": 20.368,
-      "seconds": 61.764,
+      "seconds_best_attempt": 22.654,
+      "seconds": 68.398,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -5161,7 +5161,7 @@
       "teleports_capacity_relief": 2,
       "telegates": 5,
       "telegate_packets": 123,
-      "seconds": 100.544,
+      "seconds": 99.936,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -5170,7 +5170,7 @@
         1125,
         1041
       ],
-      "seconds_best_attempt": 31.518,
+      "seconds_best_attempt": 33.676,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -5235,9 +5235,9 @@
       "teleports_capacity_relief": 2,
       "telegates": 15,
       "telegate_packets": 303,
-      "seconds": 82.338,
+      "seconds": 84.993,
       "chosen_schedule": "selection",
-      "routes": 12,
+      "routes": 14,
       "selection_epr": 1122,
       "chosen_horizon": 16,
       "search_epr": 1122,
@@ -5272,9 +5272,9 @@
       "telegate_packets": 206,
       "layout": "temporal_locality",
       "seed": 0,
-      "seconds": 9.091,
+      "seconds": 11.661,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 9.083,
+      "seconds_best_attempt": 11.653,
       "layout_seconds": 0.008,
       "n_candidates": 1
     },
@@ -5289,7 +5289,7 @@
       "teleports_capacity_relief": 11,
       "telegates": 1142,
       "telegate_packets": 217,
-      "seconds": 25.572,
+      "seconds": 28.546,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 3,
@@ -5313,7 +5313,7 @@
       "teleports_capacity_relief": 11,
       "telegates": 1142,
       "telegate_packets": 217,
-      "seconds": 56.266,
+      "seconds": 61.024,
       "layout": "temporal_locality_search",
       "seed": 0,
       "best_gamma": 0.95,
@@ -5324,7 +5324,7 @@
         "0.99": 3501,
         "1.0": 3295
       },
-      "routes": 16,
+      "routes": 18,
       "n_candidates": 5
     },
     "sfc_on_dse_layout": {
@@ -5339,8 +5339,8 @@
       "telegates": 1002,
       "telegate_packets": 223,
       "chosen_horizon": 128,
-      "seconds_best_attempt": 8.498,
-      "seconds": 26.591,
+      "seconds_best_attempt": 11.217,
+      "seconds": 33.703,
       "n_candidates": 3
     },
     "sfc_on_dse_layout_refined": {
@@ -5354,7 +5354,7 @@
       "teleports_capacity_relief": 5,
       "telegates": 1002,
       "telegate_packets": 223,
-      "seconds": 68.534,
+      "seconds": 74.928,
       "passes": 5,
       "passes_run": 5,
       "chosen_pass": 1,
@@ -5363,7 +5363,7 @@
         2301,
         2199
       ],
-      "seconds_best_attempt": 25.101,
+      "seconds_best_attempt": 26.767,
       "n_candidates": 3
     },
     "dSE_on_porter_layout": {
@@ -5428,9 +5428,9 @@
       "teleports_capacity_relief": 11,
       "telegates": 1142,
       "telegate_packets": 217,
-      "seconds": 65.483,
+      "seconds": 72.958,
       "chosen_schedule": "search",
-      "routes": 18,
+      "routes": 21,
       "selection_epr": 2486,
       "chosen_horizon": 128,
       "search_epr": 2313,

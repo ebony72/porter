@@ -1,0 +1,260 @@
+<title>Horizon Sweep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#f7f8fa; --surface:#ffffff; --sunk:#eef1f5;
+  --ink:#10161d; --muted:#5b6b78; --faint:#93a1ac;
+  --rule:#dde3e9; --rule-strong:#c3ced7;
+  --accent:#0d7d8c; --accent-soft:#dceef1; --accent-ink:#075f6c;
+  --warn:#b4571f; --warn-soft:#f8e7d9;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0d1218; --surface:#151d26; --sunk:#1b242f;
+    --ink:#dfe6ec; --muted:#93a3b1; --faint:#6b7b89;
+    --rule:#26313d; --rule-strong:#38454f;
+    --accent:#3fb3c4; --accent-soft:#123840; --accent-ink:#7fd3e0;
+    --warn:#e08a4e; --warn-soft:#3a2517;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0d1218; --surface:#151d26; --sunk:#1b242f;
+  --ink:#dfe6ec; --muted:#93a3b1; --faint:#6b7b89;
+  --rule:#26313d; --rule-strong:#38454f;
+  --accent:#3fb3c4; --accent-soft:#123840; --accent-ink:#7fd3e0;
+  --warn:#e08a4e; --warn-soft:#3a2517;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:48px 24px 72px; display:flex; flex-direction:column; gap:28px}
+header{display:flex; flex-direction:column; gap:10px; border-bottom:2px solid var(--ink); padding-bottom:20px}
+.eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-ink); font-weight:600}
+h1{font-family:"IBM Plex Serif",Georgia,serif; font-weight:600; font-size:clamp(28px,4vw,40px);
+   margin:0; letter-spacing:-.015em; text-wrap:balance; line-height:1.15}
+.lede{color:var(--muted); max-width:66ch; margin:0}
+.setline{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:14px; color:var(--ink);
+  background:var(--accent-soft); border:1px solid var(--rule); border-radius:3px;
+  padding:10px 14px; display:flex; flex-wrap:wrap; gap:10px; align-items:baseline}
+.setline b{color:var(--accent-ink); font-weight:600}
+.setline span{color:var(--muted); font-family:"IBM Plex Sans",sans-serif; font-size:13px}
+.stats{display:grid; grid-template-columns:repeat(5,1fr); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:3px; overflow:hidden}
+.stat{background:var(--surface); padding:14px 16px; display:flex; flex-direction:column; gap:3px}
+.stat .k{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); font-weight:600}
+.stat .v{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:23px; font-weight:600;
+  font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.stat .v.hi{color:var(--accent)} .stat .v.warnv{color:var(--warn)}
+.stat .n{font-size:12px; color:var(--muted)}
+.controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.controls .lbl{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint);
+  font-weight:600; margin-right:2px}
+button.f{font:inherit; font-size:13px; padding:5px 12px; border:1px solid var(--rule-strong);
+  background:var(--surface); color:var(--muted); border-radius:2px; cursor:pointer; transition:.12s}
+button.f:hover{border-color:var(--accent); color:var(--ink)}
+button.f[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--paper)}
+button.f:focus-visible,th button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.scroll{overflow-x:auto; border:1px solid var(--rule); border-radius:3px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:13.5px}
+thead th{position:sticky; top:0; z-index:2; background:var(--sunk); border-bottom:1px solid var(--rule-strong);
+  padding:0; text-align:right; white-space:nowrap}
+thead th:first-child,tbody td:first-child{text-align:left}
+th button{font:inherit; font-size:11px; letter-spacing:.07em; text-transform:uppercase; font-weight:600;
+  color:var(--muted); background:none; border:0; padding:10px 10px; width:100%; text-align:inherit;
+  cursor:pointer; white-space:nowrap}
+th button:hover{color:var(--ink)}
+th button.nocaps{text-transform:none; font-size:12.5px}
+th[aria-sort] button{color:var(--accent-ink)}
+th button .ar{opacity:.55; font-size:9px; margin-left:3px}
+tbody td{padding:6px 10px; border-bottom:1px solid var(--rule); text-align:right; white-space:nowrap;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:var(--sunk)}
+td.name{font-family:"IBM Plex Sans",sans-serif; font-weight:500; text-align:left}
+td.dim{color:var(--faint)}
+td.to{color:var(--faint); font-style:italic}
+td.min{background:var(--accent-soft); color:var(--accent-ink); font-weight:600}
+tbody tr:hover td.min{background:var(--accent-soft)}
+.grp td{background:var(--sunk); font-family:"IBM Plex Sans",sans-serif; font-size:10.5px; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted); text-align:left; padding:7px 10px;
+  border-bottom:1px solid var(--rule-strong)}
+.gain{color:var(--accent-ink); font-weight:600}
+footer{color:var(--muted); font-size:13px; display:flex; flex-direction:column; gap:8px;
+  border-top:1px solid var(--rule); padding-top:18px}
+footer b{color:var(--ink); font-weight:600}
+kbd{font-family:"IBM Plex Mono",monospace; font-size:12px; background:var(--sunk);
+  border:1px solid var(--rule); border-radius:2px; padding:0 4px}
+@media (max-width:1000px){.stats{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.wrap{padding:32px 14px 56px} thead th, tbody td{font-size:12px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">PORTER &middot; 192 routing passes</div>
+  <h1>Teleport-lookahead horizon sweep</h1>
+  <p class="lede">Every one of the 48 circuit&ndash;architecture instances routed once at each horizon
+  PORTER now tries. One fixed set, applied to every circuit: the density rule that used to pick between
+  two three-value sets is retired. Sort any column; the horizon the protocol keeps is marked.</p>
+</header>
+
+<div class="setline">
+  <b>L<sub>tp</sub> &isin; {4, 8, 16, 128}</b>
+  <span>16 is the configured horizon &mdash; routed first, unguarded, and it wins ties, so no instance
+  can do worse than routing once.</span>
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls">
+  <span class="lbl">Show</span>
+  <button class="f" data-fam="all" aria-pressed="true">All 48</button>
+  <button class="f" data-fam="main" aria-pressed="false">Main</button>
+  <button class="f" data-fam="scale-up" aria-pressed="false">Scale-up</button>
+  <button class="f" data-fam="heavy-hex" aria-pressed="false">Heavy-hex</button>
+  <button class="f" data-flag="sensitive" aria-pressed="false">Horizon-sensitive only</button>
+</div>
+
+<div class="scroll">
+  <table id="tbl">
+    <thead><tr id="hrow"></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<footer>
+  <div><b>Method.</b> Each cell is one deterministic forward pass (<kbd>selection=False</kbd>) from
+  PORTER&rsquo;s own initial layout at seed 0, reporting EPR pairs consumed, measured against the current
+  router. <em>t/o</em> means no result inside a 300&nbsp;s per-route guard. GHZ and Graphstate are
+  identical at every horizon and are marked not sensitive.</div>
+  <div><b>Why one set.</b> The retired rule chose {4,8,16} for circuits whose interaction density
+  &rho;&nbsp;reached 0.80 and {8,16,128} otherwise &mdash; a threshold fitted on these same 48 instances.
+  The union of those two sets matches it: parity on the main suite, 0.2% better pooled over all 48, and
+  identical on every main instance once backward refinement runs on top. &rho; is still shown, and now
+  decides nothing. Other four-value sets do about as well &mdash; {4,16,32,128}, {4,16,48,128} and
+  {4,16,64,128} all land within a percent &mdash; so the result does not turn on these particular
+  numbers.</div>
+  <div><b>What it costs.</b> Four routes rather than three: 1.6&thinsp;&times; the compile time for a
+  single pass and 1.3&thinsp;&times; with refinement, in exchange for removing the one fitted rule in
+  PORTER&rsquo;s own protocol.</div>
+</footer>
+</div>
+<script>
+const HS=[4,8,16,128];
+const FAM_ORDER={"main":0,"scale-up":1,"heavy-hex":2};
+let ROWS=[], famFilter="all", sensOnly=false, sortKey="default", sortDir=1;
+
+function gmean(a){return Math.exp(a.reduce((s,x)=>s+Math.log(Math.max(x,1)),0)/a.length);}
+
+function buildStats(){
+  const sens=ROWS.filter(r=>!r.flat);
+  const sel=gmean(sens.map(r=>r.sel_epr));
+  const with16=sens.filter(r=>typeof r.l16==="number");
+  const l16=gmean(with16.map(r=>r.l16)), sel16=gmean(with16.map(r=>r.sel_epr));
+  const dist={};
+  for(const r of sens) dist[r.sel_L]=(dist[r.sel_L]||0)+1;
+  const spread=Object.keys(dist).length;
+  const deep=(dist[128]||0);
+  const el=document.getElementById("stats");
+  const cards=[
+    ["Instances","48",`${sens.length} horizon-sensitive`,""],
+    ["Routing passes","192","4 horizons × 48 instances",""],
+    ["Fixed L=16","+"+(100*(l16/sel16-1)).toFixed(1)+"%",`vs the set, n=${with16.length}`,"warnv"],
+    ["Horizons used",String(spread)+" of 4",`selected across ${sens.length} instances`,"hi"],
+    ["Deepest wins",String(deep),`instances select L=128`,"hi"]
+  ];
+  el.innerHTML=cards.map(([k,v,n,c])=>
+    `<div class="stat"><span class="k">${k}</span><span class="v ${c}">${v}</span><span class="n">${n}</span></div>`).join("");
+}
+
+const COLS=[
+  {k:"instance",l:"Instance"},{k:"n",l:"n"},{k:"rho",l:"ρ",nc:1},
+  ...HS.map(L=>({k:"L"+L,l:"L="+L})),
+  {k:"sel_L",l:"Kept"},{k:"sel_epr",l:"EPR"},{k:"gain",l:"vs L=16"}
+];
+
+function buildHead(){
+  document.getElementById("hrow").innerHTML=COLS.map(c=>
+    `<th data-k="${c.k}"><button type="button" class="${c.nc?"nocaps":""}">${c.l}<span class="ar"></span></button></th>`).join("");
+  document.querySelectorAll("#hrow th").forEach(th=>{
+    th.querySelector("button").addEventListener("click",()=>{
+      const k=th.dataset.k;
+      if(sortKey===k){sortDir=-sortDir;} else {sortKey=k; sortDir=1;}
+      render();
+    });
+  });
+}
+
+function cellVal(r,k){
+  if(k.startsWith("L")){const v=r.epr[k.slice(1)]; return v===null?Infinity:v;}
+  return r[k];
+}
+
+function render(){
+  let rs=ROWS.filter(r=>famFilter==="all"||r.family===famFilter);
+  if(sensOnly) rs=rs.filter(r=>!r.flat);
+  if(sortKey==="default"){
+    rs.sort((a,b)=>FAM_ORDER[a.family]-FAM_ORDER[b.family]||a.n-b.n||a.instance.localeCompare(b.instance));
+  }else{
+    rs.sort((a,b)=>{
+      const x=cellVal(a,sortKey), y=cellVal(b,sortKey);
+      const xn=(x===null||x===undefined), yn=(y===null||y===undefined);
+      if(xn&&yn)return 0; if(xn)return 1; if(yn)return -1;
+      if(typeof x==="string")return sortDir*x.localeCompare(y);
+      return sortDir*(x-y);
+    });
+  }
+  document.querySelectorAll("#hrow th").forEach(th=>{
+    const on=th.dataset.k===sortKey;
+    th.toggleAttribute("aria-sort",on);
+    if(on)th.setAttribute("aria-sort",sortDir>0?"ascending":"descending");
+    th.querySelector(".ar").textContent=on?(sortDir>0?"▲":"▼"):"";
+  });
+  const tb=document.getElementById("tbody");
+  let html="", lastFam=null;
+  for(const r of rs){
+    if(sortKey==="default"&&r.family!==lastFam){
+      lastFam=r.family;
+      html+=`<tr class="grp"><td colspan="${COLS.length}">${r.family}</td></tr>`;
+    }
+    let tds=`<td class="name">${r.instance}</td><td class="dim">${r.n}</td><td class="dim">${r.rho.toFixed(2)}</td>`;
+    for(const L of HS){
+      const v=r.epr[String(L)];
+      if(v===null){tds+=`<td class="to">t/o</td>`;continue;}
+      const isMin=!r.flat&&v===r.sel_epr;
+      tds+=`<td class="${isMin?"min":""}">${v.toLocaleString()}</td>`;
+    }
+    if(r.flat){
+      tds+=`<td class="dim">&mdash;</td><td class="dim">${r.sel_epr}</td><td class="dim">not sensitive</td>`;
+    }else{
+      tds+=`<td>${r.sel_L}</td><td>${r.sel_epr.toLocaleString()}</td>`
+         +`<td class="${r.gain<0?"gain":"dim"}">${r.gain===null?"&mdash;":(r.gain<0?r.gain.toFixed(1)+"%":"0%")}</td>`;
+    }
+    html+=`<tr>${tds}</tr>`;
+  }
+  tb.innerHTML=html;
+}
+
+document.querySelectorAll("button.f").forEach(b=>{
+  b.addEventListener("click",()=>{
+    if(b.dataset.fam!==undefined){
+      famFilter=b.dataset.fam;
+      document.querySelectorAll("button.f[data-fam]").forEach(o=>
+        o.setAttribute("aria-pressed",String(o===b)));
+    }else{
+      sensOnly=!(b.getAttribute("aria-pressed")==="true");
+      b.setAttribute("aria-pressed",String(sensOnly));
+    }
+    render();
+  });
+});
+
+ROWS=[{"instance":"25q/ae","family":"main","n":25,"rho":0.93,"epr":{"4":68,"8":69,"16":65,"128":90},"seconds":{"4":0.05,"8":0.06,"16":0.08,"128":0.23},"sel_L":16,"sel_epr":65,"flat":false,"l16":65,"gain":0.0},{"instance":"25q/ghz","family":"main","n":25,"rho":0.08,"epr":{"4":4,"8":4,"16":4,"128":4},"seconds":{"4":0.0,"8":0.0,"16":0.0,"128":0.0},"sel_L":4,"sel_epr":4,"flat":true,"l16":4,"gain":0.0},{"instance":"25q/graphstate","family":"main","n":25,"rho":0.08,"epr":{"4":7,"8":7,"16":7,"128":7},"seconds":{"4":0.01,"8":0.01,"16":0.01,"128":0.01},"sel_L":4,"sel_epr":7,"flat":true,"l16":7,"gain":0.0},{"instance":"25q/qft","family":"main","n":25,"rho":0.92,"epr":{"4":109,"8":111,"16":74,"128":119},"seconds":{"4":0.07,"8":0.07,"16":0.07,"128":0.31},"sel_L":16,"sel_epr":74,"flat":false,"l16":74,"gain":0.0},{"instance":"25q/qnn","family":"main","n":25,"rho":1.0,"epr":{"4":165,"8":174,"16":119,"128":244},"seconds":{"4":0.13,"8":0.17,"16":0.16,"128":1.29},"sel_L":16,"sel_epr":119,"flat":false,"l16":119,"gain":0.0},{"instance":"25q/random","family":"main","n":25,"rho":0.85,"epr":{"4":452,"8":415,"16":393,"128":508},"seconds":{"4":0.28,"8":0.35,"16":0.4,"128":2.45},"sel_L":16,"sel_epr":393,"flat":false,"l16":393,"gain":0.0},{"instance":"64q/ae","family":"main","n":64,"rho":0.49,"epr":{"4":222,"8":229,"16":177,"128":157},"seconds":{"4":0.29,"8":0.27,"16":0.28,"128":0.93},"sel_L":128,"sel_epr":157,"flat":false,"l16":177,"gain":-11.3},{"instance":"64q/ghz","family":"main","n":64,"rho":0.03,"epr":{"4":6,"8":6,"16":6,"128":6},"seconds":{"4":0.01,"8":0.01,"16":0.01,"128":0.01},"sel_L":4,"sel_epr":6,"flat":true,"l16":6,"gain":0.0},{"instance":"64q/graphstate","family":"main","n":64,"rho":0.03,"epr":{"4":20,"8":20,"16":20,"128":20},"seconds":{"4":0.05,"8":0.05,"16":0.05,"128":0.05},"sel_L":4,"sel_epr":20,"flat":true,"l16":20,"gain":0.0},{"instance":"64q/qft","family":"main","n":64,"rho":0.48,"epr":{"4":396,"8":322,"16":262,"128":null},"seconds":{"4":0.38,"8":0.4,"16":0.43,"128":9.69},"sel_L":16,"sel_epr":262,"flat":false,"l16":262,"gain":0.0},{"instance":"64q/qnn","family":"main","n":64,"rho":1.0,"epr":{"4":658,"8":638,"16":864,"128":null},"seconds":{"4":1.12,"8":1.6,"16":2.2,"128":40.74},"sel_L":8,"sel_epr":638,"flat":false,"l16":864,"gain":-26.2},{"instance":"64q/random","family":"main","n":64,"rho":0.33,"epr":{"4":751,"8":741,"16":737,"128":null},"seconds":{"4":0.94,"8":1.42,"16":1.84,"128":46.48},"sel_L":16,"sel_epr":737,"flat":false,"l16":737,"gain":0.0},{"instance":"64q/qpeexact","family":"main","n":64,"rho":0.53,"epr":{"4":323,"8":236,"16":222,"128":null},"seconds":{"4":0.28,"8":0.25,"16":0.36,"128":15.29},"sel_L":16,"sel_epr":222,"flat":false,"l16":222,"gain":0.0},{"instance":"64q/qaoa","family":"main","n":64,"rho":0.49,"epr":{"4":914,"8":775,"16":854,"128":null},"seconds":{"4":1.16,"8":1.61,"16":2.2,"128":27.21},"sel_L":8,"sel_epr":775,"flat":false,"l16":854,"gain":-9.3},{"instance":"64q/multiplier","family":"main","n":64,"rho":0.47,"epr":{"4":1391,"8":1619,"16":1358,"128":1076},"seconds":{"4":1.75,"8":1.29,"16":1.74,"128":2.59},"sel_L":128,"sel_epr":1076,"flat":false,"l16":1358,"gain":-20.8},{"instance":"80q/ae","family":"main","n":80,"rho":0.44,"epr":{"4":405,"8":390,"16":490,"128":299},"seconds":{"4":0.57,"8":0.51,"16":0.76,"128":2.29},"sel_L":128,"sel_epr":299,"flat":false,"l16":490,"gain":-39.0},{"instance":"80q/ghz","family":"main","n":80,"rho":0.03,"epr":{"4":7,"8":7,"16":7,"128":7},"seconds":{"4":0.01,"8":0.01,"16":0.01,"128":0.01},"sel_L":4,"sel_epr":7,"flat":true,"l16":7,"gain":0.0},{"instance":"80q/graphstate","family":"main","n":80,"rho":0.03,"epr":{"4":28,"8":28,"16":28,"128":28},"seconds":{"4":0.15,"8":0.12,"16":0.15,"128":0.15},"sel_L":4,"sel_epr":28,"flat":true,"l16":28,"gain":0.0},{"instance":"80q/qft","family":"main","n":80,"rho":0.42,"epr":{"4":448,"8":506,"16":446,"128":null},"seconds":{"4":0.38,"8":0.44,"16":0.62,"128":15.57},"sel_L":16,"sel_epr":446,"flat":false,"l16":446,"gain":0.0},{"instance":"80q/qnn","family":"main","n":80,"rho":1.0,"epr":{"4":1070,"8":1600,"16":1517,"128":null},"seconds":{"4":2.62,"8":3.21,"16":6.03,"128":55.72},"sel_L":4,"sel_epr":1070,"flat":false,"l16":1517,"gain":-29.5},{"instance":"80q/random","family":"main","n":80,"rho":0.97,"epr":{"4":11149,"8":null,"16":11040,"128":null},"seconds":{"4":21.3,"8":16.4,"16":46.62,"128":65.36},"sel_L":16,"sel_epr":11040,"flat":false,"l16":11040,"gain":0.0},{"instance":"80q/qpeexact","family":"main","n":80,"rho":0.44,"epr":{"4":608,"8":403,"16":526,"128":291},"seconds":{"4":0.58,"8":0.4,"16":0.78,"128":2.23},"sel_L":128,"sel_epr":291,"flat":false,"l16":526,"gain":-44.7},{"instance":"80q/qaoa","family":"main","n":80,"rho":0.48,"epr":{"4":1370,"8":1334,"16":1122,"128":null},"seconds":{"4":2.45,"8":2.7,"16":5.14,"128":78.14},"sel_L":16,"sel_epr":1122,"flat":false,"l16":1122,"gain":0.0},{"instance":"80q/multiplier","family":"main","n":80,"rho":0.45,"epr":{"4":4321,"8":4098,"16":3501,"128":2486},"seconds":{"4":3.01,"8":2.51,"16":3.44,"128":5.38},"sel_L":128,"sel_epr":2486,"flat":false,"l16":3501,"gain":-29.0},{"instance":"100q/qft","family":"scale-up","n":100,"rho":0.35,"epr":{"4":499,"8":502,"16":446,"128":198},"seconds":{"4":0.54,"8":0.62,"16":0.78,"128":1.78},"sel_L":128,"sel_epr":198,"flat":false,"l16":446,"gain":-55.6},{"instance":"100q/qpeexact","family":"scale-up","n":100,"rho":0.36,"epr":{"4":277,"8":299,"16":262,"128":200},"seconds":{"4":0.46,"8":0.51,"16":0.62,"128":1.45},"sel_L":128,"sel_epr":200,"flat":false,"l16":262,"gain":-23.7},{"instance":"200q/qft","family":"scale-up","n":200,"rho":0.18,"epr":{"4":1011,"8":1152,"16":1131,"128":579},"seconds":{"4":1.34,"8":1.3,"16":2.02,"128":6.42},"sel_L":128,"sel_epr":579,"flat":false,"l16":1131,"gain":-48.8},{"instance":"200q/qpeexact","family":"scale-up","n":200,"rho":0.19,"epr":{"4":1084,"8":1104,"16":1343,"128":528},"seconds":{"4":1.35,"8":1.24,"16":2.52,"128":6.0},"sel_L":128,"sel_epr":528,"flat":false,"l16":1343,"gain":-60.7},{"instance":"360q/qft","family":"scale-up","n":360,"rho":0.1,"epr":{"4":2477,"8":2702,"16":2720,"128":1170},"seconds":{"4":3.5,"8":2.97,"16":4.4,"128":12.53},"sel_L":128,"sel_epr":1170,"flat":false,"l16":2720,"gain":-57.0},{"instance":"360q/qpeexact","family":"scale-up","n":360,"rho":0.11,"epr":{"4":2744,"8":null,"16":2342,"128":1224},"seconds":{"4":3.57,"8":3.11,"16":3.97,"128":14.76},"sel_L":128,"sel_epr":1224,"flat":false,"l16":2342,"gain":-47.7},{"instance":"heavy-hex ring/ae","family":"heavy-hex","n":64,"rho":0.49,"epr":{"4":113,"8":113,"16":116,"128":69},"seconds":{"4":0.27,"8":0.26,"16":0.32,"128":0.52},"sel_L":128,"sel_epr":69,"flat":false,"l16":116,"gain":-40.5},{"instance":"heavy-hex ring/ghz","family":"heavy-hex","n":64,"rho":0.03,"epr":{"4":2,"8":2,"16":2,"128":2},"seconds":{"4":0.01,"8":0.01,"16":0.01,"128":0.01},"sel_L":4,"sel_epr":2,"flat":true,"l16":2,"gain":0.0},{"instance":"heavy-hex ring/graphstate","family":"heavy-hex","n":64,"rho":0.03,"epr":{"4":12,"8":12,"16":12,"128":12},"seconds":{"4":0.1,"8":0.09,"16":0.1,"128":0.1},"sel_L":4,"sel_epr":12,"flat":true,"l16":12,"gain":0.0},{"instance":"heavy-hex ring/qft","family":"heavy-hex","n":64,"rho":0.48,"epr":{"4":132,"8":125,"16":141,"128":109},"seconds":{"4":0.35,"8":0.35,"16":0.66,"128":0.84},"sel_L":128,"sel_epr":109,"flat":false,"l16":141,"gain":-22.7},{"instance":"heavy-hex ring/qnn","family":"heavy-hex","n":64,"rho":1.0,"epr":{"4":249,"8":244,"16":240,"128":289},"seconds":{"4":1.19,"8":1.19,"16":1.46,"128":8.95},"sel_L":16,"sel_epr":240,"flat":false,"l16":240,"gain":0.0},{"instance":"heavy-hex ring/random","family":"heavy-hex","n":64,"rho":0.33,"epr":{"4":472,"8":465,"16":506,"128":556},"seconds":{"4":1.25,"8":1.27,"16":2.18,"128":9.36},"sel_L":8,"sel_epr":465,"flat":false,"l16":506,"gain":-8.1},{"instance":"heavy-hex ring/qpeexact","family":"heavy-hex","n":64,"rho":0.53,"epr":{"4":113,"8":113,"16":116,"128":105},"seconds":{"4":0.25,"8":0.34,"16":0.3,"128":0.76},"sel_L":128,"sel_epr":105,"flat":false,"l16":116,"gain":-9.5},{"instance":"heavy-hex ring/qaoa","family":"heavy-hex","n":64,"rho":0.49,"epr":{"4":247,"8":244,"16":248,"128":null},"seconds":{"4":0.83,"8":1.0,"16":1.21,"128":40.86},"sel_L":8,"sel_epr":244,"flat":false,"l16":248,"gain":-1.6},{"instance":"heavy-hex ring/multiplier","family":"heavy-hex","n":64,"rho":0.47,"epr":{"4":554,"8":832,"16":506,"128":573},"seconds":{"4":1.17,"8":1.32,"16":1.28,"128":1.94},"sel_L":16,"sel_epr":506,"flat":false,"l16":506,"gain":0.0},{"instance":"heavy-hex star/ae","family":"heavy-hex","n":64,"rho":0.49,"epr":{"4":154,"8":149,"16":161,"128":190},"seconds":{"4":0.22,"8":0.23,"16":0.25,"128":1.58},"sel_L":8,"sel_epr":149,"flat":false,"l16":161,"gain":-7.5},{"instance":"heavy-hex star/ghz","family":"heavy-hex","n":64,"rho":0.03,"epr":{"4":3,"8":3,"16":3,"128":3},"seconds":{"4":0.01,"8":0.01,"16":0.01,"128":0.01},"sel_L":4,"sel_epr":3,"flat":true,"l16":3,"gain":0.0},{"instance":"heavy-hex star/graphstate","family":"heavy-hex","n":64,"rho":0.03,"epr":{"4":16,"8":16,"16":16,"128":16},"seconds":{"4":0.09,"8":0.09,"16":0.09,"128":0.09},"sel_L":4,"sel_epr":16,"flat":true,"l16":16,"gain":0.0},{"instance":"heavy-hex star/qft","family":"heavy-hex","n":64,"rho":0.48,"epr":{"4":128,"8":144,"16":124,"128":117},"seconds":{"4":0.34,"8":0.35,"16":0.51,"128":0.74},"sel_L":128,"sel_epr":117,"flat":false,"l16":124,"gain":-5.6},{"instance":"heavy-hex star/qnn","family":"heavy-hex","n":64,"rho":1.0,"epr":{"4":449,"8":645,"16":535,"128":318},"seconds":{"4":1.09,"8":1.14,"16":1.72,"128":11.54},"sel_L":128,"sel_epr":318,"flat":false,"l16":535,"gain":-40.6},{"instance":"heavy-hex star/random","family":"heavy-hex","n":64,"rho":0.33,"epr":{"4":510,"8":547,"16":609,"128":578},"seconds":{"4":0.95,"8":1.22,"16":1.63,"128":8.32},"sel_L":4,"sel_epr":510,"flat":false,"l16":609,"gain":-16.3},{"instance":"heavy-hex star/qpeexact","family":"heavy-hex","n":64,"rho":0.53,"epr":{"4":181,"8":181,"16":162,"128":240},"seconds":{"4":0.32,"8":0.26,"16":0.29,"128":2.14},"sel_L":16,"sel_epr":162,"flat":false,"l16":162,"gain":0.0},{"instance":"heavy-hex star/qaoa","family":"heavy-hex","n":64,"rho":0.49,"epr":{"4":401,"8":405,"16":473,"128":null},"seconds":{"4":0.95,"8":1.0,"16":1.47,"128":42.47},"sel_L":4,"sel_epr":401,"flat":false,"l16":473,"gain":-15.2},{"instance":"heavy-hex star/multiplier","family":"heavy-hex","n":64,"rho":0.47,"epr":{"4":754,"8":1489,"16":null,"128":455},"seconds":{"4":1.25,"8":1.53,"16":1.17,"128":1.63},"sel_L":128,"sel_epr":455,"flat":false,"l16":null,"gain":null}];
+buildStats(); buildHead(); render();
+</script>

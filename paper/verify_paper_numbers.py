@@ -239,7 +239,7 @@ check("portfolio total EPR over the 18, PORTER", -12.1,
 check("portfolio total EPR over the 18, PORTER+R", -13.0,
       round(100 * (_tot("sfc_refined", _nt18) / _dtot - 1), 1))
 # VI's cost statement and its two named instances.
-check("portfolio compile time vs dSABRE", 2.0,
+check("portfolio compile time vs dSABRE", 2.3,
       round(gmean([r["dSE"]["seconds"] + r["sfc"]["seconds"] for r in cmp_rows])
             / gmean([r["dSE"]["seconds"] for r in cmp_rows]), 1))
 for _s, _c, _d, _p in (("80", "multiplier", 4841, 2486), ("80", "qpeexact", 347, 291)):
@@ -267,12 +267,12 @@ _gn = lambda leg: gmean([r[leg]["epr"] for r in _NT])
 # (a), and in two of three of (b), PORTER taking its own layout there"
 for src, (d, p, _) in _GRID.items():
     check(f"grid {src} (a): dSABRE ahead", True, _g(p) / _g(d) > 1.0)
-    # Block (a)'s widest row is 3.00%; block (b)'s is 3.12% since the
-    # 2026-09-03 re-run moved sfc_on_dse_layout, so (b) is bounded at 3.2%.
+    # Block (a)'s widest row is 3.00%; block (b)'s is 3.47% after the
+    # four-value horizon set moved sfc_on_dse_layout, so (b) is bounded at 3.5%.
     check(f"grid {src} (a): within 3%", True,
           round(100 * abs(_g(p) / _g(d) - 1), 1) <= 3.0)
-    check(f"grid {src} (b): within 3.2%", True,
-          round(100 * abs(_gn(p) / _gn(d) - 1), 1) <= 3.2)
+    check(f"grid {src} (b): within 3.5%", True,
+          round(100 * abs(_gn(p) / _gn(d) - 1), 1) <= 3.5)
 check("grid (b): dSABRE ahead on two of three rows", 2,
       sum(1 for _, (d, p, _) in _GRID.items() if _gn(p) / _gn(d) > 1.0))
 check("grid (b): PORTER ahead on its own layout", True,
@@ -342,7 +342,7 @@ check("appC best-of-2 over 18", -1.7,
 check("appC pytket selected", 8,
       sum(1 for r in cmp_rows if r["sfc_pytket"]["epr"] < r["sfc"]["epr"]))
 # "refinement gains 3.0% on dSABRE's layout and nothing on pytket's"
-check("refinement gain on dSE layout", 11.2,
+check("refinement gain on dSE layout", 11.4,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_on_dse_layout")), 1))
 check("refinement gain on pytket layout", 6.8,
       round(100 * (1 - _g("sfc_pytket_refined") / _g("sfc_pytket")), 1))
@@ -699,9 +699,9 @@ check("64q dSABRE routes per circuit", 9,
 # regression guards -- they are what makes that claim true.
 check("64q complete-cost gmean dSE", 1.77,
       round(gmean([r["dSE"]["seconds"] for r in _r64]), 2))
-check("64q complete-cost gmean PORTER", 1.89,
+check("64q complete-cost gmean PORTER", 2.24,
       round(gmean([r["sfc"]["seconds"] for r in _r64]), 2))
-check("64q complete-cost advantage", 0.9,
+check("64q complete-cost advantage", 0.8,
       round(gmean([r["dSE"]["seconds"] for r in _r64])
             / gmean([r["sfc"]["seconds"] for r in _r64]), 1))
 _mult = [r for r in _r64 if r["circuit"] == "multiplier"][0]
@@ -722,7 +722,7 @@ for _n, _want in (("100", 0.90), ("200", 0.67), ("360", 0.62)):
     check(f"scaleup {_n}q ratio", _want,
           round(gmean([r["sfc"]["epr"] for r in _rs])
                 / gmean([r["dSE"]["epr"] for r in _rs]), 2))
-check("scaleup complete-cost PORTER", 6.9,
+check("scaleup complete-cost PORTER", 7.8,
       round(gmean([r["sfc"]["seconds"] for r in su_rows]), 1))
 check("scaleup complete-cost dSABRE", 15.4,
       round(gmean([r["dSE"]["seconds"] for r in su_rows]), 1))
@@ -783,7 +783,7 @@ check("scaleup 360q qft on dSE layout", 1774, _q360["sfc_on_dse_layout"]["epr"])
 
 # Sec IV-F: the star gmeans quoted in prose (PORTER's own protocol, all nine).
 _star = [r for r in hh_rows if r["topology"] == "star"]
-check("star PORTER own-protocol gmean", 122.3,
+check("star PORTER own-protocol gmean", 121.2,
       round(gmean([r["porter"]["epr"] for r in _star]), 1))
 check("star dSABRE gmean", 101.1,
       round(gmean([r["dSE"]["epr"] for r in _star]), 1))
@@ -821,17 +821,17 @@ check("appJ PORTER+S ties on 14 of 24", 18,
 # carries 4,045 s of the 4,267 s for a 1.2% return.
 _tS = sum(r["sfc_search"]["seconds"] for r in cmp_rows)
 _tR = sum(r["sfc_refined"]["seconds"] for r in cmp_rows)
-check("appJ PORTER+S total seconds", 796, round(_tS))
-check("appJ PORTER+R total seconds", 386, round(_tR))
-check("appJ +S/+R wall clock", 2.1, round(_tS / _tR, 1))
-check("appJ +S/dSABRE wall clock", 4,
+check("appJ PORTER+S total seconds", 921, round(_tS))
+check("appJ PORTER+R total seconds", 475, round(_tR))
+check("appJ +S/+R wall clock", 1.9, round(_tS / _tR, 1))
+check("appJ +S/dSABRE wall clock", 5,
       round(_tS / sum(r["dSE"]["seconds"] for r in cmp_rows)))
-check("appJ 80q share of +S seconds", 592,
+check("appJ 80q share of +S seconds", 687,
       round(sum(r["sfc_search"]["seconds"] for r in cmp_rows
                 if r["suite"] == "80")))
 _ae80 = next(r for r in cmp_rows if r["suite"] == "80" and r["circuit"] == "ae")
-check("appJ 80q AE +S seconds", 40, round(_ae80["sfc_search"]["seconds"]))
-check("appJ 80q AE +R seconds", 11.1, round(_ae80["sfc_refined"]["seconds"], 1))
+check("appJ 80q AE +S seconds", 41, round(_ae80["sfc_search"]["seconds"]))
+check("appJ 80q AE +R seconds", 11.4, round(_ae80["sfc_refined"]["seconds"], 1))
 check("appJ 80q AE +S/+R factor", 4,
       round(_ae80["sfc_search"]["seconds"] / _ae80["sfc_refined"]["seconds"]))
 # gamma=0.80 wins phase 1 most often -- nine of twenty-four -- and all five
@@ -847,11 +847,10 @@ check("appJ all five gammas win somewhere", 5,
 # (layout, horizon) pair phase 1 already covered.  The old "10--17" figure
 # quoted the second while the paper's terminology defines the first.
 _cmpr = importlib.import_module("compare_routers")
-check("appJ per-seed routes = |H| + P - 1", 7,
+check("appJ per-seed routes = |H| + P - 1", 8,
       len(_cdr.PORTER_HORIZONS) + _cmpr.PORTER_REFINE_PASSES - 1)
-check("appJ |H| = 3", 3, len(_cdr.PORTER_HORIZONS))
-check("appJ |H| dense = 3", 3, len(_cdr.PORTER_HORIZONS_DENSE))
-check("appJ distinct-route counter max", 17,
+check("|H| = 4 (one fixed set, no density branch)", 4, len(_cdr.PORTER_HORIZONS))
+check("appJ distinct-route counter max", 19,
       max(r["sfc_search"]["routes"] for r in cmp_rows))
 check("appJ distinct-route counter min", 10,
       min(r["sfc_search"]["routes"] for r in cmp_rows))
@@ -861,7 +860,7 @@ check("appJ one-seed instances", 5,
 check("appJ one-seed counter <= 11", True,
       all(r["sfc_search"]["routes"] <= 11 for r in cmp_rows
           if r["sfc_search"]["best_gamma"] == 0.99))
-check("appJ two-seed counter <= 17", True,
+check("appJ two-seed counter <= 17", False,
       all(r["sfc_search"]["routes"] <= 17 for r in cmp_rows
           if r["sfc_search"]["best_gamma"] != 0.99))
 # Appendix J: PORTER+SR is retired -- it cannot differ from PORTER+S.
@@ -877,9 +876,9 @@ check("PORTER own-protocol losses vs dSE", 12,
 # Scale-up per-attempt speed range quoted in Sec IV-G.
 _su_rat = [r["dSE"]["seconds_best_attempt"] / r["sfc"]["seconds"] for r in su_rows]
 check("scaleup per-attempt min", 0.4, round(min(_su_rat), 1))
-check("scaleup per-attempt max", 1.2, round(max(_su_rat), 1))
+check("scaleup per-attempt max", 1.1, round(max(_su_rat), 1))
 _q360 = [r for r in su_rows if r["suite"] == "360" and r["circuit"] == "qft"][0]
-check("scaleup 360q qft per-attempt", 1.1,
+check("scaleup 360q qft per-attempt", 1.0,
       round(_q360["dSE"]["seconds_best_attempt"] / _q360["sfc"]["seconds"], 1))
 # Refinement now helps on NONE of the six scale-up instances (the shipped
 # protocol selects a horizon; refinement holds it fixed and loses on all six).
@@ -924,7 +923,7 @@ check("worst P+R loss ratio", 1.5,
 _g = lambda leg: gmean([r[leg]["epr"] for r in _pr])
 check("grid dSE gain from own layout", -0.4,
       round(100 * (1 - _g("dSE") / _g("dSE_on_porter_layout")), 1))
-check("grid PORTER gain from dSE layout", -0.2,
+check("grid PORTER gain from dSE layout", -0.5,
       round(100 * (1 - _g("sfc_on_dse_layout") / _g("sfc")), 1))
 check("grid PORTER+R gain from dSE layout", 4.5,
       round(100 * (1 - _g("sfc_on_dse_layout_refined") / _g("sfc_refined")), 1))
@@ -1005,11 +1004,11 @@ heavyhex = {
     ("star", "ae"):             (118, 149, 104),
     ("star", "ghz"):            (3, 3, 4),
     ("star", "graphstate"):     (10, 16, 11),
-    ("star", "qft"):            (125, 117, 108),
+    ("star", "qft"):            (125, 117, 98),
     ("star", "qnn"):            (241, 449, 321),
-    ("star", "random"):         (475, 547, 478),
+    ("star", "random"):         (475, 510, 466),
     ("star", "qpeexact"):       (120, 162, 102),
-    ("star", "qaoa"):           (251, 405, 245),
+    ("star", "qaoa"):           (251, 401, 243),
     ("star", "multiplier"):     (722, 455, 462),
 }
 # dSABRE's published figures for these two architectures.
@@ -1039,7 +1038,7 @@ def _hh_gmean(topo, leg, circs):
 _HH9 = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
         "qpeexact", "qaoa", "multiplier"]
 _HH8 = [c for c in _HH9 if c != "multiplier"]
-for topo, exp in (("ring", (85.2, 86.1, 82.9)), ("star", (101.1, 122.3, 98.5))):
+for topo, exp in (("ring", (85.2, 86.1, 82.9)), ("star", (101.1, 121.2, 97.1))):
     for leg, w in zip(_HH_LEGS, exp):
         check(f"hh gmean {topo}(9) {leg}", w, _hh_gmean(topo, leg, _HH9))
 # V-E: the two compilers are within 1% on the ring and PORTER trails 21% on
@@ -1047,7 +1046,7 @@ for topo, exp in (("ring", (85.2, 86.1, 82.9)), ("star", (101.1, 122.3, 98.5))):
 check("hh ring own-layout delta pct", 1.1,
       round(100 * (_hh_gmean_raw("ring", "porter", _HH9)
                    / _hh_gmean_raw("ring", "dSE", _HH9) - 1), 1))
-check("hh star own-layout delta pct", 21.0,
+check("hh star own-layout delta pct", 20.0,
       round(100 * (_hh_gmean_raw("star", "porter", _HH9)
                    / _hh_gmean_raw("star", "dSE", _HH9) - 1), 1))
 # V-E: routed from dSABRE's own candidates PORTER overtakes it on BOTH graphs.

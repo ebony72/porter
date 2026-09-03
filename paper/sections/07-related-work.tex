@@ -5,14 +5,14 @@
 \textbf{\TeleSABRE{}}~\cite{russo2025telesabre} is the published state of
 the art for this cost model, supporting teledata and gate teleportation
 on \SABRE{}'s extended-set scoring. The two differ chiefly in decision
-structure. \TeleSABRE{} \chg{admits an inter-core candidate only when it is
+structure. \TeleSABRE{} admits an inter-core candidate only when it is
 already executable --- operand adjacent to a free communication port, a
 spare slot at the destination --- and scores it by the layout energy it
 leaves behind, a contracted-communication-graph Dijkstra distance over
 the front and extended sets. Staging is therefore carried by ordinary
 SWAPs, pooled with those candidates and scored the same way, so each
 iteration's minimum may be a SWAP that shortens a route or a remote
-action that resolves a gate.}
+action that resolves a gate.
 \PORTER{} keeps local work strictly ahead of inter-core work, scores
 whole plans independently of preparation cost, generates preparation
 SWAPs only for the plan it commits to, adds the packet primitive, and
