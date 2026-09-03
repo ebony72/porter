@@ -1262,51 +1262,53 @@ class PorterRouter:
             out.append(p)
         return out
 
-    @staticmethod
-    def _remote_plan_kind_rank(plan: RemotePlan) -> int:
-        # This remains a semantic tie-breaker: when estimated benefit and
-        # preparation feasibility are equal, retain the existing preference for
-        # a layout-changing teleport over a packet or a single telegate.
-        if plan.kind == "teleport":
-            return 0
-        if plan.kind == "telegate_packet":
-            return 1
-        if plan.kind == "telegate":
-            return 2
-        return 3
-
-
     def _remote_plan_semantically_tied(
         self,
         left: Tuple[float, RemotePlan, RemotePlanScore],
         right: Tuple[float, RemotePlan, RemotePlanScore],
     ) -> bool:
+        """Equality relation induced by ``_remote_plan_selection_key``."""
         l_total, l_plan, l_score = left
         r_total, r_plan, r_score = right
         return (
             self._float_tied(l_total, r_total)
-            and l_score.ready == r_score.ready
             and self._float_tied(l_score.prep, r_score.prep)
-            and self._float_tied(
-                l_score.capacity if l_plan.kind == "teleport" else 0.0,
-                r_score.capacity if r_plan.kind == "teleport" else 0.0,
-            )
-            and self._remote_plan_kind_rank(l_plan) == self._remote_plan_kind_rank(r_plan)
-            and self._float_tied(l_score.lookahead_gain, r_score.lookahead_gain)
+            and self._float_tied(l_score.capacity, r_score.capacity)
         )
 
     def _remote_plan_selection_key(
         self, item: Tuple[float, RemotePlan, RemotePlanScore]
     ) -> Tuple[Any, ...]:
+        """Lexicographic plan order: estimated gain, then preparation cost,
+        then destination headroom, then a stable identifier.
+
+        Three earlier coordinates were removed on 2026-09-02 as provably
+        unreachable or implied by the three that remain:
+
+        * a readiness flag before ``prep``.  ``prep`` is defined as zero
+          exactly when the plan is ready and positive otherwise, so the flag
+          could never separate two plans that ``prep`` did not already order
+          (measured: no unready plan with zero preparation cost in 259,125
+          scored candidates).
+        * a three-way plan-kind rank between ``prep`` and the capacity term.
+          A ``telegate`` scores ``total = 1`` and a ``telegate_packet`` is only
+          generated when it carries at least two remote CX gates, so ``-total``
+          always separates those two and the rank's packet-before-telegate half
+          was unreachable; its teleport-first half is now carried by the
+          capacity term, which is negative for a ``teleport`` and zero for
+          every other primitive.
+        * a trailing ``-lookahead_gain``.  ``total`` is the sum of the realised
+          and discounted gains, so that coordinate was reachable only when the
+          two traded in exactly compensating amounts -- once in 24,494
+          rankings -- and it then preferred the plan with the *smaller*
+          realised gain, which is the wrong direction for a tie-break meant to
+          favour surer progress.
+        """
         total, plan, score = item
-        capacity_key = score.capacity if plan.kind == "teleport" else 0.0
         return (
             -total,
-            0 if score.ready else 1,
             score.prep,
-            self._remote_plan_kind_rank(plan),
-            capacity_key,
-            -score.lookahead_gain,
+            score.capacity,
             self._remote_plan_stable_key(plan),
         )
 
@@ -1326,7 +1328,7 @@ class PorterRouter:
         ready = self._remote_plan_ready(plan, state.layout, min_free)
         prep = 0.0 if ready else self._remote_plan_readiness_cost(plan, state.layout, min_free)
         direct_gain, lookahead_gain = self._remote_plan_direct_lookahead_gain(plan, state, info)
-        capacity = self._remote_plan_capacity_risk(plan, state.layout)
+        capacity = self._remote_plan_capacity_key(plan, state.layout)
         return RemotePlanScore(
             total=direct_gain + lookahead_gain,
             ready=ready,
@@ -1611,12 +1613,19 @@ class PorterRouter:
         direct_gain, lookahead_gain = self._remote_plan_direct_lookahead_gain(plan, state, info)
         return direct_gain + lookahead_gain
 
-    def _remote_plan_capacity_risk(self, plan: RemotePlan, layout: Layout) -> float:
+    def _remote_plan_capacity_key(self, plan: RemotePlan, layout: Layout) -> float:
+        """Destination headroom, negated so that more room sorts first.
+
+        Only a ``teleport`` consumes a destination slot; every other primitive
+        scores zero, which also makes this term carry the teleport-first
+        preference that a separate plan-kind rank used to provide.  The earlier
+        form ``1/max(1, f_dst - 1)`` is order-equivalent on the reachable
+        domain -- a teleport is only admitted when ``f_dst >= min_free`` -- but
+        collapses ``f_dst <= 2`` into one value if that floor is ever lowered.
+        """
         if plan.kind != "teleport" or plan.dst_core is None:
             return 0.0
-        free_before = layout.free_count(self.hw, plan.dst_core)
-        free_after = max(0, free_before - 1)
-        return 1.0 / max(1, free_after)
+        return -float(layout.free_count(self.hw, plan.dst_core))
 
 
     def _make_action_from_ready_plan(
