@@ -3528,3 +3528,37 @@ sits at 1/3/5/7 and time at 2/4/6/8; in a splice script that drops the label,
 EPR is 0/2/4/6 and time 1/3/5/7. Using the verifier's indices in the splice
 unbolded the EPR column instead. The tables were rebuilt from the data rather
 than patched.
+
+## Main-paper tables audited; every data table is now parsed (2026-09-04)
+
+Same coverage audit as the appendix. Of the eight main-paper tables, only
+**`tab:budgets`** was unverified (`tab:taxonomy` is qualitative and carries no
+data). Its numbers were correct --- they were fixed by hand earlier the same
+day --- but **the paragraph beneath it was stale in exactly the way the table
+had been**:
+
+> "Equal \emph{route counts} give each compiler the same number of router
+> invocations from one identical layout --- three each, in the shared-layout
+> rows."
+
+With $|H|{=}4$ that comparison is **four routes to three**, so the paper's
+first notion of a matched budget was not realised anywhere. IV-F now says the
+shared-layout rows control the *layout* and not the effort, matching what V-B
+already says, and closes on "\PORTER{} both spends more routes in the
+shared-layout rows and costs more per route, so neither comparison understates
+it" (it used to say equal route counts "flatter it on time and not on
+effort" --- true only when the counts were equal).
+
+**`tab:budgets` is now pinned against the live constants**, not against the
+tex: $|\mathcal{L}|\times P = \text{routes}$ for every row except the two that
+select a horizon first, where routes $= |H| + P - 1$. Confirmed non-vacuous by
+corrupting both a \PORTER{} row and the cross-layout row. Verified in passing
+that \dSABRE{} really is 3 layouts $\times$ 3 passes (`dsabre_layout_candidates`
+returns 3, `run_sabre_passes` is fwd/bwd/fwd) and `NUM_SEEDS = 3` for
+\TeleSABRE{}.
+
+**Coverage is now complete**: all seven data-bearing main tables and all five
+data-bearing appendix tables are parsed by `verify_tex_tables` (79 tex checks,
+278 numeric). The recurring lesson from this whole session in one line ---
+**a table nothing parses will go stale, and the prose next to it will go stale
+with it, without either verifier noticing.**

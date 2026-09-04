@@ -264,6 +264,38 @@ for cols in _rows_as:
                           (7, m["packet_cx_total"], "packetcx")):
         chk(f"actionset {k[1]} {nm}", cell(cols[idx]), want)
 
+import importlib
+sys.path.insert(0, str(_HERE.parent))
+_cdr_t = importlib.import_module("compile_porter")
+_cr_t = importlib.import_module("compare_routers")
+
+# ------------------------------------------------------------- tab:budgets
+# Route budgets, checked against the LIVE constants rather than the tex.  This
+# table was unverified until 2026-09-04 and its PORTER rows had said 3/7/3/7/9
+# since abb845b made the protocol four routes.  |L| x P = routes for every row
+# except the two that select a horizon first, where routes = |H| + P - 1.
+_seg_bd, _rows_bd = rows_of("tab:budgets", r"^\\(TeleSABRE|dSABRE|PORTER)")
+chk("budgets row count", 10, len(_rows_bd))
+_Hn = len(_cdr_t.PORTER_HORIZONS)
+_Pr = _cr_t.PORTER_REFINE_PASSES
+# (name fragment, |L|, P, routes)
+_BUDGETS = [
+    ("TeleSABRE",       3, 1, 3),
+    ("dSABRE",          3, 3, 9),
+    ("PORTER",          1, _Hn, _Hn),
+    ("PORTER{}+R",      1, _Pr, _Hn + _Pr - 1),
+    ("dSABRE{} shared", 1, 3, 3),
+    ("PORTER{} shared", 1, _Hn, _Hn),
+    ("PORTER{}+R shared", 1, _Pr, _Hn + _Pr - 1),
+    ("dSABRE{} on",     1, 3, 3),
+    ("PORTER{} on",     3, _Hn, 3 * _Hn),
+    ("PORTER{} ablation", 1, 1, 1),
+]
+for cols, (nm, L, P, R) in zip(_rows_bd, _BUDGETS):
+    chk(f"budgets {nm} |L|", cell(cols[2]), L)
+    chk(f"budgets {nm} P", cell(cols[3]), P)
+    chk(f"budgets {nm} routes", cell(cols[4]), R)
+
 # ----------------------------------------------------------- tab:protocols
 # NOT parsed until 2026-09-04.  Its PORTER EPR and time cells had drifted from
 # the data (174.9/1.25/0.91 against 175.0/1.63/1.18), and the compile-time
@@ -273,10 +305,6 @@ _seg_pr, _rows_pr = rows_of("tab:protocols", r"^\\(dSABRE|PORTER)")
 chk("tab:protocols row count", 3, len(_rows_pr))
 _d_e = gmean([r["dSE"]["epr"] for r in CMP])
 _d_t = gmean_raw([r["dSE"]["seconds"] for r in CMP])
-import importlib
-sys.path.insert(0, str(_HERE.parent))
-_cdr_t = importlib.import_module("compile_porter")
-_cr_t = importlib.import_module("compare_routers")
 _H = len(_cdr_t.PORTER_HORIZONS)
 for cols, (leg, routes) in zip(_rows_pr, (
         ("dSE", 9), ("sfc", _H), ("sfc_refined", _H + _cr_t.PORTER_REFINE_PASSES - 1))):

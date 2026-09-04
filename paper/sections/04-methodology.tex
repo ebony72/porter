@@ -331,16 +331,17 @@ routes & selects on \\
 \end{table*}
 
 Two notions of a matched budget are in play and neither is universally
-fair, so we report against both. Equal \emph{route counts} give each
-compiler the same number of router invocations from one identical layout
---- three each, in the shared-layout rows. Equal \emph{candidate-layout
-sets} instead hand \PORTER{} the very layouts \dSABRE{} generated for
-itself, so both choose their best from the same three starting points;
-that equalises the search over layouts rather than the routing effort
-spent on each. Wall-clock is not equalised anywhere, but every table
-reports complete compile time so a reader can renormalise. \PORTER{}
-costs more per route than \dSABRE{} (Section~\ref{sec:frontier}), so
-equal route counts flatter it on time and not on effort.
+fair, so we report against both. Fixing the \emph{initial layout} routes
+both compilers from one identical mapping --- the shared-layout rows ---
+which controls the layout but not the effort spent on it: \PORTER{} spends
+four routes on its candidate horizons to \dSABRE{}'s three passes. Equal
+\emph{candidate-layout sets} instead hand \PORTER{} the very layouts
+\dSABRE{} generated for itself, so both choose their best from the same
+three starting points; that equalises the search over layouts rather than
+the routing spent on each. Wall-clock is not equalised anywhere, but every
+table reports complete compile time so a reader can renormalise. \PORTER{}
+both spends more routes in the shared-layout rows and costs more per route
+(Section~\ref{sec:frontier}), so neither comparison understates it.
 
 \subsection{Metrics and Aggregation}
 \label{sec:metrics}
