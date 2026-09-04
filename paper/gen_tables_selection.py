@@ -145,10 +145,12 @@ def tab_ablation():
 
     The ablation still RUNS on all three suites -- the cross-scale trend is
     quoted in V-C and pinned in verify_paper_numbers -- but only the 80-qubit
-    rows are shown, the scale at which every mechanism bites hardest.  Rows
-    where every configuration coincides (no packets, no relief triggered, no
-    telegates) are omitted; they are still inside the summary lines.  The
-    Suite column is gone, every row being 80q.
+    rows are shown, the scale at which every mechanism bites hardest.  Since
+    2026-09-04 ALL nine circuits appear: GHZ and Graphstate used to be
+    dropped as rows on which every configuration coincides, but they were
+    always inside the summary lines, so showing them makes the table's own
+    arithmetic checkable and states plainly where a mechanism does nothing.
+    The Suite column is gone, every row being 80q.
 
     A summary line carries one Full value, so columns share a line only when
     they complete on the same circuits; where they do not, the comparison
@@ -168,11 +170,7 @@ def tab_ablation():
         return [(suite, c) for c in order if (suite, c) in A]
 
     def shown(suite):
-        return [(suite, c) for c in order if (suite, c) in A
-                and not (ep(A[(suite, c)], "full") == ep(A[(suite, c)], "no_packets")
-                         == ep(A[(suite, c)], "no_relief")
-                         and cnt((suite, c), "packets") == 0
-                         and cnt((suite, c), "telegates") == 0)]
+        return all_of(suite)
     def cols_of(k):
         return (ep(A[k], "full"), ep(A[k], "no_packets"), ep(A[k], "no_relief"),
                 ep(T[k], "teledata_only_relief"))
@@ -396,8 +394,30 @@ def app_timing():
     return "\n".join(out)
 
 
+def app_mainswaps():
+    """tab:mainswaps: local SWAP counts, own protocol, same row order and
+    non-convergence marker as tab:maineprs.  Was hand-maintained and had
+    drifted on 26 of its 96 cells (2026-09-04), including dSABRE columns
+    predating the 2026-08-31 layout-family change."""
+    rows = load("compare")
+    out = []
+    for si, suite in enumerate(("25", "64", "80")):
+        if si:
+            out.append("\\midrule")
+        for r in (x for x in rows if x["suite"] == suite):
+            c = r["circuit"].replace("_OLD_DEEP", "")
+            cells = []
+            for leg in ("telesabre", "dSE", "sfc", "sfc_refined"):
+                v = (r.get(leg) or {}).get("swaps")
+                cells.append("$^{\\ast}$" if v is None else str(v))
+            out.append(f"{suite}q & {c:<11} & " +
+                       " & ".join(f"{x:>10}" for x in cells) + " \\\\")
+    return "\n".join(out)
+
+
 APP_TABLES = {"tab:heavyhex": app_heavyhex, "tab:shared": app_shared,
-              "tab:pytket": app_pytket, **APP_MAIN}
+              "tab:pytket": app_pytket,
+              "tab:mainswaps": app_mainswaps, **APP_MAIN}
 
 
 def splice(tex: str, label: str, block: str) -> str:

@@ -29,9 +29,9 @@ completion counts and complete compile time.
   against \dSABRE{} over all twenty-four; $t$ is complete protocol time
   (gmean, seconds) over the whole suite. The last pair is the
   portfolio$^{\dagger}$, a derived quantity rather than a fifth
-  configuration, so it is left unbold and the bold entry in each row is the
-  best single compiler. Lower is better; per-circuit counts in
-  \appTables{}.}
+  configuration, so it is left unbold. Bold marks the lowest EPR count of the
+  four compilers in each row; times are never bold. Lower is better;
+  per-circuit counts in \appTables{}.}
 \label{tab:main}
 \setlength{\tabcolsep}{12.5pt}
 \small
@@ -46,15 +46,15 @@ Suite & EPR & $t$ & EPR & $t$ & EPR & $t$ & EPR & $t$
       & \PORTER{} & $+$R \\
 \midrule
 \multicolumn{11}{@{}l}{\emph{(a)} over the circuits \emph{all four} complete} \\
-25q (6) & 106.6 & 0.51 & 45.8 & 0.23 & 43.0 & \textbf{0.20} & \textbf{38.9} & 0.36 & 41.9 & 38.9 \\
-64q (8) & 284.5 & 11.89 & \textbf{144.6} & \textbf{1.77} & 166.2 & 2.24 & 156.1 & 3.84 & 140.5 & 140.5 \\
-80q (3) & 121.0 & 5.11 & 44.9 & \textbf{3.57} & 38.5 & 4.74 & \textbf{36.6} & 8.84 & 34.4 & 34.4 \\
+25q (6) & 106.6 & 0.51 & 45.8 & 0.23 & 43.0 & 0.20 & \textbf{38.9} & 0.36 & 41.9 & 38.9 \\
+64q (8) & 284.5 & 11.89 & \textbf{144.6} & 1.77 & 166.2 & 2.24 & 156.1 & 3.84 & 140.5 & 140.5 \\
+80q (3) & 121.0 & 5.11 & 44.9 & 3.57 & 38.5 & 4.74 & \textbf{36.6} & 8.84 & 34.4 & 34.4 \\
 \midrule
 \multicolumn{11}{@{}l}{\emph{(b)} over \emph{every} circuit in the suite; \TeleSABRE{} omitted} \\
-25q (6) & --- & --- & 45.8 & 0.23 & 43.0 & \textbf{0.20} & \textbf{38.9} & 0.36 & 41.9 & 38.9 \\
-64q (9) & --- & --- & \textbf{173.1} & \textbf{1.77} & 196.1 & 2.24 & 185.3 & 3.84 & 168.8 & 168.8 \\
-80q (9) & --- & --- & 412.1 & \textbf{3.57} & 398.0 & 4.74 & \textbf{373.0} & 8.84 & 346.3 & 340.6 \\
-all (24) & --- & --- & 171.9 & \textbf{1.38} & 175.0 & 1.63 & \textbf{163.1} & 2.90 & 156.0 & 152.2 \\
+25q (6) & --- & --- & 45.8 & 0.23 & 43.0 & 0.20 & \textbf{38.9} & 0.36 & 41.9 & 38.9 \\
+64q (9) & --- & --- & \textbf{173.1} & 1.77 & 196.1 & 2.24 & 185.3 & 3.84 & 168.8 & 168.8 \\
+80q (9) & --- & --- & 412.1 & 3.57 & 398.0 & 4.74 & \textbf{373.0} & 8.84 & 346.3 & 340.6 \\
+all (24) & --- & --- & 171.9 & 1.38 & 175.0 & 1.63 & \textbf{163.1} & 2.90 & 156.0 & 152.2 \\
 \midrule
 done    & \multicolumn{2}{c}{17 / 24} & \multicolumn{2}{c}{24 / 24}
         & \multicolumn{2}{c}{24 / 24} & \multicolumn{2}{c}{24 / 24}
@@ -209,9 +209,10 @@ other parameter; exactly one mechanism is disabled per column.
   decision disabled, from the same layout at the same horizon. ``No pk''
   disables packets, ``No rel.'' both relief tiers, ``\TeleData{}'' the
   \TeleGate{} family; ``pk''/``tg'' are the full configuration's packet and
-  single-telegate counts. GHZ and Graphstate coincide in every column and are
-  omitted, but are inside the gmean lines, whose $n$ differs because the
-  columns fail on different circuits. $^{\dagger}$Does not complete.
+  single-telegate counts. All nine circuits are shown; GHZ and Graphstate
+  coincide in every column, no mechanism being exercised on them. The gmean
+  lines' $n$ differs because the columns fail on different circuits.
+  $^{\dagger}$Does not complete.
   $^{\ddagger}$Needs the extra relief tier.}
 \label{tab:ablation}
 \setlength{\tabcolsep}{3.4pt}
@@ -222,6 +223,8 @@ other parameter; exactly one mechanism is disabled per column.
 Circuit & Full & No pk & No rel. & \TeleData{} & pk & tg \\
 \midrule
 ae          &   490 &   688 & $^{\dagger}$ & \textbf{354}$^{\ddagger}$ &  264 &   15 \\
+ghz         &     7 &     7 &     7 & 7 &    0 &    0 \\
+graphstate  &    28 &    28 &    28 & 28 &    0 &    0 \\
 qft         &   446 &   435 & $^{\dagger}$ & \textbf{307}$^{\ddagger}$ &  209 &    2 \\
 qnn         &  1517 &  1675 & $^{\dagger}$ & \textbf{1025}$^{\ddagger}$ &  448 &   30 \\
 random      & 11040 & 11868 & $^{\dagger}$ & $^{\dagger}$ &  572 & 3538 \\
@@ -267,7 +270,8 @@ leaves the full configuration EPR-identical, so what it isolates is
 vocabulary and not relief --- though it is no longer a strict ablation. On
 that basis teleport-only is $19.8\%$ cheaper, and cheaper on every circuit
 it completes but QAOA, where it is dearer by $0.6\%$ ($1{,}129$ against
-$1{,}122$); on three of the five rows where all three complete,
+$1{,}122$); on three of the five rows where all three complete and any
+mechanism is exercised --- GHZ and Graphstate tie in every column ---
 $\text{\TeleData{} only} < \text{Full} < \text{No packets}$, QFT and QAOA
 excepted --- QFT as in the packets column, QAOA as the one row teleport-only
 loses. Packets beat the single telegates they degrade into,
@@ -445,7 +449,7 @@ from being read as a general one.
 \toprule
 Protocol & routes & EPR & vs.\ \dSABRE{} & time (s) & vs.\ \dSABRE{} \\
 \midrule
-\dSABRE{}                 &      9 & 171.9 & $1.00$ &  1.38 & $\mathbf{1.00}$ \\
+\dSABRE{}                 &      9 & 171.9 & $1.00$ &  1.38 & $1.00$ \\
 \PORTER{}                 &      4 & 175.0 & $1.02$ &  1.63 & $1.18$ \\
 \PORTER{}+R               &      8 & \textbf{163.1} & $\mathbf{0.95}$ &  2.90 & $2.10$ \\
 \bottomrule

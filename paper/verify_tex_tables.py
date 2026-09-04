@@ -157,12 +157,11 @@ for cols in rows_m:
     for _j in (9, 10):
         chk(f"tab:main {lab} portfolio col {_j} unbold", False,
             "textbf" in cols[_j])
-    # Bold in the t column marks the fastest compiler in the row.
-    _t = [cols[i] for i in (2, 4, 6, 8)]
-    _tlive = [(i, num(c)) for i, c in enumerate(_t) if num(c) is not None]
-    chk(f"tab:main {lab} bold t is fastest",
-        [i for i, c in enumerate(_t) if "textbf" in c],
-        [i for i, v in _tlive if v == min(v for _, v in _tlive)])
+    # No time cell is bold: bolding a time reads as a claim about compile
+    # speed that the paper no longer makes on this suite (author's call,
+    # 2026-09-04).  Bold is reserved for EPR, checked just above.
+    for _j in (2, 4, 6, 8):
+        chk(f"tab:main {lab} time col {_j} unbold", False, "textbf" in cols[_j])
     for j, leg in enumerate(("sfc", "sfc_refined")):
         chk(f"tab:main {lab} portfolio {leg}", num(cols[9 + j]),
             round(gmean([min(BY[k]["dSE"]["epr"], BY[k][leg]["epr"])
@@ -221,6 +220,49 @@ if _m:
         l = sum(1 for r in CMP if r[_leg]["epr"] > r["dSE"]["epr"])
         chk(f"tab:main W/L/T {_leg}", _cell,
             f"{w} / {l} / {len(CMP) - w - l}")
+
+# --------------------------------------- appendix: tab:mainswaps, tab:pytket,
+# tab:actionset.  All three are data-backed and NONE was checked until
+# 2026-09-04; tab:mainswaps had drifted on 26 of 96 cells while passing both
+# verifiers, because nothing parsed it.
+_ORD = [(s_, c) for s_ in ("25", "64", "80")
+        for c in ("ae", "ghz", "graphstate", "qft", "qnn", "random",
+                  "qpeexact", "qaoa", "multiplier")
+        if (s_, c) in BY]
+_seg_sw, _rows_sw = rows_of("tab:mainswaps", r"^\d\dq\s*&", APP)
+chk("mainswaps row count", 24, len(_rows_sw))
+for cols, key in zip(_rows_sw, _ORD):
+    for j, leg in enumerate(("telesabre", "dSE", "sfc", "sfc_refined")):
+        chk(f"mainswaps {key} {leg}", cell(cols[2 + j]),
+            (BY[key].get(leg) or {}).get("swaps"))
+
+_seg_py, _rows_py = rows_of("tab:pytket", r"^\d\dq\s*&", APP)
+chk("pytket row count", 24, len(_rows_py))
+for cols, key in zip(_rows_py, _ORD):
+    r = BY[key]
+    chk(f"pytket {key} ebits", cell(cols[2]), r.get("pytket_ebits"))
+    for j, leg in enumerate(("dSE_pytket", "sfc_pytket")):
+        chk(f"pytket {key} {leg} epr", cell(cols[3 + 2 * j]),
+            (r.get(leg) or {}).get("epr"))
+        chk(f"pytket {key} {leg} swaps", cell(cols[4 + 2 * j]),
+            (r.get(leg) or {}).get("swaps"))
+
+# tab:actionset: PORTER's columns must sum to the single-pass EPR count, and
+# every cell comes from action_mix_results.json.
+_MIX = {(r["suite"], r["circuit"].replace("_OLD_DEEP", "")): r
+        for r in json.load(open(_HERE / "action_mix_results.json"))}
+_seg_as, _rows_as = rows_of("tab:actionset", r"^[A-Z]\w+\s*&", APP)
+chk("actionset row count", 9, len(_rows_as))
+for cols in _rows_as:
+    k = ("64", cols[0].strip().lower())
+    m = _MIX[k]
+    td = (m["teleports_normal"] + m["teleports_blocked"]
+          + m["teleports_capacity_relief"])
+    # cols: 0 circuit | 1-2 TeleSABRE | 3 dSABRE | 4-7 PORTER
+    for idx, want, nm in ((4, td, "teledata"), (5, m["telegates"], "telegate"),
+                          (6, m["telegate_packets"], "packets"),
+                          (7, m["packet_cx_total"], "packetcx")):
+        chk(f"actionset {k[1]} {nm}", cell(cols[idx]), want)
 
 # ----------------------------------------------------------- tab:protocols
 # NOT parsed until 2026-09-04.  Its PORTER EPR and time cells had drifted from
@@ -336,10 +378,15 @@ for cols in rows:
 # 80q only since 2026-08-31, and the Suite column is gone with it, so rows now
 # start with the circuit name.  The 25q/64q suites are still ablated and the
 # cross-scale trend is pinned in verify_paper_numbers; it is just not tabulated.
-_ABL80 = ["ae", "qft", "qnn", "random", "qpeexact", "qaoa", "multiplier"]
+# All nine circuits are tabulated since 2026-09-04 (GHZ and Graphstate were
+# previously omitted as rows on which no mechanism is exercised).  The pattern
+# must list every name: it used to match only the seven non-trivial ones, so
+# adding rows would have passed vacuously against a row count of seven.
+_ABL80 = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
+          "qpeexact", "qaoa", "multiplier"]
 seg, rows = rows_of("tab:ablation", r"^(%s)\s*&" % "|".join(_ABL80))
-chk("ablation row count", 7, len(rows))
-chk("ablation rows are the 80q non-trivial set", _ABL80,
+chk("ablation row count", 9, len(rows))
+chk("ablation rows are the whole 80q suite", _ABL80,
     [c[0].strip() for c in rows])
 for cols in rows:
     key = ("80", cols[0].strip())
