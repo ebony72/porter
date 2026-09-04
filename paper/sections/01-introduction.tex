@@ -49,7 +49,7 @@ series, and two networks of IBM heavy-hex cores --- forty-eight
 circuit--architecture instances. Against
 \TeleSABRE{}~\cite{russo2025telesabre}, the strongest published router we
 identified under this cost model, \PORTER{} lowers geometric-mean EPR
-consumption by $59.6\%$, $41.6\%$ and $68.2\%$ on the three suites at
+consumption by $59.7\%$, $41.6\%$ and $68.2\%$ on the three suites at
 four routes to its three, over the instances both complete, and it completes all
 twenty-four --- including the seven \TeleSABRE{} does not converge on,
 among them an 80-qubit, $23{,}381$-CX circuit.
@@ -59,7 +59,7 @@ on the same problem and the closest point of reference we have. \PORTER{}
 is competitive on the three benchmark suites, spending $1.02\times$ its pooled
 EPR for $1.18\times$ its compile time under each compiler's own protocol,
 and pulls ahead as the machine grows: on the scale-up series it uses
-$0.72\times$ \dSABRE{}'s pairs, at $0.45\times$ its compile cost, and wins
+$0.72\times$ \dSABRE{}'s pairs, at $0.50\times$ its compile cost, and wins
 every instance.
 
 A pooled figure that close invites the question of what a second compiler
@@ -88,15 +88,15 @@ formally, with the cost model it assumes and what that excludes.
   relief search (Section~\ref{sec:sfc-relief}), and a deterministic
   initial layout replacing the best-of-$N$ search its predecessors run
   (Section~\ref{sec:sfc-layout}).
-\item \emph{Per-circuit selection of the lookahead horizon.} Every
+\item \emph{A lookahead-horizon portfolio, selected per circuit.} Every
   \SABRE{}-descended router fixes this parameter by constant, and no
   tested constant is best across our benchmark --- the best value spans a
-  factor of thirty-two. \PORTER{} measures how dense the circuit's
-  interaction graph is, prunes a three-value candidate set with it,
-  routes each and keeps the lowest-EPR result; the configured horizon
-  always competes and wins ties, so selection cannot return a worse route
-  than routing once. It is what carries \PORTER{} past \dSABRE{} at scale
-  (Section~\ref{sec:horizon}).
+  factor of thirty-two. \PORTER{} routes every circuit at the same four
+  horizons and keeps the lowest-EPR result. Nothing is conditioned on the
+  circuit, so there is no threshold to generalise, and because the
+  configured horizon is one of the four and wins ties, the portfolio
+  cannot return a worse route than routing once. It is what carries
+  \PORTER{} past \dSABRE{} at scale (Section~\ref{sec:horizon}).
 \item \emph{A controlled study over forty-eight instances}, under native,
   shared-layout and cross-layout protocols, with ablations measuring what
   each mechanism contributes --- including a negative finding, which

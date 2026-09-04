@@ -146,7 +146,8 @@ transpiling it to our basis; at 64 qubits this reproduces the checked-in
 sequence, all $\binom{64}{2}$ interacting pairs, 8{,}126 CX), so the
 80-qubit instance (a fully-connected $\binom{80}{2}$-edge interaction
 graph, 12{,}718 CX) is a faithful extrapolation of the same
-construction.
+construction. Table~\ref{tab:circuits} lists the CX count
+of every benchmark instance used in the paper.
 
 \begin{table}[h]
 \centering
@@ -507,6 +508,11 @@ intended check; the same harness runs on any benchmark QASM file.
 
 \section{Architecture and Primitive Figures}
 \label{app:catent}
+
+Figure~\ref{fig:arch} draws architecture~A, the smaller of the two
+grid-of-grids machines of \mainSetup{}, and Figure~\ref{fig:catent-app}
+gives the cat-entangler and cat-disentangler constructions that
+\TeleGate{} and \TeleGatePacket{} are built from.
 
 \begin{figure}[t]
 \centering
@@ -1321,9 +1327,10 @@ the scale-up series is two families only --- nothing supports a claim about
 scaling on irregular circuits at those widths --- and the heavy-hex study
 is two core graphs, not a survey.
 
-\textbf{Parameter rules fitted in-sample.} The horizon candidate sets and
-the density threshold were chosen by inspecting these same instances
-(\mainHorizon{}), so the \emph{magnitude} of that gain is in-sample; the
+\textbf{Parameters fitted in-sample.} The sweep behind the horizon
+portfolio, and the four values taken from it, were chosen by inspecting
+these same instances (\mainHorizon{}), so the \emph{magnitude} of that
+gain is in-sample; the
 portfolio construction bounds the downside, but no out-of-sample
 validation has been performed. The same caution applies in weaker form to
 $f_\mathrm{min}$, $m_\mathrm{assist}$ and the packet window, fixed early

@@ -22,16 +22,26 @@ Do not report these; they are fixed. Listed so you can recognise them.
    two drops to one. III-A now separates the three roles $f_\mathrm{min}$
    plays and explicitly does not claim an invariant. **Do not ask for the
    invariant language back.**
-2. **The front-size cap does bind.** The claim that it never binds because
-   front gates are pairwise qubit-disjoint was false (disjointness bounds
-   the front by $n$, and 1Q gates are not excluded). The cap binds on all
-   three QPEexact scale-up instances; re-routing uncapped leaves EPR and
-   SWAP counts identical. Reported as a measurement, with a released probe.
+2. **The front-size cap is gone.** A prior round showed the claim that it
+   never binds --- because front gates are pairwise qubit-disjoint --- was
+   false: disjointness bounds the front by $n$, and 1Q gates are not
+   excluded. It binds on all three QPEexact scale-up instances. Rather than
+   document it, the parameter was **removed** (2026-09-01): routing capped
+   and uncapped was measured on all six scale-up instances and agrees on
+   EPR, SWAPs, depth and tie count, byte-identical on the three QFT
+   instances and a permutation differing only in single-qubit gates on the
+   three QPEexact ones. `dag_front_limit`, its row in the parameter table
+   and its probe script no longer exist, and no released number changed.
+   The manuscript you are reading has no front cap in it.
 3. **Notation collision.** $\ell$ denoted both the layout and a gate's ASAP
    layer; the ASAP layer is now $\mathrm{asap}(g)$.
-4. **The tie-break order was misstated.** The selection key is displayed in
-   III-E; preparation cost precedes plan kind, and a readiness flag precedes
-   both.
+4. **The tie-break order was misstated, and the key has since been cut to
+   three terms.** The order is displayed in III-E and is now
+   $(-\mathrm{total}, \mathrm{prep}, -f_\mathrm{dst})$: the readiness flag
+   is subsumed by preparation cost, which is zero exactly when a plan is
+   ready, and the plan-kind rank and the trailing lookahead term were
+   measured to be unreachable and removed. III-E states that measurement.
+   **Do not ask for the six-term key back.**
 5. **Baseline configuration defect.** A misspelled TeleSABRE config key made
    the baseline run at the wrong parameter. Fixed; all dependent legs re-run;
    the headline margins moved as a result and the current figures are post-fix.
@@ -82,8 +92,9 @@ Challenge these only with an argument that engages the stated reason.
 6. **Compile time is reported everywhere and never led with.** Against
    TeleSABRE the result is an EPR reduction; against dSABRE it is
    competitiveness at a stated operating point.
-7. **PORTER+S is in Appendix J, not the main paper** — it costs 2.9× the
-   wall clock of +R for 2.4% EPR, adds a second in-sample-fitted quantity,
+7. **PORTER+S is in Appendix J, not the main paper** — it costs 1.9× the
+   wall clock of +R for 1.8% EPR (improving six instances of twenty-four and
+   tying the other eighteen), adds a second in-sample-fitted quantity,
    and its mechanism *is* choosing the layout, so it can never appear in the
    layout×router grid without destroying that control.
 8. **Table III carries no +S column**, for the reason in (7).
@@ -101,7 +112,7 @@ That is a genuinely useful finding.
 - **No completion guarantee.** Correctness and termination hold; completion
   is empirical. dSABRE has a termination-with-success proof; PORTER does not.
 - **The plan abstraction's share is not isolated** by any experiment.
-- Own-protocol budgets are **unequal** (3 routes vs 9), stated in Table I.
+- Own-protocol budgets are **unequal** (4 routes vs 9), stated in Table I.
 - **Equal-route, layout-controlled comparison is a loss for PORTER**, stated
   as such in V-B.
 - Two 80-qubit instances (AE, QNN) are **reconstructed**, not stock generator

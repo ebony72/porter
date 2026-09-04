@@ -37,7 +37,21 @@ vault note `porter_adaptive_horizon_experiment_instructions.md`
 * `four_horizon_cells.jsonl`, `four_horizon_refined.jsonl` -- every horizon in
   {4,8,16,32,48,64,128} at the shipped weight schedule on all 48 instances, and
   PORTER+R over two candidate four-value sets (`hz_four.py`).  This is the
-  evidence for replacing the density branch with one fixed set.
+  evidence for replacing the density branch with one fixed set.  Note
+  `four_horizon_cells.jsonl` holds only L in {8,32,48,64}: `load_cells()`
+  takes {4,16,128} from `portfolio_head.jsonl`, and both halves are HEAD's
+  router.  `four_horizon_refined.jsonl` carries **both** candidate sets, 24
+  rows each, distinguished by its `horizons` field -- key on `(key, horizons)`
+  or the (4,16,64,128) arm silently wins.
+
+  **`hz_four.py --stage pick` no longer reproduces its own comparison.** It
+  derives the density branch by calling `compile_porter.select_horizons`,
+  which since `abb845b` returns the fixed set for every circuit, so re-running
+  it compares the fixed set with itself and reports parity for the wrong
+  reason.  The branch has to be reconstructed from the cached `rho` in
+  `depth_features.json` against the retired threshold (dense `>= 0.80` took
+  (4,8,16), everything else (8,16,128)).  `paper/verify_horizon_claims.py`
+  does that and pins every figure Section IV-E quotes from this directory.
 * `portfolio_refined.jsonl` -- PORTER+R over a (schedule, horizon) portfolio
   (`hz_portfolio_r.py`), the appendix-only result.
 * `stall_gaps.json` -- longest run of router iterations retiring no gate, for

@@ -3562,3 +3562,106 @@ data-bearing appendix tables are parsed by `verify_tex_tables` (79 tex checks,
 278 numeric). The recurring lesson from this whole session in one line ---
 **a table nothing parses will go stale, and the prose next to it will go stale
 with it, without either verifier noticing.**
+
+## Round-4 review: eleven stale prose figures, and the tolerance that hid one (2026-09-04)
+
+The vault's `comprehensive_manuscript_review_prompt_expanded.md` was run
+against the manuscript. **Both verifiers were green throughout**, so the
+review spent its effort where they are blind --- whether a number supports
+the sentence built on it --- and found nine defects, seven of them the same
+failure: `abb845b` and the 2026-09-03/04 re-runs landed in the code, the
+tables and the verifiers, and a set of prose figures was never re-derived.
+
+**Corrected, with the contradiction each one created:**
+
+| was | is | contradicted |
+|---|---|---|
+| $59.6\%$ (abstract, intro, V-A) | $59.7\%$ | `verify_paper_numbers` had pinned $-59.7$ all along |
+| $63.6\%$ (+R at 25q, V-A) | $63.5\%$ | nothing --- it was unpinned |
+| $2{,}132$ widest +R win (V-A) | $2{,}313$ | `tab:maineprs` **and** Sec VI, which both print the live values |
+| $122.3$ / $21\%$ / $98.5$ (V-E) | $121.2$ / $20\%$ / $97.1$ | `tab:heavyhex` two inches above, and three pins |
+| $0.45\times$, $6.9$\,s (intro, V-D, V-F) | $0.50\times$, $7.8$\,s | `tab:scaleup`'s own gmean row |
+| $0.62\times$ at 360q (V-D) | $0.63\times$ | --- |
+
+**The `0.45` is the important one, because a pin was asserting it.**
+`check()` used a flat **absolute** tolerance of $\pm0.05001$, which on a
+ratio is five percentage points, so `scaleup complete-cost ratio = 0.45`
+passed against a true $0.50$. It is now scale-aware ($\pm0.005$ below
+magnitude 3); re-running exposed **exactly four** slack pins --- two live
+prose errors and two stale unquoted guards, all re-baselined. **Never give a
+ratio the same absolute tolerance as a gmean.**
+
+**Ten pins added** for the figures that had none: the three +R TeleSABRE
+margins, the widest-win and worst-loss **values** (only the circuit
+identities were pinned, which is exactly how $2{,}132$ survived), the star
+margin percentage and both heavy-hex fixed-layout control gmeans. All
+confirmed non-vacuous by restoring the stale values and watching them fire.
+
+**The horizon migration had reached the code and the verifiers but not the
+prose, in five places, two of them contradicting IV-E outright**: the
+introduction's contribution (ii) still said \PORTER{} "measures how dense the
+circuit's interaction graph is, prunes a three-value candidate set with it";
+IV-D and IV-E each said "three candidate horizons" beside a four-element set;
+Sec VI said "rather than merely pruning it"; and Appendix K's threat cited a
+"density threshold" that no longer exists.
+
+**Framing change that came with it.** With $\rho$ retired the mechanism is a
+**portfolio, not an adaptive rule** --- every circuit gets the same four
+horizons. Contribution (ii) is now "A lookahead-horizon portfolio, selected
+per circuit" and says nothing is conditioned on the circuit, so there is no
+threshold to generalise; the abstract and conclusion match. This is
+*stronger* than the old wording: it removes the in-sample-fitted threshold
+Appendix K concedes as a threat. **Do not reintroduce adaptivity language.**
+
+Also fixed: `tab:budgets`' caption arithmetic, which gave 7 for the \PORTER{}
+row because `P` is the horizon count on the selecting rows and the pass count
+on the $+$R rows (the verifier encoded this correctly; the caption did not);
+three orphaned appendix floats (`tab:circuits`, `fig:arch`,
+`fig:catent-app` --- Appendix F was two figures and no prose at all); and a
+nested `\chg{\chg{...}}`.
+
+### `paper/verify_horizon_claims.py` (new) --- IV-E is no longer unpinned
+
+IV-E's case for the fixed set rested entirely on `paper/horizon_sweep/`,
+**which no verifier read**. Every figure it quotes now reproduces and is
+pinned: main-24 parity ($175.0$ both), pooled $-0.2\%$ over 48, $1.6\times$
+single-pass compile time, $+$R identical on all 24 against the released
+`sfc_refined` leg, the best three-value set, and the three near-tie quartets.
+
+Two traps it had to work around, now also in `horizon_sweep/README.md`:
+
+- **`hz_four.py --stage pick` no longer reproduces its own comparison.** It
+  derives the density branch by calling `select_horizons`, which since
+  `abb845b` returns the fixed set for every circuit --- so it compares the
+  fixed set with itself and reports parity for the wrong reason. The branch
+  must be reconstructed from the cached `rho` in `depth_features.json`
+  against the retired threshold (dense `>= 0.80` -> `(4,8,16)`, else
+  `(8,16,128)`). The verifier does that and imports `hz_four`'s own
+  `load_cells`/`score`/`gm` so the budgeting cannot diverge.
+- **`four_horizon_refined.jsonl` carries BOTH candidate sets**, 24 rows each,
+  separated only by its `horizons` field. Keying on `key` alone silently
+  keeps the `(4,16,64,128)` arm and makes the "identical on all 24" claim
+  look like 4 differences.
+
+**One basis error found by the pinning.** IV-E said the best three-value set
+is "$0.3\%$ worse than the rule" with no basis --- that figure is over the
+**38 non-trivial** instances, while the surrounding sentences are main-24 and
+pooled-48. On main-24 it is $0.5\%$. Now stated as "$0.5\%$ worse on the main
+suite and $0.2\%$ worse pooled", both pinned. **This is the defect class
+`resolved_findings.md` §E1 names, and it was still live.**
+
+### Build chain gains a third verifier
+
+`gen_tables_selection.py --write` -> `verify_tex_tables.py` ->
+`verify_paper_numbers.py` -> **`verify_horizon_claims.py`** -> pdflatex both.
+
+### The review packet was itself stale
+
+`paper/review/resolved_findings.md` is what tells an external reviewer not to
+re-report settled items, so a stale entry wastes exactly the budget it exists
+to save. Four were: A.2 still described `dag_front_limit` as documented with
+a released probe (both deleted 2026-09-01); A.4 gave the *corrected* tie-break
+order for a six-term key that `df034da` cut to three; C.7 priced $+$S at
+$2.9\times$/$2.4\%$ against $+$R (now $1.9\times$/$1.8\%$, 6 of 24 improved);
+and D still said the own protocol is 3 routes. All four rewritten.
+`responses_to_reviews.md` s1.1 is still stale on the same front-cap point.

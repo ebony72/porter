@@ -33,9 +33,19 @@ fails = []
 notes = []
 
 
-def check(label, expected, actual, tol=0.05001):
+def check(label, expected, actual, tol=None):
+    # A flat absolute tolerance is right for a gmean EPR count and far too
+    # loose for a ratio: +-0.05 on "0.45x" is five percentage points, which is
+    # how the scale-up complete-cost pin sat at 0.45 while the data said 0.50
+    # (2026-09-04).  Ratios and small percentages are quoted to 2 d.p., so
+    # below magnitude 3 the tolerance is half a unit in that place instead.
     if expected is None and actual is None:
         return
+    if tol is None:
+        try:
+            tol = 0.05001 if abs(float(expected)) >= 3 else 0.005001
+        except (TypeError, ValueError):
+            tol = 0.05001
     ok = (
         expected is not None
         and actual is not None
@@ -741,7 +751,7 @@ check("64q complete-cost advantage", 0.8,
       round(gmean([r["dSE"]["seconds"] for r in _r64])
             / gmean([r["sfc"]["seconds"] for r in _r64]), 1))
 _mult = [r for r in _r64 if r["circuit"] == "multiplier"][0]
-check("64q multiplier per-pass", 0.29,
+check("64q multiplier per-pass", 0.26,
       round(_dse_per_route(_mult) / _p_per_route(_mult), 2))
 check("64q multiplier is the only per-pass win", 0,
       sum(1 for x in _ratios if x >= 1))
@@ -753,7 +763,7 @@ _su_d = gmean([r["dSE"]["epr"] for r in su_rows])
 check("scaleup PORTER beats dSABRE on all six", 6,
       sum(1 for r in su_rows if r["sfc"]["epr"] < r["dSE"]["epr"]))
 check("scaleup gmean ratio", 0.72, round(_su_p / _su_d, 2))
-for _n, _want in (("100", 0.90), ("200", 0.67), ("360", 0.62)):
+for _n, _want in (("100", 0.90), ("200", 0.67), ("360", 0.63)):
     _rs = [r for r in su_rows if r["suite"] == _n]
     check(f"scaleup {_n}q ratio", _want,
           round(gmean([r["sfc"]["epr"] for r in _rs])
@@ -762,7 +772,7 @@ check("scaleup complete-cost PORTER", 7.8,
       round(gmean([r["sfc"]["seconds"] for r in su_rows]), 1))
 check("scaleup complete-cost dSABRE", 15.4,
       round(gmean([r["dSE"]["seconds"] for r in su_rows]), 1))
-check("scaleup complete-cost ratio", 0.45,
+check("scaleup complete-cost ratio", 0.50,
       round(gmean([r["sfc"]["seconds"] for r in su_rows])
             / gmean([r["dSE"]["seconds"] for r in su_rows]), 2))
 check("scaleup +R loses on all six", 6,
@@ -837,6 +847,17 @@ check("star dSABRE gmean", 101.1,
       round(gmean([r["dSE"]["epr"] for r in _star]), 1))
 check("star PORTER wins", 2,
       sum(1 for r in _star if r["porter"]["epr"] < r["dSE"]["epr"]))
+# V-E quotes the margin and the fixed-layout control cell in prose as well as
+# in tab:heavyhex.  Both were stale (21% / 122.3 / 98.5) while the table and
+# the cells above were current, so pin the prose forms too.
+check("star PORTER margin pct", 20,
+      round(100 * (gmean([r["porter"]["epr"] for r in _star])
+                   / gmean([r["dSE"]["epr"] for r in _star]) - 1)))
+check("star PORTER on dSABRE's layout gmean", 97.1,
+      round(gmean([r["porter_on_dse"]["epr"] for r in _star]), 1))
+_ring = [r for r in hh_rows if r["topology"] == "ring"]
+check("ring PORTER on dSABRE's layout gmean", 82.9,
+      round(gmean([r["porter_on_dse"]["epr"] for r in _ring]), 1))
 
 # Sec IV-J: per-ROUTE cost.  PORTER's protocol is |H| routes, so its
 # per-route cost is its protocol time / |H| -- comparing dSABRE's per-route
@@ -847,7 +868,7 @@ def _p_per_route3(r):
     return ((r["sfc"]["seconds"] - r["sfc"].get("layout_seconds", 0))
             / len(_cdr.PORTER_HORIZONS))
 _ratios3 = [_dse_per_route(r) / _p_per_route3(r) for r in _r64]
-check("64q per-route gmean (|H| routes)", 0.36, round(gmean(_ratios3), 2))
+check("64q per-route gmean (|H| routes)", 0.32, round(gmean(_ratios3), 2))
 # Was all nine under the three-horizon protocol; the fourth candidate route
 # divides PORTER's protocol time by 4 instead of 3, so one 64q circuit now
 # comes out cheaper per route than dSABRE.  Also unquoted.
@@ -948,6 +969,12 @@ check("headline 64q single-pass", -41.6,
       round(pct(g64["sfc"], g64["telesabre"]), 1))
 check("headline 80q single-pass", -68.2,
       round(pct(g80["sfc"], g80["telesabre"]), 1))
+# V-A also quotes what refinement adds on the same basis; 63.6 was quoted
+# against a true 63.5 because nothing checked these three.
+for _lbl, _g, _want in (("25q", g25, -63.5), ("64q", g64, -45.1),
+                        ("80q", g80, -69.8)):
+    check(f"headline {_lbl} +R", _want,
+          round(pct(_g["sfc_refined"], _g["telesabre"]), 1))
 
 # --------------------------------------- own-protocol / shared-layout prose
 # Claims in Sec IV-D and IV-E that are easy to get wrong by eye.
@@ -972,6 +999,13 @@ _worst = max(_pr, key=lambda r: r["sfc_refined"]["epr"] / r["dSE"]["epr"])
 check("worst P+R loss circuit", "64/qft", f'{_worst["suite"]}/{_worst["circuit"]}')
 check("worst P+R loss ratio", 1.5,
       round(_worst["sfc_refined"]["epr"] / _worst["dSE"]["epr"], 1))
+# V-A quotes both pairs of raw counts.  Only the circuit identities were
+# pinned, which is how "2,132 against 4,841" survived a re-run that moved
+# PORTER+R's 80q Multiplier to 2,313.
+check("widest P+R win PORTER+R epr", 2313, _best["sfc_refined"]["epr"])
+check("widest P+R win dSABRE epr", 4841, _best["dSE"]["epr"])
+check("worst P+R loss PORTER+R epr", 262, _worst["sfc_refined"]["epr"])
+check("worst P+R loss dSABRE epr", 179, _worst["dSE"]["epr"])
 # grid, row against row: neither router gains from its own layout source
 # (Table tab:shared; the old standalone cross-layout table is gone).
 _g = lambda leg: gmean([r[leg]["epr"] for r in _pr])

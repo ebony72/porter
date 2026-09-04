@@ -142,7 +142,7 @@ its corners-removed architecture graph at seeds 0--2, each layout
 routed by \SABRE{}-style forward\,$\to$\,backward\,$\to$\,forward
 passes; both report the best EPR count. \PORTER{} instead builds one
 deterministic temporal locality-greedy layout
-(Section~\ref{sec:sfc-layout}) and routes it at each of the three
+(Section~\ref{sec:sfc-layout}) and routes it at each of the four
 candidate lookahead horizons of Section~\ref{sec:horizon}, keeping the
 best --- \chg{four routing passes over one layout, against nine over three.}
 It searches no layouts, so every number is reproducible from the circuit
@@ -170,7 +170,7 @@ other's own layout, which closes the remaining cell of the design.
 \label{sec:opprotocols}
 
 Section~\ref{sec:sfc} defines one routing pass. We evaluate two protocols
-built on it. \PORTER{} routes its own layout once at each of three
+built on it. \PORTER{} routes its own layout once at each of four
 candidate lookahead horizons --- \chg{$L_\mathrm{tp}\in\{4,8,16,128\}$, one
 fixed set applied to every circuit --- and keeps the lowest-EPR result; \PORTER{}+R refines backward}
 from that selected route. Both are
@@ -225,8 +225,9 @@ identical on every one of the twenty-four main instances. What the rule was
 buying was compile time, not EPR --- it kept the long horizon away from
 near-all-to-all circuits, where it does not converge --- and the fixed set pays
 that back at $1.6$ times the compile time for one pass and $1.3$ with
-refinement. Three values are not enough: the best three-value set is $0.3\%$
-worse than the rule. Nor is this particular quartet distinguished;
+refinement. Three values are not enough: the best three-value set,
+$\{4,16,128\}$, is $0.5\%$ worse than the rule on the main suite and $0.2\%$
+worse pooled. Nor is this particular quartet distinguished;
 $\{4,16,32,128\}$, $\{4,16,48,128\}$ and $\{4,16,64,128\}$ all land within a
 percent of it, and the last is slightly better pooled. We take
 $\{4,8,16,128\}$ because it is the union of the two sets the retired rule chose
@@ -298,9 +299,13 @@ throughout.
 \centering
 \caption{Every configuration in Section~\ref{sec:results}: layout source,
   layout count $\lvert\mathcal{L}\rvert$, passes per layout $P$, routes, and
-  what is minimised. Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$, plus
-  $\lvert\mathcal{H}\rvert{-}1$ probes per seed where a horizon is selected.
-  \appLayoutSearch{} gives the one configuration not listed.}
+  what is minimised. $P$ is the number of routes spent on one layout:
+  the $\lvert\mathcal{H}\rvert{=}4$ candidate horizons where a horizon is
+  selected and nothing else is, the refinement passes on the $+$R rows.
+  Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$, plus the
+  $\lvert\mathcal{H}\rvert{-}1$ extra horizon probes each $+$R seed spends
+  on its first pass. \appLayoutSearch{} gives the one configuration not
+  listed.}
 \label{tab:budgets}
 \setlength{\tabcolsep}{6pt}
 \small

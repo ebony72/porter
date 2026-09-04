@@ -90,10 +90,10 @@ reproduces the counts \dSABRE{} publishes for it~\cite{lidsabre} exactly.
 
 \textbf{Against \TeleSABRE{}} the ordering is consistent across the suite.
 On block \emph{(a)}, from one deterministic layout, \PORTER{} lowers
-geometric-mean EPR by $59.6\%$, $41.6\%$ and $68.2\%$ at 25, 64 and 80
+geometric-mean EPR by $59.7\%$, $41.6\%$ and $68.2\%$ at 25, 64 and 80
 qubits, spending four routes against \TeleSABRE{}'s three seeded runs, and
 every circuit \TeleSABRE{} completes improves, from $-16.0\%$ to $-81.0\%$.
-Refinement adds to that at 25 and 64 qubits ($63.6\%$ and $45.1\%$) but
+Refinement adds to that at 25 and 64 qubits ($63.5\%$ and $45.1\%$) but
 little at 80 ($69.8\%$), where the horizon rather than the extra routes does
 the work. \TeleSABRE{} completes seventeen instances, failing on 64q~Random
 and six of the nine 80-qubit circuits; \PORTER{} and \dSABRE{} complete all
@@ -107,8 +107,8 @@ winning ten instances, losing twelve and tying two; pooled it is within
 $2\%$, \chg{$175.0$ against $171.9$. Refinement takes the lead pooled ($163.1$)}
 at eight routes and narrows 64 qubits to $1.07\times$, so the one suite
 \PORTER{} loses under its own protocol is also the one extra routes largely
-close. Its largest saving is 80q~Multiplier, $2{,}132$ against $4{,}841$;
-its worst loss 64q~QFT, $262$ against $179$.
+close. \PORTER{}+R's largest saving is 80q~Multiplier, $2{,}313$ against
+$4{,}841$; its worst loss 64q~QFT, $262$ against $179$.
 
 \subsection{RQ2: Routing Quality With the Layout Controlled}
 \label{sec:shared_results}
@@ -346,8 +346,8 @@ inter-core traffic with it --- \dSABRE{}'s own cost rises $200 \to 765
 
 \PORTER{} uses fewer EPR pairs than \dSABRE{} on all six instances, by a
 widening margin: $0.90\times$ at 100 logical qubits, $0.67\times$ at
-200, $0.62\times$ at 360, for $0.72\times$ overall. It does so at
-$0.45\times$ \dSABRE{}'s complete compile cost ($6.9$\,s against
+200, $0.63\times$ at 360, for $0.72\times$ overall. It does so at
+$0.50\times$ \dSABRE{}'s complete compile cost ($7.8$\,s against
 $15.4$\,s), routing four times where \dSABRE{} routes nine.
 
 The horizon is what makes that difference, and the comparison is
@@ -407,7 +407,7 @@ for a heavy-hex tile, and both are given the identical device.
 (Table~\ref{tab:heavyhex}) the two compilers are within $1\%$ of one
 another, $86.1$ against $85.2$: doubling the intra-core diameter and
 replacing degree-4 interiors with degree-1 leaves disturbs neither. The
-star does. There \PORTER{} trails by $21\%$, $122.3$ against $101.1$,
+star does. There \PORTER{} trails by $20\%$, $121.2$ against $101.1$,
 winning two of nine. The core shape is the same in both rows; only the
 core graph differs.
 
@@ -415,7 +415,7 @@ core graph differs.
 gap.} The last column of Table~\ref{tab:heavyhex} holds the routing loop
 against \dSABRE{}'s own \texttt{SabreLayout} candidates: routed from
 those, \PORTER{} overtakes \dSABRE{} on \emph{both} core graphs ---
-$82.9$ against $85.2$ on the ring, $98.5$ against $101.1$ on the star ---
+$82.9$ against $85.2$ on the ring, $97.1$ against $101.1$ on the star ---
 and the reversal is larger on the topology it loses under its own layout.
 The cause is in the layout, and it is specific to the star: \PORTER{}
 reserves $f_\mathrm{min}$ in every core, treating cores as
@@ -479,5 +479,5 @@ simulates packets and searches two tiers of capacity relief. Compile time
 is therefore not an argument for \PORTER{} on these suites --- we report
 it because the EPR figures are only meaningful beside the budget that
 produced them. It does become one at scale, where the same four routes
-run in $0.45\times$ \dSABRE{}'s complete cost
+run in $0.50\times$ \dSABRE{}'s complete cost
 (Section~\ref{sec:scaleup}).
