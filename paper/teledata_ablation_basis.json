@@ -11,7 +11,7 @@
     "packets": 8,
     "local_swaps": 328,
     "depth": 1095,
-    "seconds": 0.123
+    "seconds": 0.071
    },
    "full_relief": {
     "epr": 65,
@@ -20,11 +20,11 @@
     "packets": 8,
     "local_swaps": 328,
     "depth": 1095,
-    "seconds": 0.123
+    "seconds": 0.072
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1326:cx q0,q8']\nFree slots by core: {0: 1, 1: 4, 2: 1, 3: 5}\nPossible ca",
-    "seconds": 0.117
+    "seconds": 0.067
    },
    "teledata_only_relief": {
     "epr": 68,
@@ -33,7 +33,7 @@
     "packets": 0,
     "local_swaps": 325,
     "depth": 1148,
-    "seconds": 0.123
+    "seconds": 0.07
    }
   }
  },
@@ -49,7 +49,7 @@
     "packets": 0,
     "local_swaps": 29,
     "depth": 62,
-    "seconds": 0.004
+    "seconds": 0.002
    },
    "full_relief": {
     "epr": 4,
@@ -58,7 +58,7 @@
     "packets": 0,
     "local_swaps": 29,
     "depth": 62,
-    "seconds": 0.003
+    "seconds": 0.002
    },
    "teledata_only": {
     "epr": 4,
@@ -67,7 +67,7 @@
     "packets": 0,
     "local_swaps": 29,
     "depth": 62,
-    "seconds": 0.003
+    "seconds": 0.002
    },
    "teledata_only_relief": {
     "epr": 4,
@@ -76,7 +76,7 @@
     "packets": 0,
     "local_swaps": 29,
     "depth": 62,
-    "seconds": 0.003
+    "seconds": 0.002
    }
   }
  },
@@ -92,7 +92,7 @@
     "packets": 0,
     "local_swaps": 34,
     "depth": 58,
-    "seconds": 0.008
+    "seconds": 0.005
    },
    "full_relief": {
     "epr": 7,
@@ -101,7 +101,7 @@
     "packets": 0,
     "local_swaps": 34,
     "depth": 58,
-    "seconds": 0.008
+    "seconds": 0.005
    },
    "teledata_only": {
     "epr": 7,
@@ -110,7 +110,7 @@
     "packets": 0,
     "local_swaps": 34,
     "depth": 58,
-    "seconds": 0.008
+    "seconds": 0.004
    },
    "teledata_only_relief": {
     "epr": 7,
@@ -119,7 +119,7 @@
     "packets": 0,
     "local_swaps": 34,
     "depth": 58,
-    "seconds": 0.008
+    "seconds": 0.004
    }
   }
  },
@@ -135,7 +135,7 @@
     "packets": 0,
     "local_swaps": 327,
     "depth": 1000,
-    "seconds": 0.115
+    "seconds": 0.066
    },
    "full_relief": {
     "epr": 74,
@@ -144,7 +144,7 @@
     "packets": 0,
     "local_swaps": 327,
     "depth": 1000,
-    "seconds": 0.117
+    "seconds": 0.067
    },
    "teledata_only": {
     "epr": 74,
@@ -153,7 +153,7 @@
     "packets": 0,
     "local_swaps": 327,
     "depth": 1000,
-    "seconds": 0.109
+    "seconds": 0.063
    },
    "teledata_only_relief": {
     "epr": 74,
@@ -162,7 +162,7 @@
     "packets": 0,
     "local_swaps": 327,
     "depth": 1000,
-    "seconds": 0.109
+    "seconds": 0.063
    }
   }
  },
@@ -178,7 +178,7 @@
     "packets": 0,
     "local_swaps": 642,
     "depth": 1700,
-    "seconds": 0.264
+    "seconds": 0.152
    },
    "full_relief": {
     "epr": 119,
@@ -187,7 +187,7 @@
     "packets": 0,
     "local_swaps": 642,
     "depth": 1700,
-    "seconds": 0.265
+    "seconds": 0.152
    },
    "teledata_only": {
     "epr": 119,
@@ -196,7 +196,7 @@
     "packets": 0,
     "local_swaps": 629,
     "depth": 1707,
-    "seconds": 0.246
+    "seconds": 0.142
    },
    "teledata_only_relief": {
     "epr": 119,
@@ -205,7 +205,7 @@
     "packets": 0,
     "local_swaps": 629,
     "depth": 1707,
-    "seconds": 0.246
+    "seconds": 0.141
    }
   }
  },
@@ -221,7 +221,7 @@
     "packets": 34,
     "local_swaps": 1342,
     "depth": 3291,
-    "seconds": 0.648
+    "seconds": 0.378
    },
    "full_relief": {
     "epr": 393,
@@ -230,58 +230,58 @@
     "packets": 34,
     "local_swaps": 1342,
     "depth": 3291,
-    "seconds": 0.657
+    "seconds": 0.397
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1758:cx q8,q17', '1807:cx q7,q18', '1851:cx q5,q20', '2033:cx q19,q4']\nF",
-    "seconds": 0.346
+    "seconds": 0.22
    },
    "teledata_only_relief": {
-    "epr": 399,
-    "teleports": 399,
+    "epr": 428,
+    "teleports": 428,
     "telegates": 0,
     "packets": 0,
-    "local_swaps": 1437,
-    "depth": 3681,
-    "seconds": 0.694
+    "local_swaps": 1493,
+    "depth": 3812,
+    "seconds": 0.461
    }
   }
  },
  {
   "suite": "64",
   "circuit": "ae",
-  "ref_epr": 177,
+  "ref_epr": 175,
   "out": {
    "full": {
-    "epr": 177,
-    "teleports": 145,
+    "epr": 175,
+    "teleports": 147,
     "telegates": 0,
-    "packets": 32,
-    "local_swaps": 1627,
-    "depth": 4202,
-    "seconds": 0.451
+    "packets": 28,
+    "local_swaps": 1611,
+    "depth": 4189,
+    "seconds": 0.266
    },
    "full_relief": {
-    "epr": 177,
-    "teleports": 145,
+    "epr": 175,
+    "teleports": 147,
     "telegates": 0,
-    "packets": 32,
-    "local_swaps": 1627,
-    "depth": 4202,
-    "seconds": 0.455
+    "packets": 28,
+    "local_swaps": 1611,
+    "depth": 4189,
+    "seconds": 0.266
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2505:cx q29,q43']\nFree slots by core: {0: 3, 1: 1, 2: 14, 3: 11, 4: 1, 5",
-    "seconds": 0.204
+    "seconds": 0.12
    },
    "teledata_only_relief": {
     "epr": 198,
     "teleports": 198,
     "telegates": 0,
     "packets": 0,
-    "local_swaps": 1609,
-    "depth": 4262,
-    "seconds": 0.596
+    "local_swaps": 1562,
+    "depth": 4217,
+    "seconds": 0.289
    }
   }
  },
@@ -297,7 +297,7 @@
     "packets": 0,
     "local_swaps": 86,
     "depth": 133,
-    "seconds": 0.012
+    "seconds": 0.007
    },
    "full_relief": {
     "epr": 6,
@@ -306,7 +306,7 @@
     "packets": 0,
     "local_swaps": 86,
     "depth": 133,
-    "seconds": 0.01
+    "seconds": 0.006
    },
    "teledata_only": {
     "epr": 6,
@@ -315,7 +315,7 @@
     "packets": 0,
     "local_swaps": 86,
     "depth": 133,
-    "seconds": 0.01
+    "seconds": 0.006
    },
    "teledata_only_relief": {
     "epr": 6,
@@ -324,7 +324,7 @@
     "packets": 0,
     "local_swaps": 86,
     "depth": 133,
-    "seconds": 0.01
+    "seconds": 0.006
    }
   }
  },
@@ -340,7 +340,7 @@
     "packets": 0,
     "local_swaps": 131,
     "depth": 105,
-    "seconds": 0.085
+    "seconds": 0.05
    },
    "full_relief": {
     "epr": 20,
@@ -349,7 +349,7 @@
     "packets": 0,
     "local_swaps": 131,
     "depth": 105,
-    "seconds": 0.085
+    "seconds": 0.05
    },
    "teledata_only": {
     "epr": 20,
@@ -358,7 +358,7 @@
     "packets": 0,
     "local_swaps": 131,
     "depth": 105,
-    "seconds": 0.082
+    "seconds": 0.048
    },
    "teledata_only_relief": {
     "epr": 20,
@@ -367,83 +367,88 @@
     "packets": 0,
     "local_swaps": 131,
     "depth": 105,
-    "seconds": 0.082
+    "seconds": 0.047
    }
   }
  },
  {
   "suite": "64",
   "circuit": "qft",
-  "ref_epr": 262,
+  "ref_epr": 221,
   "out": {
    "full": {
-    "epr": 262,
-    "teleports": 216,
-    "telegates": 1,
-    "packets": 45,
-    "local_swaps": 1846,
-    "depth": 3722,
-    "seconds": 0.7
+    "epr": 221,
+    "teleports": 192,
+    "telegates": 0,
+    "packets": 29,
+    "local_swaps": 1805,
+    "depth": 3566,
+    "seconds": 0.357
    },
    "full_relief": {
-    "epr": 262,
-    "teleports": 216,
-    "telegates": 1,
-    "packets": 45,
-    "local_swaps": 1846,
-    "depth": 3722,
-    "seconds": 0.702
+    "epr": 221,
+    "teleports": 192,
+    "telegates": 0,
+    "packets": 29,
+    "local_swaps": 1805,
+    "depth": 3566,
+    "seconds": 0.355
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1361:cx q49,q35', '1423:cx q50,q34']\nFree slots by core: {0: 1, 1: 1, 2:",
-    "seconds": 0.115
+    "seconds": 0.066
    },
    "teledata_only_relief": {
-    "epr": 205,
-    "teleports": 205,
+    "epr": 230,
+    "teleports": 230,
     "telegates": 0,
     "packets": 0,
-    "local_swaps": 1675,
-    "depth": 3842,
-    "seconds": 0.543
+    "local_swaps": 1779,
+    "depth": 3899,
+    "seconds": 0.337
    }
   }
  },
  {
   "suite": "64",
   "circuit": "qnn",
-  "ref_epr": 864,
+  "ref_epr": 570,
   "out": {
    "full": {
-    "epr": 864,
-    "teleports": 619,
-    "telegates": 5,
-    "packets": 240,
-    "local_swaps": 6595,
-    "depth": 11889,
-    "seconds": 3.615
+    "epr": 570,
+    "teleports": 550,
+    "telegates": 1,
+    "packets": 19,
+    "local_swaps": 5493,
+    "depth": 9110,
+    "seconds": 2.273
    },
    "full_relief": {
-    "epr": 864,
-    "teleports": 619,
-    "telegates": 5,
-    "packets": 240,
-    "local_swaps": 6595,
-    "depth": 11889,
-    "seconds": 3.61
+    "epr": 570,
+    "teleports": 550,
+    "telegates": 1,
+    "packets": 19,
+    "local_swaps": 5493,
+    "depth": 9110,
+    "seconds": 2.261
    },
    "teledata_only": {
-    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['11711:cx q56,q59', '12062:cx q50,q61']\nFree slots by core: {0: 1, 1: 1, ",
-    "seconds": 3.198
-   },
-   "teledata_only_relief": {
-    "epr": 694,
-    "teleports": 694,
+    "epr": 646,
+    "teleports": 646,
     "telegates": 0,
     "packets": 0,
-    "local_swaps": 5962,
-    "depth": 9523,
-    "seconds": 3.231
+    "local_swaps": 6058,
+    "depth": 9998,
+    "seconds": 2.041
+   },
+   "teledata_only_relief": {
+    "epr": 646,
+    "teleports": 646,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 6058,
+    "depth": 9998,
+    "seconds": 2.026
    }
   }
  },
@@ -459,7 +464,7 @@
     "packets": 77,
     "local_swaps": 4048,
     "depth": 5623,
-    "seconds": 3.03
+    "seconds": 1.753
    },
    "full_relief": {
     "epr": 737,
@@ -468,15 +473,15 @@
     "packets": 77,
     "local_swaps": 4048,
     "depth": 5623,
-    "seconds": 3.042
+    "seconds": 1.739
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['843:cx q19,q3']\nFree slots by core: {0: 6, 1: 1, 2: 1, 3: 9, 4: 2, 5: 13",
-    "seconds": 0.855
+    "seconds": 0.495
    },
    "teledata_only_relief": {
     "error": "RuntimeError: Router retired no gate in 1000 iterations; abandoning as stalled",
-    "seconds": 3.31
+    "seconds": 1.868
    }
   }
  },
@@ -492,7 +497,7 @@
     "packets": 42,
     "local_swaps": 1729,
     "depth": 4070,
-    "seconds": 0.597
+    "seconds": 0.348
    },
    "full_relief": {
     "epr": 222,
@@ -501,11 +506,11 @@
     "packets": 42,
     "local_swaps": 1729,
     "depth": 4070,
-    "seconds": 0.609
+    "seconds": 0.345
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1734:cx q36,q44', '1867:cx q34,q49', '2009:cx q32,q51']\nFree slots by co",
-    "seconds": 0.184
+    "seconds": 0.112
    },
    "teledata_only_relief": {
     "epr": 275,
@@ -514,45 +519,50 @@
     "packets": 0,
     "local_swaps": 1911,
     "depth": 4380,
-    "seconds": 0.687
+    "seconds": 0.396
    }
   }
  },
  {
   "suite": "64",
   "circuit": "qaoa",
-  "ref_epr": 854,
+  "ref_epr": 668,
   "out": {
    "full": {
-    "epr": 854,
-    "teleports": 507,
-    "telegates": 16,
-    "packets": 331,
-    "local_swaps": 5394,
-    "depth": 8060,
-    "seconds": 3.572
+    "epr": 668,
+    "teleports": 539,
+    "telegates": 3,
+    "packets": 126,
+    "local_swaps": 4657,
+    "depth": 6517,
+    "seconds": 1.97
    },
    "full_relief": {
-    "epr": 854,
-    "teleports": 507,
-    "telegates": 16,
-    "packets": 331,
-    "local_swaps": 5394,
-    "depth": 8060,
-    "seconds": 3.589
+    "epr": 668,
+    "teleports": 539,
+    "telegates": 3,
+    "packets": 126,
+    "local_swaps": 4657,
+    "depth": 6517,
+    "seconds": 1.925
    },
    "teledata_only": {
-    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['5662:cx q40,q55', '5757:cx q42,q56', '6099:cx q29,q60', '6208:cx q35,q61",
-    "seconds": 2.338
-   },
-   "teledata_only_relief": {
-    "epr": 669,
-    "teleports": 669,
+    "epr": 637,
+    "teleports": 637,
     "telegates": 0,
     "packets": 0,
-    "local_swaps": 4560,
-    "depth": 6484,
-    "seconds": 2.452
+    "local_swaps": 4425,
+    "depth": 6539,
+    "seconds": 1.325
+   },
+   "teledata_only_relief": {
+    "epr": 637,
+    "teleports": 637,
+    "telegates": 0,
+    "packets": 0,
+    "local_swaps": 4425,
+    "depth": 6539,
+    "seconds": 1.316
    }
   }
  },
@@ -568,7 +578,7 @@
     "packets": 34,
     "local_swaps": 9878,
     "depth": 34703,
-    "seconds": 2.08
+    "seconds": 1.216
    },
    "full_relief": {
     "epr": 1358,
@@ -577,11 +587,11 @@
     "packets": 34,
     "local_swaps": 9878,
     "depth": 34703,
-    "seconds": 2.072
+    "seconds": 1.215
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['450:cx q2,q22']\nFree slots by core: {0: 1, 1: 1, 2: 4, 3: 2, 4: 8, 5: 16",
-    "seconds": 0.127
+    "seconds": 0.073
    },
    "teledata_only_relief": {
     "epr": 1667,
@@ -590,45 +600,45 @@
     "packets": 0,
     "local_swaps": 11132,
     "depth": 36802,
-    "seconds": 2.443
+    "seconds": 1.451
    }
   }
  },
  {
   "suite": "80",
   "circuit": "ae",
-  "ref_epr": 490,
+  "ref_epr": 331,
   "out": {
    "full": {
-    "epr": 490,
-    "teleports": 211,
-    "telegates": 15,
-    "packets": 264,
-    "local_swaps": 3156,
-    "depth": 6757,
-    "seconds": 0.983
+    "epr": 331,
+    "teleports": 276,
+    "telegates": 1,
+    "packets": 54,
+    "local_swaps": 2642,
+    "depth": 5409,
+    "seconds": 0.475
    },
    "full_relief": {
-    "epr": 490,
-    "teleports": 211,
-    "telegates": 15,
-    "packets": 264,
-    "local_swaps": 3156,
-    "depth": 6757,
-    "seconds": 0.974
+    "epr": 331,
+    "teleports": 276,
+    "telegates": 1,
+    "packets": 54,
+    "local_swaps": 2642,
+    "depth": 5409,
+    "seconds": 0.465
    },
    "teledata_only": {
-    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2917:cx q23,q38', '3059:cx q21,q40']\nFree slots by core: {0: 2, 1: 1, 2:",
-    "seconds": 0.271
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2769:cx q25,q38', '2840:cx q24,q39', '2911:cx q23,q40']\nFree slots by co",
+    "seconds": 0.154
    },
    "teledata_only_relief": {
-    "epr": 354,
-    "teleports": 354,
+    "epr": 342,
+    "teleports": 342,
     "telegates": 0,
     "packets": 0,
-    "local_swaps": 2831,
-    "depth": 5422,
-    "seconds": 0.87
+    "local_swaps": 2564,
+    "depth": 5645,
+    "seconds": 0.466
    }
   }
  },
@@ -644,7 +654,7 @@
     "packets": 0,
     "local_swaps": 115,
     "depth": 168,
-    "seconds": 0.016
+    "seconds": 0.01
    },
    "full_relief": {
     "epr": 7,
@@ -653,7 +663,7 @@
     "packets": 0,
     "local_swaps": 115,
     "depth": 168,
-    "seconds": 0.013
+    "seconds": 0.008
    },
    "teledata_only": {
     "epr": 7,
@@ -662,7 +672,7 @@
     "packets": 0,
     "local_swaps": 115,
     "depth": 168,
-    "seconds": 0.013
+    "seconds": 0.008
    },
    "teledata_only_relief": {
     "epr": 7,
@@ -671,7 +681,7 @@
     "packets": 0,
     "local_swaps": 115,
     "depth": 168,
-    "seconds": 0.013
+    "seconds": 0.008
    }
   }
  },
@@ -687,7 +697,7 @@
     "packets": 0,
     "local_swaps": 198,
     "depth": 134,
-    "seconds": 0.195
+    "seconds": 0.113
    },
    "full_relief": {
     "epr": 28,
@@ -696,7 +706,7 @@
     "packets": 0,
     "local_swaps": 198,
     "depth": 134,
-    "seconds": 0.194
+    "seconds": 0.112
    },
    "teledata_only": {
     "epr": 28,
@@ -705,7 +715,7 @@
     "packets": 0,
     "local_swaps": 198,
     "depth": 134,
-    "seconds": 0.181
+    "seconds": 0.107
    },
    "teledata_only_relief": {
     "epr": 28,
@@ -714,225 +724,215 @@
     "packets": 0,
     "local_swaps": 198,
     "depth": 134,
-    "seconds": 0.181
+    "seconds": 0.104
    }
   }
  },
  {
   "suite": "80",
   "circuit": "qft",
-  "ref_epr": 446,
+  "ref_epr": 318,
   "out": {
    "full": {
-    "epr": 446,
-    "teleports": 235,
-    "telegates": 2,
-    "packets": 209,
-    "local_swaps": 2968,
-    "depth": 6321,
-    "seconds": 0.812
+    "epr": 318,
+    "teleports": 240,
+    "telegates": 0,
+    "packets": 78,
+    "local_swaps": 2572,
+    "depth": 5024,
+    "seconds": 0.411
    },
    "full_relief": {
-    "epr": 446,
-    "teleports": 235,
-    "telegates": 2,
-    "packets": 209,
-    "local_swaps": 2968,
-    "depth": 6321,
-    "seconds": 0.813
+    "epr": 318,
+    "teleports": 240,
+    "telegates": 0,
+    "packets": 78,
+    "local_swaps": 2572,
+    "depth": 5024,
+    "seconds": 0.413
    },
    "teledata_only": {
-    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2409:cx q46,q39', '2517:cx q56,q37']\nFree slots by core: {0: 1, 1: 2, 2:",
-    "seconds": 0.269
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2463:cx q51,q38', '2517:cx q56,q37']\nFree slots by core: {0: 1, 1: 1, 2:",
+    "seconds": 0.133
    },
    "teledata_only_relief": {
-    "epr": 307,
-    "teleports": 307,
-    "telegates": 0,
-    "packets": 0,
-    "local_swaps": 2569,
-    "depth": 5545,
-    "seconds": 0.75
+    "error": "RuntimeError: Router retired no gate in 1000 iterations; abandoning as stalled",
+    "seconds": 0.798
    }
   }
  },
  {
   "suite": "80",
   "circuit": "qnn",
-  "ref_epr": 1517,
+  "ref_epr": 1072,
   "out": {
    "full": {
-    "epr": 1517,
-    "teleports": 1039,
-    "telegates": 30,
-    "packets": 448,
-    "local_swaps": 10920,
-    "depth": 20006,
-    "seconds": 7.971
+    "epr": 1072,
+    "teleports": 957,
+    "telegates": 2,
+    "packets": 113,
+    "local_swaps": 9669,
+    "depth": 17363,
+    "seconds": 3.364
    },
    "full_relief": {
-    "epr": 1517,
-    "teleports": 1039,
-    "telegates": 30,
-    "packets": 448,
-    "local_swaps": 10920,
-    "depth": 20006,
-    "seconds": 7.948
+    "epr": 1072,
+    "teleports": 957,
+    "telegates": 2,
+    "packets": 113,
+    "local_swaps": 9669,
+    "depth": 17363,
+    "seconds": 3.395
    },
    "teledata_only": {
-    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1770:cx q28,q33', '2061:cx q20,q36', '2712:cx q0,q42']\nFree slots by cor",
-    "seconds": 0.45
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['3753:cx q25,q49', '4209:cx q24,q52', '4302:cx q2,q53']\nFree slots by cor",
+    "seconds": 0.638
    },
    "teledata_only_relief": {
-    "epr": 1025,
-    "teleports": 1025,
+    "epr": 1132,
+    "teleports": 1132,
     "telegates": 0,
     "packets": 0,
-    "local_swaps": 9723,
-    "depth": 15840,
-    "seconds": 4.995
+    "local_swaps": 10131,
+    "depth": 17787,
+    "seconds": 3.129
    }
   }
  },
  {
   "suite": "80",
   "circuit": "random",
-  "ref_epr": 11040,
+  "ref_epr": 11245,
   "out": {
    "full": {
-    "epr": 11040,
-    "teleports": 6930,
-    "telegates": 3538,
-    "packets": 572,
-    "local_swaps": 62119,
-    "depth": 77093,
-    "seconds": 62.694
+    "epr": 11245,
+    "teleports": 6916,
+    "telegates": 3792,
+    "packets": 537,
+    "local_swaps": 63378,
+    "depth": 76314,
+    "seconds": 38.355
    },
    "full_relief": {
-    "epr": 11040,
-    "teleports": 6930,
-    "telegates": 3538,
-    "packets": 572,
-    "local_swaps": 62119,
-    "depth": 77093,
-    "seconds": 71.341
+    "epr": 11245,
+    "teleports": 6916,
+    "telegates": 3792,
+    "packets": 537,
+    "local_swaps": 63378,
+    "depth": 76314,
+    "seconds": 38.499
    },
    "teledata_only": {
-    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['3398:cx q73,q65', '3613:cx q17,q66', '4023:cx q41,q44', '4599:cx q22,q52",
-    "seconds": 4.213
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['6675:cx q52,q9', '7761:cx q2,q15', '8070:cx q49,q72', '8127:cx q10,q45']",
+    "seconds": 3.815
    },
    "teledata_only_relief": {
     "error": "RuntimeError: Router retired no gate in 1000 iterations; abandoning as stalled",
-    "seconds": 29.666
+    "seconds": 12.661
    }
   }
  },
  {
   "suite": "80",
   "circuit": "qpeexact",
-  "ref_epr": 526,
+  "ref_epr": 435,
   "out": {
    "full": {
-    "epr": 526,
-    "teleports": 271,
-    "telegates": 16,
-    "packets": 239,
-    "local_swaps": 3427,
-    "depth": 6492,
-    "seconds": 1.055
+    "epr": 435,
+    "teleports": 311,
+    "telegates": 0,
+    "packets": 124,
+    "local_swaps": 3144,
+    "depth": 5662,
+    "seconds": 0.59
    },
    "full_relief": {
-    "epr": 526,
-    "teleports": 271,
-    "telegates": 16,
-    "packets": 239,
-    "local_swaps": 3427,
-    "depth": 6492,
-    "seconds": 1.021
+    "epr": 435,
+    "teleports": 311,
+    "telegates": 0,
+    "packets": 124,
+    "local_swaps": 3144,
+    "depth": 5662,
+    "seconds": 0.566
    },
    "teledata_only": {
-    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2631:cx q42,q45', '2737:cx q40,q59']\nFree slots by core: {0: 3, 1: 1, 2:",
-    "seconds": 0.268
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['2406:cx q45,q46', '2524:cx q43,q56', '2669:cx q41,q57', '2737:cx q40,q59",
+    "seconds": 0.155
    },
    "teledata_only_relief": {
-    "epr": 331,
-    "teleports": 331,
+    "epr": 347,
+    "teleports": 347,
     "telegates": 0,
     "packets": 0,
-    "local_swaps": 2633,
-    "depth": 5437,
-    "seconds": 0.823
+    "local_swaps": 2860,
+    "depth": 5637,
+    "seconds": 0.497
    }
   }
  },
  {
   "suite": "80",
   "circuit": "qaoa",
-  "ref_epr": 1122,
+  "ref_epr": 1202,
   "out": {
    "full": {
-    "epr": 1122,
-    "teleports": 804,
-    "telegates": 15,
-    "packets": 303,
-    "local_swaps": 7370,
-    "depth": 10151,
-    "seconds": 6.706
+    "epr": 1202,
+    "teleports": 821,
+    "telegates": 21,
+    "packets": 360,
+    "local_swaps": 7857,
+    "depth": 11764,
+    "seconds": 3.577
    },
    "full_relief": {
-    "epr": 1122,
-    "teleports": 804,
-    "telegates": 15,
-    "packets": 303,
-    "local_swaps": 7370,
-    "depth": 10151,
-    "seconds": 6.67
+    "epr": 1202,
+    "teleports": 821,
+    "telegates": 21,
+    "packets": 360,
+    "local_swaps": 7857,
+    "depth": 11764,
+    "seconds": 3.603
    },
    "teledata_only": {
-    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1119:cx q20,q36', '2589:cx q14,q57', '4749:cx q13,q78', '5047:cx q12,q79",
-    "seconds": 1.262
+    "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['1134:cx q29,q36', '1404:cx q4,q41', '3360:cx q2,q66']\nFree slots by core",
+    "seconds": 0.306
    },
    "teledata_only_relief": {
-    "epr": 1129,
-    "teleports": 1129,
-    "telegates": 0,
-    "packets": 0,
-    "local_swaps": 7866,
-    "depth": 10811,
-    "seconds": 6.133
+    "error": "RuntimeError: Router retired no gate in 1000 iterations; abandoning as stalled",
+    "seconds": 1.95
    }
   }
  },
  {
   "suite": "80",
   "circuit": "multiplier",
-  "ref_epr": 3501,
+  "ref_epr": 3897,
   "out": {
    "full": {
-    "epr": 3501,
-    "teleports": 1778,
-    "telegates": 1531,
-    "packets": 192,
-    "local_swaps": 18863,
-    "depth": 60964,
-    "seconds": 4.159
+    "epr": 3897,
+    "teleports": 1950,
+    "telegates": 1739,
+    "packets": 208,
+    "local_swaps": 20829,
+    "depth": 63675,
+    "seconds": 2.768
    },
    "full_relief": {
-    "epr": 3501,
-    "teleports": 1778,
-    "telegates": 1531,
-    "packets": 192,
-    "local_swaps": 18863,
-    "depth": 60964,
-    "seconds": 4.256
+    "epr": 3897,
+    "teleports": 1950,
+    "telegates": 1739,
+    "packets": 208,
+    "local_swaps": 20829,
+    "depth": 63675,
+    "seconds": 2.705
    },
    "teledata_only": {
     "error": "RuntimeError: No legal action available.\nCurrent DAG front: ['462:cx q2,q26']\nFree slots by core: {0: 1, 1: 1, 2: 4, 3: 2, 4: 2, 5: 6}",
-    "seconds": 0.18
+    "seconds": 0.168
    },
    "teledata_only_relief": {
     "error": "RuntimeError: Router retired no gate in 1000 iterations; abandoning as stalled",
-    "seconds": 5.091
+    "seconds": 2.918
    }
   }
  }

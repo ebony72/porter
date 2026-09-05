@@ -130,8 +130,8 @@
   "circuit": "ae",
   "out": {
    "full": {
-    "epr": 177,
-    "packets": 32,
+    "epr": 175,
+    "packets": 28,
     "telegates": 0
    },
    "no_packets": {
@@ -193,14 +193,14 @@
   "circuit": "qft",
   "out": {
    "full": {
-    "epr": 262,
-    "packets": 45,
-    "telegates": 1
+    "epr": 221,
+    "packets": 29,
+    "telegates": 0
    },
    "no_packets": {
-    "epr": 372,
+    "epr": 260,
     "packets": 0,
-    "telegates": 162
+    "telegates": 57
    },
    "no_relief": {
     "epr": 382,
@@ -214,14 +214,14 @@
   "circuit": "qnn",
   "out": {
    "full": {
-    "epr": 864,
-    "packets": 240,
-    "telegates": 5
+    "epr": 570,
+    "packets": 19,
+    "telegates": 1
    },
    "no_packets": {
-    "epr": 931,
+    "epr": 602,
     "packets": 0,
-    "telegates": 253
+    "telegates": 35
    },
    "no_relief": {
     "epr": 600,
@@ -240,9 +240,9 @@
     "telegates": 228
    },
    "no_packets": {
-    "epr": 843,
+    "epr": 789,
     "packets": 0,
-    "telegates": 376
+    "telegates": 302
    },
    "no_relief": {
     "epr": 803,
@@ -277,14 +277,14 @@
   "circuit": "qaoa",
   "out": {
    "full": {
-    "epr": 854,
-    "packets": 331,
-    "telegates": 16
+    "epr": 668,
+    "packets": 126,
+    "telegates": 3
    },
    "no_packets": {
-    "epr": 898,
+    "epr": 876,
     "packets": 0,
-    "telegates": 356
+    "telegates": 231
    },
    "no_relief": {
     "epr": 1215,
@@ -319,14 +319,14 @@
   "circuit": "ae",
   "out": {
    "full": {
-    "epr": 490,
-    "packets": 264,
-    "telegates": 15
+    "epr": 331,
+    "packets": 54,
+    "telegates": 1
    },
    "no_packets": {
-    "epr": 688,
+    "epr": 367,
     "packets": 0,
-    "telegates": 414
+    "telegates": 68
    },
    "no_relief": {
     "error": "No legal action available.\nCurrent DAG front: ['3459:cx q16,"
@@ -380,14 +380,14 @@
   "circuit": "qft",
   "out": {
    "full": {
-    "epr": 446,
-    "packets": 209,
-    "telegates": 2
+    "epr": 318,
+    "packets": 78,
+    "telegates": 0
    },
    "no_packets": {
-    "epr": 435,
+    "epr": 337,
     "packets": 0,
-    "telegates": 176
+    "telegates": 86
    },
    "no_relief": {
     "error": "No legal action available.\nCurrent DAG front: ['2767:cx q49,"
@@ -399,14 +399,14 @@
   "circuit": "qnn",
   "out": {
    "full": {
-    "epr": 1517,
-    "packets": 448,
-    "telegates": 30
+    "epr": 1072,
+    "packets": 113,
+    "telegates": 2
    },
    "no_packets": {
-    "epr": 1675,
+    "epr": 1099,
     "packets": 0,
-    "telegates": 693
+    "telegates": 116
    },
    "no_relief": {
     "error": "No legal action available.\nCurrent DAG front: ['11753:cx q15"
@@ -418,14 +418,12 @@
   "circuit": "random",
   "out": {
    "full": {
-    "epr": 11040,
-    "packets": 572,
-    "telegates": 3538
+    "epr": 11245,
+    "packets": 537,
+    "telegates": 3792
    },
    "no_packets": {
-    "epr": 11868,
-    "packets": 0,
-    "telegates": 4948
+    "error": "Router retired no gate in 1000 iterations; abandoning as sta"
    },
    "no_relief": {
     "error": "No legal action available.\nCurrent DAG front: ['3695:cx q56,"
@@ -437,14 +435,14 @@
   "circuit": "qpeexact",
   "out": {
    "full": {
-    "epr": 526,
-    "packets": 239,
-    "telegates": 16
+    "epr": 435,
+    "packets": 124,
+    "telegates": 0
    },
    "no_packets": {
-    "epr": 620,
+    "epr": 443,
     "packets": 0,
-    "telegates": 353
+    "telegates": 162
    },
    "no_relief": {
     "error": "No legal action available.\nCurrent DAG front: ['3211:cx q34,"
@@ -456,14 +454,14 @@
   "circuit": "qaoa",
   "out": {
    "full": {
-    "epr": 1122,
-    "packets": 303,
-    "telegates": 15
+    "epr": 1202,
+    "packets": 360,
+    "telegates": 21
    },
    "no_packets": {
-    "epr": 1650,
+    "epr": 1146,
     "packets": 0,
-    "telegates": 780
+    "telegates": 274
    },
    "no_relief": {
     "epr": 1505,
@@ -477,14 +475,14 @@
   "circuit": "multiplier",
   "out": {
    "full": {
-    "epr": 3501,
-    "packets": 192,
-    "telegates": 1531
+    "epr": 3897,
+    "packets": 208,
+    "telegates": 1739
    },
    "no_packets": {
-    "epr": 3437,
+    "epr": 3584,
     "packets": 0,
-    "telegates": 1604
+    "telegates": 1609
    },
    "no_relief": {
     "epr": 3055,
