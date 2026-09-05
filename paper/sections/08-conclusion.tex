@@ -6,14 +6,14 @@
 stage: it scores a complete inter-core action on the gate progress it
 buys, before any preparation SWAP for it exists, and commits before
 preparing. Around that it places a capacity discipline with two relief
-tiers, a deterministic initial layout, and a teleport-lookahead horizon
-chosen per circuit from a fixed four-value portfolio.
+tiers, a deterministic initial layout, and a \chg{teleport-lookahead horizon
+chosen per circuit from a fixed four-value portfolio.}
 
 Three conclusions are supported. First, on the evaluated MQT-Bench suites
 \PORTER{} uses substantially fewer ($>40\%$) EPR pairs than published \TeleSABRE{} and completes all twenty-four
 instances, including the seven on which \TeleSABRE{} does not converge. Second,
 against \dSABRE{} it is competitive on those same suites,
-$1.02\times$ its pooled EPR at $1.18\times$ its compile time under each
+$1.02\times$ its pooled EPR at \chg{$1.18\times$ its compile time under each}
 compiler's own protocol, and its advantage grows with the machine,
 reaching $0.72\times$ on the $100$--$360$-qubit scale-up series. Third,
 controlled experiments locate where these results come from rather
@@ -27,4 +27,4 @@ $0.72\times$ into $1.45\times$, which is what carries \PORTER{} past
 \dSABRE{} as the machine grows. The two compilers also
 prove complementary rather than ranked: neither wins more than eleven of
 the twenty-four instances, and taking the better of the two per instance
-reaches $11.5\%$ below \dSABRE{} alone (Section~\ref{sec:discussion}).
+reaches \chg{$11.5\%$ below \dSABRE{} alone (Section~\ref{sec:discussion}).}

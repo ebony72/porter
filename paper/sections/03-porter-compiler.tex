@@ -176,7 +176,11 @@ with $\pi\in\{\TeleData{},\TeleGate{},\TeleGatePacket{}\}$ the primitive,
 ($\bot$ for the \TeleGate{} family), $c_\mathrm{src}$ and $c_\mathrm{dst}$
 the cores, $\mathrm{mode}$ the generating rule --- localise onto an adjacent
 core, reduce distance by one hop, or relieve capacity --- and $\Pi(\pln{p})$
-the inter-core link it reserves. The seed and the moving qubit are what
+the inter-core link it reserves. Both cores are defined for every primitive,
+and $c_\mathrm{dst}$ is always a neighbour of $c_\mathrm{src}$: the
+\TeleGate{} family is generated only for a core-adjacent CX, a \TeleData{}
+only for a one-hop move, and the tail-relief search emits the last hop of a
+chain rather than the chain, so every plan acts across a single link. The seed and the moving qubit are what
 individuate a \TeleData{}: its $G(\pln{p})$ is empty, so without them two
 plans moving different qubits between the same pair of cores would be the
 same tuple. On the single-link interconnect assumed here $\Pi(\pln{p})$
@@ -298,7 +302,8 @@ components in turn.
 
 \textbf{$\mathrm{total}$} is the estimated gate progress the plan buys,
 negated so that more progress sorts first. It decides almost every
-comparison; the two components after it only break ties. Preparation
+\chg{comparison --- nine rankings in ten over the benchmark suites --- and the
+two components after it only break ties.Preparation}
 cost is not part of it, so a plan that happens to be cheap to prepare
 cannot displace one that buys more progress --- the property that
 separates this scorer from \dSABRE{}'s, where staging cost is additive
@@ -313,17 +318,31 @@ value, one that can fire now precedes one that cannot, and two unready
 plans are ordered by how much local work each still needs.
 
 \textbf{$-f_\mathrm{dst}$} is the free capacity of the destination core,
-negated, so between plans of equal value and preparation cost the one
-leaving more room wins. Only a \TeleData{} consumes a destination slot;
-every other primitive scores zero here, so this component also carries a
-preference for the plan that improves the layout. It is computed
-alongside the score, never added to it.
+negated, \chg{and it does two different jobs. Between two \TeleData{} plans it
+compares headroom, and the one leaving more room wins; it separates the
+winner from another \TeleData{} in $274$ rankings. Between a \TeleData{}
+and a member of the \TeleGate{} family it compares nothing: only a
+\TeleData{} consumes a destination slot, so the \TeleGate{} family scores
+zero here while any admissible \TeleData{} scores
+$-f_\mathrm{dst}\le-f_\mathrm{min}$, and the \TeleData{} sorts first
+whatever its destination holds. This is the component that carries the
+\TeleData{}-first preference an explicit plan-kind rank used to provide,
+and it decides $621$ rankings that way. In $212$ of those the winning
+\TeleData{}'s destination sits at $f_\mathrm{min}$, so what the preference
+expresses is not that the plan leaves more room --- it leaves less --- but
+that relocating a qubit is worth more than discharging one straddling
+gate, because the pair it spends makes every later CX with a partner in
+that core local. It is computed alongside the score, never added to it.}
 
-\chg{ A \TeleGate{} scores $\mathrm{total}{=}1$ and a}
+\chg{A \TeleGate{} scores $\mathrm{total}{=}1$ and a}
 \TeleGatePacket{} is only generated carrying at least two straddling
 gates, so $-\mathrm{total}$ always separates those two primitives and
 only the \TeleData{}-first half of a plan-kind ordering was ever
-reachable; $-f_\mathrm{dst}$ now carries it. And since $\mathrm{total}$
+\chg{reachable. Those are also the only totals the \TeleGate{} family takes,
+so a tie between primitives can fall only on a positive integer, and a
+\TeleData{} reaches one only when its discounted gain is integral --- in
+$1{,}438$ of the $1{,}449$ such ties it is zero, leaving both plans
+offering the same realised progress for the same pair. And since $\mathrm{total}$}
 is the sum of the realised and discounted gains, a trailing
 $-\mathrm{lookahead}$ could separate two plans only where those two parts
 traded in exactly compensating amounts --- once in $24{,}494$ rankings

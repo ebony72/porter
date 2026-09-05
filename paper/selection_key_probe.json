@@ -1,0 +1,133 @@
+{
+ "instances": [
+  {
+   "suite": "25",
+   "circuit": "ae",
+   "completed": true
+  },
+  {
+   "suite": "25",
+   "circuit": "ghz",
+   "completed": true
+  },
+  {
+   "suite": "25",
+   "circuit": "graphstate",
+   "completed": true
+  },
+  {
+   "suite": "25",
+   "circuit": "qft",
+   "completed": true
+  },
+  {
+   "suite": "25",
+   "circuit": "qnn",
+   "completed": true
+  },
+  {
+   "suite": "25",
+   "circuit": "random",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "ae",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "ghz",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "graphstate",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "qft",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "qnn",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "random",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "qpeexact",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "qaoa",
+   "completed": true
+  },
+  {
+   "suite": "64",
+   "circuit": "multiplier",
+   "completed": true
+  }
+ ],
+ "counts": {
+  "rankings": 19990,
+  "mixed_kind": 18473,
+  "contains_crosskind_tie": 7789,
+  "tie_decided": 1909,
+  "tie_won_by_teledata": 1449,
+  "tie_broken_by_capacity": 621,
+  "tie_teledata_lookahead_zero": 1438,
+  "capacity_separates_crosskind": 621,
+  "capacity_separates_within_teledata": 274,
+  "tie_teledata_lookahead_nonzero": 11,
+  "tie_broken_by_prep": 1288,
+  "tie_won_by_gate_family": 460
+ },
+ "tie_totals": {
+  "1.0": 1140,
+  "2.0": 626,
+  "3.0": 11,
+  "4.0": 49,
+  "5.0": 5,
+  "6.0": 69,
+  "8.0": 9
+ },
+ "fdst_when_capacity_decided": {
+  "2": 212,
+  "3": 143,
+  "4": 63,
+  "5": 55,
+  "6": 38,
+  "7": 35,
+  "8": 15,
+  "9": 10,
+  "10": 11,
+  "11": 9,
+  "12": 9,
+  "13": 9,
+  "14": 8,
+  "15": 4
+ },
+ "plan_core_distance": {
+  "telegate||1": 53147,
+  "telegate_packet||1": 25436,
+  "teleport|blocked_capacity_adjacent|1": 52203,
+  "teleport|blocked_capacity_distance_reducing|1": 30110,
+  "teleport|capacity_relief_bfs|1": 5288,
+  "teleport|distance_reducing|1": 33182,
+  "teleport|localize_adjacent_control_to_target_core|1": 26551,
+  "teleport|localize_adjacent_target_to_control_core|1": 27540,
+  "teleport|opportunistic_capacity_relief_bfs|1": 62107
+ },
+ "plans_generated": 315564,
+ "distances_observed": [
+  1
+ ]
+}

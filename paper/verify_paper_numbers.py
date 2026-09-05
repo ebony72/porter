@@ -1257,6 +1257,50 @@ for key, want in narrative.items():
     got = "P" if pv < d else ("dSE" if pv > d else "tie")
     check(f"narrative {key}", want, got)
 
+# --- Sec III-E: what the two trailing components of the selection key do ---
+# Data: paper/probe_selection_key.py -> paper/selection_key_probe.json (one
+# pass over the 15 main-suite instances under PORTER's own protocol).  These
+# pin a description, not a result: III-E used to present -f_dst as a single
+# headroom rule, which is true only between two TeleData plans.  Across
+# primitives the TeleGate family scores a constant 0 and every admissible
+# TeleData scores <= -f_min, so the TeleData sorts first for ANY f_dst -- the
+# component is a plan-kind preference there, and in 212 of those rankings it
+# prefers the plan that consumes the scarcer capacity.  Re-conflating the two
+# roles is the regression these guard against.
+key_probe = json.load(open(f"{BASE}/paper/selection_key_probe.json"))
+kc = key_probe["counts"]
+check("key rankings observed", 19990, kc["rankings"])
+check("key tie-decided rankings", 1909, kc["tie_decided"])
+check("key tie-decided share (nine in ten decided by total alone)",
+      9.55, 100.0 * kc["tie_decided"] / kc["rankings"])
+check("key ties broken by prep", 1288, kc["tie_broken_by_prep"])
+check("key ties broken by -f_dst", 621, kc["tie_broken_by_capacity"])
+check("key ties broken by the stable identifier", 0, kc.get("tie_broken_by_stable_id", 0))
+check("key -f_dst separates across primitives", 621, kc["capacity_separates_crosskind"])
+check("key -f_dst separates within TeleData", 274, kc["capacity_separates_within_teledata"])
+# The cross-kind role is a constant, so f_dst's value is inert: the TeleData
+# wins at every headroom, including the floor.
+check("key cross-primitive wins with destination at f_min", 212,
+      key_probe["fdst_when_capacity_decided"]["2"])
+check("key cross-primitive wins total", 621,
+      sum(key_probe["fdst_when_capacity_decided"].values()))
+# A TeleGate scores exactly 1 and a packet an integer >= 2, so a tie between
+# primitives can only fall on a positive integer -- and a TeleData reaches one
+# almost always by having zero discounted gain, which is why "prefer the surer
+# plan" has nothing to separate at a tie.
+check("key ties at a non-integer total", 0, kc.get("tie_at_noninteger_total", 0))
+check("key ties at a non-positive total", 0, kc.get("tie_at_nonpositive_total", 0))
+check("key TeleGate-vs-packet ties", 0, kc.get("tie_telegate_vs_packet", 0))
+check("key ties won by a TeleData", 1449, kc["tie_won_by_teledata"])
+check("key ties won by the TeleGate family", 460, kc["tie_won_by_gate_family"])
+check("key tie-winning TeleData with zero discounted gain", 1438,
+      kc["tie_teledata_lookahead_zero"])
+# --- Sec III-D: every plan acts across a single inter-core link ---
+check("plan c_dst always adjacent to c_src", "[1]",
+      str(key_probe["distances_observed"]))
+check("plans audited for the single-link invariant", 315564,
+      key_probe["plans_generated"])
+
 print()
 if fails:
     print(f"{len(fails)} MISMATCHES:")

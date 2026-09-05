@@ -27,10 +27,10 @@ completion counts and complete compile time.
   drops it. The blocks differ only in which circuits they average.
   ``done'' is circuits completed and ``W/L/T'' the per-instance record
   against \dSABRE{} over all twenty-four; $t$ is complete protocol time
-  (gmean, seconds) over the whole suite. The last pair is the
+  (gmean, seconds) over the whole suite. The last pair is \chg{the
   portfolio$^{\dagger}$, a derived quantity rather than a fifth
   configuration, so it is left unbold. Bold marks the lowest EPR count of the
-  four compilers in each row; times are never bold. Lower is better;
+  four compilers in each row; times are never bold. Lower is better;}
   per-circuit counts in \appTables{}.}
 \label{tab:main}
 \setlength{\tabcolsep}{12.5pt}
@@ -66,7 +66,7 @@ W/L/T   & \multicolumn{2}{c}{---} & \multicolumn{2}{c}{---}
 \end{tabular}%
 }
 \begin{minipage}{\textwidth}\vspace{3pt}\footnotesize
-$^{\dagger}$ \textbf{Portfolio.} For each instance, the lower of
+\chg{$^{\dagger}$ \textbf{Portfolio.} For each instance, the lower of
 \dSABRE{}'s EPR count and the named \PORTER{} configuration's, each
 compiler under its own protocol and its own initial layout: no layout is
 shared here, and neither router is given the other's mapping --- for that
@@ -77,7 +77,7 @@ per-instance minima over the row's circuits, which is why it can fall below
 \PORTER{}'s $1{,}076$ against $1{,}285$ on Multiplier is what carries the
 pair to $168.8$, under \dSABRE{}'s own $173.1$. Realising it costs both
 compile budgets, and no rule we tested predicts the per-instance winner in
-advance (Section~\ref{sec:discussion}).
+advance (Section~\ref{sec:discussion}).}
 \end{minipage}
 \end{table*}
 
@@ -90,25 +90,25 @@ reproduces the counts \dSABRE{} publishes for it~\cite{lidsabre} exactly.
 
 \textbf{Against \TeleSABRE{}} the ordering is consistent across the suite.
 On block \emph{(a)}, from one deterministic layout, \PORTER{} lowers
-geometric-mean EPR by $59.7\%$, $41.6\%$ and $68.2\%$ at 25, 64 and 80
-qubits, spending four routes against \TeleSABRE{}'s three seeded runs, and
+geometric-mean EPR by \chg{$59.7\%$, $41.6\%$ and $68.2\%$ at 25, 64 and 80
+qubits, spending four routes against \TeleSABRE{}'s three seeded runs, and}
 every circuit \TeleSABRE{} completes improves, from $-16.0\%$ to $-81.0\%$.
-Refinement adds to that at 25 and 64 qubits ($63.5\%$ and $45.1\%$) but
+Refinement adds to that at 25 and 64 qubits \chg{($63.5\%$ and $45.1\%$) but}
 little at 80 ($69.8\%$), where the horizon rather than the extra routes does
 the work. \TeleSABRE{} completes seventeen instances, failing on 64q~Random
 and six of the nine 80-qubit circuits; \PORTER{} and \dSABRE{} complete all
 twenty-four.
 
 \textbf{Against \dSABRE{}} the answer varies by suite, and block \emph{(b)}
-is the basis since both complete everything. At four routes to \dSABRE{}'s
+is the basis since both complete everything. At \chg{four routes to \dSABRE{}'s}
 nine, \PORTER{} takes the geometric mean at 25 qubits ($0.94\times$) and at
 80 ($0.96\times$) and trails at 64 ($196.1$ against $173.1$, $1.13\times$),
 winning ten instances, losing twelve and tying two; pooled it is within
-$2\%$, \chg{$175.0$ against $171.9$. Refinement takes the lead pooled ($163.1$)}
-at eight routes and narrows 64 qubits to $1.07\times$, so the one suite
+$2\%$, \chg{$175.0$ against $171.9$. Refinement takes the lead pooled ($163.1$)
+at eight routes and narrows 64 qubits to $1.07\times$, so the one suite}
 \PORTER{} loses under its own protocol is also the one extra routes largely
-close. \PORTER{}+R's largest saving is 80q~Multiplier, $2{,}313$ against
-$4{,}841$; its worst loss 64q~QFT, $262$ against $179$.
+close. \chg{\PORTER{}+R's largest saving is 80q~Multiplier, $2{,}313$ against
+$4{,}841$; its worst loss 64q~QFT, $262$ against $179$.}
 
 \subsection{RQ2: Routing Quality With the Layout Controlled}
 \label{sec:shared_results}
@@ -121,9 +121,9 @@ geometric-mean EPR over all twenty-four instances.
 \begin{table}[t]
 \centering
 \caption{Layout against router: geometric-mean EPR for every combination of
-  initial layout (rows) and routing loop (columns). \PORTER{} spends four
+  initial layout (rows) and routing loop (columns). \PORTER{} \chg{spends four
   routes per layout to \dSABRE{}'s three passes, \PORTER{}+R eight over five
-  passes. Block \emph{(a)} is over
+  passes. Block \emph{(a)} is over}
   all twenty-four instances; block \emph{(b)} repeats it without GHZ and
   Graphstate, whose counts are one to two orders of magnitude below the rest
   and so dominate an unweighted geometric mean. The blocks disagree in every
@@ -157,12 +157,12 @@ layout only where it converges (Section~\ref{sec:rq1}).
 
 \textbf{Changing the routing loop moves less than changing the
 layout.} Across any row of Table~\ref{tab:shared}, from the same layout,
-the two land within \chg{$3.5\%$ of one another ---}
+the two land within $3.5\%$ of one another ---
 \dSABRE{} ahead in all three rows of block \emph{(a)} and in two of three
-of \emph{(b)}, \PORTER{} taking its own layout there. The layout is
+of \emph{(b)}, \PORTER{} taking its own layout there. \chg{The layout is
 controlled but the budget is not: \PORTER{} spends four routes on its
 candidate horizons to \dSABRE{}'s three passes, so the comparison is if
-anything generous to \PORTER{}, and \PORTER{} still does not win it. The spread down a column
+anything generous to \PORTER{}, and \PORTER{} still does not win it. The spread down a column}
 is two to four times the spread across a row in both blocks, so the
 initial layout is the larger source of variation in both compilers, and
 the component in which each has more to gain. That much is stable.
@@ -171,15 +171,15 @@ the component in which each has more to gain. That much is stable.
 partition.} Over all twenty-four instances \texttt{pytket-dqc}'s
 hypergraph partition is the lowest cell in every column; drop GHZ and
 Graphstate and it is the highest in every column, raising the mean by
-$10.7\%$ for \dSABRE{} and $9.7\%$ for \PORTER{}. Those six rows carry
+$10.7\%$ for \dSABRE{} and \chg{$9.7\%$ for \PORTER{}. Those six rows carry}
 the whole result, and the partition is the worse start on fourteen of the
-twenty-four instances for \dSABRE{} and fifteen for \PORTER{}, at a median
-ratio of $1.03$ for both. Its
+twenty-four instances for \chg{\dSABRE{} and fifteen for \PORTER{}, at a median
+ratio of $1.03$ for both. Its}
 gain is real but confined to the two structurally simplest families,
 whose interaction graphs a partitioner cuts almost perfectly and whose
 absolute cost is least. It is also expensive: best-of-three KaHyPar seeds
-costs $0.6$--$627$\,s against $0.3$--$9.0$\,ms for \PORTER{}'s
-construction, on most circuits more than \PORTER{}'s whole four-route
+costs \chg{$0.6$--$627$\,s against $0.3$--$9.0$\,ms for \PORTER{}'s
+construction, on most circuits more than \PORTER{}'s whole four-route}
 protocol, and it does not finish at the widths of
 Section~\ref{sec:scaleup}. Cost and confinement are why \PORTER{} keeps
 its own layout and treats the partition as an opt-in candidate
@@ -209,10 +209,10 @@ other parameter; exactly one mechanism is disabled per column.
   decision disabled, from the same layout at the same horizon. ``No pk''
   disables packets, ``No rel.'' both relief tiers, ``\TeleData{}'' the
   \TeleGate{} family; ``pk''/``tg'' are the full configuration's packet and
-  single-telegate counts. All nine circuits are shown; GHZ and Graphstate
+  single-telegate counts. \chg{All nine circuits are shown; GHZ and Graphstate
   coincide in every column, no mechanism being exercised on them. The gmean
   lines' $n$ differs because the columns fail on different circuits.
-  $^{\dagger}$Does not complete.
+  $^{\dagger}$Does not complete.}
   $^{\ddagger}$Needs the extra relief tier.}
 \label{tab:ablation}
 \setlength{\tabcolsep}{3.4pt}
@@ -247,7 +247,7 @@ horizon, so Full is that pass, not Table~\ref{tab:main}'s selected route.
 What each column asks is whether its mechanism earns its place.
 
 \textbf{Packets.} Disabling \TeleGatePacket{} makes every shared-control
-remote CX pay per gate, costing $12.0\%$ EPR and tracking the packet count:
+remote CX pay per gate, costing \chg{$12.0\%$ EPR and tracking the packet count:}
 $+47\%$ on QAOA (303 packets), $+40\%$ on AE. QFT and Multiplier move the
 other way, both telegate-heavy and packet-light, where packet formation
 displaces a better teleport plan. Read alone the column favours the
@@ -268,13 +268,13 @@ either way.
 candidates to the relief BFS, recovering every row but Random. That tier
 leaves the full configuration EPR-identical, so what it isolates is
 vocabulary and not relief --- though it is no longer a strict ablation. On
-that basis teleport-only is $19.8\%$ cheaper, and cheaper on every circuit
+that basis teleport-only is \chg{$19.8\%$ cheaper, and cheaper on every circuit
 it completes but QAOA, where it is dearer by $0.6\%$ ($1{,}129$ against
 $1{,}122$); on three of the five rows where all three complete and any
 mechanism is exercised --- GHZ and Graphstate tie in every column ---
 $\text{\TeleData{} only} < \text{Full} < \text{No packets}$, QFT and QAOA
 excepted --- QFT as in the packets column, QAOA as the one row teleport-only
-loses. Packets beat the single telegates they degrade into,
+loses. Packets beat the single telegates they degrade into,}
 but pure teleportation beats both. Section~\ref{sec:discussion} reads this
 as a currency mismatch in the plan comparator, not a verdict on packets. It
 also answers \dSABRE{}'s open question: it chose teledata-only by
@@ -309,8 +309,8 @@ complete compile time.
   read from its own device files; our \dSABRE{}
   column reproduces its published series~\cite{lidsabre}
   ($201/246/766/896/1890/1938$). ``$t$'' is complete protocol time: nine
-  routes for \dSABRE{}, four for \PORTER{}, which selects
-  $L_\mathrm{tp}{=}128$ on all six. \texttt{pytket-dqc} is omitted --- its
+  routes for \dSABRE{}, \chg{four for \PORTER{}, which selects
+  $L_\mathrm{tp}{=}128$ on all six. \texttt{pytket-dqc} is omitted --- its}
   partitioner does not finish at these widths. Lower is better.}
 \label{tab:scaleup}
 \setlength{\tabcolsep}{5pt}
@@ -346,9 +346,9 @@ inter-core traffic with it --- \dSABRE{}'s own cost rises $200 \to 765
 
 \PORTER{} uses fewer EPR pairs than \dSABRE{} on all six instances, by a
 widening margin: $0.90\times$ at 100 logical qubits, $0.67\times$ at
-200, $0.63\times$ at 360, for $0.72\times$ overall. It does so at
+200, \chg{$0.63\times$ at 360, for $0.72\times$ overall. It does so at
 $0.50\times$ \dSABRE{}'s complete compile cost ($7.8$\,s against
-$15.4$\,s), routing four times where \dSABRE{} routes nine.
+$15.4$\,s), routing four times where \dSABRE{} routes nine.}
 
 The horizon is what makes that difference, and the comparison is
 available directly. Routing the same six instances from the same layouts
@@ -407,7 +407,7 @@ for a heavy-hex tile, and both are given the identical device.
 (Table~\ref{tab:heavyhex}) the two compilers are within $1\%$ of one
 another, $86.1$ against $85.2$: doubling the intra-core diameter and
 replacing degree-4 interiors with degree-1 leaves disturbs neither. The
-star does. There \PORTER{} trails by $20\%$, $121.2$ against $101.1$,
+star does. There \PORTER{} trails by \chg{$20\%$, $121.2$ against $101.1$,}
 winning two of nine. The core shape is the same in both rows; only the
 core graph differs.
 
@@ -415,7 +415,7 @@ core graph differs.
 gap.} The last column of Table~\ref{tab:heavyhex} holds the routing loop
 against \dSABRE{}'s own \texttt{SabreLayout} candidates: routed from
 those, \PORTER{} overtakes \dSABRE{} on \emph{both} core graphs ---
-$82.9$ against $85.2$ on the ring, $97.1$ against $101.1$ on the star ---
+$82.9$ against $85.2$ on the ring, \chg{$97.1$ against $101.1$ on the star ---}
 and the reversal is larger on the topology it loses under its own layout.
 The cause is in the layout, and it is specific to the star: \PORTER{}
 reserves $f_\mathrm{min}$ in every core, treating cores as
@@ -466,12 +466,12 @@ best result by EPR, the column is monotone by construction, and neither
 can report more EPR than routing once at the configured horizon.
 
 The trade is time against EPR pairs. \PORTER{} costs $1.02\times$
-\dSABRE{}'s EPR at $1.18\times$ its compile time; refinement buys the EPR
+\dSABRE{}'s EPR at \chg{$1.18\times$ its compile time; refinement buys the EPR
 lead, $0.95\times$, for $2.10\times$ the time, on eight routes against
-\dSABRE{}'s nine.
+\dSABRE{}'s nine.}
 
 All times are \emph{complete} compile costs --- layout generation plus
-every route over every candidate, not the winning route alone. \PORTER{}
+every route over every candidate, not the winning route \chg{alone. \PORTER{}
 routes fewer times than \dSABRE{} at every operating point, four against
 nine and eight against nine, and is still the slower of the two: its
 routes are the dearer ones, because each enumerates whole plans, forward-
@@ -480,4 +480,4 @@ is therefore not an argument for \PORTER{} on these suites --- we report
 it because the EPR figures are only meaningful beside the budget that
 produced them. It does become one at scale, where the same four routes
 run in $0.50\times$ \dSABRE{}'s complete cost
-(Section~\ref{sec:scaleup}).
+(Section~\ref{sec:scaleup}).}

@@ -142,7 +142,7 @@ its corners-removed architecture graph at seeds 0--2, each layout
 routed by \SABRE{}-style forward\,$\to$\,backward\,$\to$\,forward
 passes; both report the best EPR count. \PORTER{} instead builds one
 deterministic temporal locality-greedy layout
-(Section~\ref{sec:sfc-layout}) and routes it at each of the four
+(Section~\ref{sec:sfc-layout}) and routes it at each of the \chg{four}
 candidate lookahead horizons of Section~\ref{sec:horizon}, keeping the
 best --- \chg{four routing passes over one layout, against nine over three.}
 It searches no layouts, so every number is reproducible from the circuit
@@ -170,8 +170,8 @@ other's own layout, which closes the remaining cell of the design.
 \label{sec:opprotocols}
 
 Section~\ref{sec:sfc} defines one routing pass. We evaluate two protocols
-built on it. \PORTER{} routes its own layout once at each of four
-candidate lookahead horizons --- \chg{$L_\mathrm{tp}\in\{4,8,16,128\}$, one
+built on it. \PORTER{} routes its own layout once at each of \chg{four
+candidate lookahead horizons --- $L_\mathrm{tp}\in\{4,8,16,128\}$, one
 fixed set applied to every circuit --- and keeps the lowest-EPR result; \PORTER{}+R refines backward}
 from that selected route. Both are
 deterministic and both keep the best result by EPR, so neither can return
@@ -276,7 +276,7 @@ it chooses is held for the remaining $P-1$ passes --- re-selecting each
 pass would multiply the count by the number of candidates to re-decide a
 property refinement does not change. That is what makes \PORTER{}+R
 contain \PORTER{}, so with the best forward pass kept it can never report
-more EPR. Total routes are $\lvert\mathcal{H}\rvert + P - 1 = 8$, and the
+\chg{more EPR. Total routes are $\lvert\mathcal{H}\rvert + P - 1 = 8$, and the}
 cost is wall-clock rather than passes: a deep horizon makes a later pass
 dear, and on one instance a pass is stopped by the per-pass guard.
 
@@ -336,7 +336,7 @@ routes & selects on \\
 \end{table*}
 
 Two notions of a matched budget are in play and neither is universally
-fair, so we report against both. Fixing the \emph{initial layout} routes
+fair, so we report against both. \chg{Fixing the \emph{initial layout} routes
 both compilers from one identical mapping --- the shared-layout rows ---
 which controls the layout but not the effort spent on it: \PORTER{} spends
 four routes on its candidate horizons to \dSABRE{}'s three passes. Equal
@@ -346,7 +346,7 @@ three starting points; that equalises the search over layouts rather than
 the routing spent on each. Wall-clock is not equalised anywhere, but every
 table reports complete compile time so a reader can renormalise. \PORTER{}
 both spends more routes in the shared-layout rows and costs more per route
-(Section~\ref{sec:frontier}), so neither comparison understates it.
+(Section~\ref{sec:frontier}), so neither comparison understates it.}
 
 \subsection{Metrics and Aggregation}
 \label{sec:metrics}

@@ -41,8 +41,19 @@ def strip_chg(text: str) -> str:
     return "".join(out)
 
 
+def math_balanced(text: str) -> bool:
+    """An even number of unescaped $, i.e. the text neither opens nor closes a
+    math group it does not also close or open.  A \\chg{} that straddles a $
+    puts a brace group across the math delimiter, which LaTeX rejects with
+    "Missing } inserted" -- the failure this guard exists to prevent."""
+    return sum(1 for i, c in enumerate(text)
+               if c == "$" and (i == 0 or text[i-1] != "\\")) % 2 == 0
+
+
 def balanced(lines) -> bool:
     s = "".join(lines)
+    if not math_balanced(s):
+        return False
     d = 0
     for n, c in enumerate(s):
         if c == "{" and (n == 0 or s[n-1] != "\\"):
@@ -80,12 +91,21 @@ def mark(old: str, new: str, path: str):
     for tag, i1, i2, j1, j2 in sm.get_opcodes():
         if tag in ("replace", "insert") and j2 > j1:
             runs.append((j1, j2))
+    # Never mark the preamble of a standalone document: a \chg{} there emits
+    # text before \begin{document}, and wrapping a \newcommand destroys the
+    # definition -- which took out every xr macro in the appendix when this
+    # guard was missing.
+    body_start = 0
+    for idx, line in enumerate(n):
+        if line.lstrip().startswith("\\begin{document}"):
+            body_start = idx + 1
+            break
     # split each run around structural lines, then balance it
     final, skipped = [], []
     for a, b in runs:
         cur = []
         for idx in range(a, b):
-            if wrappable(n[idx]):
+            if idx >= body_start and wrappable(n[idx]):
                 cur.append(idx)
             else:
                 if cur:
@@ -128,7 +148,8 @@ def mark(old: str, new: str, path: str):
         k = 0
         if a in old_first:
             k = word_prefix_len(seg[0].rstrip("\n"), old_first[a])
-            if not seg[0][k:].strip() or not balanced([seg[0][:k]]):
+            if (not seg[0][k:].strip() or not balanced([seg[0][:k]])
+                    or not math_balanced(seg[0][:k])):
                 k = 0
         body = "".join([seg[0][k:]] + seg[1:])
         if not body.strip():                       # nothing but whitespace: skip
