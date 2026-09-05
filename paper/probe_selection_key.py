@@ -47,13 +47,18 @@ _STAGE = R._execute_plan_first_remote_stage
 _GEN = R._generate_remote_plans
 _BLOCKED = R._generate_blocked_teleport_plans
 _RELIEF = R._generate_bfs_capacity_relief_plans
+_PREP = R._select_preparation_swaps_for_plan
+_COMMIT = R._commit_remote_plan
+_OPP = R._select_opportunistic_capacity_relief_plan
 
 GATEY = ("telegate", "telegate_packet")
 C = collections.Counter()
 TIE_TOTALS = collections.Counter()
 FDST_AT_TIE = collections.Counter()
 CORE_DIST = collections.Counter()
+PREP_ROUNDS = collections.Counter()
 _first = {"pending": False}
+_rounds = {"n": 0}
 
 
 def _cores(router, plan, layout):
@@ -159,7 +164,62 @@ def sel_obs(self, plans, state, info, min_free):
     return plan, scored
 
 
+def prep_obs(self, state, plan, stage):
+    """Count preparation rounds and empty candidate sets.  Section III-F's
+    completion argument says the empty case cannot arise: no core is ever
+    full, so a side carrying an endpoint always admits a SWAP (the endpoint
+    itself is occupied) and the destination side is unsatisfied only when its
+    port is occupied, where the nearest free position necessarily has an
+    occupied neighbour on a shortest path to the port."""
+    out = _PREP(self, state, plan, stage)
+    C["prep_calls"] += 1
+    _rounds["n"] += 1
+    if not out:
+        C["prep_empty_candidate_set"] += 1
+    return out
+
+
+def commit_obs(self, plan, state, info, min_free, prep_stage=None):
+    _rounds["n"] = 0
+    try:
+        out = _COMMIT(self, plan, state, info, min_free, prep_stage=prep_stage)
+    except RuntimeError as exc:
+        msg = str(exc)
+        if "cycles" in msg:
+            C["prep_abort_repeated_decision_state"] += 1
+        elif "oscillates" in msg:
+            C["prep_abort_iteration_budget"] += 1
+        raise
+    PREP_ROUNDS[_rounds["n"]] += 1
+    return out
+
+
+def opp_obs(self, blocked, normal_plan, normal_scores, state, info, min_free):
+    """Count the stages where the assist margin is met but the one-hop relief
+    search returns nothing -- the blocked plan is adjacent-mode, so the search
+    is capped at a single hop and every neighbour is itself below f_min."""
+    out = _OPP(self, blocked, normal_plan, normal_scores, state, info, min_free)
+    if out is None and blocked:
+        score = self._score_for_plan_in_scored(normal_plan, normal_scores)
+        gain, best = max(((self._remote_plan_gain(b, state, info), b) for b in blocked),
+                         key=lambda item: item[0])
+        if score is not None and gain - score.total > float(self.cfg.capacity_relief_assist_margin):
+            C["assist_margin_met_but_no_relief_plan"] += 1
+            if best.mode == "blocked_capacity_adjacent":
+                C["assist_unreachable_adjacent_mode"] += 1
+            free = {c: state.layout.free_count(self.hw, c) for c in self.hw.cores}
+            floor = self.cfg.min_free_before_teleport
+            if all(free[n] < floor for n in self.hw.core_neighbors(best.dst_core)):
+                C["assist_unreachable_all_neighbours_below_floor"] += 1
+            if any(f >= floor for c, f in free.items() if c != best.dst_core):
+                C["assist_unreachable_though_reservoir_exists"] += 1
+    return out
+
+
 def main():
+    R._select_preparation_swaps_for_plan = prep_obs
+    R._commit_remote_plan = commit_obs
+    R._select_opportunistic_capacity_relief_plan = opp_obs
     R._execute_plan_first_remote_stage = stage_obs
     R._select_ready_or_preparable_remote_plan = sel_obs
     R._generate_remote_plans = gen_obs
@@ -177,11 +237,15 @@ def main():
                 layout = cp.build_initial_layout(
                     gates, hw, n, min_free_per_core=cfg.min_free_before_teleport)
                 try:
-                    cp.route(hw, cfg, gates, layout, selection=True)
+                    st, _ = cp.route(hw, cfg, gates, layout, selection=True)
+                    stats = st.stats
+                    epr = (stats.teleport_count + stats.telegate_count
+                           + stats.telegate_packet_count)
                     ok = True
                 except Exception:
-                    ok = False
-                instances.append({"suite": suite, "circuit": circuit, "completed": ok})
+                    epr, ok = None, False
+                instances.append({"suite": suite, "circuit": circuit,
+                                  "completed": ok, "epr": epr})
                 print(f"  {suite}/{circuit} {'ok' if ok else 'FAILED'}", flush=True)
     finally:
         R._execute_plan_first_remote_stage = _STAGE
@@ -189,6 +253,9 @@ def main():
         R._generate_remote_plans = _GEN
         R._generate_blocked_teleport_plans = _BLOCKED
         R._generate_bfs_capacity_relief_plans = _RELIEF
+        R._select_preparation_swaps_for_plan = _PREP
+        R._commit_remote_plan = _COMMIT
+        R._select_opportunistic_capacity_relief_plan = _OPP
 
     out = {
         "instances": instances,
@@ -197,6 +264,9 @@ def main():
         "fdst_when_capacity_decided": {str(k): v for k, v in sorted(FDST_AT_TIE.items())},
         "plan_core_distance": {f"{k[0]}|{k[1]}|{k[2]}": v for k, v in sorted(
             CORE_DIST.items(), key=lambda kv: tuple(str(x) for x in kv[0]))},
+        "prep_rounds_per_committed_plan": {str(k): v for k, v in sorted(PREP_ROUNDS.items())},
+        "max_prep_rounds": max(PREP_ROUNDS) if PREP_ROUNDS else 0,
+        "max_prep_iterations_per_plan": porter.RouterConfig().max_prep_iterations_per_plan,
         "plans_generated": sum(CORE_DIST.values()),
         "distances_observed": sorted({k[2] for k in CORE_DIST}, key=str),
     }

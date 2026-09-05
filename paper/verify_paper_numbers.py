@@ -1269,10 +1269,10 @@ for key, want in narrative.items():
 # roles is the regression these guard against.
 key_probe = json.load(open(f"{BASE}/paper/selection_key_probe.json"))
 kc = key_probe["counts"]
-check("key rankings observed", 19990, kc["rankings"])
+check("key rankings observed", 20264, kc["rankings"])
 check("key tie-decided rankings", 1909, kc["tie_decided"])
 check("key tie-decided share (nine in ten decided by total alone)",
-      9.55, 100.0 * kc["tie_decided"] / kc["rankings"])
+      9.42, 100.0 * kc["tie_decided"] / kc["rankings"])
 check("key ties broken by prep", 1288, kc["tie_broken_by_prep"])
 check("key ties broken by -f_dst", 621, kc["tie_broken_by_capacity"])
 check("key ties broken by the stable identifier", 0, kc.get("tie_broken_by_stable_id", 0))
@@ -1295,10 +1295,46 @@ check("key ties won by a TeleData", 1449, kc["tie_won_by_teledata"])
 check("key ties won by the TeleGate family", 460, kc["tie_won_by_gate_family"])
 check("key tie-winning TeleData with zero discounted gain", 1438,
       kc["tie_teledata_lookahead_zero"])
+# The probe instruments the shipped protocol; every instance it routes must
+# reproduce the released sfc leg, or the counts above describe a different run.
+for _inst in key_probe["instances"]:
+    check(f"key probe EPR {_inst['suite']}/{_inst['circuit']}",
+          by[(_inst["suite"], norm(_inst["circuit"]))]["sfc"]["epr"], _inst["epr"])
+# --- Sec III-F: preparation always completes ---
+# III-F argues a committed plan is never abandoned: no core is ever full, so an
+# unsatisfied side always admits a legal SWAP.  Algorithm 1 has no abandonment
+# branch and no ready-or-preparable filter because of it, so these guard the
+# claim the algorithm's shape now rests on.  The empty-candidate-set counter is
+# the direct test; the two aborts are the guards the implementation keeps for
+# preparation LENGTH, which the argument does not bound.
+check("prep empty candidate set (abandonment branch)", 0,
+      kc.get("prep_empty_candidate_set", 0))
+check("prep abort on repeated decision state", 0,
+      kc.get("prep_abort_repeated_decision_state", 0))
+check("prep abort on iteration budget", 0,
+      kc.get("prep_abort_iteration_budget", 0))
+check("prep rounds observed", 47997, kc["prep_calls"])
+# Preparation is short in practice: the budget is three orders of magnitude
+# above the longest run observed.
+check("max preparation rounds for one plan", 9, key_probe["max_prep_rounds"])
+check("preparation iteration budget", 10000, key_probe["max_prep_iterations_per_plan"])
+# --- Sec III-G: the assist margin can be met with no relief plan produced ---
+# Every such stage has the same shape: the seed is blocked on an ADJACENT core,
+# so the relief search is capped at one hop, every neighbour of the congested
+# core is below f_min, and a reservoir exists but is further away.  III-G states
+# that mechanism; these pin that it is the only one observed.
+check("assist margin met but no relief plan", 504,
+      kc["assist_margin_met_but_no_relief_plan"])
+check("assist unreachable, seed blocked on an adjacent core", 504,
+      kc["assist_unreachable_adjacent_mode"])
+check("assist unreachable, every neighbour below f_min", 504,
+      kc["assist_unreachable_all_neighbours_below_floor"])
+check("assist unreachable though a reservoir exists elsewhere", 504,
+      kc["assist_unreachable_though_reservoir_exists"])
 # --- Sec III-D: every plan acts across a single inter-core link ---
 check("plan c_dst always adjacent to c_src", "[1]",
       str(key_probe["distances_observed"]))
-check("plans audited for the single-link invariant", 315564,
+check("plans audited for the single-link invariant", 322945,
       key_probe["plans_generated"])
 
 print()

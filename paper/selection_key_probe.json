@@ -3,83 +3,99 @@
   {
    "suite": "25",
    "circuit": "ae",
-   "completed": true
+   "completed": true,
+   "epr": 65
   },
   {
    "suite": "25",
    "circuit": "ghz",
-   "completed": true
+   "completed": true,
+   "epr": 4
   },
   {
    "suite": "25",
    "circuit": "graphstate",
-   "completed": true
+   "completed": true,
+   "epr": 7
   },
   {
    "suite": "25",
    "circuit": "qft",
-   "completed": true
+   "completed": true,
+   "epr": 74
   },
   {
    "suite": "25",
    "circuit": "qnn",
-   "completed": true
+   "completed": true,
+   "epr": 119
   },
   {
    "suite": "25",
    "circuit": "random",
-   "completed": true
+   "completed": true,
+   "epr": 393
   },
   {
    "suite": "64",
    "circuit": "ae",
-   "completed": true
+   "completed": true,
+   "epr": 157
   },
   {
    "suite": "64",
    "circuit": "ghz",
-   "completed": true
+   "completed": true,
+   "epr": 6
   },
   {
    "suite": "64",
    "circuit": "graphstate",
-   "completed": true
+   "completed": true,
+   "epr": 20
   },
   {
    "suite": "64",
    "circuit": "qft",
-   "completed": true
+   "completed": true,
+   "epr": 262
   },
   {
    "suite": "64",
    "circuit": "qnn",
-   "completed": true
+   "completed": true,
+   "epr": 638
   },
   {
    "suite": "64",
    "circuit": "random",
-   "completed": true
+   "completed": true,
+   "epr": 737
   },
   {
    "suite": "64",
    "circuit": "qpeexact",
-   "completed": true
+   "completed": true,
+   "epr": 222
   },
   {
    "suite": "64",
    "circuit": "qaoa",
-   "completed": true
+   "completed": true,
+   "epr": 775
   },
   {
    "suite": "64",
    "circuit": "multiplier",
-   "completed": true
+   "completed": true,
+   "epr": 1076
   }
  ],
  "counts": {
-  "rankings": 19990,
-  "mixed_kind": 18473,
-  "contains_crosskind_tie": 7789,
+  "rankings": 20264,
+  "mixed_kind": 18752,
+  "contains_crosskind_tie": 7803,
+  "prep_calls": 47997,
   "tie_decided": 1909,
   "tie_won_by_teledata": 1449,
   "tie_broken_by_capacity": 621,
@@ -88,7 +104,11 @@
   "capacity_separates_within_teledata": 274,
   "tie_teledata_lookahead_nonzero": 11,
   "tie_broken_by_prep": 1288,
-  "tie_won_by_gate_family": 460
+  "tie_won_by_gate_family": 460,
+  "assist_margin_met_but_no_relief_plan": 504,
+  "assist_unreachable_adjacent_mode": 504,
+  "assist_unreachable_all_neighbours_below_floor": 504,
+  "assist_unreachable_though_reservoir_exists": 504
  },
  "tie_totals": {
   "1.0": 1140,
@@ -116,17 +136,31 @@
   "15": 4
  },
  "plan_core_distance": {
-  "telegate||1": 53147,
-  "telegate_packet||1": 25436,
-  "teleport|blocked_capacity_adjacent|1": 52203,
-  "teleport|blocked_capacity_distance_reducing|1": 30110,
+  "telegate||1": 53729,
+  "telegate_packet||1": 25946,
+  "teleport|blocked_capacity_adjacent|1": 53100,
+  "teleport|blocked_capacity_distance_reducing|1": 31368,
   "teleport|capacity_relief_bfs|1": 5288,
-  "teleport|distance_reducing|1": 33182,
-  "teleport|localize_adjacent_control_to_target_core|1": 26551,
-  "teleport|localize_adjacent_target_to_control_core|1": 27540,
-  "teleport|opportunistic_capacity_relief_bfs|1": 62107
+  "teleport|distance_reducing|1": 34598,
+  "teleport|localize_adjacent_control_to_target_core|1": 26744,
+  "teleport|localize_adjacent_target_to_control_core|1": 27614,
+  "teleport|opportunistic_capacity_relief_bfs|1": 64558
  },
- "plans_generated": 315564,
+ "prep_rounds_per_committed_plan": {
+  "0": 1872,
+  "1": 5592,
+  "2": 4495,
+  "3": 3801,
+  "4": 2236,
+  "5": 1047,
+  "6": 800,
+  "7": 295,
+  "8": 112,
+  "9": 8
+ },
+ "max_prep_rounds": 9,
+ "max_prep_iterations_per_plan": 10000,
+ "plans_generated": 322945,
  "distances_observed": [
   1
  ]
