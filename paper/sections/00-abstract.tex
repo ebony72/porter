@@ -14,16 +14,16 @@ cost model, including cat-entangler packets that amortise one pair over a
 run of remote gates sharing a control, and adds capacity-aware relief, a
 deterministic initial layout, and a \chg{teleport-lookahead horizon chosen
 per circuit from a fixed four-value portfolio. On MQT-Bench suites at
-25, 64 and 80 logical qubits \PORTER{} uses $59.7\%$, $41.6\%$ and $68.2\%$ fewer EPR pairs in
+25, 64 and 80 logical qubits \PORTER{} uses $59.7\%$, $44.9\%$ and $68.8\%$ fewer EPR pairs in
 geometric mean than published \TeleSABRE{} at four routes to its three, over}
 the instances both complete, and completes all twenty-four instances to
 \TeleSABRE{}'s seventeen. Against \dSABRE{} it is competitive on those suites
---- $1.02\times$ its pooled EPR at \chg{$1.18\times$ its compile time, each}
+--- \chg{$0.99\times$ its pooled EPR at $1.20\times$ its compile time, each}
 under its own protocol --- and pulls ahead as the machine grows, using
-$0.72\times$ its pairs on a $100$--$360$-qubit QFT and QPEexact
+\chg{$0.69\times$ its pairs on a $100$--$360$-qubit QFT and QPEexact}
 scale-up series.
 The two prove complementary rather than ranked, and taking the better of
-the two per instance uses $9.3\%$ fewer pairs than \dSABRE{} alone.
+the two per instance uses \chg{$9.4\%$ fewer pairs than \dSABRE{} alone.}
 Controlled experiments separate the contributions of capacity
 relief, the set of primitives, the initial layout and the horizon; relief
 earns its place on completion rather than cost, five of nine 80-qubit

@@ -164,11 +164,22 @@ Formally, a plan is a tuple
                 c_\mathrm{dst},\; \mathrm{mode},\; \Pi(\pln{p})\bigr),}
 \]
 with $\pi\in\{\TeleData{},\TeleGate{},\TeleGatePacket{}\}$ the primitive,
-\chg{$g$ the front CX that seeds it, $q$ the qubit a \TeleData{} moves
-($\bot$ for the \TeleGate{} family), $c_\mathrm{src}$ and $c_\mathrm{dst}$
-the cores, $\mathrm{mode}$ the generating rule --- localise onto an adjacent
-core, reduce distance by one hop, or relieve capacity --- and $\Pi(\pln{p})$
-the inter-core link it reserves. Both cores are defined for every primitive,
+\chg{$g$ the front CX that seeds it, $q$ the qubit whose state crosses the
+link, $c_\mathrm{src}$ the core holding $q$, $c_\mathrm{dst}$ the core at
+the other end, $\mathrm{mode}$ the generating rule, and $\Pi(\pln{p})$ the
+inter-core link it reserves. Every field is defined for every primitive.
+For a \TeleData{}, $q$ is the qubit that moves; for the \TeleGate{}
+family it is the \emph{control}, whose state the cat entangler copies to
+the target side and which every gate of a packet shares by construction.
+$\mathrm{mode}$ records which of three rules generated a \TeleData{}:
+\emph{localise}, when the seed CX's endpoints sit in adjacent cores and
+moving one into the other's makes the gate local; \emph{reduce distance},
+when they sit further apart and one moves a hop towards the other; and
+\emph{relieve capacity}, when the seed is not a front CX but a plan a
+capacity floor blocked, and the eviction goes to a reservoir
+(Section~\ref{sec:sfc-relief}). The \TeleGate{} family has one rule ---
+execute the straddling gates in place --- so $\mathrm{mode}$ is what
+separates \TeleData{} plans sharing a primitive and a core pair. Both cores are defined for every primitive,
 and $c_\mathrm{dst}$ is always a neighbour of $c_\mathrm{src}$: the
 \TeleGate{} family is generated only for a core-adjacent CX, a \TeleData{}
 only for a one-hop move, and the tail-relief search emits the last hop of a
@@ -235,23 +246,22 @@ Section~\ref{sec:sfc-relief} act on.
 \textbf{Selection.} Every plan in both sets is scored before any
 preparation SWAP for it exists; Section~\ref{sec:sfc-scoring} gives the
 score and the ordering key~\eqref{eq:sfc-key} it induces. \PORTER{} then walks $\mathcal{P}$ in that
-order and commits to the first plan it can actually work on. A plan
-qualifies if it is \emph{ready} --- its endpoints already sit beside the
-ports it needs and those ports are free, so it can fire immediately --- or
-if it is \emph{preparable}: not ready, but some local SWAP moves the
-layout strictly closer to readiness. A higher-scoring plan that is neither is skipped rather than waited for,
-and such plans do occur --- typically a side whose core is full, where no
-local SWAP can change the free-slot count or clear a port, so no
-preparation will ever make the plan fire.
+order and commits to the first \chg{one. It needs no admissibility test: a plan
+is \emph{ready} when its endpoints already sit beside the ports it needs
+and those ports are free, so it can fire immediately, and every plan that
+is not ready is \emph{preparable} --- some local SWAP moves the layout
+closer to readiness --- which Section~\ref{sec:sfc-prep} shows always
+holds. Readiness is therefore not a selection criterion. It enters the
+key only through $\mathrm{prep}$, which is zero exactly when a plan is
+ready, and it is what tells commitment when to stop preparing and fire.}
 
 Two things can override the choice, and both are driven by the single
 best-scoring member of $\mathcal{B}$ alone --- call it $\pln{b}^{\ast}$;
 the rest of $\mathcal{B}$ enters no comparison. If a plan was selected but
 $\pln{b}^{\ast}$ out-scores it by more than $m_\mathrm{assist}{=}5.0$,
 \PORTER{} drops the selected plan and relieves the core blocking
-$\pln{b}^{\ast}$ instead. If nothing in $\mathcal{P}$ was ready or
-preparable --- which includes $\mathcal{P}=\emptyset$ but is not limited
-to it --- it relieves $\mathcal{B}$'s blocked destinations in ascending
+$\pln{b}^{\ast}$ instead. If \chg{$\mathcal{P}$ is empty, it relieves
+$\mathcal{B}$'s blocked destinations in ascending}
 hop order, taking the highest-scoring blocked plan among those at the
 smallest hop count as the seed. In both cases what is committed is a relief \TeleData{}
 generated for the purpose, never $\pln{b}^{\ast}$ itself. Having
@@ -325,14 +335,14 @@ plans are ordered by how much local work each still needs.
 \textbf{$-f_\mathrm{dst}$} is the free capacity of the destination core,
 negated, \chg{and it does two different jobs. Between two \TeleData{} plans it
 compares headroom, and the one leaving more room wins; it separates the
-winner from another \TeleData{} in $274$ rankings. Between a \TeleData{}
+winner from another \TeleData{} in $265$ rankings. Between a \TeleData{}
 and a member of the \TeleGate{} family it compares nothing: only a
 \TeleData{} consumes a destination slot, so the \TeleGate{} family scores
 zero here while any admissible \TeleData{} scores
 $-f_\mathrm{dst}\le-f_\mathrm{min}$, and the \TeleData{} sorts first
 whatever its destination holds. This is the component that carries the
 \TeleData{}-first preference an explicit plan-kind rank used to provide,
-and it decides $621$ rankings that way. In $212$ of those the winning
+and it decides $627$ rankings that way. In $230$ of those the winning
 \TeleData{}'s destination sits at $f_\mathrm{min}$, so what the preference
 expresses is not that the plan leaves more room --- it leaves less --- but
 that relocating a qubit is worth more than discharging one straddling
@@ -346,7 +356,7 @@ only the \TeleData{}-first half of a plan-kind ordering was ever
 \chg{reachable. Those are also the only totals the \TeleGate{} family takes,
 so a tie between primitives can fall only on a positive integer, and a
 \TeleData{} reaches one only when its discounted gain is integral --- in
-$1{,}438$ of the $1{,}449$ such ties it is zero, leaving both plans
+$1{,}426$ of the $1{,}438$ such ties it is zero, leaving both plans
 offering the same realised progress for the same pair. And since $\mathrm{total}$}
 is the sum of the realised and discounted gains, a trailing
 $-\mathrm{lookahead}$ could separate two plans only where those two parts
@@ -461,7 +471,14 @@ Every logical qubit in the penultimate core is a candidate, scored and
 ordered by the plan machinery already described and grouped by hop count
 so shorter paths are tried first. Chaining beyond one hop is on by
 default, letting relief propagate when the immediate neighbour is itself
-full.
+\chg{full. What is committed is a single hop, not the path: control returns to
+the top of Algorithm~\ref{alg:sfc}, which regenerates every plan, so the
+path chooses one eviction rather than binding the router to a route. A
+two-hop path frees the intermediate core, not the congested one, and only
+the next iteration can carry relief inwards. That granularity is what
+separates \PORTER{}'s relief from an atomic relay
+(Section~\ref{sec:related}) and what lets the opportunistic tier compete
+with ordinary work on the same scoring.}
 
 The two tiers differ only in when they fire. \textbf{Tail relief} fires
 reactively, when $\mathcal{P}$ is empty and the front is starved.
@@ -471,11 +488,7 @@ $m_\mathrm{assist}$ --- the judgement being that clearing the congestion
 now is worth more than taking the best currently legal \chg{action. The
 pre-emptive tier also searches less far: when its seed is blocked on an
 \emph{adjacent} core it is capped at a single hop, so it fires only if
-some neighbour of the congested core is already a reservoir. That caps
-speculative work on a seed that is itself one hop from firing, and it is
-why the margin can be met with no relief plan produced --- the machine
-still holds free positions, but every neighbour of the congested core
-sits below $f_\mathrm{min}$ and the nearest reservoir is two hops away.}
+some neighbour of the congested core is already a reservoir.}
 
 \subsection{Progress and the Failure Model}
 \label{sec:sfc-progress}

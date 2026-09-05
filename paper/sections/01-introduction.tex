@@ -49,23 +49,23 @@ series, and two networks of IBM heavy-hex cores --- forty-eight
 circuit--architecture instances. Against
 \TeleSABRE{}~\cite{russo2025telesabre}, the strongest published router we
 identified under this cost model, \PORTER{} lowers geometric-mean EPR
-consumption by \chg{$59.7\%$, $41.6\%$ and $68.2\%$ on the three suites at
+consumption by \chg{$59.7\%$, $44.9\%$ and $68.8\%$ on the three suites at
 four routes to its three, over the instances both complete, and it completes all}
 twenty-four --- including the seven \TeleSABRE{} does not converge on,
 among them an 80-qubit, $23{,}381$-CX circuit.
 
 The second comparison is with \dSABRE{}~\cite{lidsabre}, concurrent work
 on the same problem and the closest point of reference we have. \PORTER{}
-is competitive on the three benchmark suites, spending $1.02\times$ its pooled
-EPR for \chg{$1.18\times$ its compile time under each compiler's own protocol,}
+is competitive on the three benchmark suites, spending \chg{$0.99\times$ its pooled
+EPR for $1.20\times$ its compile time under each compiler's own protocol,}
 and pulls ahead as the machine grows: on the scale-up series it uses
-$0.72\times$ \dSABRE{}'s \chg{pairs, at $0.50\times$ its compile cost, and wins
+\chg{$0.69\times$ \dSABRE{}'s pairs, at $0.52\times$ its compile cost, and wins
 every instance.}
 
 A pooled figure that close invites the question of what a second compiler
 adds, and the per-instance record answers it: neither wins more than
 eleven of the twenty-four, and taking the better of the two per instance
-uses $9.3\%$ fewer EPR pairs than \dSABRE{} alone --- $8.0\%$ with the two
+uses \chg{$9.4\%$ fewer EPR pairs than \dSABRE{} alone --- $8.2\%$ with the two}
 cheapest circuit families set aside. A design that merely re-derived
 \dSABRE{}'s decisions would leave such a portfolio nothing to choose
 between. The two are close relatives and share four design decisions, set

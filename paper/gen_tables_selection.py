@@ -350,7 +350,208 @@ def app_shared():
     return "\n".join(out2)
 
 
-TABLES = {"tab:shared": tab_shared, "tab:ablation": tab_ablation,
+
+def _gmean_raw(xs):
+    """Unclamped geometric mean, for TIMES: gmean() drops falsy values and the
+    clamped form used for EPR silently inflates sub-second cells."""
+    return math.exp(sum(math.log(x) for x in xs) / len(xs))
+
+
+def _main_by():
+    rows = load("compare")
+    return {(r["suite"], r["circuit"].replace("_OLD_DEEP", "")): r for r in rows}
+
+
+def tab_mainsummary():
+    """tab:main -- the suite-level summary in the main paper.
+
+    Hand-maintained until now, and stale twice: the 2026-09-04 audit found its
+    whole t column a protocol behind while both baselines were current, which
+    is how "0.91x dSABRE's compile time" reached the abstract.  Column order
+    mirrors verify_tex_tables.py.  Bold marks the lowest EPR of the four
+    compilers; times and portfolio cells are never bold.
+    """
+    by = _main_by()
+    legs = ("telesabre", "dSE", "sfc", "sfc_refined")
+    keys = list(by)
+
+    def row(label, pool, block_b):
+        matched = [k for k in pool if all(epr(by[k], l) for l in legs)]
+        basis = pool if block_b else matched
+        eprs, cells = [], []
+        for leg in legs:
+            if leg == "telesabre" and block_b:
+                eprs.append(None); cells.append(("---", "---")); continue
+            e = round(gmean([by[k][leg]["epr"] for k in basis]), 1)
+            tb = matched if leg == "telesabre" else pool
+            t = round(_gmean_raw([by[k][leg]["seconds"] for k in tb]), 2)
+            eprs.append(e); cells.append((f"{e:.1f}", f"{t:.2f}"))
+        best = min(e for e in eprs if e is not None)
+        out = [f"{label} ({len(basis)})"]
+        for e, (ec, tc) in zip(eprs, cells):
+            out += ["\\textbf{%s}" % ec if e == best else ec, tc]
+        for leg in ("sfc", "sfc_refined"):
+            v = gmean([min(by[k]["dSE"]["epr"], by[k][leg]["epr"]) for k in basis])
+            out.append(f"{round(v, 1):.1f}")
+        return " & ".join(out) + " \\\\"
+
+    L = ["\\multicolumn{11}{@{}l}{\\emph{(a)} over the circuits \\emph{all four} complete} \\\\"]
+    for su in ("25", "64", "80"):
+        L.append(row(f"{su}q", [k for k in keys if k[0] == su], False))
+    L.append("\\midrule")
+    L.append("\\multicolumn{11}{@{}l}{\\emph{(b)} over \\emph{every} circuit in the suite; \\TeleSABRE{} omitted} \\\\")
+    for su in ("25", "64", "80"):
+        L.append(row(f"{su}q", [k for k in keys if k[0] == su], True))
+    L.append(row("all", keys, True))
+    L.append("\\midrule")
+    ts_done = sum(1 for k in keys if epr(by[k], "telesabre"))
+    L.append("done    & " + " & ".join("\\multicolumn{2}{c}{%s}" % v for v in (
+        f"{ts_done} / 24", "24 / 24", "24 / 24", "24 / 24", "---")) + " \\\\")
+    wlt = []
+    for leg in ("sfc", "sfc_refined"):
+        w = sum(1 for k in keys if by[k][leg]["epr"] < by[k]["dSE"]["epr"])
+        l = sum(1 for k in keys if by[k][leg]["epr"] > by[k]["dSE"]["epr"])
+        wlt.append(f"{w} / {l} / {len(keys)-w-l}")
+    L.append("W/L/T   & \\multicolumn{2}{c}{---} & \\multicolumn{2}{c}{---}"
+             f" & \\multicolumn{{2}}{{c}}{{{wlt[0]}}}"
+             f" & \\multicolumn{{2}}{{c}}{{{wlt[1]}}}"
+             " & \\multicolumn{2}{c}{---} \\\\")
+    return "\n".join(L)
+
+
+def tab_protocols():
+    """tab:protocols -- routes, EPR and complete time per protocol, each as a
+    ratio to dSABRE.  Route counts are read from the live constants."""
+    sys.path.insert(0, str(_HERE.parent))
+    import compile_porter as _cp
+    import compare_routers as _cr
+    by = _main_by()
+    keys = list(by)
+    d_e = gmean([by[k]["dSE"]["epr"] for k in keys])
+    d_t = _gmean_raw([by[k]["dSE"]["seconds"] for k in keys])
+    H, P = len(_cp.PORTER_HORIZONS), _cr.PORTER_REFINE_PASSES
+    out = []
+    for name, routes, leg in (("\\dSABRE{}", 9, "dSE"),
+                              ("\\PORTER{}", H, "sfc"),
+                              ("\\PORTER{}$+$R", H + P - 1, "sfc_refined")):
+        e = gmean([by[k][leg]["epr"] for k in keys])
+        t = _gmean_raw([by[k][leg]["seconds"] for k in keys])
+        out.append(f"{name} & {routes} & {e:.1f} & {e/d_e:.2f} & {t:.2f} & {t/d_t:.2f} \\\\")
+    return "\n".join(out)
+
+
+def app_layoutsearch():
+    """tab:layoutsearch (Appendix J) -- PORTER / +R / +S per circuit, the +S
+    delta against +R, the winning gamma, and both wall clocks.  Hand-maintained
+    until now; column order mirrors verify_tex_tables.py."""
+    by = _main_by()
+    order = [(s, c) for s in ("25", "64", "80")
+             for c in ("ae", "ghz", "graphstate", "qft", "qnn", "random",
+                       "qpeexact", "qaoa", "multiplier")
+             if (s, c) in by]
+    L = []
+    for si, suite in enumerate(("25", "64", "80")):
+        if si:
+            L.append("\\midrule")
+        for k in [k for k in order if k[0] == suite]:
+            r = by[k]
+            e = [r[l]["epr"] for l in ("sfc", "sfc_refined", "sfc_search")]
+            d = ("---" if e[2] == e[1]
+                 else "$%+.1f$" % (100 * (e[2] / e[1] - 1)))
+            L.append("%sq & %-11s & %5d & %5d & %5d & %9s & %.2f & %8.1f & %7.1f \\\\"
+                     % (suite, k[1], e[0], e[1], e[2], d,
+                        round(r["sfc_search"]["best_gamma"], 2),
+                        round(r["sfc_refined"]["seconds"], 1),
+                        round(r["sfc_search"]["seconds"], 1)))
+        L.append(_ls_gmean_line(by, [k for k in order if k[0] == suite], suite))
+    L.append("\\midrule")
+    L.append(_ls_gmean_line(by, order, None))
+    return "\n".join(L)
+
+
+def _ls_gmean_line(by, sub, suite):
+    g = [gmean([by[k][l]["epr"] for k in sub])
+         for l in ("sfc", "sfc_refined", "sfc_search")]
+    lab = ("\\multicolumn{2}{@{}l}{\\textbf{gmean, all} (%d)}" % len(sub)
+           if suite is None
+           else "\\multicolumn{2}{@{}l}{\\quad\\textbf{gmean} (%d)}" % len(sub))
+    return ("%s & %.1f & %.1f & \\textbf{%.1f} & $\\mathbf{%+.1f}$ & & %.2f & %.2f \\\\"
+            % (lab, g[0], g[1], g[2], 100 * (g[2] / g[1] - 1),
+               _gmean_raw([by[k]["sfc_refined"]["seconds"] for k in sub]),
+               _gmean_raw([by[k]["sfc_search"]["seconds"] for k in sub])))
+
+
+def _ls_unused(by, order):
+    for suite in ("25", "64", "80", None):
+        sub = order if suite is None else [k for k in order if k[0] == suite]
+        g = [gmean([by[k][l]["epr"] for k in sub])
+             for l in ("sfc", "sfc_refined", "sfc_search")]
+        d = 100 * (g[2] / g[1] - 1)
+        lab = ("\\multicolumn{2}{@{}l}{\\textbf{gmean, all} (%d)}" % len(sub)
+               if suite is None
+               else "\\multicolumn{2}{@{}l}{\\quad\\textbf{gmean} (%d)}" % len(sub))
+        if suite is None:
+            L.append("\\midrule")
+        L.append("%s & %.1f & %.1f & \\textbf{%.1f} & $\\mathbf{%+.1f}$ & & %.2f & %.2f \\\\"
+                 % (lab, g[0], g[1], g[2], d,
+                    _gmean_raw([by[k]["sfc_refined"]["seconds"] for k in sub]),
+                    _gmean_raw([by[k]["sfc_search"]["seconds"] for k in sub])))
+    return "\n".join(L)
+
+
+def app_actionset():
+    """tab:actionset (Appendix) -- the 64q action mix.
+
+    Columns 1-3 are TeleSABRE's TeleData/TeleGate and dSABRE's TeleData; they
+    come from neither results file this generator reads and neither compiler
+    changed, so they are carried over from the existing row verbatim.  Columns
+    4-7 are PORTER's, regenerated from action_mix_results.json.  PORTER's
+    column is a SINGLE forward pass at the configured horizon (action_mix.py
+    calls compile() directly), which the caption states.
+    """
+    mix = {r["circuit"].replace("_OLD_DEEP", ""): r
+           for r in json.loads((_HERE / "action_mix_results.json").read_text())
+           if r["suite"] == "64"}
+    tex = (_HERE / "sfc_appendix.tex").read_text()
+    seg = tex[tex.index("\\label{tab:actionset}"):]
+    seg = seg[:seg.index("\\end{tabular}")]
+    # NB the header row also matches ^[A-Z]\w+\s*& ("Circuit & \TeleData &
+    # ..."); taking it as data shifts every row by one.  Data rows are the ones
+    # after \midrule whose second cell is a number or ---.
+    # The table has three \midrule-separated parts: header, the nine data
+    # rows, and a bold Total row.  The header also matches ^[A-Z]\w+\s*&
+    # ("Circuit & \TeleData & ..."), so taking part[-1] or matching the whole
+    # segment shifts or drops rows -- both happened while writing this.
+    parts = seg.split("\\midrule")
+    rows = [l for l in parts[1].splitlines()
+            if re.match(r"^[A-Z]\w+\s*&", l.strip())]
+    order = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
+             "qpeexact", "qaoa", "multiplier"]
+    if len(rows) != len(order):
+        raise SystemExit(f"tab:actionset: parsed {len(rows)} data rows, want {len(order)}")
+    out, tot = [], [0, 0, 0, 0]
+    for line, c in zip(rows, order):
+        cols = [x.strip() for x in line.strip().rstrip("\\\\").split("&")]
+        m = mix[c]
+        td = (m["teleports_normal"] + m["teleports_blocked"]
+              + m["teleports_capacity_relief"])
+        vals = [td, m["telegates"], m["telegate_packets"], m["packet_cx_total"]]
+        for j, v in enumerate(vals):
+            tot[j] += v
+        cols[4:8] = [str(v) for v in vals]
+        out.append("%-10s & %5s & %4s & %5s & %5s & %4s & %4s & %5s \\\\"
+                   % tuple(cols[:8]))
+    # Regenerate the Total row's PORTER half from the same data.
+    trow = next(l for l in parts[2].splitlines() if "textbf{Total}" in l)
+    tcols = [x.strip() for x in trow.strip().rstrip("\\\\").split("&")]
+    tcols[4:8] = ["\\textbf{%d}" % v for v in tot]
+    out.append("\\midrule")
+    out.append(" & ".join(tcols[:8]) + " \\\\")
+    return "\n".join(out)
+
+
+TABLES = {"tab:main": tab_mainsummary, "tab:protocols": tab_protocols,
+          "tab:shared": tab_shared, "tab:ablation": tab_ablation,
           "tab:scaleup": tab_scaleup, "tab:heavyhex": tab_heavyhex}
 # The per-circuit main comparison moved to the appendix as tab:maineprs;
 # the main paper keeps only a hand-maintained suite-level summary.
@@ -415,7 +616,9 @@ def app_mainswaps():
     return "\n".join(out)
 
 
-APP_TABLES = {"tab:heavyhex": app_heavyhex, "tab:shared": app_shared,
+APP_TABLES = {"tab:actionset": app_actionset,
+              "tab:layoutsearch": app_layoutsearch,
+              "tab:heavyhex": app_heavyhex, "tab:shared": app_shared,
               "tab:pytket": app_pytket,
               "tab:mainswaps": app_mainswaps, **APP_MAIN}
 
