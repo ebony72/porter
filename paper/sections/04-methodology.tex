@@ -2,374 +2,224 @@
 \section{Experimental Methodology}
 \label{sec:methodology}
 
+This section specifies the evaluation questions, experimental inputs, and
+comparison protocols. A \emph{route} is one invocation of the router on one
+circuit from one initial layout. A \emph{protocol} specifies how layouts are
+obtained, how many routes are run, and how the reported route is selected.
+Reported compile time is the cost of the complete protocol, including layout
+generation and all unsuccessful candidate routes.
+
 \subsection{Research Questions}
 \label{sec:rqs}
 
-The evaluation answers four questions, each with its own controls, and
-Section~\ref{sec:results} is organised around them.
-
-\begin{itemize}[leftmargin=1.8em,itemsep=1pt,topsep=2pt]
-\item[\textbf{RQ1}] \textbf{End-to-end cost.} Under each compiler's own
-  recommended protocol, how does \PORTER{}'s EPR consumption and compile
-  time compare with \TeleSABRE{}'s and \dSABRE{}'s?
-\item[\textbf{RQ2}] \textbf{Routing quality with the layout controlled.}
-  Given the same, possibly externally supplied, initial layout, how does
-  \PORTER{}'s routing loop compare with \dSABRE{}'s --- first at an equal
-  route count, then when each is allowed its own refinement schedule?
-\item[\textbf{RQ3}] \textbf{Mechanism attribution.} What does each of
-  \PORTER{}'s mechanisms --- capacity relief, the packet primitive, the
-  \TeleGate{} family, the initial layout and horizon selection ---
-  contribute on its own?
-\item[\textbf{RQ4}] \textbf{Robustness.} How do the answers change with
-  circuit width, core count and core-graph shape?
+The experiments address four questions.
+\begin{itemize}[leftmargin=1.6em,itemsep=1pt,topsep=2pt]
+\item[\textbf{RQ1}] Under each compiler's native protocol, how do EPR-pair
+consumption, completion, and complete compile time compare?
+\item[\textbf{RQ2}] When the initial layout is controlled, how much of the
+difference between \PORTER{} and \dSABRE{} is due to routing rather than
+layout generation?
+\item[\textbf{RQ3}] What are the individual effects of capacity relief, the
+communication primitives, initial layout, and horizon selection?
+\item[\textbf{RQ4}] Do these conclusions persist as circuit width, core
+count, core shape, and core-graph topology change?
 \end{itemize}
 
-Each results subsection opens with the question it answers, what is held
-fixed, and the metric; the interpretation of the answers is collected in
-Section~\ref{sec:discussion}, and the assumptions and limitations they
-rest on in \appThreats{}.
+Section~\ref{sec:results} follows this order. Each results subsection states
+the configuration held fixed and its metric before interpreting the outcome.
 
-
-\subsection{Terminology}
-\label{sec:terms}
-
-Budget comparisons depend on using these terms consistently, so we fix
-them here and use no synonyms.
-
-\begin{itemize}[leftmargin=1.2em,itemsep=0pt,topsep=2pt]
-\item A \textbf{route} (equivalently a \emph{routing pass}) is one
-  invocation of the routing loop of Section~\ref{sec:sfc} on one circuit
-  from one layout, producing one operation stream.
-\item A \textbf{candidate layout} is one initial mapping a protocol
-  supplies to the router. A protocol's cost is its layout count times its
-  routes per layout.
-\item A \textbf{protocol} is a layout source, a route budget and a
-  selection rule; Table~\ref{tab:budgets} names the ones used in the
-  main results. 
-\item A \textbf{candidate horizon} is one value of $L_\mathrm{tp}$ offered
-  to horizon selection; selecting among them costs one route each.
-\item \textbf{Complete compile cost} is the wall-clock time of an entire
-  protocol --- layout generation plus every route over every candidate ---
-  not of the winning route alone.
-\end{itemize}
-
-For the machine and the router we use: \emph{core}, \emph{communication
-port}, and \emph{reservoir} (a core holding at least $f_\mathrm{min}$ free
-positions); a front CX is \emph{local}, \emph{adjacent-remote} or
-\emph{non-adjacent-remote}; a plan is \emph{normal} or \emph{blocked}, and
-\emph{ready}, \emph{preparable} or neither. A run that does not complete
-does so in one of four ways, distinguished throughout: a capacity
-\emph{deadlock} leaves no legal plan and no relief path, and raises a
-diagnostic; a \emph{livelock} makes local progress indefinitely while
-retired gates and EPR count stand still, and is stopped by the
-no-progress guard; a \emph{timeout} exceeds the wall-clock cap; and an
-\emph{infeasible input} is one the machine has no spare capacity for,
-refused before routing begins (Section~\ref{sec:sfc-progress}).
-
-\subsection{Setup}
+\subsection{Experimental Setup}
 \label{sec:setup}
 \label{sec:perf}
 
-\textbf{Implementation.} \PORTER{} is Python, released with the harness.
-It takes no seed: heuristic ties resolve through a fixed chain of
-deterministic keys and any residual tie through a constant-initialised
-generator, so one route on a fixed circuit and hardware emits a
-byte-identical stream across \chg{runs, horizon selection included: a
-speculative route is bounded by the DAG layers its lookahead walk may peel,
-at most seven times the count of the route the configured horizon produced,
-so the bound is a property of the route rather than of the machine. The
-horizon each run selected is recorded with its result. Every reported \PORTER{} route is certified by}
-a replay verifier written separately from the router, which re-derives
-gate coverage, dependency order and physical legality from the emitted
-stream alone and is itself tested by fault injection
-(\appVerification{}).
+\textbf{Implementation and checking.} \PORTER{} is implemented in Python
+and released with the comparison harness. It is deterministic: ties follow a
+fixed key order and any residual tie uses a constant-initialised generator.
+Thus, a fixed circuit, machine, layout, and horizon produce a byte-identical
+operation stream. A separately implemented replay verifier checks every
+reported \PORTER{} stream for gate coverage, dependency order, and physical
+legality; the verifier is tested by fault injection (\appVerification{}).
 
-\textbf{Architectures.} We use the two grid-of-grids topologies
-\dSABRE{}~\cite{lidsabre} evaluates on --- architecture~A, a $2{\times}2$
-array of $3{\times}3$ cores (36 physical qubits), and architecture~H, a
-$2{\times}3$ array of $4{\times}4$ cores (96 physical) --- adding its
-$5{\times}5$-core scalability series in Section~\ref{sec:scaleup} and two
-networks of IBM 27-qubit heavy-hex tiles in Section~\ref{sec:heavyhex}.
-All are read from the baselines' own device files, so every compiler sees
-identical physical qubit ids.
+\textbf{Architectures.} We use the two grid-of-grids devices evaluated by
+\dSABRE{}~\cite{lidsabre}: architecture~A, a $2{\times}2$ array of
+$3{\times}3$ cores (36 physical qubits), and architecture~H, a
+$2{\times}3$ array of $4{\times}4$ cores (96 physical qubits). RQ4 also
+uses \dSABRE{}'s $5{\times}5$-core scale-up series and two networks of IBM
+27-qubit heavy-hex tiles. Device descriptions are read from the baselines'
+own files so that all compilers use identical physical-qubit identifiers.
 
-\textbf{Benchmarks.} We use the same
-MQT-Bench~\cite{quetschlich2023mqtbench} files \dSABRE{}'s evaluation
-uses, confirmed by exact CX-count match: a 25-qubit suite (AE, GHZ,
-Graphstate, QFT, QNN, Random) on architecture~A, and a 64-qubit suite
-adding QPEexact, QAOA and Multiplier on architecture~H. We add an
+\textbf{Benchmarks.} The main inputs are the MQT-Bench files used in the
+\dSABRE{} evaluation~\cite{quetschlich2023mqtbench}, verified by exact
+CX-count match. Architecture~A uses six 25-qubit families (AE, GHZ,
+Graphstate, QFT, QNN, and Random). Architecture~H uses nine 64-qubit
+families, adding QPEexact, QAOA, and Multiplier. We also construct an
 80-qubit suite of the same nine families; its AE and QNN instances are
-not produced by the stock generator and were reconstructed to match its
-construction.
+reconstructed because the stock generator does not produce them. The
+supplement documents these reconstructions (\appSuite{}).
 
 \label{sec:baselines}
-\textbf{Baselines.} We compare against
-\TeleSABRE{}~\cite{russo2025telesabre} and \dSABRE{}~\cite{lidsabre}, the
-latter in its default configuration --- safe mode, which makes capacity a
-legality condition with a per-core reserve and recovers by relaying slack
-along a BFS path (Section~\ref{sec:related}).
+\textbf{Baselines and execution.} We compare with \TeleSABRE{}
+~\cite{russo2025telesabre} and \dSABRE{}~\cite{lidsabre}. \dSABRE{} uses
+its shipped safe mode and layout rule. Its recovery budget is derived from
+the architecture as in its drivers, and its pre-routing layout-repair EPR
+count is excluded for both compilers because it changes the starting layout
+rather than routing the circuit. \chg{The stock \TeleSABRE{} binary aborts
+reproducibly in its initial-layout pass whenever no core holds more free
+positions than its configured margin, which is every 25- and 80-qubit instance
+and no 64-qubit one. We therefore use and release a minimal patch that assigns
+the logical qubits the stock code leaves unplaced to the least-loaded core and
+changes nothing else, so results agree with the stock binary wherever it
+completes --- the whole 64-qubit suite.}
+Each compiler invocation has a 900-s wall-clock limit; an invocation that
+exceeds it is recorded as incomplete.
 
-Three decisions avoid disadvantaging \dSABRE{}. Its recovery budgets
-derive from the architecture as its own drivers do, since a binding
-iteration budget would cut its heuristic search short and hand the
-remainder to its guaranteed drain at a worse EPR count. We do not charge
-it for pre-routing layout repair, which lands in its EPR counter although
-it adjusts the starting layout rather than routing anything; we net that
-out for both compilers. And we take its layout rule exactly as it ships
-(Section~\ref{sec:protocols}).
-
-\TeleSABRE{}'s stock C binary crashes deterministically on
-architecture~A, in its initial-layout pass rather than in routing. All
-\TeleSABRE{} numbers use a minimally patched binary, released with ours,
-that falls back to the least-loaded core; it moves only qubits the stock
-binary leaves unplaced, and architecture-H results are unchanged. Every
-compiler invocation is capped at $900$\,s wall-clock, and a call
-exceeding it counts as a failure to complete.
-
-\subsection{Initial-Layout Protocols}
+\subsection{Layouts and Comparison Protocols}
 \label{sec:protocols}
 
-We evaluate under three initial-layout protocols, designed to separate
-routing quality from initial-layout quality.
+We use native, shared-layout, and cross-layout comparisons. These controls
+separate the quality of an initial layout from the quality of the routing
+loop, but they do not make all resource budgets identical.
 
-\textbf{Own-protocol comparison.} Each router is first evaluated under
-its own established best-practice protocol. For the two baselines that
-is best-of-three, matching the convention already used to compare
-\TeleSABRE{} and \dSABRE{} to each other~\cite{lidsabre}:
-\TeleSABRE{} runs its built-in Hungarian initial-layout heuristic at
-config seeds 0--2, and \dSABRE{} runs Qiskit \texttt{SabreLayout} on
-its corners-removed architecture graph at seeds 0--2, each layout
-routed by \SABRE{}-style forward\,$\to$\,backward\,$\to$\,forward
-passes; both report the best EPR count. \PORTER{} instead builds one
-deterministic temporal locality-greedy layout
-(Section~\ref{sec:sfc-layout}) and routes it at each of the \chg{four}
-candidate lookahead horizons of Section~\ref{sec:horizon}, keeping the
-best --- \chg{four routing passes over one layout, against nine over three.}
-It searches no layouts, so every number is reproducible from the circuit
-file alone.
+\textbf{Native protocols (RQ1 and RQ4).} \TeleSABRE{} uses its Hungarian
+layout heuristic at seeds 0--2 and reports the best EPR result. \dSABRE{}
+uses Qiskit \texttt{SabreLayout} at seeds 0--2, followed for each candidate
+by its forward--backward--forward routing schedule, and reports the best
+result. \PORTER{} builds one deterministic temporal-locality-greedy layout
+(Section~\ref{sec:sfc-layout}), routes it at four horizons, and retains the
+lowest-EPR route. \PORTER{}+R additionally performs backward refinement
+from that selected route.
 
-\dSABRE{}'s SabreLayout runs on a coupling map with the most remote
-minimum-degree (corner) physical qubits of every core removed, the count
-per core fixed by its own fill-adaptive rule. Removing them from the map
-means no logical qubit is placed there, so they begin free and hold spare
-capacity for arriving teleports and evictions; they are not communication
-ports, which are the designated qubits at the link endpoints
-(Section~\ref{sec:qcircuits}). We use the rule as it ships, which is why
-our \dSABRE{} figures reproduce those it publishes for the architectures
-it reports.
+For \dSABRE{}, \texttt{SabreLayout} operates on its shipped
+corners-removed coupling map. The removed low-degree corner positions begin
+empty and provide capacity for arrivals and evictions; they are distinct from
+the designated communication ports.
 
-\textbf{Shared-layout comparison.} To separate layout quality from
-routing quality, both \dSABRE{} and \PORTER{} are then run from an
-identical externally supplied mapping --- \TeleSABRE{}'s own initial
-layout, and separately \texttt{pytket-dqc}'s hypergraph partition
-(\appPytket{}) --- so the only difference left is the routing loop.
-\textbf{Cross-layout comparison.} Finally each compiler routes the
-other's own layout, which closes the remaining cell of the design.
+\textbf{Shared layouts (RQ2).} Both \dSABRE{} and \PORTER{} route the same
+externally supplied layout. We use \TeleSABRE{}'s layout where it is
+available and, separately, the \texttt{pytket-dqc} hypergraph partition
+(\appPytket{}). This controls the layout but not the routing effort:
+\PORTER{} evaluates four horizons, whereas \dSABRE{} uses three passes.
+
+\textbf{Cross layouts (RQ2).} Each compiler also routes the other
+compiler's native layout(s). In particular, \PORTER{} routes all three of
+\dSABRE{}'s candidate layouts and selects the lowest-EPR outcome. This test
+shows whether a native-protocol result is sensitive to the layout source.
 
 \subsection{Operating Protocols}
 \label{sec:opprotocols}
 
-Section~\ref{sec:sfc} defines one routing pass. We evaluate two protocols
-built on it. \PORTER{} routes its own layout once at each of \chg{four
-candidate lookahead horizons --- $L_\mathrm{tp}\in\{4,8,16,128\}$, one
-fixed set applied to every circuit --- and keeps the lowest-EPR result; \PORTER{}+R refines backward}
-from that selected route. Both are
-deterministic and both keep the best result by EPR, so neither can return
-a worse route than the pass it contains. They invoke the router
-repeatedly rather than changing what a pass does, which is why they are
-described here and not in Section~\ref{sec:sfc}.
+Section~\ref{sec:sfc} defines one routing pass. The following protocols
+repeat that pass; they do not change the router itself.
 
-\subsubsection{\PORTER{}: choosing the horizon per circuit}
+\subsubsection{\PORTER{}: fixed horizon portfolio}
 \label{sec:horizon}
 
-The teleport-lookahead horizon $L_\mathrm{tp}$ is the one parameter of
-Section~\ref{sec:sfc-scoring} for which no constant is best across the
-corpus. In an offline sweep over $\{4,8,\dots,1024\}$ the best value
-spans the whole range --- $80$-qubit QNN wants $4$, the $25$-qubit suite
-$16$, every $100$-, $200$- and $360$-qubit instance $128$ --- and the gap
-between \PORTER{}'s configured $L_\mathrm{tp}{=}16$ and the per-instance
-best is $17.2\%$ geometric-mean EPR.
+The teleport-lookahead horizon $L_\mathrm{tp}$ controls how far a
+\TeleData{} candidate is evaluated into the DAG. No single value was best in
+an offline sweep over $\{4,8,\ldots,1024\}$: the per-instance optimum spans
+the range. For example, 80-qubit QNN selects \chg{$16$}, whereas every 100-,
+200-, and 360-qubit scale-up instance selects 128. We therefore use the same
+four-value portfolio for every circuit,
+\[
+  L_\mathrm{tp}\in\{4,8,16,128\},
+\]
+and retain the route with the fewest EPR pairs. The configured default,
+$L_\mathrm{tp}=16$, runs first and wins ties. Consequently, provided that
+the default route completes, the portfolio cannot report more EPR pairs than
+that one-route baseline.
 
-Interaction density sets the direction. Let $\rho$ be the mean, over
-logical qubits appearing in at least one CX, of the distinct partners
-each shares a CX with anywhere in the circuit, divided by $n-1$: one
-scalar summarising the whole circuit, not a per-qubit or horizon-limited
-quantity. So $\rho\to1$ is all-to-all and a linear CX chain gives
-$\rho\approx2/(n-1)$. It is measured on the transpiled benchmark
-rather than the textbook algorithm, and the two can differ sharply:
-optimisation level 3 drops the controlled-phase rotations whose angle
-underflows its tolerance, which leaves QFT between $30$ and $37$ partners
-per qubit at every width above $25$, so its $\rho$ falls from $0.92$ at
-$25$ qubits to $0.10$ at $360$. A circuit family need not stay on one
-side of the threshold as it scales. Near $\rho{=}1$ a long
-horizon finds the moving qubit wanted in every core at once, the gain
-estimate degenerates into noise, and short horizons win; where $\rho$ is
-small the signal is coherent and long horizons win. It is not a usable
-predictor alone, though. Its rank correlation with the per-instance best
-horizon is $-0.765$ (Spearman), strong but not decisive: in the band
-$0.42\le\rho\le0.53$ where most 64-qubit circuits sit, QAOA wants $8$ and
-AE wants $128$, and a threshold rule on $\rho$ recovers only $8.0\%$ of
-the available $17.2\%$. That one scalar cannot separate them is
-unsurprising --- the horizon acts per moving qubit, while $\rho$ averages
-over all of them --- and a per-qubit or horizon-limited density is
-untried.
+We deliberately do not select a horizon from a circuit statistic: a
+predictive rule would be fitted and evaluated on the same instances, and the
+portfolio needs no such rule, since the configured horizon is one of its
+candidates. The portfolio itself was also chosen after inspecting the 48
+evaluated instances, so its measured EPR gain is in-sample rather than a
+held-out generalisation result. The
+portfolio is robust in the limited sense that nearby four-value sets differ
+by less than one percent in the reported sweep, but out-of-sample validation
+remains necessary. Its cost is additional compile time, especially on
+dense circuits where a long lookahead is expensive.
 
-\PORTER{} therefore \chg{does not use $\rho$ at all. Every circuit is routed
-at the same four horizons, $L_\mathrm{tp}\in\{4,8,16,128\}$, and the
-lowest-EPR route is kept --- four routes over one layout. We prefer this to a
-rule keyed on $\rho$, or on any other circuit statistic, because such a rule is
-fitted on the same instances the evaluation reports and buys nothing: measured
-over all forty-eight instances the fixed set matches a tuned two-set rule on the
-main suite and is $0.2\%$ better pooled, and under backward refinement it is
-identical on every one of the twenty-four main instances. That comparison was
-measured on the router as it stood before the capacity-relief revision of
-Section~\ref{sec:sfc-relief}, which changed the routes but not the horizons
-they are selected from; we report it as measured rather than re-running the
-grid. What the rule was
-buying was compile time, not EPR --- it kept the long horizon away from
-near-all-to-all circuits, where it does not converge --- and the fixed set pays
-that back at $1.6$ times the compile time for one pass and $1.3$ with
-refinement. Three values are not enough: the best three-value set,
-$\{4,16,128\}$, is $0.5\%$ worse than the rule on the main suite and $0.2\%$
-worse pooled. Nor is this particular quartet distinguished;
-$\{4,16,32,128\}$, $\{4,16,48,128\}$ and $\{4,16,64,128\}$ all land within a
-percent of it, and the last is slightly better pooled. We take
-$\{4,8,16,128\}$ because it is the union of the two sets the retired rule chose
-between, so it introduces no horizon value the compiler did not already use.
-Two rules bound}
-the cost: the configured horizon --- $L_\mathrm{tp}{=}16$, the default of
-Section~\ref{sec:sfc-scoring}, which \chg{the set contains --- is
-routed first, unguarded, and wins ties; each other candidate is bounded by
-the DAG layers its lookahead walk may peel, at most seven times what that first
-route peeled. Hence a}
-conditional guarantee --- \emph{provided the configured-horizon route
-completes}, selection never returns a higher EPR count than that route
-\chg{alone.}
-
-\chg{\textbf{The candidate set was fixed on the corpus it is evaluated on.}
-The sweep and the four values were chosen by inspecting the $48$ instances,
-with no held-out family, so evidence for the \emph{size} of the gain is
-in-sample. What that risks is bounded, and less than a selection rule would
-risk: the set is a portfolio rather than a prediction, so a poor choice costs
-compile time and cannot worsen the selected route; the configured horizon is a
-member and wins ties, so no instance can do worse than routing once; and
-because nothing is conditioned on the circuit, there is no threshold to
-generalise. Several other four-value sets perform within a percent, which is
-the evidence that the result does not turn on these particular numbers. An}
-out-of-sample validation remains to be done.
-
-\subsubsection{\PORTER{}+R: refining backward from that route}
+\subsubsection{\PORTER{}+R: backward refinement}
 \label{sec:sfc-refine}
 
-\dSABRE{} routes each candidate layout forward, backward and forward
-again, so comparing route budgets rather than layout counts alone needs a
-\PORTER{} protocol that spends the same effort. \PORTER{}+R is
-\SABRE{}'s bidirectional layout refinement~\cite{li2019tackling} applied
-to whole routes. Write $R(C,\ell)$ for routing circuit $C$ from layout
-$\ell$, and $\ell'_i$ for the layout pass $i$ ends on. Pass~1 computes
-$R(C,\ell_0)$ and ends on $\ell'_1$; pass~2 computes
-$R(C^{\mathrm{rev}},\ell'_1)$ on the reversed circuit, \emph{discards its
-route} and keeps only $\ell'_2$; pass~3 computes $R(C,\ell'_2)$.
-Reversing $C$ reverses every dependency edge, so routing it from where
-the forward pass ended yields a layout adapted to the \emph{start} of the
-forward circuit. Odd pass counts above three repeat the cycle;
-$P{=}5$ throughout, the best forward pass is kept, and nothing is random.
+\PORTER{}+R applies \SABRE{}-style bidirectional refinement
+~\cite{li2019tackling} to complete routes. Let $R(C,\ell)$ denote routing
+circuit $C$ from layout $\ell$. Pass~1 routes $C$ from $\ell_0$. Pass~2
+routes the reversed circuit from the final layout of pass~1 and retains only
+its final layout. Pass~3 routes $C$ from that layout. We use five passes by
+repeating this forward--backward cycle and report the best forward route.
 
-Pass~1 \emph{is} \PORTER{}: it runs the selection above, and the horizon
-it chooses is held for the remaining $P-1$ passes --- re-selecting each
-pass would multiply the count by the number of candidates to re-decide a
-property refinement does not change. That is what makes \PORTER{}+R
-contain \PORTER{}, so with the best forward pass kept it can never report
-\chg{more EPR. Total routes are $\lvert\mathcal{H}\rvert + P - 1 = 8$, and the}
-cost is wall-clock rather than passes: a deep horizon makes a later pass
-dear, and on one instance a pass is stopped by the per-pass guard.
+The first pass is the four-horizon \PORTER{} portfolio. Its selected horizon
+is retained for the remaining four passes, rather than being reselected at
+each pass. Thus \PORTER{}+R executes eight routes in total and contains the
+\PORTER{} result; retaining the best forward route ensures that it cannot
+report more EPR pairs than \PORTER{}. Individual refinement passes can still
+be worse because a post-routing layout need not preserve the free-slot
+reserve of the original layout.
 
-One property matters for reading the results. Refinement consumes a
-post-routing layout, and routing destroys the per-core free-slot
-reservation $\ell_0$ was built with (Section~\ref{sec:sfc-layout}), so an
-intermediate pass may start from a layout worse than $\ell_0$ for
-\PORTER{}'s capacity machinery. Individual passes therefore regress on
-some instances; only the best-pass rule keeps that from surfacing.
-
-\subsection{Comparison Protocols and Budgets}
+\subsection{Budgets and Metrics}
 \label{sec:budgets}
+\label{sec:metrics}
 
-Table~\ref{tab:budgets} states, for every configuration that appears in
-the results, where its initial layouts come from, how many routing passes
-it spends, and what it selects on. We use the names in its first column
-throughout.
+Table~\ref{tab:budgets} makes the search budget explicit. ``Routes'' counts
+all routing invocations, including horizon probes. Thus route count is a
+transparent effort descriptor, not a claim that routes have equal runtime.
 
 \begin{table*}[t]
 \centering
-\caption{Every configuration in Section~\ref{sec:results}: layout source,
-  layout count $\lvert\mathcal{L}\rvert$, passes per layout $P$, routes, and
-  what is minimised. $P$ is the number of routes spent on one layout:
-  the $\lvert\mathcal{H}\rvert{=}4$ candidate horizons where a horizon is
-  selected and nothing else is, the refinement passes on the $+$R rows.
-  Routes are $\lvert\mathcal{L}\rvert\!\cdot\!P$, plus the
-  $\lvert\mathcal{H}\rvert{-}1$ extra horizon probes each $+$R seed spends
-  on its first pass. \appLayoutSearch{} gives the one configuration not
-  listed.}
+\caption{Configurations used in Section~\ref{sec:results}: layout source,
+layout count $\lvert\mathcal{L}\rvert$, routes spent per layout $P$, total
+routes, and what is selected. A route is one router invocation. $P$ is the
+four candidate horizons on the rows that select a horizon and nothing else,
+and the five refinement passes on the $+$R rows, whose first pass is itself
+the four-horizon portfolio --- hence $4+4=8$.}
 \label{tab:budgets}
 \setlength{\tabcolsep}{6pt}
 \small
 \begin{tabular}{@{}l l r r r l@{}}
 \toprule
-Name & Layout source & $\lvert\mathcal{L}\rvert$ & $P$ &
-routes & selects on \\
+Configuration & Layout source & $\lvert\mathcal{L}\rvert$ & $P$ & Routes &
+Selection rule \\
 \midrule
-\multicolumn{6}{@{}l}{\emph{Own protocol} (RQ1, RQ4)} \\
-\TeleSABRE{}      & Hungarian, seeds 0--2 & 3 & 1 & 3 & best EPR \\
-\dSABRE{}         & SabreLayout, seeds 0--2 & 3 & 3 & 9 & best EPR \\
-\PORTER{}         & temporal locality-greedy & 1 & 4 & 4 & best EPR \\
-\PORTER{}+R       & temporal locality-greedy & 1 & 5 & 8 & best forward pass \\
+\multicolumn{6}{@{}l}{\emph{Native protocol (RQ1, RQ4)}} \\
+\TeleSABRE{} & Hungarian, seeds 0--2 & 3 & 1 & 3 & lowest EPR \\
+\dSABRE{} & SabreLayout, seeds 0--2 & 3 & 3 & 9 & lowest EPR \\
+\PORTER{} & temporal locality-greedy & 1 & 4 & 4 & lowest EPR \\
+\PORTER{}+R & temporal locality-greedy & 1 & 5 & 8 & best forward route \\
 \midrule
-\multicolumn{6}{@{}l}{\emph{Shared layout} (RQ2) --- both compilers routed from one external layout} \\
-\dSABRE{} shared  & \TeleSABRE{}'s or pytket-dqc's & 1 & 3 & 3 & best pass \\
-\PORTER{} shared  & the identical layout & 1 & 4 & 4 & best EPR \\
-\PORTER{}+R shared& the identical layout & 1 & 5 & 8 & best forward pass \\
+\multicolumn{6}{@{}l}{\emph{Shared layout (RQ2)}} \\
+\dSABRE{} shared & one external layout & 1 & 3 & 3 & best pass \\
+\PORTER{} shared & the identical layout & 1 & 4 & 4 & lowest EPR \\
+\PORTER{}+R shared & the identical layout & 1 & 5 & 8 & best forward route \\
 \midrule
-\multicolumn{6}{@{}l}{\emph{Cross layout} (RQ2) --- each compiler on the other's own layout} \\
-\dSABRE{} on \PORTER{} & \PORTER{}'s layout & 1 & 3 & 3 & best pass \\
-\PORTER{} on \dSABRE{} & \dSABRE{}'s candidates & 3 & 4 & 12 & best EPR \\
+\multicolumn{6}{@{}l}{\emph{Cross layout (RQ2)}} \\
+\dSABRE{} on \PORTER{} & \PORTER{} layout & 1 & 3 & 3 & best pass \\
+\PORTER{} on \dSABRE{} & three \dSABRE{} layouts & 3 & 4 & 12 & lowest EPR \\
 \midrule
-\multicolumn{6}{@{}l}{\emph{Ablation} (RQ3) --- one fixed layout, one fixed horizon} \\
+\multicolumn{6}{@{}l}{\emph{Ablation (RQ3)}} \\
 \PORTER{} ablation & temporal locality-greedy & 1 & 1 & 1 & --- \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-Two notions of a matched budget are in play and neither is universally
-fair, so we report against both. \chg{Fixing the \emph{initial layout} routes
-both compilers from one identical mapping --- the shared-layout rows ---
-which controls the layout but not the effort spent on it: \PORTER{} spends
-four routes on its candidate horizons to \dSABRE{}'s three passes. Equal
-\emph{candidate-layout sets} instead hand \PORTER{} the very layouts
-\dSABRE{} generated for itself, so both choose their best from the same
-three starting points; that equalises the search over layouts rather than
-the routing spent on each. Wall-clock is not equalised anywhere, but every
-table reports complete compile time so a reader can renormalise. \PORTER{}
-both spends more routes in the shared-layout rows and costs more per route
-(Section~\ref{sec:frontier}), so neither comparison understates it.}
+The primary outcome is EPR pairs consumed. \TeleSABRE{} counts \TeleData{}
+and \TeleGate{} operations; \dSABRE{} counts \TeleData{} operations; and
+\PORTER{} counts \TeleData{}, \TeleGate{}, and \TeleGatePacket{} operations,
+one pair per packet. Under the cost model of Section~\ref{sec:scope}, these are the
+same physical resource. We also report intra-core SWAP counts and wall-clock compile time,
+but no selection rule trades either against EPR count.
 
-\subsection{Metrics and Aggregation}
-\label{sec:metrics}
+Aggregate EPR results are unweighted geometric means over circuits. For a
+comparison of methods $a$ and $b$, the reported ratio is $b/a$ and the
+percentage change is $100(b/a-1)$, calculated from the aggregate means;
+\chg{a negative percentage therefore means that $b$ uses fewer pairs than
+$a$.} Failures are not imputed. Each paired mean includes only circuits completed
+by all columns in that comparison, and every such mean reports its completion
+count. This convention may make a failing baseline appear better by excluding
+hard instances; completion counts are therefore essential context rather
+than a secondary outcome.
 
-The primary metric is EPR pairs consumed: \TeleSABRE{} counts teledata
-plus telegate operations, \dSABRE{} counts teledata, and \PORTER{} counts
-teleports plus telegates plus telegate packets, one pair per packet, all
-three the same physical resource. Intra-core SWAP counts and compile time
-are secondary and are never traded against EPR by any selection rule.
-Aggregates are unweighted geometric means over circuits, so each circuit
-counts equally; percentage changes are $100(b/a-1)$ against the stated
-baseline and ratios are $b/a$, both computed from those means rather than
-averaged per circuit. Failures are never imputed: a configuration that
-does not complete an instance is excluded from every mean it appears in,
-along with that instance's other columns where the comparison is paired,
-so a mean labelled $(n)$ is over exactly the $n$ circuits all its columns
-completed --- which flatters a baseline that fails its hardest instances,
-and is why completion counts accompany every such mean. Compile times are
-wall-clock on one otherwise idle machine (Apple M2, macOS~26.5,
-CPython~3.13), measured once per configuration with no warm-up, so they
-are indicative and should be read as ratios between protocols rather than
-as absolute costs.
+Compile times are complete protocol wall-clock times measured once per
+configuration on an otherwise idle Apple M2 system (macOS~26.5,
+CPython~3.13), without warm-up. They should be interpreted as indicative
+protocol-level ratios, not as portable absolute timings.
