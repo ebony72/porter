@@ -2,123 +2,120 @@
 \section{Introduction}
 \label{sec:intro}
 
-A distributed quantum computer (DQC) runs one circuit across several small
-cores joined by links that distribute entanglement on
-demand~\cite{cuomo2020towards,escofet2024review}. Any two-qubit gate
-whose operands sit in different cores must be paid for with
-Einstein--Podolsky--Rosen (EPR) pairs, and distributing a pair is far
-slower and less reliable than any operation inside a
-core~\cite{stephenson2020high,daiss2021quantum}. Pairs consumed is
-therefore the metric we minimise (Section~\ref{sec:scope}).
+Distributed quantum computers (DQCs) execute a circuit across several
+small quantum cores connected by entanglement-distribution links
+\cite{cuomo2020towards,escofet2024review}. A two-qubit gate whose operands
+are in different cores requires inter-core communication. Under the cost
+model considered here, that communication consumes
+Einstein--Podolsky--Rosen (EPR) pairs; distributing such pairs is much
+slower and less reliable than operating within a core
+\cite{stephenson2020high,daiss2021quantum}. \chg{We accordingly minimise}
+EPR-pair consumption (Section~\ref{sec:scope}).
 
-A pair can be spent three ways. Teleporting a \emph{state} (\TeleData{})
-relocates a logical qubit, making every later gate it meets in its new
-core local~\cite{bennett1993teleporting}. Teleporting a \emph{gate}
-(\TeleGate{}) executes one straddling controlled gate through a
-cat-entangler, with neither operand
-moving~\cite{eisert2000optimal,yimsiriwattana2004generalized}. Holding
-that resource open across a run of straddling gates sharing a control
-costs one pair for the whole run --- a \emph{packet}, following
-AutoComm's amortisation~\cite{wu2022autocomm}. Which is cheapest depends
-on the circuit structure where it is applied, so none dominates.
+A compiler can use an EPR pair in three ways. \TeleData{} moves a logical
+qubit to another core, potentially making several later gates local
+\cite{bennett1993teleporting}. \TeleGate{} executes one remote controlled
+gate \chg{through a cat-entangler}, without moving either operand
+\cite{eisert2000optimal,yimsiriwattana2004generalized}. A same-control
+\TeleGatePacket{} keeps \chg{that} resource open for an ordered run
+of remote gates with a common control, so that the run consumes one pair
+rather than one pair per gate \cite{wu2022autocomm}. The best choice depends
+on \chg{the circuit structure where it is applied}: data teleportation has
+possible future benefit, gate teleportation resolves one gate immediately,
+and a packet is beneficial only when a suitable run can be found.
 
-The choice must be made before its price is known. Each alternative
-becomes executable only after its own preparation --- the right operand
-beside the right communication port, that port free, the destination
-holding a spare slot --- and a compiler performs that work only for the
-alternative it selects. Scoring an action together with the preparation
-it currently needs confuses what remote work is worth doing with how far
-the layout is from doing it: candidates are ranked by the layout the
-compiler happens to occupy rather than by the progress they buy, and a
-router that reopens the choice mid-preparation can be left carrying SWAPs
-towards an action it abandons.
+This choice is coupled to local routing. Before an inter-core action can
+execute, its operands may need to be moved to designated communication
+ports, the ports must be free, and a \TeleData{} destination must have
+space. If a router scores an action together with all of the SWAPs required
+by the current layout, it can favour an easy-to-prepare action over one
+that resolves more useful remote work. Moreover, changing the selected
+remote action during preparation can leave the router with SWAPs that no
+longer serve its decision.
 
-\PORTER{} --- a \emph{Plan-Oriented Router for Teleportation-Enabled
-aRchitectures} --- separates the two questions. Its unit of choice is a
-\emph{plan}: a complete specification of one inter-core action and the
-conditions it needs, omitting the SWAP sequence that would establish
-them. Plans are compared on the gate progress they buy, one is committed,
-and only then are preparation SWAPs generated for it. Around this loop
-\PORTER{} adds two-tier capacity relief, which manufactures free slots
-when every candidate is blocked, and a single deterministic initial
-layout in place of the best-of-$N$ search its predecessors run.
+We present \PORTER{} (\emph{Plan-Oriented Router for Teleportation-Enabled
+aRchitectures}), a deterministic router that separates action selection
+from action preparation. \PORTER{} represents each candidate as a
+\emph{plan}: the chosen inter-core primitive, the gates it can discharge,
+and the conditions needed to execute it, but not the SWAP sequence that
+will satisfy those conditions. It first ranks plans by the progress they
+provide, uses preparation cost only to break ties, commits to one plan,
+and then generates the local SWAPs needed to make that plan ready.
+\PORTER{} also includes capacity relief for congested cores and a
+deterministic initial-layout heuristic\chg{, in place of the best-of-$N$
+search its predecessors run. Its operating protocol then routes each
+circuit at a fixed portfolio of teleport-lookahead horizons}.
 
-\textbf{Results.} We evaluate on MQT-Bench~\cite{quetschlich2023mqtbench}
-suites at 25, 64 and 80 logical qubits, a $100$--$360$-qubit scale-up
-series, and two networks of IBM heavy-hex cores --- forty-eight
-circuit--architecture instances. Against
-\TeleSABRE{}~\cite{russo2025telesabre}, the strongest published router we
-identified under this cost model, \PORTER{} lowers geometric-mean EPR
-consumption by $59.7\%$, $44.9\%$ and $68.8\%$ on the three suites at
-four routes to its three, over the instances both complete, and it completes all
-twenty-four --- including the seven \TeleSABRE{} does not converge on,
-among them an 80-qubit, $23{,}381$-CX circuit.
+\textbf{Problem.} Given a circuit, a multi-core architecture, and an initial
+layout, produce a legal operation stream that implements the circuit while
+minimising the number of EPR pairs consumed. Section~\ref{sec:scope}
+defines the model, objective, and assumptions precisely.
 
-The second comparison is with \dSABRE{}~\cite{lidsabre}, concurrent work
-on the same problem and the closest point of reference we have. \PORTER{}
-is competitive on the three benchmark suites, spending $0.99\times$ its pooled
-EPR for $1.20\times$ its compile time under each compiler's own protocol,
-and pulls ahead as the machine grows: on the scale-up series it uses
-$0.69\times$ \dSABRE{}'s pairs, at $0.52\times$ its compile cost, and wins
-every instance.
-
-A pooled figure that close invites the question of what a second compiler
-adds, and the per-instance record answers it: \PORTER{} wins eleven of
-the twenty-four and \dSABRE{} ten, and taking the better of the two per instance
-uses $9.4\%$ fewer EPR pairs than \dSABRE{} alone --- $8.2\%$ with the two
-cheapest circuit families set aside. A design that merely re-derived
-\dSABRE{}'s decisions would leave such a portfolio nothing to choose
-between. The two are close relatives and share four design decisions, set
-out in Section~\ref{sec:related} so neither is credited with the other's;
-what the portfolio measures is the part that is not shared.
-
-\textbf{Problem.} Given a circuit, a multi-core machine and an initial
-layout, emit a legal operation stream realising every gate while
-minimising EPR pairs consumed. Section~\ref{sec:scope} states this
-formally, with the cost model it assumes and what that excludes.
-
-\textbf{Contributions.} We make three.
+\textbf{Contributions.} This paper makes three contributions.
 
 \begin{enumerate}[leftmargin=1.5em,itemsep=2pt,topsep=2pt,label=(\roman*)]
-\item \emph{The \PORTER{} compiler}: a plan-oriented remote stage that
-  scores a complete inter-core action before any preparation SWAP for it
-  exists and commits before preparing
-  (Section~\ref{sec:sfc-plan-first}), a capacity discipline that treats
-  free slots as a legality condition and manufactures them by a two-tier
-  relief search (Section~\ref{sec:sfc-relief}), and a deterministic
-  initial layout replacing the best-of-$N$ search its predecessors run
-  (Section~\ref{sec:sfc-layout}).
-\item \emph{A lookahead-horizon portfolio, selected per circuit.} Every
-  \SABRE{}-descended router fixes this parameter by constant, and no
-  tested constant is best across our benchmark --- the best value spans a
-  factor of thirty-two. \PORTER{} routes every circuit at the same four
-  horizons and keeps the lowest-EPR result. Nothing is conditioned on the
-  circuit, so there is no threshold to generalise, and because the
-  configured horizon is one of the four and wins ties, the portfolio
-  cannot return a worse route than routing once. It is what carries
-  \PORTER{} past \dSABRE{} at scale (Section~\ref{sec:horizon}).
-\item \emph{A controlled study over forty-eight instances}, under native,
-  shared-layout and cross-layout protocols, with ablations measuring what
-  each mechanism contributes --- including a negative finding, which
-  Section~\ref{sec:discussion} interprets. Every route is certified by a
-  separately implemented replay verifier, and the harness reproducing
-  every table is released.
+\item \emph{A plan-committed distributed router.} \PORTER{} selects a
+complete inter-core plan before generating plan-specific preparation
+SWAPs (Section~\ref{sec:sfc-plan-first}). It combines this stage with a
+two-tier capacity-relief mechanism and a deterministic initial-layout
+heuristic (Sections~\ref{sec:sfc-relief} and~\ref{sec:sfc-layout}).
+\item \emph{A fixed lookahead-horizon portfolio.} Rather than assuming that
+one teleport-lookahead horizon suits every circuit\chg{ --- across our
+benchmark the best value spans a factor of thirty-two ---}, \PORTER{} runs
+the same four horizons and retains the completed route with the lowest EPR
+count. Since the configured horizon is included and wins ties, this
+portfolio cannot return a higher EPR count than that configured one-route
+baseline when the baseline completes (Section~\ref{sec:horizon}).
+\item \emph{A controlled empirical evaluation.} We evaluate 48
+circuit--architecture instances\chg{ --- 24 main-suite, six scale-up and
+eighteen heavy-hex ---} using native, shared-layout, and
+cross-layout protocols, and we ablate the principal mechanisms.
+Every reported \PORTER{} route is checked by an independently implemented
+replay verifier; the implementation, evaluation harness, and per-circuit
+results are released.
 \end{enumerate}
 
-Section~\ref{sec:rqs} states the four questions the evaluation answers
-and ties each mechanism to the experiment that assesses it. The
-implementation, the replay verifier, the comparison harness and the raw
-per-circuit results are available at
-\url{https://github.com/ebony72/porter}.
+\textbf{Results in brief.} On MQT-Bench\chg{~\cite{quetschlich2023mqtbench}}
+suites with 25, 64, and 80 logical
+qubits, \PORTER{} reduces geometric-mean EPR consumption relative to
+\TeleSABRE{}\chg{~\cite{russo2025telesabre}} by $59.7\%$, $44.9\%$, and
+$68.8\%$, respectively, on the
+instances completed by both methods; \PORTER{} completes all 24 main-suite
+instances whereas \TeleSABRE{} completes 17. Compared with
+\dSABRE{}\chg{~\cite{lidsabre}},
+\PORTER{} is competitive rather than uniformly superior on the main suites:
+it uses $0.99\times$ \dSABRE{}'s pooled EPR count at $1.20\times$ its
+complete compile time under the respective native protocols. On the
+100--360-qubit QFT and QPEexact scale-up series, \PORTER{} uses
+$0.69\times$ \dSABRE{}'s EPR count and $0.52\times$ its compile time\chg{,
+and it obtains the lower EPR count on all six instances}.
 
-This paper is self-contained. A supplement collects material that
-supports it without being needed to follow it: the reconstruction of the
-eighty-qubit benchmarks and the architecture and cat-entangler figures;
-the external \texttt{pytket-dqc} layouts, both as a comparison and as an
-opt-in layout candidate; the replay verifier's checks and a worked
-example of the plan-committed stage; the inter-core action mix, the
-per-circuit tables behind every summary reported here, and the full
-parameter set; a per-iteration complexity analysis; the layout-discount
-search we measured and did not adopt; and the threats to validity.
+\chg{These are results under the stated protocols, not universal rankings.
+The route budgets differ: \PORTER{} spends four routes against
+\TeleSABRE{}'s three seeds and \dSABRE{}'s nine. The horizon portfolio was
+also fixed by inspecting the evaluation corpus, so its benefit awaits
+out-of-sample validation.}
+
+\chg{A pooled EPR figure that close invites the question of what a second
+compiler adds. \PORTER{} obtains the lower count on eleven of the
+twenty-four main-suite instances and \dSABRE{} on ten, and taking the lower
+of the two per instance uses $9.4\%$ fewer EPR pairs than \dSABRE{} alone
+--- an oracle over both runs rather than a deployable protocol, but one
+that a design merely re-deriving \dSABRE{}'s decisions would leave nothing
+to choose between.}
+
+Section~\ref{sec:rqs} states the research questions and links each mechanism
+to its evaluation. Section~\ref{sec:related} distinguishes \PORTER{} from
+closely related routers, especially \dSABRE{}, \chg{with which it shares
+four design decisions, set out there so that neither is credited with the
+other's}. The implementation, replay verifier, comparison harness, and raw
+per-circuit results are available at
+\url{https://github.com/ebony72/porter}. Supplementary material provides
+the 80-qubit benchmark reconstruction, architecture and cat-entangler
+figures, external layouts\chg{, both as a comparison and as an opt-in
+layout candidate}, verifier checks, a worked routing example,
+\chg{the inter-core action mix,} per-circuit tables, parameter settings,
+complexity analysis, \chg{a layout-discount search we measured and did not
+adopt}, and threats to validity.
 
 %%────────────────────────────────────────────────────────────────────────────
