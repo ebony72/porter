@@ -63,13 +63,13 @@ supplement documents these reconstructions (\appSuite{}).
 its shipped safe mode and layout rule. Its recovery budget is derived from
 the architecture as in its drivers, and its pre-routing layout-repair EPR
 count is excluded for both compilers because it changes the starting layout
-rather than routing the circuit. \chg{The stock \TeleSABRE{} binary aborts
+rather than routing the circuit. The stock \TeleSABRE{} binary aborts
 reproducibly in its initial-layout pass whenever no core holds more free
 positions than its configured margin, which is every 25- and 80-qubit instance
 and no 64-qubit one. We therefore use and release a minimal patch that assigns
 the logical qubits the stock code leaves unplaced to the least-loaded core and
 changes nothing else, so results agree with the stock binary wherever it
-completes --- the whole 64-qubit suite.}
+completes --- the whole 64-qubit suite.
 Each compiler invocation has a 900-s wall-clock limit; an invocation that
 exceeds it is recorded as incomplete.
 
@@ -117,7 +117,7 @@ repeat that pass; they do not change the router itself.
 The teleport-lookahead horizon $L_\mathrm{tp}$ controls how far a
 \TeleData{} candidate is evaluated into the DAG. No single value was best in
 an offline sweep over $\{4,8,\ldots,1024\}$: the per-instance optimum spans
-the range. For example, 80-qubit QNN selects \chg{$16$}, whereas every 100-,
+the range. For example, 80-qubit QNN selects $16$, whereas every 100-,
 200-, and 360-qubit scale-up instance selects 128. We therefore use the same
 four-value portfolio for every circuit,
 \[
@@ -212,8 +212,8 @@ but no selection rule trades either against EPR count.
 Aggregate EPR results are unweighted geometric means over circuits. For a
 comparison of methods $a$ and $b$, the reported ratio is $b/a$ and the
 percentage change is $100(b/a-1)$, calculated from the aggregate means;
-\chg{a negative percentage therefore means that $b$ uses fewer pairs than
-$a$.} Failures are not imputed. Each paired mean includes only circuits completed
+a negative percentage therefore means that $b$ uses fewer pairs than
+$a$. Failures are not imputed. Each paired mean includes only circuits completed
 by all columns in that comparison, and every such mean reports its completion
 count. This convention may make a failing baseline appear better by excluding
 hard instances; completion counts are therefore essential context rather

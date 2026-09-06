@@ -18,9 +18,10 @@
 \usepackage{booktabs}
 
 %% ---- Round-5 revision highlighting -------------------------------------
-%% \chg{...} marks text changed in the round-5 revision, measured against
-%% commit ffa9b25 (the end of round 4); each round's marks are retired when the
-%% next round's are added, so exactly one round is ever highlighted.  Marks sit
+%% \chg{...} marks text changed in the current revision round; each round's
+%% marks are retired when the next round's are added, so exactly one round is
+%% ever highlighted.  NO MARKS ARE PRESENT: round 5's were retired after the
+%% author reviewed them, so the macro is defined and currently unused.  Marks sit
 %% in prose only -- table cells are checked against the released results by
 %% paper/verify_tex_tables.py, which parses those rows.  Flip the \newif to
 %% \revisionhighlightfalse to typeset a clean, unmarked copy; the macro then

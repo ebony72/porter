@@ -22,14 +22,14 @@ all four reported configurations and is therefore the valid comparison with
 \TeleSABRE{}. Block (b) uses every circuit in each suite and omits
 \TeleSABRE{}. $t$ is complete protocol time (geometric mean, seconds).
 ``W/L/T'' compares the named \PORTER{} protocol with \dSABRE{} over all 24
-instances. \chg{Bold marks the lowest EPR count of the four reported
-configurations in each row.} The two rightmost columns
-are an \chg{\emph{oracle minimum}}: for each instance, they take the lower EPR
+instances. Bold marks the lowest EPR count of the four reported
+configurations in each row. The two rightmost columns
+are an \emph{oracle minimum}: for each instance, they take the lower EPR
 count after both \dSABRE{} and the named \PORTER{} protocol have run. They
-are not a fifth compiler or a single deployable protocol\chg{, and are left
-unbold for that reason}. Per-circuit results are in \appTables{}.}
+are not a fifth compiler or a single deployable protocol, and are left
+unbold for that reason. Per-circuit results are in \appTables{}.}
 \label{tab:main}
-\chg{\setlength{\tabcolsep}{12.5pt}}
+\setlength{\tabcolsep}{12.5pt}
 \small
 \resizebox{\ifdim\width>\textwidth \textwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}l rr rr rr rr rr@{}}
@@ -59,9 +59,9 @@ W/L/T   & \multicolumn{2}{c}{---} & \multicolumn{2}{c}{---} & \multicolumn{2}{c}
 
 \textbf{Comparison with \TeleSABRE{}.} On the common completed subsets in
 block~(a), \PORTER{} reduces geometric-mean EPR consumption by $59.7\%$,
-$44.9\%$, and $68.8\%$ at 25, 64, and 80 qubits, \chg{respectively, and every
+$44.9\%$, and $68.8\%$ at 25, 64, and 80 qubits, respectively, and every
 circuit \TeleSABRE{} completes improves, from $-23.2\%$ to $-76.9\%$.
-\PORTER{}+R}
+\PORTER{}+R
 changes these reductions to $63.5\%$, $46.9\%$, and $70.3\%$. \TeleSABRE{}
 completes 17 of 24 instances; it does not complete 64q Random or six
 80-qubit instances. \PORTER{} and \dSABRE{} complete all 24. This comparison
@@ -82,8 +82,8 @@ $4{,}841$); its largest loss is on 80q Random ($10{,}848$ versus $10{,}551$).
 
 The oracle columns quantify complementarity only: taking the lower EPR
 count after running both compilers produces $155.7$ for \PORTER{} and
-$150.5$ for \PORTER{}+R. \chg{Realising either costs both compile budgets, and
-because no tested rule predicts the per-instance}
+$150.5$ for \PORTER{}+R. Realising either costs both compile budgets, and
+because no tested rule predicts the per-instance
 winner, these values should not be interpreted as the performance of an
 operational portfolio.
 
@@ -101,10 +101,10 @@ horizon routes, and \PORTER{}+R eight routes.
 \caption{Geometric-mean EPR by initial-layout source and routing protocol.
 Block (a) includes all 24 instances. Block (b) excludes GHZ and Graphstate,
 whose very small counts dominate an unweighted geometric mean. Bold marks
-the lowest entry \chg{of each routing-protocol column
-\emph{within each block}}.}
+the lowest entry of each routing-protocol column
+\emph{within each block}.}
 \label{tab:shared}
-\chg{\setlength{\tabcolsep}{5pt}}
+\setlength{\tabcolsep}{5pt}
 \small
 \resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}l rrr@{}}
@@ -126,8 +126,8 @@ Initial layout & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
 
 \TeleSABRE{} is not included because it supplies a successful layout for
 only 17 instances. For a fixed layout, \dSABRE{} and \PORTER{} are close:
-\chg{across any row of Table~\ref{tab:shared} their difference is at most
-$1.9\%$ on block~(a) and at most $6.1\%$ on block~(b). By contrast, changing the layout produces}
+across any row of Table~\ref{tab:shared} their difference is at most
+$1.9\%$ on block~(a) and at most $6.1\%$ on block~(b). By contrast, changing the layout produces
 a $9.2$--$14.5\%$ spread across protocols on the 18 non-trivial instances.
 Within this experiment, layout choice therefore accounts for more variation
 than the choice between the two routing loops. This is a descriptive result,
@@ -136,9 +136,9 @@ not a matched-budget ranking.
 The \texttt{pytket-dqc} partition is best in every column over all 24
 instances but worst in every column after GHZ and Graphstate are excluded.
 Its advantage is concentrated in those simple families; it is the worse
-start on 14 of 24 instances for \dSABRE{} and 16 of 24 for \chg{\PORTER{},
+start on 14 of 24 instances for \dSABRE{} and 16 of 24 for \PORTER{},
 plausibly because it optimises e-bits on a network more permissive than the
-device~\cite{lidsabre}.}
+device~\cite{lidsabre}.
 Moreover, three KaHyPar seeds cost $0.6$--$627$ seconds, compared with
 $0.3$--$9.0$ ms for \PORTER{}'s layout construction, and the partitioner
 does not finish on the scale-up inputs. We therefore retain \PORTER{}'s
@@ -162,12 +162,12 @@ The selected multi-horizon result in Table~\ref{tab:main} is not used here.
 \centering
 \caption{80-qubit ablation. ``No pk'' disables \TeleGatePacket{}; ``No
 rel.'' disables both relief tiers; ``\TeleData{}'' removes the \TeleGate{}
-family; \chg{``pk''/``tg'' are the full configuration's packet and
-single-telegate counts}. $^{\dagger}$ denotes non-completion. Gmeans
+family; ``pk''/``tg'' are the full configuration's packet and
+single-telegate counts. $^{\dagger}$ denotes non-completion. Gmeans
 are reported only over the completed rows shared by the stated
 comparison.}
 \label{tab:ablation}
-\chg{\setlength{\tabcolsep}{3.4pt}}
+\setlength{\tabcolsep}{3.4pt}
 \small
 \resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}l rrrr rr@{}}
@@ -192,8 +192,8 @@ multiplier  &  3897 &  3584 &  3055 & $^{\dagger}$ &  208 & 1739 \\
 \end{table}
 
 \textbf{Packets.} Removing packets changes the EPR geometric mean by only
-$0.9\%$ on the eight rows both variants \chg{complete
-(Table~\ref{tab:ablation}). The direction is not}
+$0.9\%$ on the eight rows both variants complete
+(Table~\ref{tab:ablation}). The direction is not
 uniform: packets reduce cost on AE, QFT, QNN, and QPEexact, but the
 no-packet variant is cheaper on QAOA and Multiplier. This result is
 consistent with packet collection being useful when a shared-control run is
@@ -202,25 +202,25 @@ teleport decision. The smaller-width ablations show larger packet savings
 ($3.0\%$ at 25 qubits and $7.4\%$ at 64 qubits); the detailed action counts
 are in \appMix{}.
 
-\textbf{Gate teleportation.} \chg{This column changes two settings, and
-reporting them as one teleport-only configuration is the natural choice.}
+\textbf{Gate teleportation.} This column changes two settings, and
+reporting them as one teleport-only configuration is the natural choice.
 Unlike \TeleData{}, \TeleGate{} does not
 require a free data position at its target core: the cat-state copy occupies
-the target-side communication port. \chg{Removing it also closes a recovery
+the target-side communication port. Removing it also closes a recovery
 path --- while a telegate or packet plan exists for an adjacent remote CX,
 the last-resort relief tier never sees an adjacent blocked plan --- so
 strict removal deadlocks outright. Re-admitting those seeds restores it and
 is inert whenever a \TeleGate{} is available, leaving the merged column a
-comparison of vocabularies.}
+comparison of vocabularies.
 
 \textbf{Capacity relief.} With both relief tiers disabled, five of the nine
 80-qubit circuits do not complete. On the four shared completed rows, the
 full configuration is $0.5\%$ more expensive than no relief
 ($174.1$ versus $173.3$), so this ablation does not establish an EPR saving
 on that restricted subset. It establishes that relief is important for
-completion under the tested capacity \chg{policy, though pooled over the
+completion under the tested capacity policy, though pooled over the
 nineteen instances that complete both ways it does save $24.8\%$. No claim
-beyond these instances is warranted.}
+beyond these instances is warranted.
 
 \subsection{RQ4: Robustness to Scale and Topology}
 \label{sec:scaleup}
@@ -233,12 +233,12 @@ EPR and complete compile time.
 \begin{table}[t]
 \centering
 \caption{Scale-up results under native protocols. The $5{\times}5$-core
-architectures grow from 6 to 20 cores\chg{, read from \dSABRE{}'s own device
+architectures grow from 6 to 20 cores, read from \dSABRE{}'s own device
 files; our \dSABRE{} column reproduces its published
-series~\cite{lidsabre} ($201/246/766/896/1890/1938$)}. $t$ is complete
+series~\cite{lidsabre} ($201/246/766/896/1890/1938$). $t$ is complete
 protocol time. \PORTER{} selects $L_\mathrm{tp}=128$ for every instance.}
 \label{tab:scaleup}
-\chg{\setlength{\tabcolsep}{5pt}}
+\setlength{\tabcolsep}{5pt}
 \small
 \resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}ll rrr rr rr@{}}
@@ -259,8 +259,8 @@ QPEexact &  13{,}979 & 360 & 500 & 20 & 1938 &  83.1 & \textbf{1093} &  22.5 \\
 \end{tabular}}
 \end{table}
 
-\PORTER{} uses fewer EPR pairs on all six \chg{instances of
-Table~\ref{tab:scaleup}: $0.90\times$}
+\PORTER{} uses fewer EPR pairs on all six instances of
+Table~\ref{tab:scaleup}: $0.90\times$
 \dSABRE{} at 100 qubits, $0.66\times$ at 200, $0.57\times$ at 360, and
 $0.69\times$ overall. Its complete time is $8.0$ versus $15.4$ seconds
 ($0.52\times$). This scale-up suite contains only QFT and QPEexact, so it
@@ -268,7 +268,7 @@ supports robustness on these two families rather than a general
 large-circuit ranking.
 
 For these six instances, horizon selection is decisive: the configured
-$L_\mathrm{tp}=16$ alone yields a geometric mean of \chg{$1{,}020.7$ pairs}
+$L_\mathrm{tp}=16$ alone yields a geometric mean of $1{,}020.7$ pairs
 ($1.45\times$ \dSABRE{}), whereas the fixed four-horizon portfolio yields
 $490.0$ ($0.69\times$). Every instance selects 128. This contrast should
 be read together with the in-sample portfolio-selection limitation stated
@@ -287,9 +287,9 @@ core shape and core graph vary. \emph{Outcome:} geometric-mean EPR.
 as a ring or a star. The rightmost column gives \PORTER{} on the three
 \dSABRE{} \texttt{SabreLayout} candidates. Both protocols select their best
 result, so this controls candidate-layout source but not route count.
-\chg{Per-circuit rows are in \appTables{}.}}
+Per-circuit rows are in \appTables{}.}
 \label{tab:heavyhex}
-\chg{\setlength{\tabcolsep}{4pt}}
+\setlength{\tabcolsep}{4pt}
 \small
 \begin{tabular}{@{}l r rr@{}}
 \toprule
@@ -303,10 +303,10 @@ star (9)          & 101.1 & 113.3 & \textbf{97.2} \\
 \end{tabular}
 \end{table}
 
-On the ring, the native protocols are within \chg{$1.1\%$ (86.1 versus}
+On the ring, the native protocols are within $1.1\%$ (86.1 versus
 85.2). On the star, \PORTER{}'s native layout is worse (113.3 versus 101.1),
-but \PORTER{} reaches 97.2 when supplied with \dSABRE{}'s candidate \chg{layouts
-(Table~\ref{tab:heavyhex}).}
+but \PORTER{} reaches 97.2 when supplied with \dSABRE{}'s candidate layouts
+(Table~\ref{tab:heavyhex}).
 This points to a layout--topology interaction: a uniform reserve treats
 cores similarly, whereas the star hub carries disproportionate traffic. It
 does not prove that layout alone explains the gap, because the two routers
@@ -321,9 +321,9 @@ of this conclusion.
 \begin{table}[t]
 \centering
 \caption{Protocol trade-off over all 24 main-suite instances. Times are
-complete protocol costs (geometric mean per instance). \chg{A third schedule,
+complete protocol costs (geometric mean per instance). A third schedule,
 which also searches the layout discount $\gamma$, is reported in
-\appLayoutSearch{}.}}
+\appLayoutSearch{}.}
 \label{tab:protocols}
 \small
 \resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
@@ -338,11 +338,11 @@ Protocol & routes & EPR & vs.\ \dSABRE{} & time (s) & vs.\ \dSABRE{} \\
 \end{tabular}}
 \end{table}
 
-The schedules \chg{of Table~\ref{tab:protocols}
+The schedules of Table~\ref{tab:protocols}
 (Section~\ref{sec:opprotocols}) form an EPR/time frontier. Because each
 contains the one before it and keeps the best result by EPR, the EPR column
 is monotone by construction, though compile time is not. \PORTER{} improves
-the pooled EPR}
+the pooled EPR
 geometric mean slightly relative to \dSABRE{} ($0.99\times$) while taking
 $1.20\times$ the time. \PORTER{}+R improves EPR to $0.91\times$ but takes
 $2.15\times$ the time. These comparisons use complete protocol costs:

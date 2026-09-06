@@ -146,8 +146,8 @@ transpiling it to our basis; at 64 qubits this reproduces the checked-in
 sequence, all $\binom{64}{2}$ interacting pairs, 8{,}126 CX), so the
 80-qubit instance (a fully-connected $\binom{80}{2}$-edge interaction
 graph, 12{,}718 CX) is a faithful extrapolation of the same
-\chg{construction. Table~\ref{tab:circuits} lists the CX count
-of every benchmark instance used in the paper.}
+construction. Table~\ref{tab:circuits} lists the CX count
+of every benchmark instance used in the paper.
 
 \begin{table}[h]
 \centering
@@ -207,9 +207,9 @@ comparison~\cite{lidsabre}.
 \begin{table}[t]
 \centering
 \caption{Pytket-mapping shared-layout comparison over all twenty-four
-\chg{  instances, corners-removed \texttt{NISQNetwork}
+  instances, corners-removed \texttt{NISQNetwork}
   capacity. Both routers run their own protocol from the same
-  partition. \texttt{pytket e-bits} is}
+  partition. \texttt{pytket e-bits} is
   \texttt{HypergraphPartitioning}'s own cost in a different unit
   (context only, not EPR-comparable). \PORTER{}'s general full-core
   safeguard leaves no missing entries on
@@ -253,15 +253,15 @@ Suite & Circuit & \texttt{pytket} e-bits & \multicolumn{2}{c}{\dSABRE{}} & \mult
 }
 \end{table}
 
-Table~\ref{tab:pytket} \chg{reports a complete grid: \PORTER{}'s full-core
+Table~\ref{tab:pytket} reports a complete grid: \PORTER{}'s full-core
 safeguard legalizes every partition that would otherwise violate its
 teleport precondition, so neither router skips a row. \dSABRE{} takes
 the grid on the geometric mean, $164.1$ against \PORTER{}'s $167.2$
 ($1.9\%$), using fewer EPR pairs on twelve of the twenty-four rows to
 \PORTER{}'s eight, with four ties. \PORTER{}'s worst relative row is
-80q QNN ($1{,}408$ against $827$).}
+80q QNN ($1{,}408$ against $827$).
 
-\chg{The two aggregates disagree in sign, and the disagreement is the same
+The two aggregates disagree in sign, and the disagreement is the same
 one \mainSharedResults{} draws on: summed over the grid \PORTER{} spends
 $22{,}615$ EPR pairs against \dSABRE{}'s $25{,}123$, $10.0\%$ fewer,
 because one row dominates the total --- 80q Multiplier, where \PORTER{}
@@ -271,7 +271,7 @@ exactly that. We report both and claim neither as the grid's verdict.
 Pooled with the \TeleSABRE{}-layout grid of \mainSharedTable{} of the
 main paper, \dSABRE{} uses fewer EPR pairs on twenty of the forty-one
 fixed-layout instances, \PORTER{} on sixteen, with five ties
-(\mainSharedResults{}).}
+(\mainSharedResults{}).
 
 The grid above feeds pytket-dqc's partition to \PORTER{} as a
 controlled probe. The complementary pipeline question -- offering the
@@ -294,33 +294,33 @@ the question is only what it gains and what it costs.
 figures behind it.
 
 \textbf{What it gains.} Over all twenty-four instances the best-of-two
-lowers geometric-mean EPR from \chg{$169.4$ to $150.6$ ($-11.1\%$). Over the
+lowers geometric-mean EPR from $169.4$ to $150.6$ ($-11.1\%$). Over the
 eighteen excluding GHZ and Graphstate it lowers it from $445.2$ to
-$443.3$ --- $\mathbf{-0.4\%}$. The partition is selected on seven of the}
+$443.3$ --- $\mathbf{-0.4\%}$. The partition is selected on seven of the
 twenty-four, and the three largest margins are Graphstate at each width
 ($7\!\to\!4$, $20\!\to\!10$, $28\!\to\!10$); GHZ contributes
 $4\!\to\!3$, $6\!\to\!5$ and a tie. Everything else it wins, it wins
 narrowly. On the dense circuits it is the worse start and the best-of
-simply keeps \PORTER{}'s own layout (64q~QNN $638$ against \chg{$800$,
-64q~Random $737$ against $787$, 80q~AE $299$ against $385$).}
+simply keeps \PORTER{}'s own layout (64q~QNN $638$ against $800$,
+64q~Random $737$ against $787$, 80q~AE $299$ against $385$).
 
 \textbf{What it costs.} Table~\ref{tab:pytkettime} times the
 best-of-three KaHyPar partition against \PORTER{}'s own layout
-construction and against \PORTER{}'s complete \chg{four-route protocol, on}
+construction and against \PORTER{}'s complete four-route protocol, on
 the same machine as every other measurement in this paper. The partition
 is three to five orders of magnitude dearer than the layout it would
-replace, and on \chg{seven of the eight circuits shown it costs more than
+replace, and on seven of the eight circuits shown it costs more than
 routing the circuit four times --- 64q~Random the exception. It also
 scales worse than the routing does: a $42\times$ increase in CX count from
 25q~AE to 80q~Random buys a $196\times$ increase in partition time, and at
-the widths of}
+the widths of
 \mainScaleup{} it does not finish at all.
 
 \begin{table}[h]
 \centering
 \caption{Cost of the \texttt{pytket-dqc} partition (best of three KaHyPar
   seeds) against \PORTER{}'s own initial-layout construction and against
-  \PORTER{}'s complete \chg{four-route protocol. One measurement each, same}
+  \PORTER{}'s complete four-route protocol. One measurement each, same
   machine and conditions as \mainSetup{}.}
 \label{tab:pytkettime}
 \setlength{\tabcolsep}{7.3pt}
@@ -345,7 +345,7 @@ Suite & Circuit & CX & time & vs.\ layout & 4 routes \\
 }
 \end{table}
 
-\textbf{Why it stays opt-in.} The gain is \chg{$0.4\%$ once the two smallest}
+\textbf{Why it stays opt-in.} The gain is $0.4\%$ once the two smallest
 circuit families are set aside, and it is bought at a preprocessing cost
 that exceeds the whole compilation. A third consideration is
 robustness: the partition reintroduces an external dependency that
@@ -509,10 +509,10 @@ intended check; the same harness runs on any benchmark QASM file.
 \section{Architecture and Primitive Figures}
 \label{app:catent}
 
-\chg{Figure~\ref{fig:arch} draws architecture~A, the smaller of the two
+Figure~\ref{fig:arch} draws architecture~A, the smaller of the two
 grid-of-grids machines of \mainSetup{}, and Figure~\ref{fig:catent-app}
 gives the cat-entangler and cat-disentangler constructions that
-\TeleGate{} and \TeleGatePacket{} are built from.}
+\TeleGate{} and \TeleGatePacket{} are built from.
 
 \begin{figure}[t]
 \centering
@@ -924,8 +924,8 @@ Lookahead weight / decay / floor   & $w_0,\gamma,w_\mathrm{min}$ & 0.9, 0.9, 0.5
 \begin{minipage}{\columnwidth}\vspace{2pt}\footnotesize
 $^\dagger$ The teleport-lookahead horizon is not a fixed constant:
 \PORTER{} routes the circuit once per candidate value and keeps the
-lowest-EPR \chg{result. The set is the same for every circuit; $16$ is the
-configured value, routed first and winning ties}
+lowest-EPR result. The set is the same for every circuit; $16$ is the
+configured value, routed first and winning ties
 (Section~\ref{main-sec:horizon}).\\
 $^\ddagger$ Inert at this value. The lookahead admits at most one gate on
 the moving qubit per simulated layer, so the collected count cannot exceed
@@ -1048,9 +1048,9 @@ Table~\ref{main-tab:main} of the main paper.
 \caption{Per-circuit EPR counts, own protocol --- the detail behind
   Table~\ref{main-tab:main} of the main paper. \TeleSABRE{} and
   \dSABRE{} report the best of three seeds; \PORTER{} routes one
-  deterministic layout at each of \chg{four candidate lookahead horizons; and
+  deterministic layout at each of four candidate lookahead horizons; and
   \PORTER{}+R spends eight routes over a five-pass backward-refinement
-  schedule instead.}
+  schedule instead.
   $\Delta_\mathrm{TS}$ is the EPR change of whichever \PORTER{} column is
   stronger on that row, against \TeleSABRE{} (\%); negative is better,
   and the bolded \PORTER{} column is that stronger one.
@@ -1191,14 +1191,14 @@ schedule of \mainRefine{} from two seeds: phase~1's winner, and the
 $\gamma{=}0.99$ layout when that is not already the winner. Refining the
 phase-1 winner alone is not reliably best, so both are run. Each seed
 selects a horizon before refining, so each costs
-\chg{$\lvert\mathcal{H}\rvert+P-1=8$ routes as \PORTER{}+R does, and the
+$\lvert\mathcal{H}\rvert+P-1=8$ routes as \PORTER{}+R does, and the
 nominal budget is $5+8=13$ invocations of the routing loop when
 $\gamma{=}0.99$ wins phase~1 and $5+8+8=21$ otherwise. Each seed
-re-routes a layout at a horizon phase~1 already covered, so the}
+re-routes a layout at a horizon phase~1 already covered, so the
 number of \emph{distinct} routes --- which is what the released harness
-records --- is \chg{$12$ or $19$, and falls below that where a per-pass guard
+records --- is $12$ or $19$, and falls below that where a per-pass guard
 stops a pass short; over the twenty-four instances it ranges from $10$
-to $19$. Since $\gamma{=}0.99$ always competes and is refined from}
+to $19$. Since $\gamma{=}0.99$ always competes and is refined from
 its selected route, \PORTER{}+S cannot return a higher EPR count than
 \PORTER{} or \PORTER{}+R do.
 
@@ -1263,23 +1263,23 @@ Suite & Circuit & \PORTER{} & $+$R & $+$S & $\Delta$\,\% &
 \end{table}
 
 \textbf{What it buys.} Table~\ref{tab:layoutsearch} gives the result.
-Pooled over the twenty-four instances \PORTER{}+S reaches \chg{$152.6$ EPR
+Pooled over the twenty-four instances \PORTER{}+S reaches $152.6$ EPR
 pairs against \PORTER{}+R's $156.7$, a $2.6\%$ reduction, and
 $0.89\times$ \dSABRE{}'s $171.9$ against \PORTER{}+R's $0.91\times$. It
-improves on eight instances, ties on sixteen and --- being a superset}
+improves on eight instances, ties on sixteen and --- being a superset
 schedule --- loses on none. Its one qualitative effect is at 64 qubits,
 the single suite \PORTER{} loses under its own protocol: the ratio
-against \dSABRE{} falls from \PORTER{}+R's \chg{$1.04\times$ to $0.99\times$,
-turning the one suite it trails on into a narrow win.}
+against \dSABRE{} falls from \PORTER{}+R's $1.04\times$ to $0.99\times$,
+turning the one suite it trails on into a narrow win.
 
-\textbf{What it costs.} The same twenty-four instances take \chg{$796$\,s
+\textbf{What it costs.} The same twenty-four instances take $796$\,s
 against \PORTER{}+R's $386$\,s --- $2.1\times$ the wall clock, and
 $4\times$ \dSABRE{}'s complete protocol cost of $182$\,s. The
 expenditure is badly distributed: the 80-qubit suite consumes $592$
 of those seconds and returns $0.5\%$, and 80q~AE alone spends $40.0$\,s
 against \PORTER{}+R's $11.1$\,s --- a factor of four --- to return
 $277$ pairs, the figure \PORTER{}+R already reaches. On three quarters of
-the suite the search returns nothing at all.}
+the suite the search returns nothing at all.
 
 \textbf{Why it is not in the main paper.} Three reasons beyond the
 return. It cannot appear in the layout-against-router grid of
@@ -1328,10 +1328,10 @@ the scale-up series is two families only --- nothing supports a claim about
 scaling on irregular circuits at those widths --- and the heavy-hex study
 is two core graphs, not a survey.
 
-\chg{\textbf{Parameters fitted in-sample.} The sweep behind the horizon
+\textbf{Parameters fitted in-sample.} The sweep behind the horizon
 portfolio, and the four values taken from it, were chosen by inspecting
 these same instances (\mainHorizon{}), so the \emph{magnitude} of that
-gain is in-sample; the}
+gain is in-sample; the
 portfolio construction bounds the downside, but no out-of-sample
 validation has been performed. The same caution applies in weaker form to
 $f_\mathrm{min}$, $m_\mathrm{assist}$ and the packet window, fixed early
@@ -1349,7 +1349,7 @@ qubits the stock binary leaves unplaced, and architecture~H is unchanged
 --- we have not audited its effect.
 
 \textbf{Unequal native budgets.} The own-protocol comparison gives
-\dSABRE{} nine routes to \PORTER{}'s \chg{four. That is each compiler's own}
+\dSABRE{} nine routes to \PORTER{}'s four. That is each compiler's own
 convention, not a controlled budget --- hence the shared-layout experiment,
 and hence compile time throughout.
 
@@ -1362,12 +1362,12 @@ bases.
 
 \textbf{Implementation and timing.} \PORTER{} and \dSABRE{} are Python and
 \TeleSABRE{} is C, so per-route times compare implementations as much as
-algorithms, and all are wall-clock on one machine. \chg{Times from different
+algorithms, and all are wall-clock on one machine. Times from different
 measurement sessions are not comparable --- the same protocol on this
 machine has measured $1.7\times$ apart between sessions --- so every timing
 column reported here comes from a single run. \emph{Results} do not depend
 on load: horizon selection budgets a speculative route in DAG layers peeled
-rather than seconds (\mainSetup{}).}
+rather than seconds (\mainSetup{}).
 
 \textbf{Cost model.} One EPR pair per inter-core action, independent of
 hop count and generation protocol; link contention, entanglement latency

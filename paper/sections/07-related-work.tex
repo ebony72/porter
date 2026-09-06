@@ -1,84 +1,92 @@
-%% 05-related-work.tex --- included by ../sfc.tex
+%% 07-related-work.tex --- included by ../sfc.tex
 \section{Related Work}
 \label{sec:related}
 
-\textbf{\TeleSABRE{}}~\cite{russo2025telesabre} is the published state of
-the art for this cost model, supporting teledata and gate teleportation
-on \SABRE{}'s extended-set scoring. The two differ chiefly in decision
-structure. \TeleSABRE{} admits an inter-core candidate only when it is
-already executable --- operand adjacent to a free communication port, a
-spare slot at the destination --- and scores it by the layout energy it
-leaves behind, a contracted-communication-graph Dijkstra distance over
-the front and extended sets. Staging is therefore carried by ordinary
-SWAPs, pooled with those candidates and scored the same way, so each
-iteration's minimum may be a SWAP that shortens a route or a remote
-action that resolves a gate.
-\PORTER{} keeps local work strictly ahead of inter-core work, scores
-whole plans independently of preparation cost, generates preparation
-SWAPs only for the plan it commits to, adds the packet primitive, and
-treats capacity as a legality condition with its own relief search
-rather than as \TeleSABRE{}'s safety-valve cap.
+This work is most closely related to online routers for multi-core
+distributed quantum computers that minimise EPR-pair consumption. It also
+relates to partition-first distributed compilation and to communication
+amortisation techniques.
 
-\textbf{\dSABRE{}}~\cite{lidsabre} attacks the same problem and is a close
-relative. Both \dSABRE{} and \PORTER{} rank moves by \SABRE{}'s front-plus-lookahead $\Delta$ score, both are strictly
-locality-first, scoring an inter-core candidate only once no front gate is
-intra-core, both promote capacity from a scoring penalty to a legality
-condition with the same floor of two free slots, and both manufacture
-capacity by relaying a free slot from a reservoir along a BFS path rather
-than evicting arbitrarily. Four differences remain: \PORTER{}'s action vocabulary is larger; its unit of
-commitment is a whole plan rather than one hop; preparation cost enters as
-a tiebreaker rather than additively; and its initial layout is one
-deterministic construction rather than a best-of-$N$ search. A fifth is a gap
-rather than a design choice, and it runs \dSABRE{}'s way: its safe mode
-carries a termination-with-success proof under stated architectural
-hypotheses, so it guarantees \emph{completion}, where \PORTER{} guarantees
-only correctness and termination by construction
-(Section~\ref{sec:sfc-progress}) and has completion empirically, no
-instance being left unrouted under the selected-horizon protocol of
-Section~\ref{sec:horizon}.
+\textbf{Online EPR-aware routing.} \TeleSABRE{}~\cite{russo2025telesabre}
+extends \SABRE{}-style routing to support \TeleData{} and \TeleGate{} under
+an EPR-pair cost model. It scores executable local SWAP and inter-core
+actions together using a front/extended-set layout objective. Consequently,
+preparation for a remote operation is expressed through ordinary SWAPs and
+competes directly with immediately executable remote actions.
 
+\PORTER{} instead separates plan selection from plan preparation. It ranks a
+complete inter-core plan before generating plan-specific preparation SWAPs,
+commits to the selected plan, and then prepares it. It further adds
+same-control \TeleGatePacket{} operations and capacity relief. These are
+algorithmic differences, not a claim that the two systems are evaluated
+under identical search budgets; the native-protocol comparison in
+Section~\ref{sec:rq1} reports those budgets explicitly.
 
+\dSABRE{}~\cite{lidsabre} is the closest methodological comparison. Like
+\PORTER{}, it is locality-first: it enters the inter-core stage only when
+no front CX can be handled within a core. Both treat free capacity as a
+legality condition, retain a per-core reserve whose threshold is two free
+positions in both defaults, and recover capacity by
+searching from a congested core to a reservoir. They differ in the available
+remote primitives, the decision unit, the role of preparation cost in
+scoring, and the layout protocol. \dSABRE{} routes with \TeleData{}; \PORTER{}
+adds \TeleGate{} and \TeleGatePacket{}. \dSABRE{} decides one core-hop at a time,
+toward a possibly more distant target core, and executes that hop atomically:
+the staging SWAPs it needs are performed inside the action, which is rolled
+back to a no-op if any step fails. \PORTER{} decides a whole plan, including
+the primitive it will use, then prepares that plan with local SWAPs until it
+is ready and executes it, without reopening the remote choice. \PORTER{} uses
+preparation cost as a tie-breaker after plan utility, while \dSABRE{}
+incorporates it in its move score. \PORTER{} builds one deterministic
+initial layout, where \dSABRE{} routes a best-of-$N$ candidate set.
 
-\textbf{Other approaches.} Partition-first compilers assign qubits to
-cores by hypergraph or community
-partitioning~\cite{escofet2023hqa,pytketdqc2024,daei2020optimized} and
-route the residue; \texttt{pytket-dqc}~\cite{pytketdqc2024} is the mature
-representative, compared against in \appPytket{} under the caveat that
-its e-bit unit assumes long-lived entanglement and different
-communication memory. AutoComm~\cite{wu2022autocomm} identifies gate
-sequences that can share one entangled resource, which \PORTER{}'s packet
-applies inside the routing loop rather than as a pre-pass
-(Section~\ref{sec:primitives}). \SABRE{}~\cite{li2019tackling} supplies
-the scoring skeleton all three inherit.
+The two systems also differ in guarantees. Under its stated architectural
+assumptions, \dSABRE{} safe mode provides a completion guarantee.
+\PORTER{} guarantees correctness of emitted routes and implementation
+termination through guards, but does not claim completion for every feasible
+input (Section~\ref{sec:sfc-progress}). Completion in the reported
+selected-horizon experiments is empirical evidence, not a proof.
 
-Table~\ref{tab:taxonomy} places these systems on the axes that
-matter here.
+\textbf{Partition-first and communication-amortising approaches.}
+Partition-first compilers assign logical qubits to cores by hypergraph or
+community structure and route the remaining inter-core
+interactions~\cite{escofet2023hqa,pytketdqc2024,daei2020optimized}.
+\texttt{pytket-dqc}~\cite{pytketdqc2024} is used here as an external layout source, not as a directly comparable EPR-router baseline: its e-bit
+model assumes different entanglement lifetime and communication-memory
+conditions. AutoComm~\cite{wu2022autocomm} identifies remote gate sequences
+that can share an entangled resource. \PORTER{} adapts the amortisation idea
+inside its online routing loop through \TeleGatePacket{}, rather than using a
+separate pre-pass. Finally, \SABRE{}~\cite{li2019tackling} supplies the
+front-plus-lookahead routing framework from which the online routers draw
+their scoring structure.
 
-\begin{table}[b]
+Table~\ref{tab:taxonomy} summarises the comparison. ``Not applicable'' does
+not mean that a system lacks the capability; it means that the axis is not
+meaningfully comparable under its different compilation model.
+
+\begin{table}[tb]
 \centering
-\caption{Design axes of the compilers discussed here. ``Commitment'' is
-  the unit a scoring decision is taken over. \texttt{pytket-dqc} is
-  partition-first and does not route with these primitives, so several
-  axes do not apply.}
+\caption{Design comparison. ``Decision unit'' is the object selected by the
+online routing decision. The guarantee row distinguishes a completion
+guarantee from implementation termination.}
 \label{tab:taxonomy}
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{2.5pt}
 \small
 \resizebox{\ifdim\width>\columnwidth \columnwidth\else\width\fi}{!}{%
 \begin{tabular}{@{}l l l l l@{}}
 \toprule
- & \TeleSABRE{} & \dSABRE{} & pytket-dqc & \PORTER{} \\
+& \TeleSABRE{} & \dSABRE{} & \texttt{pytket-dqc} & \PORTER{} \\
 \midrule
-Paradigm       & online & online & partition-first & online \\
-Primitives     & data, gate & data & (e-bit) & data, gate, packet \\
-Local/remote   & one pool & staged & --- & staged \\
-Commitment     & one move & one hop & whole plan & whole plan \\
-Prep.\ cost    & in score & in score & --- & tie-break \\
-Layout         & Hungarian, & SabreLayout, & hypergraph & one \\
-               & \ 3 seeds  & \ 3 seeds    & partition  & \ deterministic \\
-Capacity       & cap & legality + relay & partition & legality + relief \\
-Termination    & --- & with-success proof & --- & correct, terminates \\
-Metric         & EPR & EPR & e-bits & EPR \\
+Paradigm & online & online & partition-first & online \\
+Remote primitives & data, gate & data & n/a & data, gate, packet \\
+Local/remote policy & joint pool & staged & n/a & staged \\
+Decision unit & one action & one hop & n/a & whole plan \\
+Preparation cost & in score & in score & n/a & tie-break \\
+Layout protocol & Hungarian, & SabreLayout, & hypergraph & one \\
+                & \ 3 seeds & \ 3 seeds & \ partition & \ deterministic \\
+Capacity treatment & cap & legality + relay & n/a & legality + relief \\
+Completion guarantee & not stated & conditional & n/a & not claimed \\
+Primary metric & EPR pairs & EPR pairs & e-bits & EPR pairs \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}}
 \end{table}
