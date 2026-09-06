@@ -425,10 +425,13 @@ for cols in rows:
     chk(f"ablation {key} norel", cell(cols[3]), (a.get("no_relief") or {}).get("epr"))
     chk(f"ablation {key} teledata", cell(cols[4]),
         (t_.get("teledata_only_relief") or {}).get("epr"))
-    # The double dagger must mark exactly the cells where strict removal failed.
-    chk(f"ablation {key} relief-tier marker", "ddagger" in cols[4],
-        (t_.get("teledata_only") or {}).get("epr") is None
-        and (t_.get("teledata_only_relief") or {}).get("epr") is not None)
+    # The TeleData column is ONE configuration since 2026-09-06: removing the
+    # TeleGate family and seeding relief from adjacent blocked plans are
+    # reported together, because the seeding is inert whenever a TeleGate is
+    # available and so changes nothing on the Full side.  No cell carries a
+    # relief-tier marker any more.  The check is inverted rather than deleted,
+    # so a reintroduced dagger fails instead of passing silently.
+    chk(f"ablation {key} no relief-tier marker", False, "ddagger" in cols[4])
     chk(f"ablation {key} pk", cell(cols[5]), (t_.get("full") or {}).get("packets"))
     chk(f"ablation {key} tg", cell(cols[6]), (t_.get("full") or {}).get("telegates"))
 

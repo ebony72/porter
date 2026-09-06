@@ -2,107 +2,91 @@
 \section{Discussion and Future Work}
 \label{sec:discussion}
 
-\textbf{The two compilers are complementary, and a portfolio beats
-either.} \PORTER{} wins ten of the twenty-four instances against
-\dSABRE{} and loses twelve, \PORTER{}+R eleven and eleven
-(Table~\ref{tab:main}), so neither dominates instance by instance even
-though their pooled means \chg{are level ($169.4$ against $171.9$).
-Taking the lower EPR count of the two per instance gives $155.7$, a
-$9.4\%$ reduction on the better of them, and $150.5$ with \PORTER{}+R in
-place of \PORTER{}, $12.5\%$ below \dSABRE{}. The gain is largest where
-the two disagree most --- $16.4\%$ at 80 qubits against $2.5\%$ at 64 ---}
-and it is not an artefact of the two cheapest families: over the eighteen
-instances excluding GHZ and Graphstate it is still $8.0\%$ and \chg{$8.9\%$.}
+The results support a qualified conclusion. Under their native protocols,
+\PORTER{} and \dSABRE{} have nearly equal pooled EPR geometric means on the
+24 main-suite instances ($169.4$ and $171.9$, respectively), while
+\PORTER{}+R reduces the \PORTER{} figure to $156.7$ at a higher complete
+compile-time cost (Table~\ref{tab:main}). Neither compiler dominates
+per instance: \PORTER{} records 11 wins, 10 losses, and 3 ties against
+\dSABRE{}, and \PORTER{}+R records 14 wins, 8 losses, and 2 ties. The
+appropriate interpretation is therefore complementarity under the reported
+protocols, not a general ranking.
 
-That gap is what the pooled figure conceals, and it is the clearest
-evidence that the two designs are not interchangeable: a compiler that
-merely re-derived \dSABRE{}'s decisions by another route would leave a
-portfolio with nothing to choose between. A $9$--$12\%$ gain instead
-means each compiler reaches circuits the other does not, and by wide
-margins where it does --- 80-qubit Multiplier at \chg{$2{,}874$ pairs against
-$4{,}841$, 80-qubit QPEexact at $276$ against $347$, with \dSABRE{} ahead}
-elsewhere. Which of the differences between them produces any particular
-win is not something this measurement can say: the two differ at once in
-action vocabulary, candidate granularity, where preparation cost enters,
-commitment, initial layout, horizon policy and route budget, and the
-portfolio ranks outputs rather than separating causes. It is a property
-of the pair rather than of either compiler: it costs both routes
-\chg{($2.3\times$ \dSABRE{}'s compile time, thirteen routes to nine), and no rule}
-we tested predicts the winner in advance.
+\textbf{Complementarity is an oracle observation, not a deployable
+portfolio.} If both compilers are run and the lower EPR result is selected
+afterward, the per-instance oracle minimum is $155.7$ for \PORTER{} and
+$150.5$ for \PORTER{}+R, respectively. These values are $9.4\%$ and
+$12.5\%$ below \dSABRE{}'s pooled geometric mean. The gap persists after
+excluding GHZ and Graphstate, but it requires both compilation budgets and
+post-hoc knowledge of the outcome. No selector tested here predicts the
+winner in advance. Thus the result shows that the routers reach different
+local optima; it does not provide an operational portfolio policy.
 
-\textbf{Why \TeleData{}-only can beat the full action set.} Packets beat
-the single telegates they degrade into, yet a vocabulary with gate
-teleportation removed altogether --- \TeleData{} and nothing else --- \chg{is
-$19.8\%$ cheaper than the full action set over the 80-qubit circuits it
-completes, and cheaper on every one of them but QAOA, which it loses by
-$0.6\%$. The cause is a currency mismatch in the scorer: a packet's gain}
-counts remote CX gates resolved immediately, a \TeleData{} plan's a sum of
-core-distance reductions discounted over a bounded horizon. Nothing
-establishes the two are commensurate, and where a teleport repays past the
-horizon the comparator cannot see it. That is evidence the mismatch costs
-pairs at scale, not that spreading one pair over a run of gates is a bad
-idea.
+The controlled experiments help delimit, but do not fully explain, this
+difference. With the initial layout controlled, the two routers are close
+on the reported main suite, whereas changing the layout can have a larger
+effect (Table~\ref{tab:shared}). The ablations show that capacity relief
+and the \TeleGate{} family are important for completion under the tested
+capacity policy. The scale-up experiment associates the improvement on its
+QFT and QPEexact instances with long-horizon selection. These observations
+do not attribute any individual native-protocol win to a single design
+choice: the compilers also differ in primitive vocabulary, candidate
+granularity, commitment, preparation scoring, layout construction, horizon
+policy, and route budget.
+
+\textbf{The primitive ablation identifies a comparator question, not a
+verdict against packets.} On the 80-qubit suite, removing packets changes
+EPR only slightly on their common completed subset, and the direction varies
+by circuit. Strictly removing \TeleGate{} largely changes completion, so it
+does not yield a clean EPR aggregate. The auxiliary teleport-only diagnostic
+is not a one-factor ablation because it also changes relief eligibility.
+Together, these results motivate a better-calibrated comparison between
+immediate gate resolution and the delayed benefit of a \TeleData{} move.
+They do not establish that a restricted primitive set is globally preferable.
 
 \subsection{Future Work}
 \label{sec:future}
 
-\textbf{On the compiler itself.} Four openings, the first a completion
-guarantee to match \dSABRE{}'s. Adopting its recovery wholesale is the
-obvious route, and the capacity half is nearly in place --- both treat
-free slots as a legality condition with the same floor of two, and both
-relieve by breadth-first search to a reservoir
-(Section~\ref{sec:related}). What \dSABRE{} adds is atomicity: it relays
-the chain in one all-or-nothing transaction, where \PORTER{} re-plans each
-hop through the ordinary plan machinery, which is what lets the
-opportunistic tier compete with normal work at all
-(Section~\ref{sec:sfc-relief}). Nor would it buy what is missing.
-\PORTER{} never reaches the capacity deadlock that proof rules out, and
-the one failure we observe is a local-SWAP livelock --- heavy-hex star
-Multiplier at a fixed horizon --- with capacity healthy throughout. The
-guarantee needs a progress argument for the intra-core stage, not a
-stronger capacity transaction. One configuration is worth trying first,
-because two of our results point at it: \dSABRE{}'s proof is written for a
-teleport-only router, and a teleport-only vocabulary is the cheapest we
-measured at 80 qubits, so a \PORTER{} restricted to \TeleData{} is both
-where the guarantee is likeliest to transfer and where the pairs are ---
-though not for free, since that configuration completes twenty-one of the
-twenty-four instances here.
+\textbf{Completion and progress guarantees.} \PORTER{} verifies every
+emitted route and uses implementation guards to terminate a run, but it does
+not claim successful completion for every feasible input. A useful next step
+is to separate the capacity and intra-core progress questions. dSABRE's
+atomic relay mechanism may help establish a capacity argument, whereas the
+observed fixed-horizon failure on heavy-hex star Multiplier is a local-SWAP
+livelock with capacity remaining available. A completion proof for \PORTER{}
+therefore also requires a progress argument for local preparation. Any
+transfer of a teleport-only guarantee to a richer primitive vocabulary should
+be proved or tested explicitly rather than inferred from the present
+ablation.
 
-The other three: a horizon that scales with the core count $K$ ---
-$L_\mathrm{tp}$ is an absolute gate count, so a plan at twenty cores is
-scored over proportionally less of the circuit than at four, and every
-scale-up instance picks the longest candidate offered; a circuit
-statistic that predicts the horizon \chg{well enough to replace the portfolio
-with a single route --- the horizon acts on one moving qubit over a bounded
-depth, so a per-qubit or horizon-limited measure is the obvious candidate and
-is untried, and without one the horizon stays a portfolio whose candidate set
-was fixed on the corpus it is measured on (Section~\ref{sec:horizon}); and a
-comparator that weighs a resolved gate against a latent distance
-reduction on one scale, which the vocabulary result indicates the}
-present one does not. The mismatch is confined to
-$\mathrm{total}$ itself: the selection key of
-Section~\ref{sec:sfc-scoring} no longer carries a separate discounted
-term, so a scale on which a resolved gate and a latent distance
-reduction are commensurable would have to come from the summation, not
-from a tie-break.
+\textbf{Horizon selection and scoring.} The scale-up cases all select
+$L_\mathrm{tp}=128$, whereas the configured horizon is 16. This motivates
+two experiments: first, validate the fixed four-horizon portfolio on held-out
+families or architectures; second, test a predictor that can reduce the
+number of routes without being fitted and evaluated on the same corpus. A
+per-qubit or horizon-limited interaction statistic is one candidate, because
+the scoring decision concerns a moving qubit over bounded future depth.
+The selection key also compares immediate CX resolution with predicted
+distance reduction. Calibrating these quantities on a common scale, or
+learning a constrained ranking rule on held-out data, is a direct way to
+test whether the present comparator causes the vocabulary-dependent results.
 
-\textbf{Beyond EPR count.} The trace \PORTER{} emits is unscheduled, so a
-lower pair count does not by itself imply a shorter makespan or a
-higher-fidelity result. A scheduling pass should batch inter-core actions
-whose links, ports and preparation SWAPs do not conflict, and account for
-entanglement-generation rate, storage lifetime and gate
-error~\cite{baker2020time,ferrari2021compiler}; the objective should stay
-multi-objective, since pair count, depth and fidelity trade off in
-hardware-dependent ways. Lifetime bears on \PORTER{} in particular: a
-packet holds one cat resource open across a whole run, so a lifetime bound
-caps packet length in a way our cost model does not, and the vocabulary
-result above would have to be re-read under it.
+\textbf{Scheduling and hardware-aware objectives.} The output trace is
+unscheduled, so lower EPR consumption does not imply lower makespan or
+higher fidelity. A subsequent scheduler should exploit non-conflicting links,
+ports, and preparation SWAPs while accounting for entanglement generation
+rate, storage lifetime, and gate error~\cite{baker2020time,ferrari2021compiler}.
+The resulting objective should be multi-objective: EPR pairs, depth, and
+fidelity can trade off differently across hardware. In particular, a
+\TeleGatePacket{} keeps a cat resource live across a run; finite coherence
+or entanglement lifetime can limit useful packet length and may change the
+observed packet trade-off.
 
-\textbf{Richer interconnects.} Every device evaluated here gives adjacent
-cores a single link and each core one to four ports. Widening that is the
-free variable: a second link turns an occupied port from an obstacle into
-an alternative, relieving preparation cost first, and it interacts with
-the capacity discipline, since more ports mean more ways to spend and to
-recover a free slot. Where the return on added links falls off against
-their hardware cost is a question for interconnect co-design.
-
+\textbf{Interconnect and layout co-design.} The evaluated machines provide
+one link between adjacent cores and one to four ports per core. Additional
+links or ports may create alternative preparations when one port is occupied,
+but they also alter capacity management and hardware cost. The heavy-hex star
+result further suggests that initial-layout reserve should depend on
+core-graph role rather than be uniform. A systematic study should vary link
+multiplicity, port placement, core-graph centrality, and reserve allocation,
+then report EPR, completion, and scheduling-aware objectives together.

@@ -565,6 +565,30 @@ check("abl relief pct", 24.8,
       round(100 * (gmean([r["out"]["no_relief"]["epr"] for r in _ar])
                    / gmean([r["out"]["full"]["epr"] for r in _ar]) - 1), 1))
 check("abl relief failures", 5, len(abl_rows) - len(_ar))
+# V-C's naturalness argument for reporting the two settings as ONE
+# teleport-only configuration.  Strict removal of the TeleGate empties the
+# plan set outright on 7 of the 9 80q rows -- a DEADLOCK, not a cost --
+# because an adjacent blocked plan cannot seed relief while only
+# distance-reducing seeds are admitted.  Adding those seeds clears all seven.
+# NONE of these counts is quoted any more: the paragraph is two sentences and
+# says only that strict removal deadlocks, because tab:ablation now shows the
+# MERGED column (4 non-completions) and a "seven of nine" in the prose beside
+# it sends the reader looking for rows that are not there.  All are kept as
+# regression guards -- the merge argument rests on the two failures being
+# different in kind, so a silent change of mode should still fail.
+_td80r = [r for r in td_rows if r["suite"] == "80"]
+_strict = lambda r: (r["out"].get("teledata_only") or {}).get("epr")
+_lax = lambda r: (r["out"].get("teledata_only_relief") or {}).get("epr")
+_err = lambda r, k: ((r["out"].get(k) or {}).get("error") or "")
+check("td 80q strict completions", 2, sum(1 for r in _td80r if _strict(r)))
+check("td 80q strict deadlocks", 7,
+      sum(1 for r in _td80r
+          if not _strict(r) and "No legal action" in _err(r, "teledata_only")))
+check("td 80q merged completions", 5, sum(1 for r in _td80r if _lax(r)))
+check("td 80q merged deadlocks", 0,
+      sum(1 for r in _td80r if "No legal action" in _err(r, "teledata_only_relief")))
+check("td 80q merged livelocks", 4,
+      sum(1 for r in _td80r if "retired no gate" in _err(r, "teledata_only_relief")))
 # V-C: relief changes character with scale -- large EPR saving and no failures
 # below 80 qubits, small saving but five failures at 80.
 for _s, _want in (("25", 26.9), ("64", 36.4), ("80", -0.5)):
@@ -813,7 +837,7 @@ check("scaleup +R pct behind selection", 90,
 check("scaleup dSE-layout ratio", 0.85,
       round(gmean([r["sfc_on_dse_layout"]["epr"] for r in su_rows]) / _su_d, 2))
 # V-D now quotes the fixed-vs-selected horizon comparison directly (A06,
-# round 3): the default horizon loses all six at 1026.5 / 1.45x, selection
+# round 3): the default horizon loses all six at 1020.7 / 1.45x, selection
 # wins all six at 507.7 / 0.72x.  Same layouts, same instances, only the
 # horizon policy differs.
 _su_fixed = [hz_rows[f"scaleup/{r['suite']}/{r['circuit']}"]
@@ -884,6 +908,11 @@ check("star PORTER on dSABRE's layout gmean", 97.2,
 _ring = [r for r in hh_rows if r["topology"] == "ring"]
 check("ring PORTER on dSABRE's layout gmean", 82.9,
       round(gmean([r["porter_on_dse"]["epr"] for r in _ring]), 1))
+# V-E: the ring gap between the two native protocols.  Quoted as "within 1%"
+# until 2026-09-06, when it is 1.1% -- a bound that rounds the wrong way.
+check("ring native gap pct", 1.1,
+      round(100 * (gmean([r["porter"]["epr"] for r in _ring])
+                   / gmean([r["dSE"]["epr"] for r in _ring]) - 1), 1))
 
 # Sec IV-J: per-ROUTE cost.  PORTER's protocol is |H| routes, so its
 # per-route cost is its protocol time / |H| -- comparing dSABRE's per-route
@@ -1012,6 +1041,19 @@ _d = sorted(round(100 * (r["sfc_refined"]["epr"] / r["telesabre"]["epr"] - 1), 1
 check("dTS best", -81.0, _d[0])
 check("dTS worst", -23.2, _d[-1])
 check("dTS all negative", True, all(x < 0 for x in _d))
+# V-A quotes the range for PORTER's OWN protocol, not for +R.  The two differ
+# at the best end -- -81.0% is +R's 25q Graphstate, PORTER's own best is
+# -76.9% on 25q QNN -- and the prose mixed the legs until 2026-09-06.  Both
+# ranges are pinned so the mix-up cannot recur in either direction.
+_dsel = sorted(round(100 * (r["sfc"]["epr"] / r["telesabre"]["epr"] - 1), 1)
+               for r in _ts)
+check("dTS(PORTER) best", -76.9, _dsel[0])
+check("dTS(PORTER) worst", -23.2, _dsel[-1])
+check("dTS(PORTER) all negative", True, all(x < 0 for x in _dsel))
+# V-A: refinement narrows the one suite PORTER loses under its own protocol.
+check("P+R 64q ratio vs dSABRE", 1.04,
+      round(gmean([r["sfc_refined"]["epr"] for r in cmp_rows if r["suite"] == "64"])
+            / gmean([r["dSE"]["epr"] for r in cmp_rows if r["suite"] == "64"]), 2))
 # "PORTER+R wins seven, loses thirteen, ties four"
 _w = sum(1 for r in _pr if r["sfc_refined"]["epr"] < r["dSE"]["epr"])
 _l = sum(1 for r in _pr if r["sfc_refined"]["epr"] > r["dSE"]["epr"])

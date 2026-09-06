@@ -198,11 +198,17 @@ def tab_ablation():
     out = []
     for k in shown("80"):
         a, t = A[k], T[k]
+        # ONE teleport-only configuration since 2026-09-06: removing the
+        # TeleGate family also withdraws the recovery it was implicitly
+        # supplying, so relief is seeded from adjacent blocked plans too.
+        # That seeding is inert whenever the TeleGate is available (full and
+        # full_relief are EPR-identical everywhere), so it changes nothing on
+        # the Full side and the column compares vocabularies at equal
+        # capacity discipline.  There is no longer a ddagger to carry.
         td = ep(t, "teledata_only_relief")
-        mark = "" if ep(t, "teledata_only") is not None else "$^{\\ddagger}$"
         g = lambda v: "$^{\\dagger}$" if v is None else str(v)
         tdc = ("$^{\\dagger}$" if td is None else
-               (f"\\textbf{{{td}}}{mark}" if td < ep(a, "full") else f"{td}{mark}"))
+               (f"\\textbf{{{td}}}" if td < ep(a, "full") else f"{td}"))
         out.append(f"{k[1]:<11} & {ep(a,'full'):>5} & {g(ep(a,'no_packets')):>5} & "
                    f"{g(ep(a,'no_relief')):>5} & {tdc} & {cnt(k,'packets'):>4} & "
                    f"{cnt(k,'telegates'):>4} \\\\")
