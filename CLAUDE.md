@@ -56,6 +56,62 @@ Script and harness now live in `todel/` (`porter_under_layouts.py`,
 | `experiments/compare_heavyhex.py` | PORTER vs dSABRE on the dSABRE paper's two heavy-hex architectures (ring/star, 4x27q) -> `paper/heavyhex_results.json`; see the section below |
 | `paper/action_mix.py` | Regenerates the paper's action-mix table (TeleData by provenance, telegates, packets + sizes) by rerunning PORTER own-protocol; cross-checks every counter against `paper/compare_results.json` |
 
+## Manuscript review workflow
+
+Protocol: `~/Documents/pyzoo/protocol/manuscript-review-protocol/README.md`.
+External model = referee (structured findings only). Claude Code = revision
+engine (verified minimal diffs only). Author = scientific authority.
+
+### Non-negotiable
+- External LLM review is unverified reviewer feedback, not ground truth.
+- A finding contradicting a machine-checked number is presumptively wrong ---
+  EXCEPT on a ratio or a percentage below ~3, where `check()`'s tolerance must
+  be read first (it is scale-aware since 2026-09-04; before that a flat
+  +-0.05 let a `0.45x` pin stand against a true `0.50x`).
+- Never invent citations, results, proofs or experimental interpretations.
+- Never move a theorem, algorithm, number or conclusion without stating the
+  scientific consequence.
+- Minimal LaTeX edits; preserve labels, refs, BibTeX keys, notation.
+- `NEEDS_EVIDENCE` is the author's alone and is never closed by rewording ---
+  but search the released results and harnesses first: in round 3 the
+  experiment a referee called missing was already in the released data.
+
+### Build chain --- after every batch, in this order
+
+```bash
+cd paper
+python gen_tables_selection.py --write   # generator FIRST
+python verify_tex_tables.py              # LaTeX rows vs JSON
+python verify_paper_numbers.py           # prose claims vs JSON + RouterConfig
+python verify_horizon_claims.py          # IV-E vs paper/horizon_sweep/
+pdflatex sfc && bibtex sfc && pdflatex sfc && pdflatex sfc
+pdflatex sfc_appendix && bibtex sfc_appendix && pdflatex sfc_appendix
+```
+
+Generator FIRST, or the batch verifies against a stale table. `sfc` before
+`sfc_appendix`, which reads `sfc.aux` via `xr`. After a prose batch also run
+the orphaned-label sweep and `grep -nE "\. +[a-z]" paper/sections/*.tex`.
+
+### Standing facts (each earned; the dated sections below are the evidence)
+- **A green verifier is NOT evidence the prose is current.** The checkers
+  assert what the paper is supposed to say; when the code or data moves,
+  tables and pins get updated and sentences do not. Cost three rounds here.
+- **Counts die when a basis narrows; percentages usually survive.** Re-derive
+  every count whenever a row set, completion set or instance set changes.
+- **A table nothing parses will go stale, and the prose beside it with it.**
+- Attach PDFs to the referee, never the LaTeX: `sfc.tex` is a driver plus nine
+  `\input`s, so source line numbers are useless in a report.
+
+### Artefacts, per round, under `paper/review/`
+`paper_brief.md` - `resolved_findings.md` (rebuilt from the CURRENT
+manuscript, never from a response letter) - `<model>_{A,B,C}_round<N>.md`
+saved verbatim - `triage_round<N>.md` (labels: `ACCEPT` /
+`ACCEPT_WITH_SCOPE_CHANGE` / `NEEDS_EVIDENCE` / `REJECT` / `UNCERTAIN`; no
+file edits) - `changelog_round<N>.md`. Tag `paper-round<N>-pre` / `-post`, and
+bump `BASE` in `paper/remark_highlights.py` to the pre tag so `\chg{}` marks
+the round. Rounds 1-4 are retired to `todel/review/` and
+`todel/paper/responses_to_reviews.md`.
+
 ## Paper rewritten to 12 pages, reframed (2026-08-28)
 
 **Ablation section audit (same day).** After the compression the Mechanism
