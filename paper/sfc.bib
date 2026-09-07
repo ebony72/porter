@@ -181,13 +181,14 @@
   year    = {2020}
 }
 
-@inproceedings{daei2020optimized,
-  title     = {Optimized quantum circuit partitioning},
-  author    = {Daei, O. and Navi, K. and Zomorodi-Moghadam, M.},
-  booktitle = {International Journal of Theoretical Physics},
-  volume    = {59},
-  pages     = {3804--3820},
-  year      = {2020}
+@article{daei2020optimized,
+  title   = {Optimized quantum circuit partitioning},
+  author  = {Daei, O. and Navi, K. and Zomorodi-Moghadam, M.},
+  journal = {International Journal of Theoretical Physics},
+  volume  = {59},
+  pages   = {3804--3820},
+  year    = {2020},
+  doi     = {10.1007/s10773-020-04633-8}
 }
 
 @inproceedings{bandic2022interaction,
@@ -290,15 +291,23 @@
   title     = {{AutoComm}: A Framework for Enabling Efficient Communication in Distributed Quantum Programs},
   author    = {Wu, Anbang and Zhang, Hezi and Li, Gushu and Shabani, Alireza and Xie, Yuan and Ding, Yufei},
   booktitle = {Proceedings of the 55th IEEE/ACM International Symposium on Microarchitecture (MICRO)},
+  pages     = {1027--1041},
   year      = {2022},
+  doi       = {10.1109/MICRO56248.2022.00074},
   note      = {arXiv:2207.11674}
 }
 
-@inproceedings{escofet2023hqa,
-  title     = {{HQA}: A Hungarian-based Qubit Assignment for Multi-Core Quantum Computers},
-  author    = {Escofet, Pau and Bandic, Medina and Almudever, Carmen G. and Feld, Sebastian},
-  booktitle = {Proceedings of the IEEE Quantum Software Conference},
-  year      = {2023}
+@article{escofet2023hqa,
+  title   = {{Hungarian} qubit assignment for optimized mapping of quantum
+             circuits on multi-core architectures},
+  author  = {Escofet, Pau and Ovide, Anabel and Almudever, Carmen G. and
+             Alarc{\'o}n, Eduard and Abadal, Sergi},
+  journal = {IEEE Computer Architecture Letters},
+  volume  = {22},
+  number  = {2},
+  pages   = {161--164},
+  year    = {2023},
+  doi     = {10.1109/LCA.2023.3318857}
 }
 
 @inproceedings{lin2023scalable,
@@ -407,15 +416,19 @@
   year    = {2025}
 }
 
-@article{escofet2024review,
+@article{escofet2025review,
   title   = {Revisiting the mapping of quantum circuits: Entering the
              multi-core era},
   author  = {Escofet, Pau and Ovide, Anabel and Bandic, Medina and
-             Prielinger, Lukas and Almudever, Carmen G. and Feld, Sebastian
-             and Alarc{\'o}n, Eduard and Abadal, Sergi},
+             Prielinger, Luise and Van Someren, Hans and Feld, Sebastian
+             and Alarc{\'o}n, Eduard and Abadal, Sergi and
+             Almudever, Carmen G.},
   journal = {ACM Transactions on Quantum Computing},
-  year    = {2024},
-  note    = {arXiv:2403.17205}
+  volume  = {6},
+  number  = {1},
+  pages   = {4:1--4:26},
+  year    = {2025},
+  doi     = {10.1145/3655029}
 }
 
 @inproceedings{burt2024gcp,
@@ -541,4 +554,67 @@
              Circuits and Systems},
   year    = {2025},
   note    = {Code: \url{https://github.com/RoccoLoter/DMapS}}
+}
+
+@inproceedings{sundaram2021efficient,
+  title     = {Efficient distribution of quantum circuits},
+  author    = {Sundaram, Ranjani G. and Gupta, Himanshu and
+               Ramakrishnan, C. R.},
+  booktitle = {Proceedings of the 35th International Symposium on
+               Distributed Computing (DISC)},
+  series    = {LIPIcs},
+  volume    = {209},
+  pages     = {41:1--41:20},
+  year      = {2021},
+  doi       = {10.4230/LIPIcs.DISC.2021.41}
+}
+
+@inproceedings{ovide2023mapping,
+  title     = {Mapping quantum algorithms to multi-core quantum computing
+               architectures},
+  author    = {Ovide, Anabel and Rodrigo, Santiago and Bandic, Medina and
+               Van Someren, Hans and Feld, Sebastian and Abadal, Sergi and
+               Alarc{\'o}n, Eduard and Almudever, Carmen G.},
+  booktitle = {Proceedings of the IEEE International Symposium on Circuits
+               and Systems (ISCAS)},
+  pages     = {1--5},
+  year      = {2023},
+  doi       = {10.1109/ISCAS46773.2023.10181589},
+  note      = {arXiv:2303.16125}
+}
+
+@article{ang2024arquin,
+  title   = {{ARQUIN}: Architectures for multinode superconducting quantum
+             computers},
+  author  = {Ang, James and Carini, Gabriella and Chen, Yanzhu and
+             Chuang, Isaac and DeMarco, Michael and others},
+  journal = {ACM Transactions on Quantum Computing},
+  volume  = {5},
+  number  = {3},
+  pages   = {19:1--19:59},
+  year    = {2024},
+  doi     = {10.1145/3674151}
+}
+
+@article{zhou2022mcts,
+  title   = {Quantum circuit transformation: A {Monte Carlo} tree search
+             framework},
+  author  = {Zhou, Xiangzhen and Feng, Yuan and Li, Sanjiang},
+  journal = {ACM Transactions on Design Automation of Electronic Systems},
+  volume  = {27},
+  number  = {6},
+  pages   = {59:1--59:27},
+  year    = {2022},
+  doi     = {10.1145/3514239}
+}
+
+@inproceedings{li2023singlequbit,
+  title     = {Single-qubit gates matter for optimising quantum circuit depth
+               in qubit mapping},
+  author    = {Li, Sanjiang and Nguyen, Ky Dan and Clare, Zachary and
+               Feng, Yuan},
+  booktitle = {Proceedings of the IEEE/ACM International Conference on
+               Computer Aided Design (ICCAD)},
+  year      = {2023},
+  doi       = {10.1109/ICCAD57390.2023.10323863}
 }

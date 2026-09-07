@@ -7,10 +7,11 @@ over the zero-predecessor DAG frontier with a locality-first priority
 stage**: whole `RemotePlan` alternatives are compared first, one is
 committed, and preparation SWAPs are then generated for that plan alone.
 Compared against TeleSABRE (`../other/telesabre/`) and dSABRE
-(`../dsabre/`).  The algorithm is documented in
-`paper/对比实验结果及算法概述.pdf`, whose Algorithm 1 and config table map 1:1
-onto `RouterConfig` defaults (`f_min=min_free_before_teleport`,
-`m_assist=capacity_relief_assist_margin`, …).
+(`../dsabre/`).  The algorithm is documented in `paper/sfc.tex` Sec. III,
+whose Algorithm 1 and parameter table map 1:1 onto `RouterConfig` defaults
+(`f_min=min_free_before_teleport`,
+`m_assist=capacity_relief_assist_margin`, …).  The original Chinese
+algorithm-overview PDF was retired to `todel/paper/` on 2026-09-07.
 
 (Historical names: the project was briefly called "SFC"; the router class
 was `DistributedRouter`, kept as an alias of `PorterRouter`; the original
@@ -25,11 +26,16 @@ reservation, within-core slots by descending weight onto
 ascending-centrality positions. It replaced the balanced-first-layer /
 seeded-locality best-of-6 search, which it beats on 14/16 paper instances
 (gmean EPR 55.4 vs 92.0) and 14/15 held-out circuits; with it PORTER's
-own-protocol gmean beats dSABRE's best-of-3 on all three suites. Legacy
-builders survive only for the paper's layout study
-(`paper/porter_under_layouts.py`): `compile_porter.build_balanced_first_layer_layout`
-and `compare_routers.build_seeded_locality_layout`. Benchmark harness:
-`merged_layout_prototype.py`.
+own-protocol gmean beats dSABRE's best-of-3 on all three suites.
+**The legacy builders are gone** (2026-09-07):
+`compile_porter.build_balanced_first_layer_layout` (with its private
+`_first_cx_layer`) and `compare_routers.build_seeded_locality_layout` were
+removed together with their sole caller, `paper/porter_under_layouts.py`,
+whose results file had already been retired and which the manuscript never
+cited.  Removal is output-preserving: op-stream SHA, `seeded_tie_break_count`,
+EPR, SWAPs and depth are identical on 6 circuits, 20/20 fuzz trials pass.
+Script and harness now live in `todel/` (`porter_under_layouts.py`,
+`merged_layout_prototype.py`).
 
 ## Files
 
@@ -3665,3 +3671,35 @@ order for a six-term key that `df034da` cut to three; C.7 priced $+$S at
 $2.9\times$/$2.4\%$ against $+$R (now $1.9\times$/$1.8\%$, 6 of 24 improved);
 and D still said the own protocol is 3 routes. All four rewritten.
 `responses_to_reviews.md` s1.1 is still stale on the same front-cap point.
+
+## Repo cleaned for submission and release (2026-09-07)
+
+The tree now holds exactly what the paper, the appendix and the online repo
+need.  Everything retired went to **`todel/`** (gitignored staging, nothing
+deleted), so any of it can be restored with a `mv`.
+
+**Retired docs**: `paper/review/` (the round-3 Copilot packet),
+`paper/responses_to_reviews.md`, `paper/horizon_open_question.md`,
+`docs/telesabre-evaluation-notes.md`, and
+`paper/对比实验结果及算法概述.pdf`.  **The dated sections above still refer
+to these** -- they are a chronological log and were not rewritten; look in
+`todel/` for anything an old entry cites.
+
+**Retired code**: `bench_refine_on_selection.py`, `merged_layout_prototype.py`
+and `bench_telesabre_config.py` (their results files had already been moved to
+`todel/paper/` in an earlier pass), plus `paper/porter_under_layouts.py` and
+the two legacy layout builders it alone called -- see the Initial-layout
+section above for the output-preserving evidence.
+
+**Kept, and worth knowing why**: `plan_commitment_results.json` and
+`bench_plan_commitment.py`.  An entry above says the JSON "is no longer read
+by any verifier"; that is **wrong** -- `verify_paper_numbers.py:21` loads it
+and four checks use it.
+
+`paper/horizon_sweep/` and `paper/local_routing/` are kept whole: they are
+released artefacts cited by IV-E and V, and `verify_horizon_claims.py` reads
+from the former.
+
+Post-clean state: both documents build (13 pp. + 8 pp., zero overfull, no
+unresolved refs), the generator is idempotent, all three paper verifiers
+pass, 20/20 fuzz trials and 100/100 fault-injection mutants pass.

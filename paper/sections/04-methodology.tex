@@ -154,9 +154,10 @@ Selection rule \\
 
 The teleport-lookahead horizon $L_\mathrm{tp}$ determines how many DAG
 layers are examined when scoring a \TeleData{} candidate. An offline sweep
-over $\{4,8,\ldots,1024\}$ found no single best value: the per-instance
-optimum spans the range, 80-qubit QNN selecting $16$ where all six
-100--360-qubit scale-up instances select $128$. We therefore apply the same
+over $\{4,8,16,32,48,64,128,256\}$ found no single best value: the
+per-instance optimum spans that whole range, and within the portfolio below
+80-qubit QNN selects $16$ where all six 100--360-qubit scale-up instances
+select $128$. We therefore apply the same
 fixed portfolio to every circuit,
 \[
 L_\mathrm{tp}\in\{4,8,16,128\},
@@ -215,7 +216,8 @@ one pair per packet. Under the cost model of Section~\ref{sec:scope}, these are 
 same physical resource. We also report intra-core SWAP counts and wall-clock compile time,
 but no selection rule trades either against EPR count.
 
-Aggregate EPR results are unweighted geometric means over circuits. For a
+Aggregate EPR and compile-time results are unweighted geometric means
+over circuits. For a
 comparison of methods $a$ and $b$, the reported ratio is $b/a$ and the
 percentage change $100(b/a-1)$, both computed from the aggregate means. A
 ratio below one, equivalently a negative percentage, means $b$ uses fewer

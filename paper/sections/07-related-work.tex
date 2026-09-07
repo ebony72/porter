@@ -50,7 +50,11 @@ horizon-portfolio experiments is empirical evidence, not a proof.
 \textbf{Partition-first and communication-amortising approaches.}
 Partition-first compilers assign logical qubits to cores by hypergraph or
 community structure and route the remaining inter-core
-interactions~\cite{escofet2023hqa,pytketdqc2024,daei2020optimized}.
+interactions~\cite{escofet2023hqa,pytketdqc2024,daei2020optimized}. The
+two-stage formulation dates to the earliest DQC compilers: one line divides
+the qubits among cores and then schedules teleportation-based migrations
+until every gate is local~\cite{sundaram2021efficient}, another poses
+multi-core mapping as partitioning over time~\cite{ovide2023mapping}.
 \texttt{pytket-dqc}~\cite{pytketdqc2024} is used here as an external layout source, not as a directly comparable EPR-router baseline: its e-bit
 model assumes different entanglement lifetime and communication-memory
 conditions. AutoComm~\cite{wu2022autocomm} identifies remote gate sequences
@@ -58,7 +62,9 @@ that can share an entangled resource. \PORTER{} adapts the amortisation idea
 inside its online routing loop through \TeleGatePacket{}, rather than using a
 separate pre-pass. Finally, \SABRE{}~\cite{li2019tackling} supplies the
 front-plus-lookahead routing framework from which the online routers draw
-their scoring structure.
+their scoring structure; within a single core that framework has been
+extended with deeper search~\cite{zhou2022mcts} and with depth-aware
+objectives that account for single-qubit gates~\cite{li2023singlequbit}.
 
 Table~\ref{tab:taxonomy} summarises the comparison. ``Not applicable'' does
 not mean that a system lacks the capability; it means that the axis is not

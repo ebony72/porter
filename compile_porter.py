@@ -257,21 +257,6 @@ def convert_layout(layout, hw: porter.Hardware, num_logical: int) -> porter.Layo
     return porter.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
 
 
-def _first_cx_layer(gates: List[porter.Gate]) -> List[Tuple[int, int]]:
-    busy: set[int] = set()
-    layer: List[Tuple[int, int]] = []
-    for gate in gates:
-        if not gate.is_cx():
-            continue
-        q0, q1 = gate.qubits
-        if q0 in busy or q1 in busy:
-            continue
-        layer.append((q0, q1))
-        busy.add(q0)
-        busy.add(q1)
-    return layer
-
-
 def build_initial_layout(
     gates: List[porter.Gate],
     hw: porter.Hardware,
@@ -283,9 +268,8 @@ def build_initial_layout(
     """PORTER's initial layout: deterministic temporal locality-greedy.
 
     Single-shot and seed-free -- this is the one initial mapping PORTER
-    uses (it replaced the balanced-first-layer / seeded-locality best-of-6
-    search on 2026-07-12; see ``build_balanced_first_layer_layout`` below
-    for the legacy heuristic kept for the paper's layout study).
+    uses (it replaced a balanced-first-layer / seeded-locality best-of-6
+    search on 2026-07-12).
 
     1. Every CX contributes ``gamma**layer`` to its qubit pair's weight,
        where ``layer`` is the gate's ASAP level in the CX-only DAG: early
@@ -379,93 +363,6 @@ def build_initial_layout(
         for p in slots[len(logicals):]:
             phys_to_virt[p] = dummy
             dummy += 1
-    return porter.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
-
-
-def build_balanced_first_layer_layout(
-    gates: List[porter.Gate],
-    hw: porter.Hardware,
-    num_logical: int,
-    seed: int,
-    *,
-    min_free_per_core: int,
-) -> porter.Layout:
-    """Legacy balanced-first-layer heuristic (pre-2026-07-12 default),
-    kept only for the paper's initial-mapping study
-    (``paper/porter_under_layouts.py``)."""
-    num_physical = len(hw.phys_to_core)
-    if num_logical > num_physical:
-        raise ValueError(f"Circuit has {num_logical} logical qubits but hardware has {num_physical} physical qubits")
-
-    core_order = sorted(hw.cores)
-    remaining_capacity: Dict[int, int] = {
-        cid: max(0, len(hw.cores[cid].physical_qubits) - min_free_per_core)
-        for cid in core_order
-    }
-    if sum(remaining_capacity.values()) < num_logical:
-        raise ValueError(
-            "Initial layout cannot reserve "
-            f"{min_free_per_core} free qubits per core for {num_logical} logical qubits"
-        )
-
-    logical_to_core: Dict[int, int] = {}
-    core_to_logicals: Dict[int, List[int]] = {cid: [] for cid in core_order}
-
-    def choose_core(required_slots: int) -> int:
-        candidates = [cid for cid in core_order if remaining_capacity[cid] >= required_slots]
-        if not candidates:
-            raise ValueError(f"No core has {required_slots} reserved-capacity slots left")
-        return min(candidates, key=lambda cid: (-remaining_capacity[cid], cid))
-
-    def place(q: int, cid: int) -> None:
-        if q in logical_to_core:
-            return
-        logical_to_core[q] = cid
-        core_to_logicals[cid].append(q)
-        remaining_capacity[cid] -= 1
-
-    for q0, q1 in _first_cx_layer(gates):
-        if q0 in logical_to_core and q1 in logical_to_core:
-            continue
-        if q0 in logical_to_core or q1 in logical_to_core:
-            placed = q0 if q0 in logical_to_core else q1
-            unplaced = q1 if placed == q0 else q0
-            placed_core = logical_to_core[placed]
-            if remaining_capacity[placed_core] > 0:
-                place(unplaced, placed_core)
-            else:
-                place(unplaced, choose_core(1))
-            continue
-
-        cid = choose_core(2)
-        place(q0, cid)
-        place(q1, cid)
-
-    for q in range(num_logical):
-        if q not in logical_to_core:
-            place(q, choose_core(1))
-
-    rng = random.Random(seed)
-    phys_to_virt = [-1] * num_physical
-    dummy = num_logical
-    for cid in core_order:
-        physical = list(hw.cores[cid].physical_qubits)
-        rng.shuffle(physical)
-        logicals = list(core_to_logicals[cid])
-        logicals.sort()
-        if len(logicals) > len(physical):
-            raise ValueError(f"Core {cid} has more assigned logical qubits than physical qubits")
-
-        for p, q in zip(physical, logicals):
-            phys_to_virt[p] = q
-        for p in physical[len(logicals):]:
-            phys_to_virt[p] = dummy
-            dummy += 1
-
-    if any(v < 0 for v in phys_to_virt):
-        missing = [p for p, v in enumerate(phys_to_virt) if v < 0]
-        raise ValueError(f"Initial layout did not assign physical qubits: {missing}")
-
     return porter.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
 
 

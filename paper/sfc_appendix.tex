@@ -12,6 +12,7 @@
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{xcolor}
 
 %% ---- Round-3 revision highlighting -------------------------------------
 %% ... marks text changed in the round-3 revision.  Flip the \newif to
@@ -44,7 +45,6 @@
   catline/.style={densely dashed,blue!60!black,semithick},
 }
 
-\usepackage{xcolor}
 \usepackage{url}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 
@@ -123,9 +123,9 @@ qubits, which is why published AE files stop near $54$~qubits. Since the
 Bernoulli operator $Q$ is a single-qubit rotation, we instead supply the
 power analytically, $Q^{2^{j}}=R_Y(2^{j+1}\theta_p)$ ($R_Y$ periodic in
 $4\pi$), and otherwise run \texttt{mqt.bench}'s own native-gate
-transpilation unchanged. The CNOT sub-sequence---which alone determines
-routing---is decomposition-invariant in these rotation angles and is
-byte-identical to stock \texttt{mqt.bench} at every size the latter can
+transpilation unchanged. The CNOT sub-sequence---which determines the two-qubit routing
+instance under the cost model used here---is decomposition-invariant in
+these rotation angles and is byte-identical to stock \texttt{mqt.bench} at every size the latter can
 build (verified at $10$, $20$, $25$, and $28$~qubits); only the
 routing-irrelevant single-qubit angles carry floating-point error at
 high bit indices.
@@ -144,9 +144,9 @@ full entanglement; \texttt{RealAmplitudes}, \texttt{reps}=1) and
 transpiling it to our basis; at 64 qubits this reproduces the checked-in
 1.1.0 file's CNOT sub-sequence byte-for-byte (identical ordered pair
 sequence, all $\binom{64}{2}$ interacting pairs, 8{,}126 CX), so the
-80-qubit instance (a fully-connected $\binom{80}{2}$-edge interaction
-graph, 12{,}718 CX) is a faithful extrapolation of the same
-construction. Table~\ref{tab:circuits} lists the CX count
+80-qubit instance (a fully connected $\binom{80}{2}$-edge interaction
+graph with 12{,}718 CX gates) is a reproducible extrapolation of the
+same construction. Table~\ref{tab:circuits} lists the CX count
 of every benchmark instance used in the paper.
 
 \begin{table}[h]
@@ -261,13 +261,15 @@ the grid on the geometric mean, $164.1$ against \PORTER{}'s $167.2$
 \PORTER{}'s eight, with four ties. \PORTER{}'s worst relative row is
 80q QNN ($1{,}408$ against $827$).
 
-The two aggregates disagree in sign, and the disagreement is the same
-one \mainSharedResults{} draws on: summed over the grid \PORTER{} spends
-$22{,}615$ EPR pairs against \dSABRE{}'s $25{,}123$, $10.0\%$ fewer,
-because one row dominates the total --- 80q Multiplier, where \PORTER{}
-uses $2{,}805$ against $6{,}622$. An unweighted geometric mean over
-instances spanning three orders of magnitude in cost is insensitive to
-exactly that. We report both and claim neither as the grid's verdict.
+The aggregate changes with the estimand. The instance-weighted geometric
+mean favours \dSABRE{}, whereas the total EPR count favours \PORTER{}:
+summed over the grid, \PORTER{} spends $22{,}615$ EPR pairs against
+\dSABRE{}'s $25{,}123$ ($10.0\%$ fewer). This total is dominated by 80q
+Multiplier, on which \PORTER{} uses $2{,}805$ pairs against $6{,}622$.
+Conversely, the unweighted geometric mean attenuates such high-cost rows.
+We therefore treat the geometric mean as the primary per-instance summary
+and report the total as a workload-weighted sensitivity analysis, rather
+than presenting either aggregate as a universal verdict.
 Pooled with the \TeleSABRE{}-layout grid of \mainSharedTable{} of the
 main paper, \dSABRE{} uses fewer EPR pairs on twenty of the forty-one
 fixed-layout instances, \PORTER{} on sixteen, with five ties
@@ -276,9 +278,8 @@ fixed-layout instances, \PORTER{} on sixteen, with five ties
 The grid above feeds pytket-dqc's partition to \PORTER{} as a
 controlled probe. The complementary pipeline question -- offering the
 same partition to \PORTER{} as an optional extra layout candidate
-beside its own, which lowers geometric-mean EPR by a further $16\%$ on
-the most partitionable circuits but is kept opt-in on cost and
-robustness grounds -- is a configuration study of \PORTER{} itself
+beside its own, which can lower EPR consumption on a small subset of
+instances but remains opt-in because of its cost and robustness trade-offs -- is a configuration study of \PORTER{} itself
 rather than part of this comparison, and is deferred to
 Appendix~\ref{app:optin}.
 
@@ -288,8 +289,9 @@ Appendix~\ref{app:optin}.
 Appendix~\ref{app:pytket} feeds pytket-dqc's partition to \PORTER{} as a
 controlled probe. The same partition can also be offered to \PORTER{} as
 one extra layout candidate beside its own (\mainInitialLayout{}), routing
-both and keeping the lower EPR count. That construction cannot lose, so
-the question is only what it gains and what it costs.
+both and keeping the lower EPR count. Conditional on both routes completing, selecting the lower-EPR route cannot
+increase EPR consumption. The relevant questions are therefore the size of
+that conditional gain, its preprocessing cost, and its robustness.
 \mainSharedResults{} states the conclusion; this appendix gives the
 figures behind it.
 
@@ -301,8 +303,8 @@ twenty-four, and the three largest margins are Graphstate at each width
 ($7\!\to\!4$, $20\!\to\!10$, $28\!\to\!10$); GHZ contributes
 $4\!\to\!3$, $6\!\to\!5$ and a tie. Everything else it wins, it wins
 narrowly. On the dense circuits it is the worse start and the best-of
-simply keeps \PORTER{}'s own layout (64q~QNN $638$ against $800$,
-64q~Random $737$ against $787$, 80q~AE $299$ against $385$).
+simply keeps \PORTER{}'s own layout (64q~QNN $550$ against $800$,
+64q~Random $732$ against $787$, 80q~AE $265$ against $385$).
 
 \textbf{What it costs.} Table~\ref{tab:pytkettime} times the
 best-of-three KaHyPar partition against \PORTER{}'s own layout
@@ -345,7 +347,7 @@ Suite & Circuit & CX & time & vs.\ layout & 4 routes \\
 }
 \end{table}
 
-\textbf{Why it stays opt-in.} The gain is $0.4\%$ once the two smallest
+\textbf{Why it stays opt-in.} The gain is $0.4\%$ once the two lowest-CX
 circuit families are set aside, and it is bought at a preprocessing cost
 that exceeds the whole compilation. A third consideration is
 robustness: the partition reintroduces an external dependency that
@@ -402,20 +404,20 @@ all pass. Two further artefacts make these checks concrete: a
 \toprule
 \# & emitted operation & verifier asserts \\
 \midrule
-0 & \texttt{swap} $\phys{3}{\leftrightarrow}\phys{4}$ &
+0 & \texttt{local\_swap} $\phys{3}{\leftrightarrow}\phys{4}$ &
     coupling edge; operands sit where the replayed layout says \\
 \midrule
 1 & \texttt{cat\_entangler} $\logi{0}$; $(\phys{5},\phys{12})$; 1 EPR &
     no section already open; \emph{exact} port pair of $(c_0,c_1)$;
     both ports free; $\logi{0}$ adjacent to $\phys{5}$; opens section,
     reserving $\phys{5},\phys{12}$ \\
-2 & \texttt{swap} $\phys{10}{\leftrightarrow}\phys{9}$ \hfill route $\logi{1}$ &
+2 & \texttt{local\_swap} $\phys{10}{\leftrightarrow}\phys{9}$ \hfill route $\logi{1}$ &
     tagged as packet routing; touches neither reserved port \\
 3 & \texttt{cat\_cx} $g_1$ $(\phys{12},\phys{9})$ &
     $g_1$ at the head of \emph{both} $\logi{0}$'s and $\logi{1}$'s
     queues; control $=$ section control; proxy is the target-side
     port $\phys{12}$; target in $c_1$, adjacent to $\phys{12}$ \\
-4 & \texttt{swap} $\phys{13}{\leftrightarrow}\phys{14}$ \hfill route $\logi{2}$ &
+4 & \texttt{local\_swap} $\phys{13}{\leftrightarrow}\phys{14}$ \hfill route $\logi{2}$ &
     as op 2 \\
 5 & \texttt{cat\_cx} $g_2$ $(\phys{12},\phys{13})$ & as op 3 \\
 6 & \texttt{cat\_cx} $g_3$ $(\phys{12},\phys{15})$ &
@@ -423,15 +425,15 @@ all pass. Two further artefacts make these checks concrete: a
 7 & \texttt{cat\_disentangler} &
     a section is open; closes it, releasing the ports \\
 \midrule
-8 & \texttt{swap} $\phys{6}{\leftrightarrow}\phys{7}$ & coupling edge \\
+8 & \texttt{local\_swap} $\phys{6}{\leftrightarrow}\phys{7}$ & coupling edge \\
 9 & \texttt{local\_cx} $g_5$ $(\phys{4},\phys{7})$ &
     queue heads; same core; coupling edge \\
-10 & \texttt{swap} $\phys{13}{\leftrightarrow}\phys{14}$ & coupling edge \\
+10 & \texttt{local\_swap} $\phys{13}{\leftrightarrow}\phys{14}$ & coupling edge \\
 11 & \texttt{teleport} $\logi{5}$: $\phys{13}{\to}\phys{5}$; 1 EPR &
     cores adjacent; exact port pair $(\phys{12},\phys{5})$; both
     ports free; $\logi{5}$ adjacent to $\phys{12}$; lands exactly on
     $\phys{5}$ \\
-12 & \texttt{swap} $\phys{4}{\leftrightarrow}\phys{5}$ & coupling edge \\
+12 & \texttt{local\_swap} $\phys{4}{\leftrightarrow}\phys{5}$ & coupling edge \\
 13 & \texttt{local\_cx} $g_4$ $(\phys{3},\phys{4})$ &
     queue heads; coupling edge \\
 \bottomrule
@@ -502,9 +504,6 @@ SWAPs, and statistics drift. Across the running example (which
 admits all ten corruption classes) and thirty fuzzed circuits on both
 architectures, all 276 applicable mutants are rejected, each by the
 intended check; the same harness runs on any benchmark QASM file.
-
-\bibliographystyle{IEEEtran}
-\bibliography{sfc}
 
 \section{Architecture and Primitive Figures}
 \label{app:catent}
@@ -1158,7 +1157,11 @@ use~\cite{lidsabre}. Per iteration, classification and draining cost
 $O(|F|)$; intra-core SWAP scoring evaluates $O(M)$ candidate edges,
 each at $O(|F_\mathrm{loc}| + N_\mathrm{loc})$ over one DAG snapshot
 reused across candidates; remote-plan scoring evaluates $O(n)$
-candidates at $O(N_\mathrm{tp})$ over the same snapshot. Free-slot
+candidates at $O(N_\mathrm{tp})$ over the same snapshot, writing
+$N_\mathrm{tp}$ for the number of lookahead CX gates actually examined per
+candidate --- at most the configured cap of $50$, and in practice at most
+the horizon $L_\mathrm{tp}$, since the collector admits one gate on the
+moving qubit per simulated layer (Appendix~\ref{app:tables}). Free-slot
 queues are $O(1)$ amortised per layout mutation. Writing
 $C_\mathrm{iter} = O(\lvert F\rvert + M(\lvert F_\mathrm{loc}\rvert +
 N_\mathrm{loc}) + n N_\mathrm{tp})$ for that per-iteration cost, a route
@@ -1374,5 +1377,8 @@ hop count and generation protocol; link contention, entanglement latency
 and fidelity, purification and classical communication are outside the
 model (\mainScope{}). Conclusions are relative to it.
 
+
+\bibliographystyle{IEEEtran}
+\bibliography{sfc}
 
 \end{document}

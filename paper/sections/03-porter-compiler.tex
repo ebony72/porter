@@ -250,7 +250,8 @@ through the port prematurely.  Candidates are ranked by post-SWAP
 $\mathrm{prep}$, and at most one move per plan side is applied in a
 preparation round.
 
-A committed plan can always be prepared.  Every core retains a free position,
+Under the stated connectivity and capacity assumptions, a legal preparation
+sequence exists for a committed plan.  Every core retains a free position,
 a teleport entering a destination only when it has at least
 $f_\mathrm{min}=2$ and therefore leaving one, so on a connected core that
 free position can be walked to an occupied port to clear it, and the endpoint
@@ -259,9 +260,9 @@ to it --- at most a core diameter of local SWAPs apiece.  The two sides lie in
 different cores and a local SWAP moves no qubit between cores, so neither side
 can undo the other and the capacity rule survives preparation.
 
-This establishes that a bounded preparation sequence \emph{exists} for a
-committed plan under the stated capacity and connectivity assumptions.  It
-does not establish that the greedy rule above reaches one: candidates are
+That argument is an \emph{existence} claim about a bounded preparation
+sequence, and nothing more.  It does not establish that the greedy rule
+above reaches such a sequence: candidates are
 ranked by post-SWAP $\mathrm{prep}$ and the best is applied, but a move is
 not required to improve on the current layout, so the argument supplies no
 descent measure.  The implementation therefore bounds preparation explicitly

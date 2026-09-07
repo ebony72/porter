@@ -1001,86 +1001,15 @@ def run_sfc_sabre_layout(
 # PORTER runner
 # ---------------------------------------------------------------------------
 
-def build_seeded_locality_layout(
-    circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int, seed: int, min_free_per_core: int
-) -> dr.Layout:
-    """Randomized interaction-graph-greedy initial layout: process logical
-    qubits in a seeded random order, placing each one in the core holding its
-    heaviest already-placed CX neighbour (if that core has headroom above
-    ``min_free_per_core``), else in the least-loaded core.  Unlike the
-    balanced-first-layer heuristic's fully deterministic core assignment,
-    this gives every seed a genuinely different core partition -- needed for
-    circuits hostile to that heuristic, such as long qubit chains (GHZ),
-    where it only ever co-locates the first CX pair and scatters the rest at
-    random.
-    """
-    import random as _random
-
-    weight: Dict[int, Dict[int, int]] = {q: {} for q in range(num_logical)}
-    for g in circuit:
-        if g.is_cx():
-            q0, q1 = g.qubits
-            weight[q0][q1] = weight[q0].get(q1, 0) + 1
-            weight[q1][q0] = weight[q1].get(q0, 0) + 1
-
-    core_order = sorted(hw.cores)
-    capacity = {cid: len(hw.cores[cid].physical_qubits) for cid in core_order}
-    remaining = {cid: max(0, capacity[cid] - min_free_per_core) for cid in core_order}
-    if sum(remaining.values()) < num_logical:
-        raise ValueError("insufficient reserved-capacity slots for seeded locality layout")
-
-    rng = _random.Random(seed)
-    order = list(range(num_logical))
-    rng.shuffle(order)
-
-    logical_to_core: Dict[int, int] = {}
-    core_to_logicals: Dict[int, List[int]] = {cid: [] for cid in core_order}
-
-    def place(q: int, cid: int) -> None:
-        logical_to_core[q] = cid
-        core_to_logicals[cid].append(q)
-        remaining[cid] -= 1
-
-    for q in order:
-        best_core = None
-        best_weight = -1
-        for nbr, w in weight[q].items():
-            c = logical_to_core.get(nbr)
-            if c is not None and remaining[c] > 0 and w > best_weight:
-                best_core = c
-                best_weight = w
-        if best_core is None:
-            candidates = [c for c in core_order if remaining[c] > 0]
-            best_core = max(candidates, key=lambda c: (remaining[c], -c))
-        place(q, best_core)
-
-    num_physical = len(hw.phys_to_core)
-    phys_to_virt = [-1] * num_physical
-    dummy = num_logical
-    for cid in core_order:
-        physical = list(hw.cores[cid].physical_qubits)
-        rng.shuffle(physical)
-        logicals = sorted(core_to_logicals[cid])
-        for p, q in zip(physical, logicals):
-            phys_to_virt[p] = q
-        for p in physical[len(logicals):]:
-            phys_to_virt[p] = dummy
-            dummy += 1
-
-    return dr.Layout.from_telesabre_phys_to_virt(hw, phys_to_virt, num_logical)
-
-
 def run_sfc(circuit: List[dr.Gate], hw: dr.Hardware, num_logical: int,
             *, pytket_candidate: Optional[tuple] = None,
             horizons=None) -> Optional[dict]:
     """PORTER with its own initial layout: ONE deterministic temporal
     locality-greedy layout (``cdr.build_initial_layout``, seed-free) routed
     in a single pass at router seed 0.  No layout search -- this replaced
-    the former balanced-first-layer / seeded-locality best-of-6 protocol
+    a former balanced-first-layer / seeded-locality best-of-6 protocol
     (2026-07-12), which it beats on 14 of the 16 comparable paper
     instances (gmean EPR 55.4 vs 92.0) and on 14/15 held-out circuits.
-    The legacy builders remain below / in compile_porter only for the
-    paper's initial-mapping study (``paper/porter_under_layouts.py``).
 
     ``pytket_candidate`` is an opt-in hook (off by default, keeping PORTER
     self-contained): pass ``(dag, arch, placement, corner_nodes)`` to route
