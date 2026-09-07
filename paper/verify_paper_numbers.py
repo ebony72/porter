@@ -1,12 +1,12 @@
 """Cross-verify every number in sfc.tex tables and headline claims against
-compare_results.json / action_mix_results.json / ../ablation_results.json /
+compare_results.json / action_mix_results.json / ablation_results.json /
 teledata_ablation_basis.json.
 Expected values below mirror the paper; rerun after any harness refresh."""
 import json
 import math
 import statistics
 
-BASE = "/Users/sanjiangli/Documents/pyzoo/SFC"
+BASE = str(__import__("pathlib").Path(__file__).resolve().parent.parent)
 # Track the results files the paper's tables are generated from.  During the
 # protocol migration those are the `*_results_selection.json` variants; when
 # they are promoted to the released names this falls back automatically.
@@ -15,7 +15,7 @@ _SEL = "_selection" if _os.path.exists(
     f"{BASE}/paper/compare_results_selection.json") else ""
 cmp_rows = json.load(open(f"{BASE}/paper/compare_results{_SEL}.json"))
 mix_rows = json.load(open(f"{BASE}/paper/action_mix_results.json"))
-abl_rows = json.load(open(f"{BASE}/ablation_results.json"))
+abl_rows = json.load(open(f"{BASE}/paper/ablation_results.json"))
 td_rows = json.load(open(f"{BASE}/paper/teledata_ablation_basis.json"))
 hh_rows = json.load(open(f"{BASE}/paper/heavyhex_results{_SEL}.json"))
 pc_rows = json.load(open(f"{BASE}/paper/plan_commitment_results.json"))
@@ -710,6 +710,7 @@ import importlib
 import sys as _sys
 if BASE not in _sys.path:
     _sys.path.insert(0, BASE)
+    _sys.path.insert(0, BASE + "/experiments")
 _porter = importlib.import_module("porter")
 _cdr = importlib.import_module("compile_porter")
 _cfg = _porter.RouterConfig()

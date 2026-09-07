@@ -157,7 +157,7 @@ def tab_ablation():
     gets its own line and $n$ states the basis.
     """
     A = {(r["suite"], r["circuit"]): r["out"]
-         for r in json.loads((_HERE.parent / "ablation_results.json").read_text())}
+         for r in json.loads((_HERE / "ablation_results.json").read_text())}
     T = {(r["suite"], r["circuit"]): r["out"]
          for r in json.loads((_HERE / "teledata_ablation_basis.json").read_text())}
     order = ["ae", "ghz", "graphstate", "qft", "qnn", "random",
@@ -429,6 +429,7 @@ def tab_protocols():
     """tab:protocols -- routes, EPR and complete time per protocol, each as a
     ratio to dSABRE.  Route counts are read from the live constants."""
     sys.path.insert(0, str(_HERE.parent))
+    sys.path.insert(0, str(_HERE.parent / "experiments"))
     import compile_porter as _cp
     import compare_routers as _cr
     by = _main_by()

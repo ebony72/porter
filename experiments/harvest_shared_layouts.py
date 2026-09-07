@@ -29,12 +29,12 @@ import tempfile
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+sys.path.insert(0, str(_ROOT))
 
 import compare_routers as cr
 
-OUT = _HERE / "paper" / "shared_layouts.json"
+OUT = _ROOT / "paper" / "shared_layouts.json"
 
 
 def harvest_one(qasm_path: Path, device_json: Path, seed: int):
@@ -81,7 +81,7 @@ def harvest_one(qasm_path: Path, device_json: Path, seed: int):
     return (p2v, td + tg, swaps) if ok else (None, None, None)
 
 
-PYTKET_OUT = _HERE / "paper" / "pytket_placements.json"
+PYTKET_OUT = _ROOT / "paper" / "pytket_placements.json"
 
 
 def harvest_pytket() -> None:
@@ -89,7 +89,7 @@ def harvest_pytket() -> None:
     reason as TeleSABRE's layouts: PORTER's leg needs the partition, not
     pytket's own ebit count, and the partitioner is deterministic per seed.
     Each placement is cross-checked against the recorded `pytket_ebits`."""
-    rows = json.loads((_HERE / "paper" / "compare_results.json").read_text())
+    rows = json.loads((_ROOT / "paper" / "compare_results.json").read_text())
     cache = json.loads(PYTKET_OUT.read_text()) if PYTKET_OUT.exists() else {}
     for row in rows:
         key = f"{row['suite']}_{row['circuit']}"
@@ -131,7 +131,7 @@ def main() -> None:
         harvest_pytket()
         return
     want = set(sys.argv[1:]) or set(cr.SUITES)
-    rows = json.loads((_HERE / "paper" / "compare_results.json").read_text())
+    rows = json.loads((_ROOT / "paper" / "compare_results.json").read_text())
     cache = json.loads(OUT.read_text()) if OUT.exists() else {}
     for row in rows:
         if row["suite"] not in want:

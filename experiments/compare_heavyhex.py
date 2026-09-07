@@ -38,8 +38,8 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+sys.path.insert(0, str(_ROOT))
 
 import networkx as nx
 from qiskit.converters import circuit_to_dag
@@ -218,7 +218,7 @@ def run_topology(topo: str, circuits: list[str] | None = None) -> list[dict]:
               f"porter+R_on_dSE={g('porter_on_dse_refined')}",
               flush=True)
         records.append(rec)
-        out = _HERE / "paper" / "heavyhex_results.json"
+        out = _ROOT / "paper" / "heavyhex_results.json"
         prev = json.loads(out.read_text()) if out.exists() else []
         prev = [r for r in prev if not (r["topology"] == topo
                                         and r["circuit"] == cname)]
@@ -242,7 +242,7 @@ def main() -> None:
 
     # Summarise from the results file, so a subset run still reports the
     # whole suite rather than only the rows it just recomputed.
-    allrec = json.loads((_HERE / "paper" / "heavyhex_results.json").read_text())
+    allrec = json.loads((_ROOT / "paper" / "heavyhex_results.json").read_text())
     for topo in topos:
         rs = [r for r in allrec if r["topology"] == topo]
         print(f"\n=== {topo}: gmean EPR over {len(rs)} circuits ===", flush=True)

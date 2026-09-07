@@ -24,13 +24,13 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+sys.path.insert(0, str(_ROOT))
 
 import porter
 from compile_porter import parse_qasm2, hardware_for_name, build_initial_layout
 
-TELESABRE_CIRCUITS = _HERE.parent / "other" / "telesabre" / "circuits"
+TELESABRE_CIRCUITS = _ROOT.parent / "other" / "telesabre" / "circuits"
 SUITES = [("25", "A", "qasm_25"), ("64", "H", "qasm_64"), ("80", "H", "qasm_80")]
 # Per-suite QNN overrides: the deep ZZFeatureMap QNN, not the shallow chain the
 # stock generator emits (64q: real MQT-1.1.0 file; 80q: faithful reconstruction).
@@ -97,7 +97,7 @@ def main() -> None:
             print(f"{suite:>3}q {circ:<11} full={e['full']!s:>6} "
                   f"no_packets={e['no_packets']!s:>6} no_relief={e['no_relief']!s:>6} "
                   f"(pk={out['full'].get('packets')})", flush=True)
-    (_HERE / "ablation_results.json").write_text(json.dumps(rows, indent=1))
+    (_ROOT / "paper" / "ablation_results.json").write_text(json.dumps(rows, indent=1))
 
     def gm(key):
         vs = [r["out"][key]["epr"] for r in rows

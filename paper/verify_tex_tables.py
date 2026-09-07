@@ -35,7 +35,7 @@ HH = {(r["topology"], r["circuit"]): r
 SU = {(r["suite"], r["circuit"]): r
       for r in json.load(open(_res("scaleup")))}
 ABL = {(r["suite"], r["circuit"]): r
-       for r in json.load(open(_HERE.parent / "ablation_results.json"))}
+       for r in json.load(open(_HERE / "ablation_results.json"))}
 TD = {(r["suite"], r["circuit"]): r
       for r in json.load(open(_HERE / "teledata_ablation_basis.json"))}
 fails = []
@@ -266,6 +266,7 @@ for cols in _rows_as:
 
 import importlib
 sys.path.insert(0, str(_HERE.parent))
+sys.path.insert(0, str(_HERE.parent / "experiments"))
 _cdr_t = importlib.import_module("compile_porter")
 _cr_t = importlib.import_module("compare_routers")
 

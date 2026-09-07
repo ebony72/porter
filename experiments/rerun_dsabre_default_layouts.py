@@ -33,9 +33,9 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE.parent / "dsabre" / "code"))
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root
+sys.path.insert(0, str(_ROOT.parent / "dsabre" / "code"))
+sys.path.insert(0, str(_ROOT))
 
 import compare_routers as cr          # noqa: E402
 import compile_porter as cdr          # noqa: E402
@@ -69,7 +69,7 @@ def _refresh(row, qc, dag, rev_dag, arch, hw_cfg, circuit, hw, num_logical,
 
 
 def section_main() -> None:
-    out = _HERE / "paper" / "compare_results_selection.json"
+    out = _ROOT / "paper" / "compare_results_selection.json"
     rows = json.loads(out.read_text())
     for row in rows:
         suite = row["suite"]
@@ -99,7 +99,7 @@ def section_main() -> None:
 def section_main_refined() -> None:
     """Second pass: only `sfc_on_dse_layout_refined`, whose first run tripped a
     bad keyword in this script."""
-    out = _HERE / "paper" / "compare_results_selection.json"
+    out = _ROOT / "paper" / "compare_results_selection.json"
     rows = json.loads(out.read_text())
     for row in rows:
         spec = cr.SUITES[row["suite"]]
@@ -128,12 +128,12 @@ def section_main_refined() -> None:
 def section_scaleup() -> None:
     import bench_scaleup as bs
     from qiskit.converters import circuit_to_dag as _c2d
-    out = _HERE / "paper" / "scaleup_results_selection.json"
+    out = _ROOT / "paper" / "scaleup_results_selection.json"
     rows = json.loads(out.read_text())
     for row in rows:
         spec = bs.SUITES[row["suite"]]
         _, hw = cdr.hardware_from_device_json(
-            _HERE.parent / "other" / "telesabre" / "devices" / f"{spec['device']}.json")
+            _ROOT.parent / "other" / "telesabre" / "devices" / f"{spec['device']}.json")
         arch = cr.sfc_hardware_to_dsabre_architecture(hw)
         cr.verify_topology_match(hw, arch)
         hw_cfg = HardwareConfig(deadlock_limit=None, max_backup_attempts=None,

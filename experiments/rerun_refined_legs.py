@@ -22,13 +22,13 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root
+sys.path.insert(0, str(_ROOT))
 
 import compare_routers as cr
 import compile_porter as cdr
 
-PAPER = _HERE / "paper"
+PAPER = _ROOT / "paper"
 
 
 def _circuit_of(row):
@@ -113,7 +113,7 @@ def _section_scaleup_unused() -> None:
     for row in rows:
         spec = bs.SUITES[row["suite"]]
         _, hw = cdr.hardware_from_device_json(
-            _HERE.parent / "other" / "telesabre" / "devices" / f"{spec['device']}.json")
+            _ROOT.parent / "other" / "telesabre" / "devices" / f"{spec['device']}.json")
         fname = next(f for f in spec["files"] if f.startswith(row["circuit"] + "_"))
         qasm = spec["circuit_dir"] / fname
         circuit, num_logical = cdr.parse_qasm2(qasm)

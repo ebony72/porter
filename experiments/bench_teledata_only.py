@@ -25,13 +25,13 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+sys.path.insert(0, str(_ROOT))
 
 import porter
 from compile_porter import parse_qasm2, hardware_for_name, build_initial_layout
 
-CIRCUIT_DIR = _HERE.parent / "other" / "telesabre" / "circuits" / "qasm_64"
+CIRCUIT_DIR = _ROOT.parent / "other" / "telesabre" / "circuits" / "qasm_64"
 ARCH = "H"
 FILES = [
     ("ae", "ae_nativegates_ibm_qiskit_opt3_64.qasm"),
@@ -71,7 +71,7 @@ def main() -> None:
     signal.signal(signal.SIGALRM, lambda s, f: (_ for _ in ()).throw(_Timeout()))
     reference = {
         r["circuit"]: r["sfc"]
-        for r in json.load(open(_HERE / "paper" / "compare_results.json"))
+        for r in json.load(open(_ROOT / "paper" / "compare_results.json"))
         if r["suite"] == "64"
     }
 
@@ -119,7 +119,7 @@ def main() -> None:
             if "error" in out[k]:
                 print(f"    {k}: {out[k]['error']}", flush=True)
 
-    (_HERE / "paper" / "teledata_only_results.json").write_text(json.dumps(rows, indent=1))
+    (_ROOT / "paper" / "teledata_only_results.json").write_text(json.dumps(rows, indent=1))
 
     def gm(key, subset):
         vs = [r["out"][key]["epr"] for r in subset]

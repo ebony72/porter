@@ -29,13 +29,13 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+sys.path.insert(0, str(_ROOT))
 
 import porter
 from compile_porter import parse_qasm2, hardware_for_name, build_initial_layout
 
-CIRCUITS_ROOT = _HERE.parent / "other" / "telesabre" / "circuits"
+CIRCUITS_ROOT = _ROOT.parent / "other" / "telesabre" / "circuits"
 SUITES = [("25", "A", "qasm_25",
            ["ae", "ghz", "graphstate", "qft", "qnn", "random"]),
           ("64", "H", "qasm_64",
@@ -56,7 +56,7 @@ class _Timeout(Exception):
 def main() -> None:
     signal.signal(signal.SIGALRM, lambda s, f: (_ for _ in ()).throw(_Timeout()))
     ref = {(r["suite"], r["circuit"]): r["out"]["full"].get("epr")
-           for r in json.load(open(_HERE / "ablation_results.json"))}
+           for r in json.load(open(_ROOT / "paper" / "ablation_results.json"))}
 
     rows = []
     for suite, arch, sub, circs in SUITES:
@@ -101,7 +101,7 @@ def main() -> None:
                   f"   (ref={r})", flush=True)
             if "error" in out["hopwise"]:
                 print(f"      hopwise: {out['hopwise']['error']}", flush=True)
-            (_HERE / "paper" / "plan_commitment_results.json").write_text(
+            (_ROOT / "paper" / "plan_commitment_results.json").write_text(
                 json.dumps(rows, indent=1))
 
     def gm(v):

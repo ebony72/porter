@@ -6,8 +6,10 @@ Every completing stream is replay-verified.
 """
 import sys, json, time, argparse
 import multiprocessing as mp
-sys.path.insert(0, "/Users/sanjiangli/Documents/pyzoo/SFC")
-sys.path.insert(0, "/Users/sanjiangli/Documents/pyzoo/SFC/paper/horizon_sweep")
+from pathlib import Path as _P
+_ROOT = _P(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(_ROOT))
+sys.path.insert(0, str(_ROOT / "paper" / "horizon_sweep"))
 
 OUT = "/private/tmp/claude-504/-Users-sanjiangli-Documents-pyzoo-SFC/198b52a7-cff4-4249-bd07-be4853d9b249/scratchpad/local_ablation.jsonl"
 GUARD = 300

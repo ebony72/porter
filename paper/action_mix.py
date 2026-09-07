@@ -65,8 +65,7 @@ CIRCUIT_ROOT = os.path.join(os.path.dirname(_HERE), "..", "other", "telesabre", 
 # the selected best-of-four-horizon route, a different protocol.
 reference = {
     (r["suite"], r["circuit"]): r["out"]["full"]
-    for r in json.load(open(os.path.join(os.path.dirname(_HERE),
-                                         "ablation_results.json")))
+    for r in json.load(open(os.path.join(_HERE, "ablation_results.json")))
     if "epr" in r["out"].get("full", {})
 }
 

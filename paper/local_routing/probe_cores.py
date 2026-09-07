@@ -4,8 +4,10 @@ dSABRE applies one SWAP per active core per iteration; PORTER applies one
 chip-wide.  The headroom for that change is exactly the distribution below.
 """
 import sys, collections
-sys.path.insert(0, "/Users/sanjiangli/Documents/pyzoo/SFC")
-sys.path.insert(0, "/Users/sanjiangli/Documents/pyzoo/SFC/paper/horizon_sweep")
+from pathlib import Path as _P
+_ROOT = _P(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(_ROOT))
+sys.path.insert(0, str(_ROOT / "paper" / "horizon_sweep"))
 import hz_common as H
 import porter
 from porter.router import PorterRouter

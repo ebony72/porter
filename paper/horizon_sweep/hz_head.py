@@ -10,8 +10,9 @@ import sys, math
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SNAP = Path("/Users/sanjiangli/Documents/pyzoo/SFC")
+SNAP = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(SNAP))
+sys.path.insert(0, str(SNAP / "experiments"))
 import porter                      # noqa: E402
 import compile_porter as cp        # noqa: E402
 import compare_heavyhex as hh      # noqa: E402

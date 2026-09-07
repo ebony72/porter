@@ -20,8 +20,9 @@ is a dead branch in the full protocol; removing the TeleGate is what makes it
 live.  Run from the repo root or paper/.
 """
 import sys, collections
-REPO = "/Users/sanjiangli/Documents/pyzoo/SFC"
+REPO = str(__import__("pathlib").Path(__file__).resolve().parent.parent)
 sys.path.insert(0, REPO)
+sys.path.insert(0, REPO + "/experiments")
 
 import porter
 from compile_porter import parse_qasm2, hardware_for_name, build_initial_layout

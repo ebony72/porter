@@ -30,13 +30,13 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+sys.path.insert(0, str(_ROOT))
 
 import porter
 from compile_porter import parse_qasm2, hardware_for_name, build_initial_layout
 
-TELESABRE_CIRCUITS = _HERE.parent / "other" / "telesabre" / "circuits"
+TELESABRE_CIRCUITS = _ROOT.parent / "other" / "telesabre" / "circuits"
 SUITES = [("25", "A", "qasm_25"), ("64", "H", "qasm_64"), ("80", "H", "qasm_80")]
 FILES = {
     "64": {"qnn": "qnn_OLD_DEEP_nativegates_ibm_qiskit_opt3_64.qasm.bak"},
@@ -70,7 +70,7 @@ class _Timeout(Exception):
 def main() -> None:
     signal.signal(signal.SIGALRM, lambda s, f: (_ for _ in ()).throw(_Timeout()))
     ref = {(r["suite"], r["circuit"]): r["out"]["full"].get("epr")
-           for r in json.load(open(_HERE / "ablation_results.json"))}
+           for r in json.load(open(_ROOT / "paper" / "ablation_results.json"))}
 
     rows = []
     for suite, arch, sub in SUITES:
@@ -111,7 +111,7 @@ def main() -> None:
             rows.append(dict(suite=suite, circuit=circ, ref_epr=r, out=out))
             vals = "  ".join(f"{k}={out[k].get('epr', 'ERR')!s:>7}" for k in CONFIGS)
             print(f"{suite:>3}q {circ:<11} {vals}  (ref={r})", flush=True)
-            (_HERE / "paper" / "teledata_ablation_basis.json").write_text(
+            (_ROOT / "paper" / "teledata_ablation_basis.json").write_text(
                 json.dumps(rows, indent=1))
 
     print("\n--- gmean EPR, each leg vs full on the leg's own completing subset ---",

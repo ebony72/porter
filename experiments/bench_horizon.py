@@ -22,16 +22,16 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+sys.path.insert(0, str(_ROOT))
 
 import porter as dr
 import compile_porter as cdr
 import verify_porter as vp
 from compile_porter import PORTER_HORIZONS, run_horizon_selection
 
-OUT = _HERE / "paper" / "horizon_results.json"
-TELESABRE = _HERE.parent / "other" / "telesabre"
+OUT = _ROOT / "paper" / "horizon_results.json"
+TELESABRE = _ROOT.parent / "other" / "telesabre"
 
 
 def gmean(v):
@@ -91,7 +91,7 @@ def _run(tag, hw, circuit, num_logical, baselines):
 def section_main(out):
     import compare_routers as cr
     prev = {f"{r['suite']}_{r['circuit']}": r
-            for r in json.load(open(_HERE / "paper" / "compare_results.json"))}
+            for r in json.load(open(_ROOT / "paper" / "compare_results.json"))}
     for key, spec in cr.SUITES.items():
         _, hw = cdr.hardware_for_name(spec["arch_name"])
         print(f"\n=== main {key}q ({spec['arch_name']}) ===", flush=True)
@@ -110,10 +110,10 @@ def section_main(out):
 def section_scaleup(out):
     import bench_scaleup as bs
     prev = {f"{r['suite']}_{r['circuit']}": r
-            for r in json.load(open(_HERE / "paper" / "scaleup_results.json"))}
+            for r in json.load(open(_ROOT / "paper" / "scaleup_results.json"))}
     for key, spec in bs.SUITES.items():
         _, hw = cdr.hardware_from_device_json(
-            _HERE.parent / "other" / "telesabre" / "devices" / f"{spec['device']}.json")
+            _ROOT.parent / "other" / "telesabre" / "devices" / f"{spec['device']}.json")
         print(f"\n=== scaleup {key}q ({len(hw.cores)} cores, "
               f"{len(hw.phys_to_core)} physical) ===", flush=True)
         for fname in spec["files"]:
@@ -129,7 +129,7 @@ def section_scaleup(out):
 def section_heavyhex(out):
     import compare_heavyhex as ch
     prev = {f"{r['topology']}_{r['circuit']}": r
-            for r in json.load(open(_HERE / "paper" / "heavyhex_results.json"))}
+            for r in json.load(open(_ROOT / "paper" / "heavyhex_results.json"))}
     for topo in ("ring", "star"):
         arch = ch.build_heavy_hex_architecture(ch.NUM_CORES, topo)
         hw = ch.dsabre_architecture_to_porter_hardware(arch)

@@ -48,14 +48,14 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
-PORTER_DIR = Path(__file__).resolve().parent
-TELESABRE_DIR = PORTER_DIR.parent / "other" / "telesabre"
-DSABRE_CODE_DIR = PORTER_DIR.parent / "dsabre" / "code"
+ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+TELESABRE_DIR = ROOT.parent / "other" / "telesabre"
+DSABRE_CODE_DIR = ROOT.parent / "dsabre" / "code"
 # `bench_pytket_large` (whose placement_to_layout/_topo_assign we reuse verbatim)
 # was moved into code/investigations/ by dSABRE's 2026-08 reorganisation.
 DSABRE_INVEST_DIR = DSABRE_CODE_DIR / "investigations"
 
-sys.path.insert(0, str(PORTER_DIR))
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(DSABRE_INVEST_DIR))
 sys.path.insert(0, str(DSABRE_CODE_DIR))
 
@@ -126,7 +126,7 @@ def _compiler_time_limit(seconds: int = COMPILER_TIMEOUT_SECONDS):
 # binary (adds a fallback-to-least-full-core branch); see its README.md and
 # rebuild with patched_telesabre/build.sh.  ../other/telesabre is never
 # modified in place.
-_TELESABRE_PATCHED_BIN = PORTER_DIR / "patched_telesabre" / "telesabre"
+_TELESABRE_PATCHED_BIN = ROOT / "patched_telesabre" / "telesabre"
 if not _TELESABRE_PATCHED_BIN.exists():
     raise SystemExit(
         f"Patched TeleSABRE binary missing: {_TELESABRE_PATCHED_BIN}\n"

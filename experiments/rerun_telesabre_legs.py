@@ -28,14 +28,14 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root
+sys.path.insert(0, str(_ROOT))
 
 import compare_routers as cr
 import compile_porter as cdr
 from qiskit.converters import circuit_to_dag
 
-RESULTS = _HERE / "paper" / "compare_results.json"
+RESULTS = _ROOT / "paper" / "compare_results.json"
 TOUCHED = ("telesabre", "dSE_shared", "sfc_shared", "sfc_shared_refined")
 
 

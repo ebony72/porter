@@ -41,14 +41,14 @@ import sys
 import time
 from pathlib import Path
 
-_HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(_HERE))
+_ROOT = Path(__file__).resolve().parent.parent   # repo root
+sys.path.insert(0, str(_ROOT))
 
 import compare_routers as cr
 import compile_porter as cdr
 
-RESULTS = _HERE / "paper" / "compare_results.json"
-OUT = _HERE / "paper" / "compare_results_selection.json"
+RESULTS = _ROOT / "paper" / "compare_results.json"
+OUT = _ROOT / "paper" / "compare_results_selection.json"
 # Only the SINGLE-PASS PORTER legs change: horizon selection is PORTER's
 # routing protocol, but refinement and the gamma search deliberately keep
 # their own (unselected) horizon -- see run_refinement_passes -- so
@@ -60,12 +60,12 @@ PORTER_LEGS = ("sfc", "sfc_on_dse_layout", "sfc_selection_and_search")
 def section_scaleup() -> None:
     """Scale-up: only `sfc` and `sfc_on_dse_layout` change."""
     import bench_scaleup as bs
-    out = _HERE / "paper" / "scaleup_results_selection.json"
-    rows = json.loads((_HERE / "paper" / "scaleup_results.json").read_text())
+    out = _ROOT / "paper" / "scaleup_results_selection.json"
+    rows = json.loads((_ROOT / "paper" / "scaleup_results.json").read_text())
     for row in rows:
         spec = bs.SUITES[row["suite"]]
         _, hw = cdr.hardware_from_device_json(
-            _HERE.parent / "other" / "telesabre" / "devices" / f"{spec['device']}.json")
+            _ROOT.parent / "other" / "telesabre" / "devices" / f"{spec['device']}.json")
         fname = next(f for f in spec["files"] if f.startswith(row["circuit"] + "_"))
         qasm = spec["circuit_dir"] / fname
         circuit, num_logical = cdr.parse_qasm2(qasm)
@@ -92,8 +92,8 @@ def section_scaleup() -> None:
 def section_heavyhex() -> None:
     """Heavy-hex: only `porter` and `porter_on_dse` change."""
     import compare_heavyhex as ch
-    out = _HERE / "paper" / "heavyhex_results_selection.json"
-    rows = json.loads((_HERE / "paper" / "heavyhex_results.json").read_text())
+    out = _ROOT / "paper" / "heavyhex_results_selection.json"
+    rows = json.loads((_ROOT / "paper" / "heavyhex_results.json").read_text())
     hw_by_topo = {}
     for row in rows:
         topo = row["topology"]
@@ -146,8 +146,8 @@ def section_shared() -> None:
     PORTER's router, so only its layouts are needed, and they are
     deterministic.  `sfc_shared_refined` does not select and is unchanged.
     """
-    layouts = json.loads((_HERE / "paper" / "shared_layouts.json").read_text())
-    out = _HERE / "paper" / "compare_results_selection.json"
+    layouts = json.loads((_ROOT / "paper" / "shared_layouts.json").read_text())
+    out = _ROOT / "paper" / "compare_results_selection.json"
     rows = json.loads(out.read_text())
     for row in rows:
         key = f"{row['suite']}_{row['circuit']}"
@@ -188,8 +188,8 @@ def section_pytket() -> None:
     partition, not its ebit count, and the partitioner is deterministic.
     `sfc_pytket_refined` does not select and is unchanged.
     """
-    cache = json.loads((_HERE / "paper" / "pytket_placements.json").read_text())
-    out = _HERE / "paper" / "compare_results_selection.json"
+    cache = json.loads((_ROOT / "paper" / "pytket_placements.json").read_text())
+    out = _ROOT / "paper" / "compare_results_selection.json"
     rows = json.loads(out.read_text())
     for row in rows:
         key = f"{row['suite']}_{row['circuit']}"

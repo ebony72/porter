@@ -99,17 +99,30 @@ the shipped protocol: one route at each of four lookahead horizons
 
 ## What is in here
 
+The tree separates **what you can run on your own circuits** from **what
+reproduces the paper**. Only the first group is needed to use PORTER, and it
+has no dependencies beyond the standard library.
+
+### The compiler — usable on its own
+
 | Path | Contents |
 |---|---|
 | `porter/` | The router package. `PorterRouter(hw, cfg).compile(circuit, layout) -> RouterState` |
 | `compile_porter.py` | CLI, QASM parsing, hardware construction, initial layout, operating protocols |
 | `verify_porter.py` | Independent replay verifier and fuzz suite |
 | `verify_fault_injection.py` | Verifier-of-the-verifier: ten corruption classes, every mutant must be rejected |
-| `compare_routers.py` | Head-to-head harness against TeleSABRE, dSABRE and pytket-dqc |
-| `compare_heavyhex.py` | The two heavy-hex core graphs (ring and star) |
-| `ablation_mechanisms.py`, `bench_*.py`, `rerun_*.py` | The harnesses behind each released results file |
-| `patched_telesabre/` | Patched TeleSABRE binary used by the comparison; see its README |
-| `paper/` | Manuscript sources, both PDFs, and every released results file |
+
+### The paper and its experiments
+
+These need `networkx`, `qiskit`, and sibling checkouts of the baselines.
+
+| Path | Contents |
+|---|---|
+| `experiments/compare_routers.py` | Head-to-head harness against TeleSABRE, dSABRE and pytket-dqc |
+| `experiments/compare_heavyhex.py` | The two heavy-hex core graphs (ring and star) |
+| `experiments/ablation_mechanisms.py`, `bench_*.py`, `rerun_*.py` | The harnesses behind each released results file |
+| `patched_telesabre/` | Patch and build script for the TeleSABRE binary used by the comparison; see its README |
+| `paper/` | Manuscript sources, both PDFs, every released results file, and the four scripts that check the paper against them |
 | `paper/horizon_sweep/` | The lookahead-horizon study: a 3,120-route sweep grid (every completing route replay-verified), plus scripts and reports |
 | `paper/local_routing/` | The intra-core routing-strategy ablation |
 
@@ -131,6 +144,12 @@ results files; `verify_paper_numbers.py` re-derives the figures quoted in the
 prose; `verify_horizon_claims.py` checks Section IV-E against
 `paper/horizon_sweep/`.
 
+All four check some quantities against **live constants** rather than against
+copies — route budgets, the horizon set, every `RouterConfig` parameter
+Section III quotes — which is why they import the harness, and therefore why
+they need the baseline checkouts described below even though the data they
+read is all in this repository.
+
 To rebuild the documents, compile the main paper **first** so that `sfc.aux`
 exists — the supplement resolves its cross-references through it:
 
@@ -141,11 +160,14 @@ pdflatex sfc_appendix && bibtex sfc_appendix && pdflatex sfc_appendix && pdflate
 
 ## Reproducing the comparisons
 
-`compare_routers.py` and `compare_heavyhex.py` additionally need `networkx`,
-`qiskit`, and sibling checkouts of the two baselines (`../dsabre/` and
-`../other/telesabre/`) together with their benchmark circuits. The released
-`paper/*_results*.json` files record every leg, so the tables can be checked
-without re-running the baselines.
+`experiments/compare_routers.py` and `experiments/compare_heavyhex.py`
+additionally need `networkx`, `qiskit`, and sibling checkouts of the two
+baselines (`../dsabre/` and `../other/telesabre/`) together with their
+benchmark circuits. The released
+`paper/*_results*.json` files record every leg, so no baseline has to be
+*re-run* to check a table — but the checkers still import the harness for the
+live constants above, so the sibling checkouts must be present for them to
+load.
 
 ## Determinism
 

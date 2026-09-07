@@ -17,13 +17,13 @@ import os
 import sys
 import time
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, _HERE)
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # repo root
+sys.path.insert(0, _ROOT)
 
 import compile_porter as cdr
 import compare_routers as cr
 
-PAPER = os.path.join(_HERE, "paper")
+PAPER = os.path.join(_ROOT, "paper")
 MAIN = os.path.join(PAPER, "compare_results_selection.json")
 SCALEUP = os.path.join(PAPER, "scaleup_results_selection.json")
 HEAVYHEX = os.path.join(PAPER, "heavyhex_results_selection.json")

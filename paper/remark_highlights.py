@@ -13,7 +13,7 @@ guessed at.
 import re, subprocess, sys, difflib
 from pathlib import Path
 
-REPO = Path("/Users/sanjiangli/Documents/pyzoo/SFC")
+REPO = Path(__file__).resolve().parent.parent
 BASE = "ffa9b25"   # the end of round 4; bump this when a new round starts
 FILES = sorted(p.relative_to(REPO).as_posix() for p in (REPO / "paper/sections").glob("*.tex"))
 FILES.append("paper/sfc_appendix.tex")

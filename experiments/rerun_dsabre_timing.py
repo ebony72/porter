@@ -15,13 +15,13 @@ import os
 import sys
 import time
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, _HERE)
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # repo root
+sys.path.insert(0, _ROOT)
 
 import compare_routers as cr
 import compile_porter as cdr
 
-OUT = os.path.join(_HERE, "paper", "compare_results_selection.json")
+OUT = os.path.join(_ROOT, "paper", "compare_results_selection.json")
 
 
 def main():

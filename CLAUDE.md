@@ -49,11 +49,11 @@ Script and harness now live in `todel/` (`porter_under_layouts.py`,
 | `compile_porter.py` | CLI: QASM parsing, A/H grid hardware, initial layout (`hardware_for_name`, `build_initial_layout`), backward refinement (`run_refinement_passes`, `--passes`), JSON/CSV outputs |
 | `verify_porter.py` | Independent replay verifier + fuzz suite (see below) |
 | `verify_fault_injection.py` | Verifier-of-the-verifier: mutates passing op streams (10 corruption classes) and asserts every mutant is rejected; also rebuilds the paper's Sec III-G running example (`toy_stream()`) |
-| `compare_routers.py` | Head-to-head benchmark vs TeleSABRE / dSABRE / pytket-dqc. Since 2026-07-13 the dSE own-protocol leg uses `sabre_two_corner_layout` (2 min-degree corners removed per core, chosen farthest by total BFS distance from all other qubits) instead of dSABRE's stock `sabre_locked_boundary_layout` (4 chip-wide = core 0's corners); the pytket legs keep the stock 4-corner convention. PORTER still wins every suite's own-protocol gmean (43.1/86.4/14.0 vs dSE 47.0/89.0/15.8) but dSE now wins the 80q five-circuit basis |
+| `experiments/compare_routers.py` | Head-to-head benchmark vs TeleSABRE / dSABRE / pytket-dqc. Since 2026-07-13 the dSE own-protocol leg uses `sabre_two_corner_layout` (2 min-degree corners removed per core, chosen farthest by total BFS distance from all other qubits) instead of dSABRE's stock `sabre_locked_boundary_layout` (4 chip-wide = core 0's corners); the pytket legs keep the stock 4-corner convention. PORTER still wins every suite's own-protocol gmean (43.1/86.4/14.0 vs dSE 47.0/89.0/15.8) but dSE now wins the 80q five-circuit basis |
 | `patched_telesabre/` | Patched TeleSABRE binary used by `compare_routers.py` — the stock `../other/telesabre/telesabre` segfaults on architecture A. Rebuild with `build.sh`; see its README |
-| `bench_plan_commitment.py` | Unit-of-commitment ablation (committed vs hop-wise re-scoring) -> `paper/plan_commitment_results.json`; see the section below |
-| `bench_teledata_only.py` | 64q action-vocabulary ablation (full / no-packets / TeleData-only, + relief-tier control) -> `paper/teledata_only_results.json`; see the section below |
-| `compare_heavyhex.py` | PORTER vs dSABRE on the dSABRE paper's two heavy-hex architectures (ring/star, 4x27q) -> `paper/heavyhex_results.json`; see the section below |
+| `experiments/bench_plan_commitment.py` | Unit-of-commitment ablation (committed vs hop-wise re-scoring) -> `paper/plan_commitment_results.json`; see the section below |
+| `experiments/bench_teledata_only.py` | 64q action-vocabulary ablation (full / no-packets / TeleData-only, + relief-tier control) -> `paper/teledata_only_results.json`; see the section below |
+| `experiments/compare_heavyhex.py` | PORTER vs dSABRE on the dSABRE paper's two heavy-hex architectures (ring/star, 4x27q) -> `paper/heavyhex_results.json`; see the section below |
 | `paper/action_mix.py` | Regenerates the paper's action-mix table (TeleData by provenance, telegates, packets + sizes) by rerunning PORTER own-protocol; cross-checks every counter against `paper/compare_results.json` |
 
 ## Paper rewritten to 12 pages, reframed (2026-08-28)
@@ -3703,3 +3703,44 @@ from the former.
 Post-clean state: both documents build (13 pp. + 8 pp., zero overfull, no
 unresolved refs), the generator is idempotent, all three paper verifiers
 pass, 20/20 fuzz trials and 100/100 fault-injection mutants pass.
+
+## Codebase split into two groups (2026-09-07)
+
+The root was a flat mix of the router and fifteen experiment harnesses.  It is
+now split by what a reader needs:
+
+- **Reader-facing, stdlib only**: `porter/`, `compile_porter.py`,
+  `verify_porter.py`, `verify_fault_injection.py` at the root.
+- **Paper and experiments**: `experiments/` (the 15 `compare_*` / `bench_*` /
+  `rerun_*` / `ablation_mechanisms` / `harvest_shared_layouts` scripts) and
+  `paper/` (manuscript, released results, the four checking scripts).
+
+**Every moved script anchored its paths at the repo root via `_HERE =
+Path(__file__).parent`** -- writing to `_HERE/"paper"/…`, reading
+`_HERE/"ablation_results.json"`, finding circuits at
+`_HERE.parent/"other"/"telesabre"`.  The anchor is now `_ROOT` (or `ROOT`)
+and points one level up, so downstream uses are unchanged.  **Any new script
+added to `experiments/` must do the same** -- `Path(__file__).parent` is the
+`experiments/` directory, not the root.
+
+`ablation_results.json` **moved to `paper/`**, so every released results file
+now lives in one place.  Six files reference it: three producers in
+`experiments/`, and `verify_paper_numbers.py`, `verify_tex_tables.py`,
+`gen_tables_selection.py`, `action_mix.py` in `paper/`.
+
+Scripts under `paper/` that import a harness now add `<root>/experiments` to
+`sys.path` alongside the root: `verify_tex_tables.py`,
+`verify_paper_numbers.py`, `gen_tables_selection.py`, `probe_horizon_budget.py`,
+`probe_selection_key.py`, `probe_relief_seeds.py`, and both
+`horizon_sweep/hz_common.py` and `hz_head.py`.
+
+**Twelve hardcoded absolute paths were removed in the same pass** -- among them
+`verify_paper_numbers.py`'s `BASE = "/Users/sanjiangli/…"`, which meant the
+published repo's main claims-checker could not run for anyone who cloned it.
+All are derived from `__file__` now.  This is the global-CLAUDE.md rule; it had
+been violated in eight files.
+
+Verified after the move: op-stream SHA, `seeded_tie_break_count`, EPR, SWAPs
+and depth identical on 6 circuits; 15/15 fuzz trials; 100/100 fault-injection
+mutants; all 15 `experiments/` scripts import and resolve the root correctly;
+generator idempotent; all three paper verifiers pass.

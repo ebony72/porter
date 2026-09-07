@@ -34,9 +34,9 @@ import porter as dr
 from config import HardwareConfig
 from qiskit.converters import circuit_to_dag
 
-HERE = Path(__file__).resolve().parent
-CIRCUITS = HERE.parent / "other" / "telesabre" / "circuits"
-DEVICES = HERE.parent / "other" / "telesabre" / "devices"
+ROOT = Path(__file__).resolve().parent.parent   # repo root: porter/, compile_porter.py
+CIRCUITS = ROOT.parent / "other" / "telesabre" / "circuits"
+DEVICES = ROOT.parent / "other" / "telesabre" / "devices"
 
 SUITES = {
     # 100 logical on 150 physical (2x3 cores of 5x5)
@@ -120,7 +120,7 @@ def run_suite(key, with_telesabre, refine_passes):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--suite", action="append", choices=list(SUITES), default=None)
-    ap.add_argument("--out", type=Path, default=HERE / "scaleup_results.json")
+    ap.add_argument("--out", type=Path, default=ROOT / "scaleup_results.json")
     ap.add_argument("--passes", type=int, default=5)
     ap.add_argument("--telesabre", action="store_true",
                     help="also run TeleSABRE (slow, and it does not converge "

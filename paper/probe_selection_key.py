@@ -36,6 +36,7 @@ import sys
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(_HERE)
 sys.path.insert(0, _REPO)
+sys.path.insert(0, _REPO + "/experiments")
 
 import porter
 import compile_porter as cp

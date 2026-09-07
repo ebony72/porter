@@ -14,6 +14,7 @@ SNAP = HERE / "snap" / "SFC"
 if not SNAP.exists():                 # released copy: run against the repo itself
     SNAP = HERE.parent.parent
 sys.path.insert(0, str(SNAP))
+sys.path.insert(0, str(SNAP / "experiments"))
 import porter                      # noqa: E402
 import compile_porter as cp        # noqa: E402
 import compare_heavyhex as hh      # noqa: E402
