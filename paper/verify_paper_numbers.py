@@ -1003,6 +1003,16 @@ check("PORTER own-protocol wins vs dSE", 11,
 check("PORTER own-protocol losses vs dSE", 10,
       sum(1 for r in cmp_rows if r["sfc"]["epr"] > r["dSE"]["epr"]))
 
+# Sec IV-E's worked ratio-direction example.  The two operands are Table II's
+# pooled row; the 1.5% is the only figure the example adds, so pin it here or
+# it is the one unchecked number in the metrics subsection.
+_pool_sfc = gmean([r["sfc"]["epr"] for r in cmp_rows])
+_pool_dse = gmean([r["dSE"]["epr"] for r in cmp_rows])
+check("IV-E example PORTER pooled", 169.4, round(_pool_sfc, 1))
+check("IV-E example dSABRE pooled", 171.9, round(_pool_dse, 1))
+check("IV-E example ratio", 0.99, round(_pool_sfc / _pool_dse, 2))
+check("IV-E example percentage", -1.5, round(pct(_pool_sfc, _pool_dse), 1))
+
 # Scale-up per-attempt speed range quoted in Sec IV-G.
 _su_rat = [r["dSE"]["seconds_best_attempt"] / r["sfc"]["seconds"] for r in su_rows]
 check("scaleup per-attempt min", 0.4, round(min(_su_rat), 1))

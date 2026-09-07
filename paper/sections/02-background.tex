@@ -20,8 +20,8 @@ intra-core coupling graph, and adjacent cores are connected by an
 inter-core link whose endpoints are \emph{communication ports}. In every
 architecture evaluated here, adjacent cores have exactly one link, and each
 core uses a distinct port for each neighbour. Hence, once an adjacent pair
-of cores is chosen, the communication-port pair is fixed\chg{, and a
-plan has no port to choose}.
+of cores is chosen, the communication-port pair is fixed, and a
+plan has no port to choose.
 
 A \emph{layout} $\ell$ maps each logical qubit to a physical position. A
 CX gate is \emph{local} when its operands are in the same core and
@@ -29,8 +29,8 @@ CX gate is \emph{local} when its operands are in the same core and
 adjacent in the coupling graph requires intra-core SWAPs. A remote CX
 requires an inter-core communication primitive, possibly preceded by local
 SWAPs that make the primitive ready. We write $\kappa_\ell(q)$ for the core
-that holds logical qubit $q$ under $\ell$, $\dL(c,p,p')$ for the \chg{shortest-path} distance between positions $p$ and $p'$ in core $c$, and $\dC(c,c')$
-for the \chg{shortest-path} distance between cores $c$ and $c'$ in the core graph.
+that holds logical qubit $q$ under $\ell$, $\dL(c,p,p')$ for the shortest-path distance between positions $p$ and $p'$ in core $c$, and $\dC(c,c')$
+for the shortest-path distance between cores $c$ and $c'$ in the core graph.
 
 \subsection{Objective, Scope, and Assumptions}
 \label{sec:scope}
@@ -172,10 +172,10 @@ its CX is executed. The sequence therefore consumes one EPR pair rather
 than one pair per CX. This adapts AutoComm's communication-amortisation
 idea~\cite{wu2022autocomm} to an online routing loop.
 
-The primitives consequently differ in \chg{the respect that governs
-scoring: how many CX gates one pair is spread over.}
+The primitives consequently differ in the respect that governs
+scoring: how many CX gates one pair is spread over.
 \TeleGate{} resolves one CX immediately, \TeleGatePacket{} resolves a
-lookahead-discovered run \chg{whose length the compiler must discover}, and
+lookahead-discovered run whose length the compiler must discover, and
 \TeleData{} changes the layout in anticipation
 of future interactions. Section~\ref{sec:sfc-scoring} formalises this
 comparison in the plan-scoring rule.

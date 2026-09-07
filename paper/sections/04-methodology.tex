@@ -95,10 +95,11 @@ empty and provide capacity for arrivals and evictions; they are distinct from
 the designated communication ports.
 
 \textbf{Shared layouts (RQ2).} Both \dSABRE{} and \PORTER{} route the same
-externally supplied layout. We use \TeleSABRE{}'s layout where it is
-available and, separately, the \texttt{pytket-dqc} hypergraph partition
-(\appPytket{}). This controls the layout but not the routing effort:
-\PORTER{} evaluates four horizons, whereas \dSABRE{} uses three passes.
+externally supplied layout, the \texttt{pytket-dqc} hypergraph partition
+(\appPytket{}). This controls the initial mapping but not search effort:
+\dSABRE{} uses three routing passes, \PORTER{} four horizons, and
+\PORTER{}+R eight routes. It therefore isolates layout source rather than
+ranking routing loops at a matched budget.
 
 \textbf{Cross layouts (RQ2).} Each compiler also routes the other
 compiler's native layout(s). In particular, \PORTER{} routes all three of
@@ -110,60 +111,6 @@ shows whether a native-protocol result is sensitive to the layout source.
 
 Section~\ref{sec:sfc} defines one routing pass. The following protocols
 repeat that pass; they do not change the router itself.
-
-\subsubsection{\PORTER{}: fixed horizon portfolio}
-\label{sec:horizon}
-
-The teleport-lookahead horizon $L_\mathrm{tp}$ controls how far a
-\TeleData{} candidate is evaluated into the DAG. No single value was best in
-an offline sweep over $\{4,8,\ldots,1024\}$: the per-instance optimum spans
-the range. For example, 80-qubit QNN selects $16$, whereas every 100-,
-200-, and 360-qubit scale-up instance selects 128. We therefore use the same
-four-value portfolio for every circuit,
-\[
-  L_\mathrm{tp}\in\{4,8,16,128\},
-\]
-and retain the route with the fewest EPR pairs. The configured default,
-$L_\mathrm{tp}=16$, runs first and wins ties. Consequently, provided that
-the default route completes, the portfolio cannot report more EPR pairs than
-that one-route baseline.
-
-We deliberately do not select a horizon from a circuit statistic: a
-predictive rule would be fitted and evaluated on the same instances, and the
-portfolio needs no such rule, since the configured horizon is one of its
-candidates. The portfolio itself was also chosen after inspecting the 48
-evaluated instances, so its measured EPR gain is in-sample rather than a
-held-out generalisation result. The
-portfolio is robust in the limited sense that nearby four-value sets differ
-by less than one percent in the reported sweep, but out-of-sample validation
-remains necessary. Its cost is additional compile time, especially on
-dense circuits where a long lookahead is expensive.
-
-\subsubsection{\PORTER{}+R: backward refinement}
-\label{sec:sfc-refine}
-
-\PORTER{}+R applies \SABRE{}-style bidirectional refinement
-~\cite{li2019tackling} to complete routes. Let $R(C,\ell)$ denote routing
-circuit $C$ from layout $\ell$. Pass~1 routes $C$ from $\ell_0$. Pass~2
-routes the reversed circuit from the final layout of pass~1 and retains only
-its final layout. Pass~3 routes $C$ from that layout. We use five passes by
-repeating this forward--backward cycle and report the best forward route.
-
-The first pass is the four-horizon \PORTER{} portfolio. Its selected horizon
-is retained for the remaining four passes, rather than being reselected at
-each pass. Thus \PORTER{}+R executes eight routes in total and contains the
-\PORTER{} result; retaining the best forward route ensures that it cannot
-report more EPR pairs than \PORTER{}. Individual refinement passes can still
-be worse because a post-routing layout need not preserve the free-slot
-reserve of the original layout.
-
-\subsection{Budgets and Metrics}
-\label{sec:budgets}
-\label{sec:metrics}
-
-Table~\ref{tab:budgets} makes the search budget explicit. ``Routes'' counts
-all routing invocations, including horizon probes. Thus route count is a
-transparent effort descriptor, not a claim that routes have equal runtime.
 
 \begin{table*}[t]
 \centering
@@ -202,6 +149,65 @@ Selection rule \\
 \end{tabular}
 \end{table*}
 
+\subsubsection{\PORTER{}: fixed horizon portfolio}
+\label{sec:horizon}
+
+The teleport-lookahead horizon $L_\mathrm{tp}$ determines how many DAG
+layers are examined when scoring a \TeleData{} candidate. An offline sweep
+over $\{4,8,\ldots,1024\}$ found no single best value: the per-instance
+optimum spans the range, 80-qubit QNN selecting $16$ where all six
+100--360-qubit scale-up instances select $128$. We therefore apply the same
+fixed portfolio to every circuit,
+\[
+L_\mathrm{tp}\in\{4,8,16,128\},
+\]
+route once at each horizon, and retain the completed route with the fewest
+EPR pairs.
+
+The configured default, $L_\mathrm{tp}=16$, is evaluated first and wins
+ties, so whenever it completes the portfolio cannot report a higher EPR
+count than that one-route configuration. This follows from including the
+default among the candidates; it implies nothing about horizons outside the
+set.
+
+No horizon is predicted from circuit features. The portfolio was itself
+fixed after inspecting the 48 evaluated instances, so its measured EPR
+improvement is in-sample rather than evidence of held-out generalisation.
+Nearby four-value portfolios change the aggregate by less than one percent,
+a limited robustness observation and not a substitute for out-of-sample
+validation.
+
+Its cost is compile time: four routing invocations instead of one, and long
+lookahead is expensive on dense circuits. Reported protocol times include
+every horizon probe, successful or not (Section~\ref{sec:metrics}).
+
+\subsubsection{\PORTER{}+R: backward refinement}
+\label{sec:sfc-refine}
+
+\PORTER{}+R applies \SABRE{}-style bidirectional refinement
+~\cite{li2019tackling} to complete routes. Let $R(C,\ell)$ denote routing
+circuit $C$ from layout $\ell$. Pass~1 routes $C$ from $\ell_0$. Pass~2
+routes the reversed circuit from the final layout of pass~1 and retains only
+its final layout. Pass~3 routes $C$ from that layout. We use five passes by
+repeating this forward--backward cycle and report the best forward route.
+
+The first pass is the four-horizon \PORTER{} portfolio. Its selected horizon
+is retained for the remaining four passes, rather than being reselected at
+each pass. Thus \PORTER{}+R executes eight routes in total and contains the
+\PORTER{} result; retaining the best forward route ensures that it cannot
+report more EPR pairs than \PORTER{}. Individual refinement passes can still
+be worse because a post-routing layout need not preserve the free-slot
+reserve of the original layout.
+
+\subsection{Budgets and Metrics}
+\label{sec:budgets}
+\label{sec:metrics}
+
+Table~\ref{tab:budgets} makes the search budget explicit. ``Routes'' counts
+all routing invocations, including horizon probes. Thus route count is a
+transparent effort descriptor, not a claim that routes have equal runtime.
+
+
 The primary outcome is EPR pairs consumed. \TeleSABRE{} counts \TeleData{}
 and \TeleGate{} operations; \dSABRE{} counts \TeleData{} operations; and
 \PORTER{} counts \TeleData{}, \TeleGate{}, and \TeleGatePacket{} operations,
@@ -211,13 +217,16 @@ but no selection rule trades either against EPR count.
 
 Aggregate EPR results are unweighted geometric means over circuits. For a
 comparison of methods $a$ and $b$, the reported ratio is $b/a$ and the
-percentage change is $100(b/a-1)$, calculated from the aggregate means;
-a negative percentage therefore means that $b$ uses fewer pairs than
-$a$. Failures are not imputed. Each paired mean includes only circuits completed
-by all columns in that comparison, and every such mean reports its completion
-count. This convention may make a failing baseline appear better by excluding
-hard instances; completion counts are therefore essential context rather
-than a secondary outcome.
+percentage change $100(b/a-1)$, both computed from the aggregate means. A
+ratio below one, equivalently a negative percentage, means $b$ uses fewer
+pairs: \PORTER{}'s pooled $169.4$ against \dSABRE{}'s $171.9$ is reported as
+$0.99\times$, a $1.5\%$ reduction.
+
+Failures are not imputed: comparisons exclude unsuccessful invocations
+rather than assigning them a penalty value. Each paired mean therefore
+covers only circuits completed by every column in it, and reports its
+completion count. Since that can flatter a baseline by dropping the
+instances it could not route, completion counts are co-primary outcomes.
 
 Compile times are complete protocol wall-clock times measured once per
 configuration on an otherwise idle Apple M2 system (macOS~26.5,

@@ -1,37 +1,34 @@
 %% 00-abstract.tex --- included by ../sfc.tex
 \begin{abstract}
 A distributed quantum computer executes a circuit across multiple small
-cores connected by entanglement-distribution links\chg{;} under the cost
+cores connected by entanglement-distribution links; under the cost
 model considered here, inter-core communication consumes
 Einstein--Podolsky--Rosen (EPR) pairs, which the compiler
 minimises. Choosing an inter-core action is coupled to local routing:
-\chg{a router that scores} an action together with the preparation
-\chg{its current layout demands can} favour an easy-to-prepare action
-\chg{over} one that provides greater routing progress.
+a router that scores an action together with the preparation
+its current layout demands can favour an easy-to-prepare action
+over one that provides greater routing progress.
 We present \PORTER{}, a deterministic, plan-committed router
-\chg{that represents} each
-candidate inter-core action as a \chg{\emph{plan}: its} communication
+that represents each
+candidate inter-core action as a \emph{plan}: its communication
 primitive, the gates it can discharge, and its readiness conditions. It
 ranks plans by progress, uses preparation cost only to break ties, commits
 to one, and then generates the local SWAPs needed to execute it.
-\chg{It} supports \TeleData{}, \TeleGate{}, and same-control
-\TeleGatePacket{} operations, \chg{and adds} capacity relief, a
+It supports \TeleData{}, \TeleGate{}, and same-control
+\TeleGatePacket{} operations, and adds capacity relief, a
 deterministic initial layout, and a fixed four-horizon teleport-lookahead
 portfolio.
 On MQT-Bench suites with 25, 64, and 80 logical qubits, \PORTER{} uses
 $59.7\%$, $44.9\%$, and $68.8\%$ fewer EPR pairs in geometric mean than
-\TeleSABRE{} \chg{over the instances both complete, and completes all
-24 main-suite instances to \TeleSABRE{}'s 17. Against \dSABRE{} it is}
+\TeleSABRE{} over the instances both complete, and completes all
+24 main-suite instances to \TeleSABRE{}'s 17. Against \dSABRE{} it is
 competitive rather than uniformly superior under
-the respective native protocols\chg{, using} $0.99\times$ \dSABRE{}'s
-pooled EPR at $1.20\times$ its complete compile time\chg{, and it uses
-$0.69\times$ \dSABRE{}'s pairs on a} 100--360-qubit QFT and QPEexact
-scale-up series. \chg{The two prove complementary: taking the lower count
-of the two per instance uses $9.4\%$ fewer pairs than \dSABRE{} alone.}
-Ablations show that capacity relief \chg{earns its place on completion
-rather than cost, five of nine 80-qubit circuits failing without it}. The
-implementation, \chg{harness}, replay verifier, and raw results are
-\chg{public}.
+the respective native protocols, using $0.99\times$ \dSABRE{}'s
+pooled EPR at $1.20\times$ its complete compile time, and it uses
+$0.69\times$ \dSABRE{}'s pairs on a 100--360-qubit QFT and QPEexact
+scale-up series. The
+implementation, harness, replay verifier, and raw results are
+public.
 \end{abstract}
 
 \begin{IEEEkeywords}
