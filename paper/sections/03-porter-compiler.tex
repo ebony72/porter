@@ -172,22 +172,22 @@ is what lets the opportunistic tier compete with it.
 Every candidate receives the lexicographic key
 \begin{equation}
 \mathrm{key}(\pln p)=
-\bigl(-\mathrm{total}(\pln p),\;\mathrm{prep}(\pln p),\;-f_\mathrm{dst}(\pln p)\bigr),
+\bigl(-\mathrm{score}(\pln p),\;\mathrm{prep}(\pln p),\;-f_\mathrm{dst}(\pln p)\bigr),
 \label{eq:sfc-key}
 \end{equation}
 ordered from smallest to largest, with a stable identifier as the final tie
 break.  Here $f_\mathrm{dst}$ is the free capacity of a \TeleData{}
 destination and is defined to be zero for the \TeleGate{} family.  Hence the
-primary comparison is always $\mathrm{total}$; readiness cost matters only
-when utility ties, and capacity is a final tie break.  In particular, it also
+primary comparison is always $\mathrm{score}$; readiness cost matters only
+when the score ties, and capacity is a final tie break.  In particular, it also
 implements a \TeleData{}-first preference when a teleport and a gate plan
-tie on $\mathrm{total}$, because an admissible teleport has
+tie on $\mathrm{score}$, because an admissible teleport has
 $f_\mathrm{dst}\ge f_\mathrm{min}$.
 
-$\mathrm{total}$ is a ranking heuristic, not a common physical unit: gate
+$\mathrm{score}$ ranks plans; it is not a common physical unit: gate
 teleportation counts CX gates discharged immediately, whereas a data teleport
 is valued by current and predicted reductions in core distance.  Specifically,
-a \TeleGate{} has $\mathrm{total}=1$, and a packet has $\mathrm{total}$
+a \TeleGate{} has $\mathrm{score}=1$, and a packet has $\mathrm{score}$
 equal to the number of CX gates in its collected sequence.
 
 For a \TeleData{} plan moving $q$ from $c_\mathrm{src}$ to
@@ -212,7 +212,7 @@ $w_0=0.9$, $\gamma=0.9$, and $w_\mathrm{min}=0.5$,
 \mathrm{lookahead}(\pln p)&=
  \sum_{k=1}^{L_\mathrm{tp}}\ \sum_{g\in A_k(\pln p)}w_k\Delta(g),
 \nonumber\\[-2pt]
-\mathrm{total}(\pln p)&=
+\mathrm{score}(\pln p)&=
  \mathrm{direct}(\pln p)+\mathrm{lookahead}(\pln p).
 \nonumber
 \end{align}
@@ -231,8 +231,8 @@ available, and, for \TeleData{}, the destination satisfies the capacity rule.
 The readiness heuristic $\mathrm{prep}(\pln p,\ell)$ is the sum of the
 intra-core distances from required endpoints (or the destination free slot)
 to their required ports.  It is zero exactly for a ready plan.  It is a
-tie-breaking estimate of remaining local routing work, not part of plan utility
-or a claimed exact SWAP count.
+tie-breaking estimate of remaining local routing work, not part of a plan's
+score or a claimed exact SWAP count.
 
 Because plans are scored before any plan-specific preparation SWAP
 exists, the choice is made on what an action is worth rather than on what it
@@ -250,14 +250,22 @@ through the port prematurely.  Candidates are ranked by post-SWAP
 $\mathrm{prep}$, and at most one move per plan side is applied in a
 preparation round.
 
-Preparation always completes.  Every core retains a free position, a
-teleport entering a destination only when it has at least $f_\mathrm{min}=2$
-and therefore leaving one, so on a connected core that free position can be
-walked to an occupied port to clear it, and the endpoint then walked to a
-neighbour of that port along a path meeting no edge incident to it --- at most
-a core diameter of local SWAPs apiece.  The two sides lie in different cores
-and a local SWAP moves no qubit between cores, so neither side can undo the
-other and the capacity rule survives preparation.
+A committed plan can always be prepared.  Every core retains a free position,
+a teleport entering a destination only when it has at least
+$f_\mathrm{min}=2$ and therefore leaving one, so on a connected core that
+free position can be walked to an occupied port to clear it, and the endpoint
+then walked to a neighbour of that port along a path meeting no edge incident
+to it --- at most a core diameter of local SWAPs apiece.  The two sides lie in
+different cores and a local SWAP moves no qubit between cores, so neither side
+can undo the other and the capacity rule survives preparation.
+
+This establishes that a bounded preparation sequence \emph{exists} for a
+committed plan under the stated capacity and connectivity assumptions.  It
+does not establish that the greedy rule above reaches one: candidates are
+ranked by post-SWAP $\mathrm{prep}$ and the best is applied, but a move is
+not required to improve on the current layout, so the argument supplies no
+descent measure.  The implementation therefore bounds preparation explicitly
+(Section~\ref{sec:sfc-progress}).
 
 \subsection{Same-Control Packet Collection}
 \label{sec:sfc-packet}

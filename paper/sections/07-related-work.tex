@@ -19,8 +19,8 @@ complete inter-core plan before generating plan-specific preparation SWAPs,
 commits to the selected plan, and then prepares it. It further adds
 same-control \TeleGatePacket{} operations and capacity relief. These are
 algorithmic differences, not a claim that the two systems are evaluated
-under identical search budgets; the native-protocol comparison in
-Section~\ref{sec:rq1} reports those budgets explicitly.
+under identical search budgets; Table~\ref{tab:budgets} states the routing
+budget of every configuration reported here.
 
 \dSABRE{}~\cite{lidsabre} is the closest methodological comparison. Like
 \PORTER{}, it is locality-first: it enters the inter-core stage only when
@@ -36,7 +36,7 @@ the staging SWAPs it needs are performed inside the action, which is rolled
 back to a no-op if any step fails. \PORTER{} decides a whole plan, including
 the primitive it will use, then prepares that plan with local SWAPs until it
 is ready and executes it, without reopening the remote choice. \PORTER{} uses
-preparation cost as a tie-breaker after plan utility, while \dSABRE{}
+preparation cost as a tie-breaker after plan score, while \dSABRE{}
 incorporates it in its move score. \PORTER{} builds one deterministic
 initial layout, where \dSABRE{} routes a best-of-$N$ candidate set.
 
@@ -45,7 +45,7 @@ assumptions, \dSABRE{} safe mode provides a completion guarantee.
 \PORTER{} guarantees correctness of emitted routes and implementation
 termination through guards, but does not claim completion for every feasible
 input (Section~\ref{sec:sfc-progress}). Completion in the reported
-selected-horizon experiments is empirical evidence, not a proof.
+horizon-portfolio experiments is empirical evidence, not a proof.
 
 \textbf{Partition-first and communication-amortising approaches.}
 Partition-first compilers assign logical qubits to cores by hypergraph or

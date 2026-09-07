@@ -1350,7 +1350,7 @@ key_probe = json.load(open(f"{BASE}/paper/selection_key_probe.json"))
 kc = key_probe["counts"]
 check("key rankings observed", 19222, kc["rankings"])
 check("key tie-decided rankings", 1871, kc["tie_decided"])
-check("key tie-decided share (nine in ten decided by total alone)",
+check("key tie-decided share (nine in ten decided by score alone)",
       9.73, 100.0 * kc["tie_decided"] / kc["rankings"])
 check("key ties broken by prep", 1244, kc["tie_broken_by_prep"])
 check("key ties broken by -f_dst", 627, kc["tie_broken_by_capacity"])
