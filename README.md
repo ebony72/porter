@@ -154,6 +154,16 @@ emitted operation stream is byte-identical across runs. The speculative
 horizons are bounded by a deterministic work budget rather than wall-clock
 time, so the selected route does not depend on machine load.
 
+## Licence
+
+MIT — see [`LICENSE`](LICENSE).
+
+Two things the licence does not cover. `patched_telesabre/layout.c.patch` is a
+small diff against the upstream TeleSABRE sources, which are not vendored here
+and carry their own licence; `build.sh` applies the patch to a copy of an
+upstream checkout you supply. The manuscript, its figures and the PDFs in
+`paper/` are the authors' work and are not released under the MIT licence.
+
 ## Citing
 
 The manuscript is under review; please cite the PDF in `paper/` until a
