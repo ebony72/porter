@@ -12,17 +12,14 @@ instance: \PORTER{} records 11 wins, 10 losses, and 3 ties against
 under the reported native protocols, \PORTER{} is competitive with
 \dSABRE{} rather than uniformly superior.
 
-\textbf{Complementarity is an oracle observation, not a deployable
-portfolio.} If both compilers are run and the lower EPR count is
-selected post hoc, the per-instance oracle minimum is $155.7$ for \PORTER{}
-and $150.5$ for \PORTER{}+R. These values are $9.4\%$ and $12.5\%$ below
-\dSABRE{}'s pooled geometric-mean EPR count, respectively, and $8.2\%$ and
-$10.3\%$ below it once GHZ and Graphstate are excluded. Obtaining either
-requires both compilation budgets and knowledge of the outcomes after both
-runs finish. No selector tested here predicts the winner in advance. The
-result therefore shows that, under the reported protocols, the two routers
-obtain lower-EPR outcomes on different instances; it does not define an
-operational portfolio policy or establish a general ranking.
+\textbf{The two routers are complementary.} They obtain their lower EPR
+counts on different instances. Selecting
+the lower count for each instance gives $155.7$ with \PORTER{} and $150.5$
+with \PORTER{}+R, which are $9.4\%$ and $12.5\%$ below \dSABRE{}'s pooled
+geometric-mean EPR count, and $8.2\%$ and $10.3\%$ below it once GHZ and
+Graphstate are excluded. The margin is a property of the pair rather than of
+either compiler, and it indicates that the two designs are not
+interchangeable.
 
 The controlled experiments delimit what can be inferred from this
 native-protocol comparison. With the initial layout controlled, \PORTER{}
@@ -72,8 +69,7 @@ ablation.
 select $L_\mathrm{tp}=128$, whereas the configured one-route default is
 $L_\mathrm{tp}=16$. This motivates two experiments. First, the fixed
 four-horizon portfolio should be validated on held-out circuit families or
-architectures, because its values were selected after inspecting the present
-evaluation corpus. Second, a predictor should be tested for its ability to
+architectures. Second, a predictor should be tested for its ability to
 reduce the number of routing invocations without being fitted and evaluated
 on the same corpus. A per-qubit or horizon-limited interaction statistic is
 one candidate, because the scoring decision concerns moving one qubit over

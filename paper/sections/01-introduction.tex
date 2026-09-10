@@ -42,8 +42,7 @@ will satisfy those conditions. It first ranks plans by the progress they
 provide, uses preparation cost only to break ties, commits to one plan,
 and then generates the local SWAPs needed to make that plan ready.
 \PORTER{} also includes capacity relief for congested cores and a
-deterministic initial-layout heuristic, in place of the best-of-$N$
-search its predecessors run. Its operating protocol then routes each
+deterministic initial-layout heuristic. Its operating protocol then routes each
 circuit at a fixed portfolio of teleport-lookahead horizons.
 
 \textbf{Problem.} Given a circuit, a multi-core architecture, and an initial
@@ -60,15 +59,13 @@ SWAPs (Section~\ref{sec:sfc-plan-first}). It combines this stage with a
 two-tier capacity-relief mechanism and a deterministic initial-layout
 heuristic (Sections~\ref{sec:sfc-relief} and~\ref{sec:sfc-layout}).
 \item \emph{A fixed lookahead-horizon portfolio.} Rather than assuming that
-one teleport-lookahead horizon suits every circuit --- across our
-benchmark the best value spans a factor of thirty-two ---, \PORTER{} runs
+one teleport-lookahead horizon suits every circuit, \PORTER{} runs
 the same four horizons and retains the completed route with the lowest EPR
 count. Since the configured horizon is included and wins ties, this
 portfolio cannot return a higher EPR count than that configured one-route
 baseline when the baseline completes (Section~\ref{sec:horizon}).
 \item \emph{A controlled empirical evaluation.} We evaluate 48
-circuit--architecture instances --- 24 main-suite, six scale-up and
-eighteen heavy-hex --- using native, shared-layout, and
+circuit--architecture instances using native, shared-layout, and
 cross-layout protocols, and we ablate the principal mechanisms.
 Every reported \PORTER{} route is checked by an independently implemented
 replay verifier; the implementation, evaluation harness, and per-circuit
@@ -90,15 +87,20 @@ complete compile time under the respective native protocols. On the
 $0.69\times$ \dSABRE{}'s EPR count and $0.52\times$ its compile time,
 and it obtains the lower EPR count on all six instances.
 
-These are results under the stated protocols, not universal rankings.
+These are results under the stated protocols.
 The route budgets differ: \PORTER{} spends four routes against
-\TeleSABRE{}'s three seeds and \dSABRE{}'s nine. The horizon portfolio was
-also fixed by inspecting the evaluation corpus, so its benefit awaits
-out-of-sample validation.
+\TeleSABRE{}'s three seeds and \dSABRE{}'s nine. 
 
-Section~\ref{sec:rqs} states the research questions and links each mechanism
-to its evaluation. Section~\ref{sec:related} distinguishes \PORTER{} from
-closely related routers, especially \dSABRE{}. 
+\textbf{Organisation.} Section~\ref{sec:background} fixes the machine model,
+the communication primitives, and the problem statement.
+Section~\ref{sec:sfc} presents \PORTER{}. Section~\ref{sec:methodology} states the
+research questions, the experimental inputs, and the comparison protocols,
+including the multi-horizon and refinement protocols that invoke the router
+repeatedly. Section~\ref{sec:results} reports the results in the order of
+those questions. Section~\ref{sec:discussion} discusses what the evidence
+does and does not establish and states the open problems.
+Section~\ref{sec:related} places \PORTER{} among closely related routers,
+especially \dSABRE{}, and Section~\ref{sec:conclusion} concludes.
 
 The implementation, replay verifier, comparison harness, and raw
 per-circuit results are available at

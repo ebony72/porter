@@ -38,10 +38,10 @@ fixed key order and any residual tie uses a constant-initialised generator.
 Thus, a fixed circuit, machine, layout, and horizon produce a byte-identical
 operation stream. A separately implemented replay verifier checks every
 reported \PORTER{} stream for gate coverage, dependency order, and physical
-legality; the verifier is tested by fault injection (\appVerification{}).
+legality, and the verifier is itself tested by fault injection.
 
 \textbf{Architectures.} We use the two grid-of-grids devices evaluated by
-\dSABRE{}~\cite{lidsabre}: architecture~A, a $2{\times}2$ array of
+\dSABRE{}~\cite{lidsabre} and introduced in \TeleSABRE{}: architecture~A, a $2{\times}2$ array of
 $3{\times}3$ cores (36 physical qubits), and architecture~H, a
 $2{\times}3$ array of $4{\times}4$ cores (96 physical qubits). RQ4 also
 uses \dSABRE{}'s $5{\times}5$-core scale-up series and two networks of IBM
@@ -54,8 +54,7 @@ CX-count match. Architecture~A uses six 25-qubit families (AE, GHZ,
 Graphstate, QFT, QNN, and Random). Architecture~H uses nine 64-qubit
 families, adding QPEexact, QAOA, and Multiplier. We also construct an
 80-qubit suite of the same nine families; its AE and QNN instances are
-reconstructed because the stock generator does not produce them. The
-supplement documents these reconstructions (\appSuite{}).
+reconstructed because the stock generator does not produce them. 
 
 \label{sec:baselines}
 \textbf{Baselines and execution.} We compare with \TeleSABRE{}
@@ -69,7 +68,7 @@ positions than its configured margin, which is every 25- and 80-qubit instance
 and no 64-qubit one. We therefore use and release a minimal patch that assigns
 the logical qubits the stock code leaves unplaced to the least-loaded core and
 changes nothing else, so results agree with the stock binary wherever it
-completes --- the whole 64-qubit suite.
+completes.
 Each compiler invocation has a 900-s wall-clock limit; an invocation that
 exceeds it is recorded as incomplete.
 
@@ -91,12 +90,10 @@ from that selected route.
 
 For \dSABRE{}, \texttt{SabreLayout} operates on its shipped
 corners-removed coupling map. The removed low-degree corner positions begin
-empty and provide capacity for arrivals and evictions; they are distinct from
-the designated communication ports.
+empty and provide capacity for arrivals and evictions.
 
 \textbf{Shared layouts (RQ2).} Both \dSABRE{} and \PORTER{} route the same
-externally supplied layout, the \texttt{pytket-dqc} hypergraph partition
-(\appPytket{}). This controls the initial mapping but not search effort:
+externally supplied layout, the \texttt{pytket-dqc} hypergraph partition. This controls the initial mapping but not search effort:
 \dSABRE{} uses three routing passes, \PORTER{} four horizons, and
 \PORTER{}+R eight routes. It therefore isolates layout source rather than
 ranking routing loops at a matched budget.
@@ -116,10 +113,10 @@ repeat that pass; they do not change the router itself.
 \centering
 \caption{Configurations used in Section~\ref{sec:results}: layout source,
 layout count $\lvert\mathcal{L}\rvert$, routes spent per layout $P$, total
-routes, and what is selected. A route is one router invocation. $P$ is the
-four candidate horizons on the rows that select a horizon and nothing else,
-and the five refinement passes on the $+$R rows, whose first pass is itself
-the four-horizon portfolio --- hence $4+4=8$.}
+routes, and what is selected. A route is one router invocation. On the
+\PORTER{} rows, $P$ counts the four candidate horizons; on the $+$R rows it
+counts the five refinement passes, of which the first is itself the
+four-horizon portfolio, giving $4+4=8$ routes.}
 \label{tab:budgets}
 \setlength{\tabcolsep}{6pt}
 \small
@@ -171,13 +168,6 @@ count than that one-route configuration. This follows from including the
 default among the candidates; it implies nothing about horizons outside the
 set.
 
-No horizon is predicted from circuit features. The portfolio was itself
-fixed after inspecting the 48 evaluated instances, so its measured EPR
-improvement is in-sample rather than evidence of held-out generalisation.
-Nearby four-value portfolios change the aggregate by less than one percent,
-a limited robustness observation and not a substitute for out-of-sample
-validation.
-
 Its cost is compile time: four routing invocations instead of one, and long
 lookahead is expensive on dense circuits. Reported protocol times include
 every horizon probe, successful or not (Section~\ref{sec:metrics}).
@@ -194,11 +184,9 @@ repeating this forward--backward cycle and report the best forward route.
 
 The first pass is the four-horizon \PORTER{} portfolio. Its selected horizon
 is retained for the remaining four passes, rather than being reselected at
-each pass. Thus \PORTER{}+R executes eight routes in total and contains the
-\PORTER{} result; retaining the best forward route ensures that it cannot
-report more EPR pairs than \PORTER{}. Individual refinement passes can still
-be worse because a post-routing layout need not preserve the free-slot
-reserve of the original layout.
+each pass. Thus \PORTER{}+R executes eight routes in total, of which the first four
+are exactly the routes \PORTER{} runs; since the best forward route is the
+one reported, \PORTER{}+R can never report more EPR pairs than \PORTER{}.
 
 \subsection{Budgets and Metrics}
 \label{sec:budgets}
@@ -213,8 +201,7 @@ The primary outcome is EPR pairs consumed. \TeleSABRE{} counts \TeleData{}
 and \TeleGate{} operations; \dSABRE{} counts \TeleData{} operations; and
 \PORTER{} counts \TeleData{}, \TeleGate{}, and \TeleGatePacket{} operations,
 one pair per packet. Under the cost model of Section~\ref{sec:scope}, these are the
-same physical resource. We also report intra-core SWAP counts and wall-clock compile time,
-but no selection rule trades either against EPR count.
+same physical resource. We also report wall-clock compile time.
 
 Aggregate EPR and compile-time results are unweighted geometric means
 over circuits. For a

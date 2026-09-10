@@ -1,4 +1,4 @@
-"""Retire the round-3 \\chg{} highlights and mark the current round instead.
+"""Retire the previous round's \\chg{} highlights and mark the current round instead.
 
 Strips every existing \\chg{...} wrapper (balanced-brace aware, so nested
 braces survive), then diffs each file against its state at the baseline commit
@@ -14,7 +14,7 @@ import re, subprocess, sys, difflib
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-BASE = "ffa9b25"   # the end of round 4; bump this when a new round starts
+BASE = "a9466d1"   # the end of round 5; bump this when a new round starts
 FILES = sorted(p.relative_to(REPO).as_posix() for p in (REPO / "paper/sections").glob("*.tex"))
 FILES.append("paper/sfc_appendix.tex")
 

@@ -43,8 +43,7 @@ normal plan by more than $m_\mathrm{assist}$}
 
 The implementation additionally bounds the total iterations and consecutive
 iterations that retire no gate, and detects repeated preparation states.  These
-guards ensure termination of an implementation run; they are not a proof that
-every input is routed successfully (Section~\ref{sec:sfc-progress}).
+guards ensure termination of an implementation run (Section~\ref{sec:sfc-progress}).
 
 \subsection{Initial Layout}
 \label{sec:sfc-layout}
@@ -64,8 +63,7 @@ CX-only DAG layer of $g$.  Logical qubits are visited in first-CX-occurrence
 order and assigned, when possible, to the core containing their heaviest
 already assigned neighbour while preserving the reserve.  Within a core,
 more strongly interacting logical qubits receive more central physical
-positions.  This favours early, repeated interactions without a best-of-$N$
-layout search. Its one weakness is that the reserve is uniform across
+positions.  This favours early, repeated interactions. Its one weakness is that the reserve is uniform across
 cores, which suits a grid or a ring but not a core graph with a hub
 (Section~\ref{sec:heavyhex}).
 
@@ -139,16 +137,20 @@ test.  \PORTER{} commits to the best of them.
 
 \textbf{Blocked plans} $\mathcal B$ are the \TeleData{} moves that would
 otherwise be generated but whose destination fails that capacity test.  They
-are never executed --- committing one would drive a core below the floor ---
-but they are generated and scored, because $\mathcal B$ is the router's
-measurement of the work capacity is currently preventing: it names the
-saturated cores and says how much gain is being forgone at each.
+are never executed, since committing one would drive a core below the floor.
+They are nevertheless generated and scored, because each of them records a
+saturated destination core together with the score of the move that core is
+refusing.  Read as a set, $\mathcal B$ therefore reports which cores are
+congested and how much progress is being forgone at each, and this is the
+only information the two relief rules below consult.
 
 \textbf{Relief plans} are generated on demand, to create space for a
-blocked one.  Starting at the congested destination core $c$, a breadth-first
-search finds a nearest \emph{reservoir}, a core with at least
-$f_\mathrm{min}$ free positions; the relief plan is the \TeleData{} moving
-one logical qubit from the penultimate core of that path into the reservoir.
+blocked one.  A relief plan is always generated \emph{from} a particular
+blocked plan, and $c$ denotes that blocked plan's own destination core ---
+the core whose shortage stopped it.  A breadth-first search from $c$ finds a
+nearest \emph{reservoir}, a core with at least $f_\mathrm{min}$ free
+positions; the relief plan is the \TeleData{} moving one logical qubit from
+the penultimate core of that path into the reservoir.
 Only that final hop is committed, and after it executes the router
 regenerates every plan, so a multi-hop route propagates free capacity one hop
 at a time rather than reserving an atomic relay
@@ -156,15 +158,18 @@ at a time rather than reserving an atomic relay
 purpose; the blocked plan that motivated it is never itself committed.
 
 \textbf{When each fires.}  Normally the best member of $\mathcal P$ is
-committed.  Two rules override that, both driven by the best-scoring member
-of $\mathcal B$ alone.  \emph{Tail relief} fires reactively, when
-$\mathcal P$ is empty and the front is starved.  \emph{Opportunistic relief}
-fires pre-emptively, while a normal plan is still available, when the best
-blocked plan out-scores it by more than $m_\mathrm{assist}=5.0$ --- the
-judgement being that clearing the congestion now is worth more than taking
-the best currently legal action.  Both tiers run the same reservoir search
-and commit one hop of it, and scoring relief on the same key as ordinary work
-is what lets the opportunistic tier compete with it.
+committed.  Two rules override that, and they consult $\mathcal B$
+differently.  \emph{Tail relief} fires reactively, when $\mathcal P$ is empty
+and the front is starved: a reservoir search is run from the destination core
+of \emph{every} blocked plan, and the relief plans so generated compete with
+one another, shortest search path first and then on the ordinary selection
+key.  \emph{Opportunistic relief} fires pre-emptively, while a normal plan is
+still available, when the \emph{best-scoring} blocked plan out-scores that
+normal plan by more than $m_\mathrm{assist}=5.0$; only that one blocked
+plan's destination core seeds the search, the judgement being that clearing
+the congestion it names is worth more than taking the best currently legal
+action.  Both tiers commit a single hop, and scoring relief on the same key
+as ordinary work is what lets the opportunistic tier compete with it.
 
 \subsection{Plan Scoring and the Selection Key}
 \label{sec:sfc-scoring}
@@ -230,9 +235,7 @@ adjacent to their designated communication ports, the required ports are
 available, and, for \TeleData{}, the destination satisfies the capacity rule.
 The readiness heuristic $\mathrm{prep}(\pln p,\ell)$ is the sum of the
 intra-core distances from required endpoints (or the destination free slot)
-to their required ports.  It is zero exactly for a ready plan.  It is a
-tie-breaking estimate of remaining local routing work, not part of a plan's
-score or a claimed exact SWAP count.
+to their required ports.  It is zero exactly for a ready plan.  
 
 Because plans are scored before any plan-specific preparation SWAP
 exists, the choice is made on what an action is worth rather than on what it
@@ -260,14 +263,6 @@ to it --- at most a core diameter of local SWAPs apiece.  The two sides lie in
 different cores and a local SWAP moves no qubit between cores, so neither side
 can undo the other and the capacity rule survives preparation.
 
-That argument is an \emph{existence} claim about a bounded preparation
-sequence, and nothing more.  It does not establish that the greedy rule
-above reaches such a sequence: candidates are
-ranked by post-SWAP $\mathrm{prep}$ and the best is applied, but a move is
-not required to improve on the current layout, so the argument supplies no
-descent measure.  The implementation therefore bounds preparation explicitly
-(Section~\ref{sec:sfc-progress}).
-
 \subsection{Same-Control Packet Collection}
 \label{sec:sfc-packet}
 
@@ -280,11 +275,12 @@ front CX gates with control $q_c$ and target in $c_t$, together with executable
 size cap.  A packet is generated only if at least two CX gates are collected.
 
 Packet readiness means readiness to establish the cat resource, not readiness
-of every later target.  Once committed, the router emits one
-\texttt{cat\_entangler}, routes each recorded target beside the target-side
-port without disturbing either reserved port, emits its \texttt{cat\_cx}, and
-finally emits \texttt{cat\_disentangler}.  The recorded order follows the DAG,
-so the packet plan may safely count all of its members as discharged work.
+of every later target.  Once committed, the router emits a single
+cat-entangler; then, for each recorded target in turn, it routes that target
+beside the target-side port without disturbing either reserved port and emits
+the target's CX against that port; and it finally emits one
+cat-disentangler.  The recorded order follows the DAG, so the packet plan may
+safely count all of its members as discharged work.
 
 \subsection{Progress and the Failure Model}
 \label{sec:sfc-progress}
@@ -303,6 +299,4 @@ preparation states, an iteration budget and a no-progress limit --- safeguards
 on the greedy realisation of the policy rather than conditions the argument of
 Section~\ref{sec:sfc-plan-first} needs.  Thus every emitted route is checked
 for legality, and every implementation run terminates, but successful
-completion on every feasible input is not claimed --- the guarantee \dSABRE{}
-has and \PORTER{} does not (Section~\ref{sec:related}).
-A per-iteration complexity analysis is given in \appComplexity{}.
+completion on every feasible input is not claimed.

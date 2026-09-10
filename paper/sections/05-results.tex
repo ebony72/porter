@@ -24,11 +24,10 @@ with \TeleSABRE{}. Block (b) includes every circuit in each suite and omits
 \TeleSABRE{}. $t$ is complete protocol time (geometric mean, seconds).
 ``W/L/T'' compares the named \PORTER{} protocol with \dSABRE{} over all 24
 instances. Bold marks the lowest EPR count among the four reported
-configurations in each row. The two rightmost columns are an \emph{oracle
-minimum}: after both \dSABRE{} and the named \PORTER{} protocol have
-run, they select the lower EPR count for each instance. They are not a fifth
-compiler or a deployable single-protocol result, and are therefore left
-unbold.}
+configurations in each row. The two rightmost columns give the per-instance
+minimum of \dSABRE{} and the named \PORTER{} protocol, taken after both have
+run; they measure how far apart the two compilers' outcomes fall and are left
+unbold because they are not a single compiler.}
 \label{tab:main}
 \setlength{\tabcolsep}{12.5pt}
 \small
@@ -84,11 +83,11 @@ to $3.00$ seconds per instance.
 \PORTER{}+R saving is on 80q Multiplier ($2{,}130$ versus $4{,}841$); its largest
 loss is on 80q Random ($10{,}848$ versus $10{,}551$).
 
-\textbf{Oracle diagnostic.} The oracle columns diagnose the diversity of
-outcomes, rather than define an additional compiler configuration. After
-both compilers have run, selecting the lower EPR count for each instance
-produces geometric means of $155.7$ with \PORTER{} and $150.5$ with
-\PORTER{}+R.
+\textbf{Complementarity.} The two rightmost columns measure how differently
+the two compilers behave. Selecting the lower EPR count for each instance,
+after both have run, produces geometric means of $155.7$ with \PORTER{} and
+$150.5$ with \PORTER{}+R --- below either compiler's own pooled mean, because
+each takes some instances the other loses.
 
 \subsection{RQ2: Routing With Layout Controlled}
 \label{sec:shared_results}
@@ -127,8 +126,11 @@ Initial layout & \dSABRE{} & \PORTER{} & \PORTER{}+R \\
 \end{tabular}}
 \end{table}
 
-\TeleSABRE{} is not included because it supplies a successful layout for
-only 17 instances. For a fixed layout, \dSABRE{} and \PORTER{} are close:
+\TeleSABRE{} appears in neither role. It cannot supply a routing column,
+because its released implementation always constructs its own initial layout and exposes no
+interface through which a layout computed elsewhere could be supplied. It is
+also a poor layout row, since it emits a layout only on the 17 instances it
+completes. For a fixed layout, \dSABRE{} and \PORTER{} are close:
 across the rows of Table~\ref{tab:shared}, their difference is at most
 $1.9\%$ in block~(a) and at most $6.1\%$ in block~(b). By contrast,
 changing the layout source produces a $9.2$--$14.5\%$ spread across
@@ -162,8 +164,7 @@ The selected multi-horizon result in Table~\ref{tab:main} is not used here.
 \centering
 \caption{80-qubit ablation. ``No pk'' disables \TeleGatePacket{}; ``No
 rel.'' disables both relief tiers; ``\TeleData{}'' removes the \TeleGate{}
-family and also changes relief eligibility, so it is a vocabulary
-comparison rather than a strict one-factor ablation. ``pk''/``tg'' are the full
+family and also changes relief eligibility. ``pk''/``tg'' are the full
 configuration's packet and single-\TeleGate{} counts. $^{\dagger}$ denotes
 non-completion. Geometric means are reported only over rows completed by
 both variants in the stated comparison.}
@@ -218,8 +219,7 @@ mean against $124.8$ for the full configuration.
 \textbf{Capacity relief.} Disabling both relief tiers prevents completion on
 five of the nine 80-qubit circuits. Relief earns its place on completion
 rather than cost: on the four circuits completed either way the full
-configuration uses $174.1$ EPR pairs against $173.3$, while across the 19
-instances that complete both ways it saves $24.8\%$.
+configuration uses $174.1$ EPR pairs against $173.3$.
 
 \subsection{RQ4: Robustness to Scale and Topology}
 \label{sec:scaleup}
@@ -234,7 +234,7 @@ EPR and complete compile time.
 \caption{Scale-up results under native protocols. The $5{\times}5$-core
 architectures grow from 6 to 20 cores, read from \dSABRE{}'s own device
 files; our \dSABRE{} column reproduces its published
-series~\cite{lidsabre} ($201/246/766/896/1890/1938$). $t$ is complete
+series~\cite{lidsabre}. $t$ is complete
 protocol time. \PORTER{} selects $L_\mathrm{tp}=128$ for every instance.}
 \label{tab:scaleup}
 \setlength{\tabcolsep}{5pt}
@@ -334,9 +334,10 @@ Protocol & routes & EPR & vs.\ \dSABRE{} & time (s) & vs.\ \dSABRE{} \\
 \end{table}
 
 Table~\ref{tab:protocols} summarises the EPR/time trade-off among the
-evaluated protocols. Each \PORTER{} configuration contains the route(s) of
-the preceding one and retains the best EPR result, so its EPR
-column is monotone by construction; compile time is not. Relative to
+evaluated protocols. \PORTER{}+R runs \PORTER{}'s four routes and then four
+more, and reports the best forward route, so both columns are monotone by
+construction. The table therefore prices refinement rather than
+ranking two independent protocols. Relative to
 \dSABRE{}, \PORTER{} uses $0.99\times$ the pooled geometric-mean EPR count
 at $1.20\times$ the complete protocol time. \PORTER{}+R reduces EPR to
 $0.91\times$ \dSABRE{}'s count at $2.15\times$ its time. These are complete

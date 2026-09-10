@@ -15,9 +15,14 @@ each logical qubit. The \emph{front} is the set of unexecuted gates whose
 predecessors have all executed. Only front gates may execute immediately or
 be routed toward execution.
 
-The physical qubits are partitioned into \emph{cores}. Each core has an
-intra-core coupling graph, and adjacent cores are connected by an
-inter-core link whose endpoints are \emph{communication ports}. In every
+The physical qubits are partitioned into $K$ \emph{cores}, each with its own
+intra-core coupling graph, and selected pairs of cores are joined by an
+inter-core link whose two endpoints are \emph{communication ports}. The
+\emph{core graph} has the $K$ cores as its vertices and one edge for each
+inter-core link; two cores are \emph{adjacent} when the core graph joins
+them. We assume throughout that the core graph is connected and that the
+coupling graph of every individual core is connected, so that any logical
+qubit can in principle be moved to any physical position. In every
 architecture evaluated here, adjacent cores have exactly one link, and each
 core uses a distinct port for each neighbour. Hence, once an adjacent pair
 of cores is chosen, the communication-port pair is fixed, and a
@@ -40,9 +45,7 @@ multi-core architecture $\arch$ with $K$ cores, intra-core coupling graphs,
 inter-core links, designated communication ports, and an initial layout
 $\ell_0$, the compiler must emit a legal operation stream that implements
 every gate in $C$. The objective is to minimise the number of consumed
-Einstein--Podolsky--Rosen (EPR) pairs. We record intra-core SWAP count,
-circuit depth, and compile time, but no decision rule in this paper trades
-these quantities against EPR-pair consumption.
+EPR pairs. We also record compile time.
 
 \textbf{Cost model.} Each \TeleData{}, \TeleGate{}, and
 \TeleGatePacket{} operation consumes one EPR pair. A packet consumes one
@@ -57,8 +60,7 @@ not assume dedicated communication memory. The model does not represent
 link contention, entanglement-generation latency or fidelity, purification,
 or classical-communication latency. Accordingly, all results concern
 EPR-pair consumption under this model, rather than scheduled execution
-time or end-to-end fidelity. \appThreats{} discusses these and the other
-evaluation assumptions.
+time or end-to-end fidelity. 
 
 \subsection{Communication Primitives}
 \label{sec:primitives}
@@ -139,7 +141,7 @@ EPR pair shared by the two communication ports (squares). (a)~\TeleData{}
 moves logical qubit $q$ from one core to a free destination port in another
 core; $q$ must first be brought adjacent to the source port.
 (b)~\TeleGate{} implements one remote CX through a
-cat-entangler~\cite{yimsiriwattana2004generalized} (\appCatent{}): the
+cat-entangler~\cite{yimsiriwattana2004generalized}: the
 target-side port becomes a proxy for control $q_c$, and neither logical
 operand moves. (c)~\TeleGatePacket{} retains that resource for an ordered
 same-control run of remote CX gates. Each target is brought next to the
@@ -156,13 +158,16 @@ is therefore \emph{latent}: one communication action can reduce the cost of
 multiple later interactions.
 
 \textbf{Gate teleportation (\TeleGate{}).} \TeleGate{} implements one
-remote CX without moving either logical operand. An EPR pair entangles the
-communication ports. A cat-entangler creates the cat state
-$\alpha|00\rangle + \beta|11\rangle$ between control $q_c$ and the
-remote target-side port $e_B$. A CX controlled by $e_B$ therefore acts as
+remote CX without moving either logical operand. Write $e_A$ for the
+communication port in the control's core and $e_B$ for the port at the other
+end of the link, in the target's core, and let
+$\alpha|0\rangle+\beta|1\rangle$ be the state of the control $q_c$. An EPR
+pair entangles $e_A$ with $e_B$; a cat-entangler then consumes $e_A$ and
+leaves the cat state $\alpha|00\rangle+\beta|11\rangle$ on the pair
+$(q_c,e_B)$, so that $e_B$ carries a copy of the control's
+computational-basis value. A CX controlled by $e_B$ therefore acts as
 if it were controlled by $q_c$; a cat-disentangler restores $q_c$ and
-releases both ports. \appCatent{} gives the two constructions used here.
-The benefit of \TeleGate{} is \emph{direct}: it discharges exactly one CX.
+releases both ports. 
 
 \textbf{Same-control packet (\TeleGatePacket{}).} If an ordered sequence
 of remote CX gates has a common control and all of its targets are in the

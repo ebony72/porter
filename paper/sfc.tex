@@ -22,8 +22,8 @@
 %% marks are retired when the next round's are added, so exactly one round is
 %% ever highlighted.  NO MARKS ARE PRESENT: round 6's were unwrapped from the
 %% source, so the macro is defined and currently unused.  Marks sit in prose
-%% only -- table cells are checked against the released results by
-%% paper/verify_tex_tables.py, which parses those rows.
+%% only -- table cells and captions are checked against the released results
+%% by paper/verify_tex_tables.py, which parses those rows.
 \newif\ifrevisionhighlight
 \revisionhighlightfalse
 \newcommand{\chg}[1]{\ifrevisionhighlight\textcolor[HTML]{B03000}{#1}\else#1\fi}
