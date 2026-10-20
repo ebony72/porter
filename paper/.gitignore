@@ -6,3 +6,9 @@
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# Manuscript sources are not released -- only the built PDFs ship.
+*.tex
+*.bib
+sections/
+fig/
