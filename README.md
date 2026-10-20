@@ -122,7 +122,7 @@ These need `networkx`, `qiskit`, and sibling checkouts of the baselines.
 | `experiments/compare_heavyhex.py` | The two heavy-hex core graphs (ring and star) |
 | `experiments/ablation_mechanisms.py`, `bench_*.py`, `rerun_*.py` | The harnesses behind each released results file |
 | `patched_telesabre/` | Patch and build script for the TeleSABRE binary used by the comparison; see its README |
-| `paper/` | Manuscript sources, both PDFs, every released results file, and the four scripts that check the paper against them |
+| `paper/` | Both PDFs, every released results file, and the four scripts that check the paper against them |
 | `paper/horizon_sweep/` | The lookahead-horizon study: a 3,120-route sweep grid (every completing route replay-verified), plus scripts and reports |
 | `paper/local_routing/` | The intra-core routing-strategy ablation |
 
@@ -144,19 +144,16 @@ results files; `verify_paper_numbers.py` re-derives the figures quoted in the
 prose; `verify_horizon_claims.py` checks Section IV-E against
 `paper/horizon_sweep/`.
 
+The first two read the manuscript sources, which are not released — this
+repository ships the built PDFs only. A fresh clone can therefore run
+`verify_paper_numbers.py` and `verify_horizon_claims.py`, which read the
+released results files and the live constants alone.
+
 All four check some quantities against **live constants** rather than against
 copies — route budgets, the horizon set, every `RouterConfig` parameter
 Section III quotes — which is why they import the harness, and therefore why
 they need the baseline checkouts described below even though the data they
 read is all in this repository.
-
-To rebuild the documents, compile the main paper **first** so that `sfc.aux`
-exists — the supplement resolves its cross-references through it:
-
-```bash
-cd paper && pdflatex sfc && bibtex sfc && pdflatex sfc && pdflatex sfc
-pdflatex sfc_appendix && bibtex sfc_appendix && pdflatex sfc_appendix && pdflatex sfc_appendix
-```
 
 ## Reproducing the comparisons
 
@@ -183,8 +180,8 @@ MIT — see [`LICENSE`](LICENSE).
 Two things the licence does not cover. `patched_telesabre/layout.c.patch` is a
 small diff against the upstream TeleSABRE sources, which are not vendored here
 and carry their own licence; `build.sh` applies the patch to a copy of an
-upstream checkout you supply. The manuscript, its figures and the PDFs in
-`paper/` are the authors' work and are not released under the MIT licence.
+upstream checkout you supply. The two PDFs in `paper/` are the authors' work
+and are not released under the MIT licence.
 
 ## Citing
 
